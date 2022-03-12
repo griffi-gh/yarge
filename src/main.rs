@@ -2,7 +2,7 @@ pub mod gb;
 use gb::Gameboy;
 use std::{thread, sync::{Arc, Mutex}};
 
-fn start_emulation_thread(gb: &Arc<Mutex<Gameboy>>) {
+fn start_emulation_thread(gb: &Arc<Mutex<Gameboy>>) -> thread::JoinHandle<()> {   
     let gb = Arc::clone(&gb);
     thread::spawn(move || {
         loop {
@@ -10,11 +10,11 @@ fn start_emulation_thread(gb: &Arc<Mutex<Gameboy>>) {
             gb.step();
             drop(gb);
         }
-    });
+    })
 }
 fn main() {
-    let mut gb = Arc::new(Mutex::new(Gameboy::new()));
+    let gb = Arc::new(Mutex::new(Gameboy::new()));
+    Gameboy::run_thread(&gb);
     start_emulation_thread(&gb);
-    
     loop {}
 }

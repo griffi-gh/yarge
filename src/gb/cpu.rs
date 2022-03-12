@@ -1,4 +1,4 @@
-mod reg;
+pub mod reg;
 use reg::Registers;
 use super::mmu::MMU;
 
@@ -15,5 +15,6 @@ impl CPU {
         let mut op = mmu.read(self.reg.pc());
         let cb = op == 0xCB;
         if cb { op = mmu.read(self.reg.pc()); }
+        //TODO
     }
 }
