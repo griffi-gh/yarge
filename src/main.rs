@@ -15,6 +15,6 @@ fn start_emulation_thread(gb: &Arc<Mutex<Gameboy>>) -> thread::JoinHandle<()> {
 fn main() {
     let gb = Arc::new(Mutex::new(Gameboy::new()));
     Gameboy::run_thread(&gb);
-    start_emulation_thread(&gb);
-    loop {}
+    let thread = start_emulation_thread(&gb);
+    thread.join().unwrap();
 }
