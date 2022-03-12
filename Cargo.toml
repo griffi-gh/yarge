@@ -1,0 +1,10 @@
+[package]
+name = "rustish"
+version = "0.1.0"
+edition = "2021"
+
+[features]
+default = []
+no_unsafe = []
+
+[dependencies]
