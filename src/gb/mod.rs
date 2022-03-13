@@ -12,7 +12,6 @@ pub struct Gameboy {
 impl Gameboy {
     pub fn new() -> Self {
         Self{
-            redraw_needed: true,
             cpu: CPU::new(),
         }
     }
