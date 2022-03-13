@@ -1,5 +1,3 @@
-// TODO provide module that doesn't use "unsafe" as a feature
-
 #[cfg(target_endian = "little")]
 #[derive(Clone, Copy)]
 #[repr(C)]

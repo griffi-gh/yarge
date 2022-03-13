@@ -1,22 +1,32 @@
 pub mod cartridge;
 
-use cartridge::{Cartridge, CartridgeNone};
+use cartridge::{DynCartridge, get_cartridge};
 
 mod bios;
 use bios::BIOS;
 
+use super::cpu::Registers;
+
 pub struct MMU {
-  cart: Box<(dyn Cartridge + Send)>,
+  cart: DynCartridge,
   bios_disabled: bool,
 }
 impl MMU {
   pub fn new() -> Self {
     Self {
-      cart: Box::new(CartridgeNone::new()),
+      cart: get_cartridge(0),
       bios_disabled: false,
     }
   }
-  pub fn read(&self, addr: u16) -> u8 {
+
+  pub fn push(&mut self, _reg: &mut Registers) {
+    todo!(); //TODO Push
+  }
+  pub fn pop(&mut self, _reg: &mut Registers) {
+    todo!(); //TODO Pop
+  }
+  
+  pub fn rb(&self, addr: u16) -> u8 {
     match addr {
       0..=0xff => {
         if self.bios_disabled {
@@ -29,7 +39,7 @@ impl MMU {
       _ => 0xff
     }
   }
-  pub fn write(&mut self, addr: u16, value: u8) {
+  pub fn wb(&mut self, addr: u16, value: u8) {
     match addr {
       0..=0xff => {
         if !self.bios_disabled {
@@ -39,5 +49,14 @@ impl MMU {
       0x100..=0x7fff => self.cart.write(addr, value),
       _=>{}
     }
+  }
+
+  pub fn rw(&self, addr: u16) -> u16 {
+    self.rb(addr) as u16 | 
+    ((self.rb(addr.wrapping_add(1)) as u16) << 8)
+  }
+  pub fn ww(&mut self, addr: u16, value: u16) {
+    self.wb(addr, (value & 0xFF) as u8);
+    self.wb(addr.wrapping_add(1), (value >> 8) as u8);
   }
 }

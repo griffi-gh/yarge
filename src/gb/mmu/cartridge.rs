@@ -1,9 +1,11 @@
+#[allow(unused_variables)]
 pub trait Cartridge {
     fn load(&mut self, rom: &[u8]);
     fn read(&self, addr: u16) -> u8;
-    #[allow(unused_variables)]
     fn write(&self, addr: u16, value: u8) {}
 }
+
+pub type DynCartridge = Box<(dyn Cartridge + Send)>;
 
 pub struct CartridgeNone {
     rom: [u8; 0x8000]
@@ -24,4 +26,13 @@ impl Cartridge for CartridgeNone {
     fn read(&self, addr: u16) -> u8 {
         self.rom[addr as usize]
     }
+}
+
+pub fn _parse_header(_rom: &[u8]) {
+    // TODO Parse header
+    todo!();
+}
+pub fn get_cartridge(_cart_type: u8) -> DynCartridge {
+    // TODO Get cartridge
+    Box::new(CartridgeNone::new())
 }
