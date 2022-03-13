@@ -1,5 +1,20 @@
 {
   "todo-tree.tree.showCountsInTree": true,
   "todo-tree.tree.disableCompactFolders": true,
-  "todo-tree.tree.showBadges": true
+  "todo-tree.tree.showBadges": true, 
+  "todo-tree.general.tags": [
+    "BUG",
+    "HACK",
+    "FIXME",
+    "TODO",
+    "XXX",
+    "MAYBE",
+    "NOTE",
+    "NOT TESTED",
+    "TEST",
+    "FUCK",
+    "[ ]",
+    "[x]"
+  ],
+  "todo-tree.tree.grouped": true
 }

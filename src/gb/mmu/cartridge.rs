@@ -23,6 +23,7 @@ impl Cartridge for CartridgeNone {
             *place = *data;
         }
     }
+    #[inline]
     fn read(&self, addr: u16) -> u8 {
         self.rom[addr as usize]
     }
