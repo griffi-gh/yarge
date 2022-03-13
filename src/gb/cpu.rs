@@ -1,9 +1,6 @@
 mod reg;
 mod instructions;
-use instructions::{
-    cpu_instructions,
-    cpu_instructions_cb
-};
+use instructions::*; //XXX
 pub use reg::Registers;
 use super::MMU;
 

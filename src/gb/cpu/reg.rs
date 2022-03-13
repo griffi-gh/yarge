@@ -75,4 +75,10 @@ impl Registers {
   #[inline] pub fn set_e(&mut self, val: u8) { self.de.set_b(val) }
   #[inline] pub fn set_h(&mut self, val: u8) { self.hl.set_a(val) }
   #[inline] pub fn set_l(&mut self, val: u8) { self.hl.set_b(val) }
+
+  // 16-bit reg ops, for compatability.
+  #[inline(always)] pub fn set_sp(&mut self, val: u16) { self.sp = val; }
+  #[inline(always)] pub fn set_pc(&mut self, val: u16) { self.pc = val; }
+  #[inline(always)] pub fn sp(&self) -> u16 { self.sp }
+  #[inline(always)] pub fn pc(&self) -> u16 { self.pc }
 }
