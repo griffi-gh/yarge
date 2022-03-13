@@ -19,6 +19,7 @@ impl MMU {
   
   // MAYBE? rename to r16/w16/r8/w8 ?
 
+  #[inline(never)]
   pub fn rb(&self, addr: u16) -> u8 {
     match addr {
       0..=0xff => {
@@ -32,6 +33,7 @@ impl MMU {
       _ => 0xff
     }
   }
+  #[inline(never)]
   pub fn wb(&mut self, addr: u16, value: u8) {
     match addr {
       0..=0xff => {

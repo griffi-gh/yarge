@@ -1,7 +1,11 @@
 macro_rules! cpu_instructions {
-  ($op: expr) => {
+  ($self: expr, $op: expr) => {
     match($op) {
       0x00 => {},
+      0x01 => {
+        let w = $self.fetch_word();
+        $self.reg.set_bc(w);
+      },
       _ => panic!("Invalid instruction")
     }
   };
@@ -9,7 +13,7 @@ macro_rules! cpu_instructions {
 pub(crate) use cpu_instructions;
 
 macro_rules! cpu_instructions_cb {
-  ($op: expr) => {
+  ($self: expr, $op: expr) => {
     match($op) {
       _ => panic!("Invalid instruction")
     }
