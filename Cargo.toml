@@ -8,3 +8,6 @@ default = []
 no_unsafe = []
 
 [dependencies]
+
+[dev-dependencies]
+bencher = "0.1.5"

@@ -21,7 +21,6 @@ impl CPU {
         return op
     }
 
-
     //TEST push, pop, pushw, popw
     #[inline]
     fn push(&mut self, value: u8) {
@@ -56,6 +55,8 @@ impl CPU {
             op = self.fetch();
             match op {
                 //TODO Instructions
+                0x00 => {}, // NOP
+
                 _ => panic!("Invalid instruction")
             }
         }
