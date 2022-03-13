@@ -23,11 +23,13 @@ impl CPU {
         let mut op = self.fetch();
         if op != 0xCB { 
             match op {
+                //TODO 0xCB [OP] instructions
                 _ => panic!("Invalid instruction")
             }
         } else {
             op = self.fetch();
             match op {
+                //TODO Instructions
                 _ => panic!("Invalid instruction")
             }
         }
