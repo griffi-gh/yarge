@@ -1,24 +1,23 @@
-#[cfg_attr(feature = "no_unsafe", path = "reg/union_safe.rs")]
 mod union;
 
-use union::SafeU16Union;
+use union::U16Union;
 
 #[derive(Clone, Copy)]
 pub struct Registers {
-  af: SafeU16Union,
-  bc: SafeU16Union,
-  de: SafeU16Union,
-  hl: SafeU16Union,
+  af: U16Union,
+  bc: U16Union,
+  de: U16Union,
+  hl: U16Union,
   pub pc: u16,
   pub sp: u16,
 }
 impl Registers {
   pub fn new() -> Self {
       Self {
-          af: SafeU16Union::default(),
-          bc: SafeU16Union::default(),
-          de: SafeU16Union::default(),
-          hl: SafeU16Union::default(),
+          af: U16Union::default(),
+          bc: U16Union::default(),
+          de: U16Union::default(),
+          hl: U16Union::default(),
           pc: 0, sp: 0,
       }
   }
