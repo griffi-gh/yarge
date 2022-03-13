@@ -46,15 +46,21 @@ impl Registers {
   }
 
   // Union registers get
-  #[inline]
-  pub fn af(&self) -> u16 { self.af.get_union_value() }
-  #[inline]
-  pub fn bc(&self) -> u16 { self.bc.get_union_value() }
-  #[inline]
-  pub fn de(&self) -> u16 { self.de.get_union_value() }
-  #[inline]
-  pub fn hl(&self) -> u16 { self.hl.get_union_value() }
-
+  #[inline] pub fn af(&self) -> u16 { self.af.get_union_value() }
+  #[inline] pub fn bc(&self) -> u16 { self.bc.get_union_value() }
+  #[inline] pub fn de(&self) -> u16 { self.de.get_union_value() }
+  #[inline] pub fn hl(&self) -> u16 { self.hl.get_union_value() }
+  
+  // 8-bit registers get
+  #[inline] pub fn a(&self) -> u8 { self.af.get_inner_a() }
+  #[inline] pub fn f(&self) -> u8 { self.af.get_inner_b() }
+  #[inline] pub fn b(&self) -> u8 { self.bc.get_inner_a() }
+  #[inline] pub fn c(&self) -> u8 { self.bc.get_inner_b() }
+  #[inline] pub fn d(&self) -> u8 { self.de.get_inner_a() }
+  #[inline] pub fn e(&self) -> u8 { self.de.get_inner_b() }
+  #[inline] pub fn h(&self) -> u8 { self.hl.get_inner_a() }
+  #[inline] pub fn l(&self) -> u8 { self.hl.get_inner_b() }
+  
   // Union registers set
   #[inline]
   pub fn set_af(&mut self, value: u16) {
@@ -72,24 +78,6 @@ impl Registers {
   pub fn set_hl(&mut self, value: u16) {
     self.hl.set_union_value(value);
   }
-  
-  // 8-bit registers get
-  #[inline]
-  pub fn a(&self) -> u8 { self.af.get_inner_a() }
-  #[inline]
-  pub fn f(&self) -> u8 { self.af.get_inner_b() }
-  #[inline]
-  pub fn b(&self) -> u8 { self.bc.get_inner_a() }
-  #[inline]
-  pub fn c(&self) -> u8 { self.bc.get_inner_b() }
-  #[inline]
-  pub fn d(&self) -> u8 { self.de.get_inner_a() }
-  #[inline]
-  pub fn e(&self) -> u8 { self.de.get_inner_b() }
-  #[inline]
-  pub fn h(&self) -> u8 { self.hl.get_inner_a() }
-  #[inline]
-  pub fn l(&self) -> u8 { self.hl.get_inner_b() }
   
   // 8-bit registers set
   #[inline]

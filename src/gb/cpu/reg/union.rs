@@ -23,7 +23,8 @@ union Union {
 pub struct SafeU16Union {
     value: Union
 }
-/// Safe union wrapper
+
+/// Safe u16(u8*2) union (union wrapper, uses unsafe code)
 impl SafeU16Union {
     pub fn new(from: u16) -> Self {
         Self {

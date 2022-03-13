@@ -20,7 +20,7 @@ impl CartridgeNone {
 impl Cartridge for CartridgeNone {
     fn load(&mut self, rom: &[u8]) {
         for (place, data) in self.rom.iter_mut().zip(rom.iter()) {
-            *place = *data
+            *place = *data;
         }
     }
     fn read(&self, addr: u16) -> u8 {
