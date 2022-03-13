@@ -29,10 +29,9 @@ impl Cartridge for CartridgeNone {
 }
 
 pub fn _parse_header(_rom: &[u8]) {
-    // TODO Parse header
-    todo!();
+    todo!(); // TODO parse_header()
 }
 pub fn get_cartridge(_cart_type: u8) -> DynCartridge {
-    // TODO Get cartridge
+    // TODO get_cartridge()
     Box::new(CartridgeNone::new())
 }

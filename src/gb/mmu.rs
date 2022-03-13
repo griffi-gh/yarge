@@ -19,11 +19,18 @@ impl MMU {
     }
   }
 
-  pub fn push(&mut self, _reg: &mut Registers) {
-    todo!(); //TODO Push
+  pub fn pushb(&mut self, _reg: &mut Registers) {
+    todo!(); //TODO pushb()
   }
-  pub fn pop(&mut self, _reg: &mut Registers) {
-    todo!(); //TODO Pop
+  pub fn popb(&mut self, _reg: &mut Registers) {
+    todo!(); //TODO popb()
+  }
+  
+  pub fn pushw(&mut self, _reg: &mut Registers) {
+    todo!(); //TODO pushw()
+  }
+  pub fn popw(&mut self, _reg: &mut Registers) {
+    todo!(); //TODO popw()
   }
   
   pub fn rb(&self, addr: u16) -> u8 {

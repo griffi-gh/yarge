@@ -23,8 +23,7 @@ impl Registers {
       }
   }
 
-  //Inc Dec
-  //TODO Research if the return value impacts the performance
+  //Inc/Dec
   #[inline]
   pub fn inc_pc(&mut self, by: u16) -> u16 {
     self.pc = self.pc.wrapping_add(by);
