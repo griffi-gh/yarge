@@ -1,7 +1,4 @@
-#![cfg_attr(
-    feature = "no_unsafe",
-    forbid(unsafe_code)
-)] // Forbid unsafe code if the "no_unsafe" feature is on
+#![forbid(unsafe_code)]
 
 mod mmu;
 mod cpu;

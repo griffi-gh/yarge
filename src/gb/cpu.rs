@@ -1,4 +1,9 @@
 mod reg;
+mod instructions;
+use instructions::{
+    cpu_instructions,
+    cpu_instructions_cb
+};
 pub use reg::Registers;
 use super::MMU;
 
@@ -21,24 +26,14 @@ impl CPU {
         return op
     }
 
-    //TEST push, pop, pushw, popw
-    #[inline]
-    fn push(&mut self, value: u8) {
-        self.mmu.wb(self.reg.dec_sp(1), value);
-    }
-    #[inline]
-    fn pop(&mut self) -> u8 {
-        let value = self.mmu.rb(self.reg.sp);
-        self.reg.inc_sp(1);
-        return value;
-    }
+    //TEST push, pop
 
     #[inline]
-    fn pushw(&mut self, value: u16) {
+    fn push(&mut self, value: u16) {
         self.mmu.ww(self.reg.dec_sp(2), value);
     }
     #[inline]
-    fn popw(&mut self) -> u16 {
+    fn pop(&mut self) -> u16 {
         let value = self.mmu.rw(self.reg.sp);
         self.reg.inc_sp(2);
         return value;
@@ -47,18 +42,10 @@ impl CPU {
     pub fn step(&mut self) {
         let mut op = self.fetch();
         if op != 0xCB { 
-            match op {
-                //TODO 0xCB [OP] instructions
-                _ => panic!("Invalid instruction")
-            }
+            cpu_instructions!(op);
         } else {
             op = self.fetch();
-            match op {
-                //TODO Instructions
-                0x00 => {}, // NOP
-
-                _ => panic!("Invalid instruction")
-            }
+            cpu_instructions_cb!(op);
         }
     }
 }
