@@ -1,5 +1,16 @@
 pub use paste::paste;
 
+macro_rules! panic_invalid_instruction {
+  ($self: expr, $op: expr, $cb: expr) => {
+    panic!(
+      "Invalid instruction{}{:#04X} at {:#06X}", 
+      if $cb { " (CB) " } else { " " }, 
+      $op, $self.reg.pc.wrapping_sub(1)
+    )
+  };
+}
+pub(crate) use panic_invalid_instruction;
+
 macro_rules! ld_rr_u16 {
   ($self: expr, $reg: ident) => { 
     let val = $self.fetch_word();
@@ -141,7 +152,7 @@ macro_rules! cpu_instructions {
       0xF1 => {  pop_rr!($self, AF); }          //POP AF
       0xF5 => { push_rr!($self, AF); }          //PUSH AF
 
-      _ => panic!("Invalid instruction {:#04X}", $op)
+      _ => panic_invalid_instruction!($self, $op, false) 
     }
   };
 }
@@ -150,7 +161,7 @@ pub(crate) use cpu_instructions;
 macro_rules! cpu_instructions_cb {
   ($self: expr, $op: expr) => {
     match($op) {
-      _ => panic!("Invalid instruction (CB) {:#04X}", $op)
+      _ => panic_invalid_instruction!($self, $op, true) 
     }
   };
 }
