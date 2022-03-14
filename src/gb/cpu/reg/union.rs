@@ -46,6 +46,7 @@ mod tests {
   use super::*;
 
   #[test]
+  #[allow(unused_mut)]
   fn union_create_get() {
     let mut a = U16Union::new(0x1234);
     let mut b = U16Union::default();
