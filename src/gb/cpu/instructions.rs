@@ -113,6 +113,16 @@ macro_rules! cond_jp_u16 {
 }
 pub(crate) use cond_jp_u16;
 
+macro_rules! call_u16 {
+  ($self: expr) => {
+    let to = $self.fetch_word();
+    $self.internal(4);
+    $self.push($self.reg.pc);
+    $self.reg.pc = to;
+  };
+}
+pub(crate) use call_u16;
+
 macro_rules! ld_mhl_r {
   ($self: expr, $reg: ident) => {
     todo!(); //TODO LD (HL),R macro
@@ -232,7 +242,8 @@ macro_rules! cpu_instructions {
       0xC2 => { cond_jp_u16!($self, NZ); }      //JP NZ,u16
       0xC3 => { jp_u16!($self); }               //JP u16
       0xC5 => { push_rr!($self, BC); }          //PUSH BC
-      0xCA => { cond_jp_u16!($self, Z); }       //JP Z,u16
+      0xCA => { cond_jp_u16!($self, Z); }       //JP Z,u16  
+      0xCD => { call_u16!($self); }             //CALL u16
 
       0xD1 => { pop_rr!($self, DE); }           //POP DE
       0xD2 => { cond_jp_u16!($self, NC); }      //JP NC,u16

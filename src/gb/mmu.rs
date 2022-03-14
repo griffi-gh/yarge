@@ -10,6 +10,7 @@ pub struct MMU {
   bios_disabled: bool,
   wram: [u8; 0x2000],
   hram: [u8; 0x007F],
+  //MAYBE include IE here?
 }
 impl MMU {
   pub fn new() -> Self {
