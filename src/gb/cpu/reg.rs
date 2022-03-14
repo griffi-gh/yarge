@@ -1,6 +1,7 @@
 mod union;
-
 use union::U16Union;
+
+//TODO Clean up this fucking mess
 
 #[derive(Clone, Copy)]
 pub struct Registers {
@@ -45,7 +46,7 @@ impl Registers {
   }
 
   // Union registers get
-  #[inline(always)] pub fn af(&self) -> u16 { self.af.get() }
+  #[inline(always)] pub fn af(&self) -> u16 { self.af.get() & 0xFFF0 }
   #[inline(always)] pub fn bc(&self) -> u16 { self.bc.get() }
   #[inline(always)] pub fn de(&self) -> u16 { self.de.get() }
   #[inline(always)] pub fn hl(&self) -> u16 { self.hl.get() }
@@ -58,7 +59,7 @@ impl Registers {
 
   // 8-bit registers get
   #[inline] pub fn a(&self) -> u8 { self.af.get_a() }
-  #[inline] pub fn f(&self) -> u8 { self.af.get_b() }
+  #[inline] pub fn f(&self) -> u8 { self.af.get_b() & 0xF0 }
   #[inline] pub fn b(&self) -> u8 { self.bc.get_a() }
   #[inline] pub fn c(&self) -> u8 { self.bc.get_b() }
   #[inline] pub fn d(&self) -> u8 { self.de.get_a() }
@@ -82,9 +83,33 @@ impl Registers {
   #[inline(always)] pub fn sp(&self) -> u16 { self.sp }
   #[inline(always)] pub fn pc(&self) -> u16 { self.pc }
 
-  // TODO Flag register
+  // Flag register
+  #[inline(always)] pub fn f_z(&self) -> bool { (self.f() & 0x80) > 0 }
+  #[inline(always)] pub fn f_n(&self) -> bool { (self.f() & 0x40) > 0 }
+  #[inline(always)] pub fn f_h(&self) -> bool { (self.f() & 0x20) > 0 }
+  #[inline(always)] pub fn f_c(&self) -> bool { (self.f() & 0x10) > 0 }
+
+  #[inline]
+  pub fn set_f_z(&mut self, v: bool) {
+    self.set_f((self.f() & 0b01111111) | (v as u8) << 7)
+  }
+  #[inline]
+  pub fn set_f_n(&mut self, v: bool) {
+    self.set_f((self.f() & 0b10111111) | (v as u8) << 6)
+  }
+  #[inline]
+  pub fn set_f_h(&mut self, v: bool) {
+    self.set_f((self.f() & 0b11011111) | (v as u8) << 5)
+  }
+  #[inline]
+  pub fn set_f_c(&mut self, v: bool) {
+    self.set_f((self.f() & 0b11101111) | (v as u8) << 4)
+  }
 }
 
+
+
+// Tests
 #[cfg(test)]
 mod tests {
   use super::*;
@@ -98,7 +123,7 @@ mod tests {
     reg.set_hl(0x7887);
     reg.set_sp(0x4456);
     reg.set_pc(0x6789);
-    assert_eq!(reg.af(), 0x1221);
+    assert_eq!(reg.af(), 0x1220);
     assert_eq!(reg.bc(), 0x3443);
     assert_eq!(reg.de(), 0x5664);
     assert_eq!(reg.hl(), 0x7887);
@@ -131,5 +156,27 @@ mod tests {
   fn test_arc_mutex() {
     use std::sync::{Mutex, Arc};
     Arc::new(Mutex::new(Registers::new()));
+  }
+
+  #[test]
+  fn test_flags() {
+    let mut reg = Registers::new();
+    reg.set_f(0x00);
+    assert_eq!(reg.f_z() || reg.f_n() || reg.f_h() || reg.f_c(), false);
+    reg.set_f(0xf0);
+    assert_eq!(reg.f_z() && reg.f_n() && reg.f_h() && reg.f_c(), true);
+    reg.set_f_z(false);
+    assert_eq!(reg.f(), 0b01110000);
+    reg.set_f_z(true);
+    reg.set_f_n(false);
+    assert_eq!(reg.f(), 0b10110000);
+    reg.set_f_n(true);
+    reg.set_f_h(false);
+    assert_eq!(reg.f(), 0b11010000);
+    reg.set_f_h(true);
+    reg.set_f_c(false);
+    assert_eq!(reg.f(), 0b11100000);
+    reg.set_f_c(true);
+    assert_eq!(reg.f(), 0b11110000);
   }
 }
