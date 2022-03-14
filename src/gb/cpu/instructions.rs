@@ -141,7 +141,7 @@ macro_rules! cpu_instructions {
       0xF1 => {  pop_rr!($self, AF); }          //POP AF
       0xF5 => { push_rr!($self, AF); }          //PUSH AF
 
-      _ => panic!("Invalid instruction {:#04x}", $op)
+      _ => panic!("Invalid instruction {:#04X}", $op)
     }
   };
 }
@@ -150,7 +150,7 @@ pub(crate) use cpu_instructions;
 macro_rules! cpu_instructions_cb {
   ($self: expr, $op: expr) => {
     match($op) {
-      _ => panic!("Invalid instruction (CB) {:#04x}", $op)
+      _ => panic!("Invalid instruction (CB) {:#04X}", $op)
     }
   };
 }
