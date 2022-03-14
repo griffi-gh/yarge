@@ -89,25 +89,24 @@ impl Registers {
   #[inline(always)] pub fn f_h(&self) -> bool { (self.f() & 0x20) > 0 }
   #[inline(always)] pub fn f_c(&self) -> bool { (self.f() & 0x10) > 0 }
 
-  #[inline]
+  // Flag reg set
+  #[inline(always)]
   pub fn set_f_z(&mut self, v: bool) {
     self.set_f((self.f() & 0b01111111) | (v as u8) << 7)
   }
-  #[inline]
+  #[inline(always)]
   pub fn set_f_n(&mut self, v: bool) {
     self.set_f((self.f() & 0b10111111) | (v as u8) << 6)
   }
-  #[inline]
+  #[inline(always)]
   pub fn set_f_h(&mut self, v: bool) {
     self.set_f((self.f() & 0b11011111) | (v as u8) << 5)
   }
-  #[inline]
+  #[inline(always)]
   pub fn set_f_c(&mut self, v: bool) {
     self.set_f((self.f() & 0b11101111) | (v as u8) << 4)
   }
 }
-
-
 
 // Tests
 #[cfg(test)]

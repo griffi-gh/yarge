@@ -15,7 +15,7 @@ lto = true
 [dependencies]
 paste = "^1.0"
 
-#TODO use the bitfield library
+#MAYBE use the bitfield library
 #modular-bitfield = "0.11.2"
 
 #[dev-dependencies]

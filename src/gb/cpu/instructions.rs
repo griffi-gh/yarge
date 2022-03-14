@@ -1,9 +1,11 @@
 pub use paste::paste;
 
+//MAYBE Separate macro and instruction table?
+
 macro_rules! panic_invalid_instruction {
   ($self: expr, $op: expr, $cb: expr) => {
     panic!(
-      "Invalid instruction{}{:#04X} at {:#06X}", 
+      "Invalid or not yet implemented instruction{}{:#04X} at {:#06X}", 
       if $cb { " (CB) " } else { " " }, 
       $op, $self.reg.pc.wrapping_sub(1)
     )
@@ -94,17 +96,34 @@ macro_rules! jp_u16 {
 }
 pub(crate) use jp_u16;
 
+macro_rules! ld_mhl_r {
+  ($self: expr, $reg: ident) => {
+    todo!(); //TODO LD (HL),R macro
+  };
+}
+pub(crate) use ld_mhl_r;
+
+macro_rules! ld_r_mhl {
+  ($self: expr, $reg: ident) => {
+    let v = $self.rb($self.reg.hl());
+    paste!{
+      $self.reg.[<set_ $reg:lower>](v);
+    }
+  };
+}
+pub(crate) use ld_r_mhl;
+
 macro_rules! cpu_instructions {
   ($self: expr, $op: expr) => {
     match($op) {
       0x00 => { /*IS A NO-OP*/ },               //NOP
       0x01 => { ld_rr_u16!($self, BC); },       //LD BC,u16
-      0x02 => {  ld_mrr_a!($self, BC); },       //LD (BC),A
+      0x02 => { ld_mrr_a!($self, BC); },        //LD (BC),A
       0x03 => { incdec_rr!($self, BC, add); }   //INC BC
       0x0B => { incdec_rr!($self, BC, sub); }   //DEC BC
 
       0x11 => { ld_rr_u16!($self, DE); },       //LD DE,u16
-      0x12 => {  ld_mrr_a!($self, DE); },       //LD (DE),A
+      0x12 => { ld_mrr_a!($self, DE); },        //LD (DE),A
       0x13 => { incdec_rr!($self, DE, add); },  //INC DE
       0x1B => { incdec_rr!($self, DE, sub); }   //DEC DE
 
@@ -124,6 +143,7 @@ macro_rules! cpu_instructions {
       0x43 => { ld_r_r!($self, B, E); }         //LD B,E
       0x44 => { ld_r_r!($self, B, H); }         //LD B,H
       0x45 => { ld_r_r!($self, B, L); }         //LD B,L
+      0x46 => { ld_r_mhl!($self, B); }          //LD B,(HL)
       0x47 => { ld_r_r!($self, B, A); }         //LD B,A
       0x48 => { ld_r_r!($self, C, B); }         //LD C,B
       0x49 => { /*IS A NO-OP*/ }                //LD C,C
@@ -131,6 +151,7 @@ macro_rules! cpu_instructions {
       0x4B => { ld_r_r!($self, C, E); }         //LD C,E
       0x4C => { ld_r_r!($self, C, H); }         //LD C,H
       0x4D => { ld_r_r!($self, C, L); }         //LD C,L
+      0x4E => { ld_r_mhl!($self, C); }          //LD C,(HL)
       0x4F => { ld_r_r!($self, C, A); }         //LD C,A
 
       0x50 => { ld_r_r!($self, D, B); }         //LD D,B
@@ -139,6 +160,7 @@ macro_rules! cpu_instructions {
       0x53 => { ld_r_r!($self, D, E); }         //LD D,E
       0x54 => { ld_r_r!($self, D, H); }         //LD D,H
       0x55 => { ld_r_r!($self, D, L); }         //LD D,L
+      0x56 => { ld_r_mhl!($self, D); }          //LD D,(HL)
       0x57 => { ld_r_r!($self, D, A); }         //LD D,A
       0x58 => { ld_r_r!($self, E, B); }         //LD E,B
       0x59 => { ld_r_r!($self, E, C); }         //LD E,C
@@ -146,6 +168,7 @@ macro_rules! cpu_instructions {
       0x5B => { /*IS A NO-OP*/ }                //LD E,E
       0x5C => { ld_r_r!($self, E, H); }         //LD E,H
       0x5D => { ld_r_r!($self, E, L); }         //LD E,L
+      0x5E => { ld_r_mhl!($self, E); }          //LD E,(HL)
       0x5F => { ld_r_r!($self, E, A); }         //LD E,A
 
       0x60 => { ld_r_r!($self, H, B); }         //LD H,B
@@ -154,6 +177,7 @@ macro_rules! cpu_instructions {
       0x63 => { ld_r_r!($self, H, E); }         //LD H,E
       0x64 => { /*IS A NO-OP*/ }                //LD H,H
       0x65 => { ld_r_r!($self, H, L); }         //LD H,L
+      0x66 => { ld_r_mhl!($self, H); }          //LD H,(HL)
       0x67 => { ld_r_r!($self, H, A); }         //LD H,A
       0x68 => { ld_r_r!($self, L, B); }         //LD L,B
       0x69 => { ld_r_r!($self, L, C); }         //LD L,C
@@ -161,7 +185,16 @@ macro_rules! cpu_instructions {
       0x6B => { ld_r_r!($self, L, E); }         //LD L,E
       0x6C => { ld_r_r!($self, L, H); }         //LD L,H
       0x6D => { /*IS A NO-OP*/ }                //LD L,L
+      0x6E => { ld_r_mhl!($self, L); }          //LD L,(HL)
       0x6F => { ld_r_r!($self, L, A); }         //LD L,A
+      
+      0x70 => { ld_mhl_r!($self, B); }          //LD (HL),B
+      0x71 => { ld_mhl_r!($self, C); }          //LD (HL),C
+      0x72 => { ld_mhl_r!($self, D); }          //LD (HL),D
+      0x73 => { ld_mhl_r!($self, E); }          //LD (HL),E
+      0x74 => { ld_mhl_r!($self, H); }          //LD (HL),H
+      0x75 => { ld_mhl_r!($self, L); }          //LD (HL),L
+      0x77 => { ld_mhl_r!($self, A); }          //LD (HL),A
 
       0x78 => { ld_r_r!($self, A, B); }         //LD A,B
       0x79 => { ld_r_r!($self, A, C); }         //LD A,C
@@ -171,17 +204,17 @@ macro_rules! cpu_instructions {
       0x7D => { ld_r_r!($self, A, L); }         //LD A,L
       0x7F => { /*IS A NO-OP*/ }                //LD A,A
 
-      0xC1 => {  pop_rr!($self, BC); }          //POP BC
-      0xC3 => {  jp_u16!($self); }              //JP u16
+      0xC1 => { pop_rr!($self, BC); }           //POP BC
+      0xC3 => { jp_u16!($self); }               //JP u16
       0xC5 => { push_rr!($self, BC); }          //PUSH BC
 
-      0xD1 => {  pop_rr!($self, DE); }          //POP DE
+      0xD1 => { pop_rr!($self, DE); }           //POP DE
       0xD5 => { push_rr!($self, DE); }          //PUSH DE
 
-      0xE1 => {  pop_rr!($self, HL); }          //POP HL
+      0xE1 => { pop_rr!($self, HL); }           //POP HL
       0xE5 => { push_rr!($self, HL); }          //PUSH HL
 
-      0xF1 => {  pop_rr!($self, AF); }          //POP AF
+      0xF1 => { pop_rr!($self, AF); }           //POP AF
       0xF5 => { push_rr!($self, AF); }          //PUSH AF
 
       _ => panic_invalid_instruction!($self, $op, false) 

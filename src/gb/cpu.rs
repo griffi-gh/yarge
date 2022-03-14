@@ -1,6 +1,6 @@
 mod reg;
 mod instructions;
-use instructions::*; //XXX
+use instructions::*;
 pub use reg::Registers;
 use super::MMU;
 
