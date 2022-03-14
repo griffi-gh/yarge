@@ -23,22 +23,22 @@ impl Registers {
   }
 
   //Inc/Dec
-  #[inline]
+  #[inline(always)]
   pub fn inc_pc(&mut self, by: u16) -> u16 {
     self.pc = self.pc.wrapping_add(by);
     self.pc
   }
-  #[inline]
+  #[inline(always)]
   pub fn dec_pc(&mut self, by: u16) -> u16 {
     self.pc = self.pc.wrapping_sub(by);
     self.pc
   }
-  #[inline]
+  #[inline(always)]
   pub fn inc_sp(&mut self, by: u16) -> u16 {
     self.sp = self.sp.wrapping_add(by);
     self.sp
   }
-  #[inline]
+  #[inline(always)]
   pub fn dec_sp(&mut self, by: u16) -> u16 {
     self.sp = self.sp.wrapping_sub(by);
     self.sp
@@ -81,4 +81,6 @@ impl Registers {
   #[inline(always)] pub fn set_pc(&mut self, val: u16) { self.pc = val; }
   #[inline(always)] pub fn sp(&self) -> u16 { self.sp }
   #[inline(always)] pub fn pc(&self) -> u16 { self.pc }
+
+  // TODO Flag register
 }

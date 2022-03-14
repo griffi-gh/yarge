@@ -7,7 +7,7 @@ use super::MMU;
 pub struct CPU {
     pub reg: Registers,
     pub mmu: MMU,
-    t: u64,
+    t: u32,
 }
 impl CPU {
     pub fn new() -> Self {
@@ -61,7 +61,12 @@ impl CPU {
         self.mmu.ww(addr, value);
     }
 
-    pub fn step(&mut self) -> u64 {
+    #[inline(always)]
+    fn internal(&mut self, cycles: u32) {
+        self.t += cycles;
+    }
+
+    pub fn step(&mut self) -> u32 {
         self.t = 0;
         let mut op = self.fetch();
         if op != 0xCB { 
