@@ -23,6 +23,15 @@ macro_rules! ld_r_u8 {
 }
 pub(crate) use ld_r_u8;
 
+macro_rules! ld_mhl_u8 {
+  ($self: expr) => { 
+    let val = $self.fetch();
+    $self.wb($self.reg.hl(), val);
+    $self.internal(4);
+  };
+}
+pub(crate) use ld_mhl_u8;
+
 macro_rules! ld_rr_u16 {
   ($self: expr, $reg: ident) => { 
     let val = $self.fetch_word();
@@ -185,6 +194,7 @@ macro_rules! cpu_instructions {
       0x31 => { ld_rr_u16!($self, SP); },       //LD SP,u16
       0x32 => { ld_mhli_a!($self, sub); },      //LD (HL-),A
       0x33 => { incdec_rr!($self, SP, add); },  //INC SP
+      0x36 => { ld_mhl_u8!($self); }            //LD (HL), u8
       0x3B => { incdec_rr!($self, SP, sub); },  //DEC SP
       0x3E => { ld_r_u8!($self, A); }           //LD A,u8 
 
