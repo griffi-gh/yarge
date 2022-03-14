@@ -88,8 +88,7 @@ pub(crate) use push_rr;
 macro_rules! cpu_instructions {
   ($self: expr, $op: expr) => {
     match($op) {
-      0x00 => { },                              //NOP
-
+      0x00 => { /*IS A NO-OP*/ },               //NOP
       0x01 => { ld_rr_u16!($self, BC); },       //LD BC,u16
       0x02 => {  ld_mrr_a!($self, BC); },       //LD (BC),A
       0x03 => { incdec_rr!($self, BC, add); }   //INC BC
@@ -139,6 +138,21 @@ macro_rules! cpu_instructions {
       0x5C => { ld_r_r!($self, E, H); }         //LD E,H
       0x5D => { ld_r_r!($self, E, L); }         //LD E,L
       0x5F => { ld_r_r!($self, E, A); }         //LD E,A
+
+      0x60 => { ld_r_r!($self, H, B); }         //LD H,B
+      0x61 => { ld_r_r!($self, H, C); }         //LD H,C
+      0x62 => { ld_r_r!($self, H, D); }         //LD H,D
+      0x63 => { ld_r_r!($self, H, E); }         //LD H,E
+      0x64 => { /*IS A NO-OP*/ }                //LD H,H
+      0x65 => { ld_r_r!($self, H, L); }         //LD H,L
+      0x67 => { ld_r_r!($self, H, A); }         //LD H,A
+      0x68 => { ld_r_r!($self, L, B); }         //LD L,B
+      0x69 => { ld_r_r!($self, L, C); }         //LD L,C
+      0x6A => { ld_r_r!($self, L, D); }         //LD L,D
+      0x6B => { ld_r_r!($self, L, E); }         //LD L,E
+      0x6C => { ld_r_r!($self, L, H); }         //LD L,H
+      0x6D => { /*IS A NO-OP*/ }                //LD L,L
+      0x6F => { ld_r_r!($self, L, A); }         //LD L,A
 
       0xC1 => {  pop_rr!($self, BC); }          //POP BC
       0xC5 => { push_rr!($self, BC); }          //PUSH BC
