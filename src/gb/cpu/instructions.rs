@@ -154,6 +154,14 @@ macro_rules! cpu_instructions {
       0x6D => { /*IS A NO-OP*/ }                //LD L,L
       0x6F => { ld_r_r!($self, L, A); }         //LD L,A
 
+      0x78 => { ld_r_r!($self, A, B); }         //LD A,B
+      0x79 => { ld_r_r!($self, A, C); }         //LD A,C
+      0x7A => { ld_r_r!($self, A, D); }         //LD A,D
+      0x7B => { ld_r_r!($self, A, E); }         //LD A,E
+      0x7C => { ld_r_r!($self, A, H); }         //LD A,H
+      0x7D => { ld_r_r!($self, A, L); }         //LD A,L
+      0x7F => { /*IS A NO-OP*/ }                //LD A,A
+
       0xC1 => {  pop_rr!($self, BC); }          //POP BC
       0xC5 => { push_rr!($self, BC); }          //PUSH BC
 
