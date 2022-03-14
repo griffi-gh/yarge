@@ -5,10 +5,11 @@ pub struct U16Union {
   value: u16
 }
 
+//MAYBE store two u8?
+
 impl U16Union {
   pub fn new(value: u16) -> Self { Self { value } }
 
-  //MAYBE rename these functions
   #[inline(always)]
   pub fn set(&mut self, value: u16) {
     self.value = value;

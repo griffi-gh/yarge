@@ -43,6 +43,18 @@ macro_rules! incdec_rr {
 }
 pub(crate) use incdec_rr;
 
+macro_rules! ld_r_r {
+  ($self: expr, $a: ident, $b: ident) => {
+    paste! {
+      $self.reg.[<set_ $a:lower>](
+        $self.reg.[<$b:lower>]()
+      );
+    }
+  };
+}
+pub(crate) use ld_r_r;
+
+
 macro_rules! cpu_instructions {
   ($self: expr, $op: expr) => {
     match($op) {
@@ -63,6 +75,23 @@ macro_rules! cpu_instructions {
       0x32 => { ld_mhli_a!($self, sub); },      //LD (HL-),A
       0x33 => { incdec_rr!($self, SP, add); },  //INC SP
       0x3B => { incdec_rr!($self, SP, sub); },  //DEC SP
+
+      0x40 => { /*TODO Breakpoint */ }          //LD B,B
+      0x41 => { ld_r_r!($self, B, C); }         //LD B,C
+      0x42 => { ld_r_r!($self, B, D); }         //LD B,D
+      0x43 => { ld_r_r!($self, B, E); }         //LD B,E
+      0x44 => { ld_r_r!($self, B, H); }         //LD B,H
+      0x45 => { ld_r_r!($self, B, L); }         //LD B,L
+      0x47 => { ld_r_r!($self, B, A); }         //LD B,A
+
+      0x48 => { ld_r_r!($self, C, C); }         //LD C,B
+      0x49 => { /*IS A NO-OP*/ }                //LD C,C
+      0x4A => { ld_r_r!($self, C, D); }         //LD C,D
+      0x4B => { ld_r_r!($self, C, E); }         //LD C,E
+      0x4C => { ld_r_r!($self, C, H); }         //LD C,H
+      0x4D => { ld_r_r!($self, C, L); }         //LD C,L
+      0x4F => { ld_r_r!($self, C, A); }         //LD C,A
+
       _ => panic!("Invalid instruction")
     }
   };
