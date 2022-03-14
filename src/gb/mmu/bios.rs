@@ -19,7 +19,7 @@ pub const BIOS: [u8; 0x100] = [
 
 #[cfg(test)]
 mod tests {
-  const EXPECTED_HASH: u64 = 11527078312544683961;
+  const EXPECTED_HASH: u64 = 0x9FF868A6F555C7B9;
 
   use super::*;
   use std::collections::hash_map::DefaultHasher;
