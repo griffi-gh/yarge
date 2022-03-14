@@ -89,6 +89,10 @@ impl Registers {
   #[inline(always)] pub fn f_h(&self) -> bool { (self.f() & 0x20) > 0 }
   #[inline(always)] pub fn f_c(&self) -> bool { (self.f() & 0x10) > 0 }
 
+  // Flag register inverse, to simplify conditionals
+  #[inline(always)] pub fn f_nz(&self) -> bool { !self.f_z() }
+  #[inline(always)] pub fn f_nc(&self) -> bool { !self.f_c() }
+
   // Flag reg set
   #[inline(always)]
   pub fn set_f_z(&mut self, v: bool) {

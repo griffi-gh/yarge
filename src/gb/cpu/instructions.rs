@@ -96,6 +96,23 @@ macro_rules! jp_u16 {
 }
 pub(crate) use jp_u16;
 
+macro_rules! cond_jp_u16 {
+  ($self: expr, $cond: ident) => {
+    paste! {
+      if $self.reg.[<f_ $cond:lower>]() {
+        let to = $self.rw($self.reg.pc);
+        $self.reg.pc = to;
+        $self.internal(4);
+      } else {
+        //simulate fetch timing without actually doing it
+        $self.internal(8); 
+        $self.reg.inc_pc(2);
+      }
+    }
+  }
+}
+pub(crate) use cond_jp_u16;
+
 macro_rules! ld_mhl_r {
   ($self: expr, $reg: ident) => {
     todo!(); //TODO LD (HL),R macro
@@ -112,6 +129,13 @@ macro_rules! ld_r_mhl {
   };
 }
 pub(crate) use ld_r_mhl;
+
+macro_rules! ihalt {
+  ($self: expr) => {
+    $self.state = CPUState::Halt;
+  };
+}
+pub(crate) use ihalt;
 
 macro_rules! cpu_instructions {
   ($self: expr, $op: expr) => {
@@ -194,8 +218,8 @@ macro_rules! cpu_instructions {
       0x73 => { ld_mhl_r!($self, E); }          //LD (HL),E
       0x74 => { ld_mhl_r!($self, H); }          //LD (HL),H
       0x75 => { ld_mhl_r!($self, L); }          //LD (HL),L
+      0x76 => { ihalt!($self); }                //HALT
       0x77 => { ld_mhl_r!($self, A); }          //LD (HL),A
-
       0x78 => { ld_r_r!($self, A, B); }         //LD A,B
       0x79 => { ld_r_r!($self, A, C); }         //LD A,C
       0x7A => { ld_r_r!($self, A, D); }         //LD A,D
@@ -205,11 +229,15 @@ macro_rules! cpu_instructions {
       0x7F => { /*IS A NO-OP*/ }                //LD A,A
 
       0xC1 => { pop_rr!($self, BC); }           //POP BC
+      0xC2 => { cond_jp_u16!($self, NZ); }      //JP NZ,u16
       0xC3 => { jp_u16!($self); }               //JP u16
       0xC5 => { push_rr!($self, BC); }          //PUSH BC
+      0xCA => { cond_jp_u16!($self, Z); }       //JP Z,u16
 
       0xD1 => { pop_rr!($self, DE); }           //POP DE
+      0xD2 => { cond_jp_u16!($self, NC); }      //JP NC,u16
       0xD5 => { push_rr!($self, DE); }          //PUSH DE
+      0xDA => { cond_jp_u16!($self, C); }       //JP C,u16
 
       0xE1 => { pop_rr!($self, HL); }           //POP HL
       0xE5 => { push_rr!($self, HL); }          //PUSH HL
