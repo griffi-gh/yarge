@@ -18,7 +18,7 @@ impl Gameboy {
         }
     }
     pub fn step(&mut self) {
-        let t = self.cpu.step();
+        let _t = self.cpu.step();
         //TODO Tick other components
     }
 
