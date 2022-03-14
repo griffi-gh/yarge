@@ -85,6 +85,15 @@ macro_rules! push_rr {
 }
 pub(crate) use push_rr;
 
+macro_rules! jp_u16 {
+  ($self: expr) => {
+    let to = $self.rw($self.reg.pc);
+    $self.reg.pc = to;
+    $self.internal(4);
+  };
+}
+pub(crate) use jp_u16;
+
 macro_rules! cpu_instructions {
   ($self: expr, $op: expr) => {
     match($op) {
@@ -163,6 +172,7 @@ macro_rules! cpu_instructions {
       0x7F => { /*IS A NO-OP*/ }                //LD A,A
 
       0xC1 => {  pop_rr!($self, BC); }          //POP BC
+      0xC3 => {  jp_u16!($self); }              //JP u16
       0xC5 => { push_rr!($self, BC); }          //PUSH BC
 
       0xD1 => {  pop_rr!($self, DE); }          //POP DE
