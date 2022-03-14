@@ -20,7 +20,6 @@ macro_rules! ld_mrr_a {
 }
 pub(crate) use ld_mrr_a;
 
-
 macro_rules! ld_mhli_a {
   ($self: expr, $inc: ident) => {
     let v = $self.reg.hl();
@@ -36,7 +35,7 @@ macro_rules! incdec_rr {
   ($self: expr, $reg: ident, $inc: ident) => {
     paste! {
       $self.reg.[<set_ $reg:lower>](
-        $self.reg.[<$reg:lower>]().[<wrapping_ $inc:lower>](1);
+        $self.reg.[<$reg:lower>]().[<wrapping_ $inc:lower>](1)
       );
     }
     $self.internal(4);
