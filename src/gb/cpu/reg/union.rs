@@ -40,3 +40,36 @@ impl U16Union {
 impl Default for U16Union {
   fn default() -> Self { Self::new(0) }
 }
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  fn union_create_get() {
+    let mut a = U16Union::new(0x1234);
+    let mut b = U16Union::default();
+    assert_eq!(a.get(), 0x1234);
+    assert_eq!(b.get(), 0);
+  }
+
+  #[test]
+  fn union_set_get_a_b() {
+    let mut a = U16Union::new(0x1234);
+    assert_eq!(a.get_a(), 0x12);
+    assert_eq!(a.get_b(), 0x34);
+    a.set_a(0x56);
+    a.set_b(0x78);
+    assert_eq!(a.get_a(), 0x56);
+    assert_eq!(a.get_b(), 0x78);
+    assert_eq!(a.get(), 0x5678);
+  }
+
+  #[test]
+  fn union_get_immut() {
+    let a = U16Union::new(0x5678);
+    assert_eq!(a.get_a(), 0x56);
+    assert_eq!(a.get_b(), 0x78);
+    assert_eq!(a.get(), 0x5678);
+  }
+}

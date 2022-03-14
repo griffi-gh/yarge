@@ -84,3 +84,52 @@ impl Registers {
 
   // TODO Flag register
 }
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  fn test_reg_set_get_u16() {
+    let mut reg = Registers::new();
+    reg.set_af(0x1221);
+    reg.set_bc(0x3443);
+    reg.set_de(0x5664);
+    reg.set_hl(0x7887);
+    reg.set_sp(0x4456);
+    reg.set_pc(0x6789);
+    assert_eq!(reg.af(), 0x1221);
+    assert_eq!(reg.bc(), 0x3443);
+    assert_eq!(reg.de(), 0x5664);
+    assert_eq!(reg.hl(), 0x7887);
+    assert_eq!(reg.sp(), 0x4456);
+    assert_eq!(reg.pc(), 0x6789);
+  }
+
+  #[test]
+  fn test_reg_get_immut() {
+    let reg = Registers::new();
+    assert_eq!(reg.af(), 0);
+    assert_eq!(reg.bc(), 0);
+    assert_eq!(reg.de(), 0);
+    assert_eq!(reg.hl(), 0);
+    assert_eq!(reg.sp(), 0);
+    assert_eq!(reg.pc(), 0);
+    assert_eq!(reg.sp, 0);
+    assert_eq!(reg.pc, 0);
+    assert_eq!(reg.a(), 0);
+    assert_eq!(reg.f(), 0);
+    assert_eq!(reg.b(), 0);
+    assert_eq!(reg.c(), 0);
+    assert_eq!(reg.d(), 0);
+    assert_eq!(reg.e(), 0);
+    assert_eq!(reg.h(), 0);
+    assert_eq!(reg.l(), 0);
+  }
+
+  #[test]
+  fn test_arc_mutex() {
+    use std::sync::{Mutex, Arc};
+    Arc::new(Mutex::new(Registers::new()));
+  }
+}

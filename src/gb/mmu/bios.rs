@@ -16,3 +16,23 @@ pub const BIOS: [u8; 0x100] = [
   0x21, 0x04, 0x01, 0x11, 0xA8, 0x00, 0x1A, 0x13, 0xBE, 0x20, 0xFE, 0x23, 0x7D, 0xFE, 0x34, 0x20,
   0xF5, 0x06, 0x19, 0x78, 0x86, 0x23, 0x05, 0x20, 0xFB, 0x86, 0x20, 0xFE, 0x3E, 0x01, 0xE0, 0x50
 ];
+
+#[cfg(test)]
+mod tests {
+  const EXPECTED_HASH: u64 = 11527078312544683961;
+
+  use super::*;
+  use std::collections::hash_map::DefaultHasher;
+  use std::hash::{Hash, Hasher};
+  
+  #[derive(Hash)] struct Hashable { v: [u8; 0x100] }
+
+  #[test]
+  fn test_hash() {
+    let hashable = Hashable { v: BIOS };
+    let mut hasher = DefaultHasher::new();
+    hashable.hash(&mut hasher);
+    let hash = hasher.finish();
+    assert_eq!(hash, EXPECTED_HASH);
+  }
+}
