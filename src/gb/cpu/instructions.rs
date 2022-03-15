@@ -302,6 +302,66 @@ macro_rules! sub_a_mhl {
 }
 pub(crate) use sub_a_mhl;
 
+macro_rules! and_a_r {
+  ($self: expr, $reg: ident) => {
+    paste! {
+      let r = $self.reg.a() & $self.reg.[<$reg:lower>]();
+    }
+    $self.reg.set_a(r);
+    $self.reg.set_f_all(r == 0, false, true, false);
+  };
+}
+pub(crate) use and_a_r;
+
+macro_rules! and_a_mhl {
+  ($self: expr) => {
+    let r = $self.reg.a() & $self.rb($self.reg.hl());
+    $self.reg.set_a(r);
+    $self.reg.set_f_all(r == 0, false, true, false);
+  };
+}
+pub(crate) use and_a_mhl;
+
+macro_rules! or_a_r {
+  ($self: expr, $reg: ident) => {
+    paste! {
+      let r = $self.reg.a() | $self.reg.[<$reg:lower>]();
+    }
+    $self.reg.set_a(r);
+    $self.reg.set_f_all(r == 0, false, false, false);
+  };
+}
+pub(crate) use or_a_r;
+
+macro_rules! or_a_mhl {
+  ($self: expr) => {
+    let r = $self.reg.a() | $self.rb($self.reg.hl());
+    $self.reg.set_a(r);
+    $self.reg.set_f_all(r == 0, false, false, false);
+  };
+}
+pub(crate) use or_a_mhl;
+
+macro_rules! xor_a_r {
+  ($self: expr, $reg: ident) => {
+    paste! {
+      let r = $self.reg.a() ^ $self.reg.[<$reg:lower>]();
+    }
+    $self.reg.set_a(r);
+    $self.reg.set_f_all(r == 0, false, false, false);
+  };
+}
+pub(crate) use xor_a_r;
+
+macro_rules! xor_a_mhl {
+  ($self: expr) => {
+    let r = $self.reg.a() ^ $self.rb($self.reg.hl());
+    $self.reg.set_a(r);
+    $self.reg.set_f_all(r == 0, false, false, false);
+  };
+}
+pub(crate) use xor_a_mhl;
+
 macro_rules! cpu_instructions {
   ($self: expr, $op: expr) => {
     match($op) {
@@ -434,6 +494,33 @@ macro_rules! cpu_instructions {
       0x95 => { sub_a_r!($self, L); }           //SUB A,L
       0x96 => { sub_a_mhl!($self); }            //SUB A,(HL)
       0x97 => { sub_a_r!($self, A); }           //SUB A,A
+      
+      0xA0 => { and_a_r!($self, B); }           //AND A,B
+      0xA1 => { and_a_r!($self, C); }           //AND A,C
+      0xA2 => { and_a_r!($self, D); }           //AND A,D
+      0xA3 => { and_a_r!($self, E); }           //AND A,E
+      0xA4 => { and_a_r!($self, H); }           //AND A,H
+      0xA5 => { and_a_r!($self, L); }           //AND A,L
+      0xA6 => { and_a_mhl!($self); }            //AND A,(HL)
+      0xA7 => { and_a_r!($self, A); }           //AND A,A
+
+      0xB0 => { or_a_r!($self, B); }            //OR A,B
+      0xB1 => { or_a_r!($self, C); }            //OR A,C
+      0xB2 => { or_a_r!($self, D); }            //OR A,D
+      0xB3 => { or_a_r!($self, E); }            //OR A,E
+      0xB4 => { or_a_r!($self, H); }            //OR A,H
+      0xB5 => { or_a_r!($self, L); }            //OR A,L
+      0xB6 => { or_a_mhl!($self); }             //OR A,(HL)
+      0xB7 => { or_a_r!($self, A); }            //OR A,A
+
+      0xB8 => { xor_a_r!($self, B); }            //XOR A,B
+      0xB9 => { xor_a_r!($self, C); }            //XOR A,C
+      0xBA => { xor_a_r!($self, D); }            //XOR A,D
+      0xBB => { xor_a_r!($self, E); }            //XOR A,E
+      0xBC => { xor_a_r!($self, H); }            //XOR A,H
+      0xBD => { xor_a_r!($self, L); }            //XOR A,L
+      0xBE => { xor_a_mhl!($self); }             //XOR A,(HL)
+      0xBF => { xor_a_r!($self, A); }            //XOR A,A
 
       0xC1 => { pop_rr!($self, BC); }           //POP BC
       0xC2 => { cond_jp_u16!($self, NZ); }      //JP NZ,u16
