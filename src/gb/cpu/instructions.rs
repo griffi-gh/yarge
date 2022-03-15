@@ -238,37 +238,69 @@ macro_rules! add_a_r {
   ($self: expr, $reg: ident) => {
     let a = $self.reg.a();
     paste! {
-      let b = $self.reg.[<$reg>]();
+      let b = $self.reg.[<$reg:lower>]();
     }
-    let r = v.overflowing_add(1);
+    let r = a.overflowing_add(b);
     $self.reg.set_f_all( //Z N H C
       r.0 == 0,
       false,
       (a & 0xF) + (b & 0xF) > 0xF,
       r.1
     );
-    $self.reg.a(r.0);
+    $self.reg.set_a(r.0);
   };
 }
 pub(crate) use add_a_r;
+
+macro_rules! add_a_mhl {
+  ($self: expr) => {
+    let a = $self.reg.a();
+    let b = $self.rb($self.reg.hl());
+    let r = a.overflowing_add(b);
+    $self.reg.set_f_all( //Z N H C
+      r.0 == 0,
+      false,
+      (a & 0xF) + (b & 0xF) > 0xF,
+      r.1
+    );
+    $self.reg.set_a(r.0);
+  };
+}
+pub(crate) use add_a_mhl;
 
 macro_rules! sub_a_r {
   ($self: expr, $reg: ident) => {
     let a = $self.reg.a();
     paste! {
-      let b = $self.reg.[<$reg>]();
+      let b = $self.reg.[<$reg:lower>]();
     }
-    let r = v.overflowing_sub(1);
+    let r = a.overflowing_sub(b);
     $self.reg.set_f_all( //Z N H C
       r.0 == 0,
       true,
       (a & 0x0F) < (b & 0x0F),
       r.1
     );
-    $self.reg.a(r.0);
+    $self.reg.set_a(r.0);
   };
 }
 pub(crate) use sub_a_r;
+
+macro_rules! sub_a_mhl {
+  ($self: expr) => {
+    let a = $self.reg.a();
+    let b = $self.rb($self.reg.hl());
+    let r = a.overflowing_sub(b);
+    $self.reg.set_f_all( //Z N H C
+      r.0 == 0,
+      true,
+      (a & 0x0F) < (b & 0x0F),
+      r.1
+    );
+    $self.reg.set_a(r.0);
+  };
+}
+pub(crate) use sub_a_mhl;
 
 macro_rules! cpu_instructions {
   ($self: expr, $op: expr) => {
@@ -384,6 +416,24 @@ macro_rules! cpu_instructions {
       0x7C => { ld_r_r!($self, A, H); }         //LD A,H
       0x7D => { ld_r_r!($self, A, L); }         //LD A,L
       0x7F => { /*IS A NO-OP*/ }                //LD A,A
+
+      0x80 => { add_a_r!($self, B); }           //ADD A,B
+      0x81 => { add_a_r!($self, C); }           //ADD A,C
+      0x82 => { add_a_r!($self, D); }           //ADD A,D
+      0x83 => { add_a_r!($self, E); }           //ADD A,E
+      0x84 => { add_a_r!($self, H); }           //ADD A,H
+      0x85 => { add_a_r!($self, L); }           //ADD A,L
+      0x86 => { add_a_mhl!($self); }            //ADD A,(HL)
+      0x87 => { add_a_r!($self, A); }           //ADD A,A
+
+      0x90 => { sub_a_r!($self, B); }           //SUB A,B
+      0x91 => { sub_a_r!($self, C); }           //SUB A,C
+      0x92 => { sub_a_r!($self, D); }           //SUB A,D
+      0x93 => { sub_a_r!($self, E); }           //SUB A,E
+      0x94 => { sub_a_r!($self, H); }           //SUB A,H
+      0x95 => { sub_a_r!($self, L); }           //SUB A,L
+      0x96 => { sub_a_mhl!($self); }            //SUB A,(HL)
+      0x97 => { sub_a_r!($self, A); }           //SUB A,A
 
       0xC1 => { pop_rr!($self, BC); }           //POP BC
       0xC2 => { cond_jp_u16!($self, NZ); }      //JP NZ,u16
