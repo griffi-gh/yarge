@@ -546,9 +546,40 @@ macro_rules! cpu_instructions {
 }
 pub(crate) use cpu_instructions;
 
+macro_rules! swap_r {
+  ($self: expr, $reg: ident) => {
+    paste! {
+      let v = $self.reg.[<$reg:lower>]().rotate_left(4);
+      $self.set_f_all(v == 0, false, false, false);
+      $self.reg.[<set_ $reg:lower>](v);
+    }
+  };
+}
+pub(crate) use swap_r;
+
+macro_rules! swap_mhl {
+  ($self: expr) => {
+    paste! {
+      let v = $self.rb($self.reg.hl());
+      $self.set_f_all(v == 0, false, false, false);
+      $self.wb($self.reg.hl(), v);
+    }
+  };
+}
+pub(crate) use swap_mhl;
+
 macro_rules! cpu_instructions_cb {
   ($self: expr, $op: expr) => {
     match($op) {
+      0x30 => { swap_r!($self, B); }            // SWAP B
+      0x31 => { swap_r!($self, C); }            // SWAP C
+      0x32 => { swap_r!($self, D); }            // SWAP D
+      0x33 => { swap_r!($self, E); }            // SWAP E
+      0x34 => { swap_r!($self, H); }            // SWAP H
+      0x35 => { swap_r!($self, L); }            // SWAP L
+      0x36 => { swap_mhl!($self); }             // SWAP (HL)
+      0x37 => { swap_r!($self, A); }            // SWAP A
+
       _ => panic_invalid_instruction!($self, $op, true) 
     }
   };

@@ -57,6 +57,8 @@ impl MMU {
       },
       //IO REGISTERS
       0xFF00..=0xFF7F => {
+        #[cfg(feature = "stub_ly")]
+        if addr == 0xFF44 { return 0x90; }
         0xff //TODO I/O Registers Read
       },
       //HRAM

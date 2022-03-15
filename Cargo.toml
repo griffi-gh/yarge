@@ -5,9 +5,10 @@ edition = "2021"
 
 [features]
 default = ["logging-file", "logging-stdout"]
+logging = []
 logging-file = ["logging"]
 logging-stdout = ["logging"]
-logging = []
+ly-stub = []
 
 [profile.release]
 opt-level = 3
