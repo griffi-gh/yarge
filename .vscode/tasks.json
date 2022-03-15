@@ -22,7 +22,7 @@
 			"type": "cargo",
 			"command": "build",
 			"args": [
-				"--profile", "release-final"
+				"--release"
 			],
 			"problemMatcher": [
 				"$rustc"

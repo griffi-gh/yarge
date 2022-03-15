@@ -3,6 +3,9 @@ name = "rustish"
 version = "0.1.0"
 edition = "2021"
 
+[features]
+default = ["logging"]
+logging = []
 
 [profile.release]
 opt-level = 3
@@ -10,10 +13,6 @@ codegen-units = 1
 debug = 0
 strip = true
 lto = true
-
-[profile.release-final]
-inherits = "release"
-#TODO Remove me
 
 [dependencies]
 paste = "^1.0"
