@@ -7,9 +7,6 @@ pub use cpu::CPU;
 
 use std::{thread, sync::{Arc, Mutex}};
 
-const _VERSION: Option<&str> = option_env!("CARGO_PKG_VERSION");
-const _NAME: Option<&str> = option_env!("CARGO_PKG_NAME");
-
 #[cfg(feature = "logging-file")]
 const LOG_PATH: &str = "./gameboy.log";
 
@@ -38,12 +35,6 @@ impl Gameboy {
                 .append(true)
                 .open(LOG_PATH)
                 .unwrap());
-            write!(
-                self.file.as_mut().unwrap(),
-                "{} {} log\n",
-                _NAME.unwrap_or("<name>"),
-                _VERSION.unwrap_or("<version>")
-            ).unwrap();
         }
     }
     pub fn init(mut self) -> Self { (&mut self)._init(); self }

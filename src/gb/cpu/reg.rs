@@ -96,19 +96,24 @@ impl Registers {
   // Flag reg set
   #[inline(always)]
   pub fn set_f_z(&mut self, v: bool) {
-    self.set_f((self.f() & 0b01111111) | (v as u8) << 7)
+    self.set_f((self.f() & 0b01111111) | (v as u8) << 7);
   }
   #[inline(always)]
   pub fn set_f_n(&mut self, v: bool) {
-    self.set_f((self.f() & 0b10111111) | (v as u8) << 6)
+    self.set_f((self.f() & 0b10111111) | (v as u8) << 6);
   }
   #[inline(always)]
   pub fn set_f_h(&mut self, v: bool) {
-    self.set_f((self.f() & 0b11011111) | (v as u8) << 5)
+    self.set_f((self.f() & 0b11011111) | (v as u8) << 5);
   }
   #[inline(always)]
   pub fn set_f_c(&mut self, v: bool) {
-    self.set_f((self.f() & 0b11101111) | (v as u8) << 4)
+    self.set_f((self.f() & 0b11101111) | (v as u8) << 4);
+  }
+
+  #[inline(always)]
+  pub fn set_f_all(&mut self, z: bool, n: bool, h: bool, c: bool) {
+    self.set_f(((z as u8) << 7) | ((n as u8) << 6) | ((h as u8) << 5) | ((c as u8) << 4));
   }
 }
 
@@ -181,5 +186,14 @@ mod tests {
     assert_eq!(reg.f(), 0b11100000);
     reg.set_f_c(true);
     assert_eq!(reg.f(), 0b11110000);
+  }
+
+  #[test]
+  fn set_f_all() {
+    let mut reg = Registers::new();
+    reg.set_f_all(false, true, false, true);
+    assert_eq!(reg.f(), 0b01010000);
+    reg.set_f_all(true, false, true, false);
+    assert_eq!(reg.f(), 0b10100000);
   }
 }

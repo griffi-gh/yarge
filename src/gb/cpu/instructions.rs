@@ -1,6 +1,7 @@
 pub use paste::paste;
 
 //MAYBE Separate macro and instruction table?
+//MAYBE Use enums instead of macros?
 
 macro_rules! panic_invalid_instruction {
   ($self: expr, $op: expr, $cb: expr) => {
@@ -232,6 +233,42 @@ macro_rules! dec_mhl {
   };
 }
 pub(crate) use dec_mhl;
+
+macro_rules! add_a_r {
+  ($self: expr, $reg: ident) => {
+    let a = $self.reg.a();
+    paste! {
+      let b = $self.reg.[<$reg>]();
+    }
+    let r = v.overflowing_add(1);
+    $self.reg.set_f_all( //Z N H C
+      r.0 == 0,
+      false,
+      (a & 0xF) + (b & 0xF) > 0xF,
+      r.1
+    );
+    $self.reg.a(r.0);
+  };
+}
+pub(crate) use add_a_r;
+
+macro_rules! sub_a_r {
+  ($self: expr, $reg: ident) => {
+    let a = $self.reg.a();
+    paste! {
+      let b = $self.reg.[<$reg>]();
+    }
+    let r = v.overflowing_sub(1);
+    $self.reg.set_f_all( //Z N H C
+      r.0 == 0,
+      true,
+      (a & 0x0F) < (b & 0x0F),
+      r.1
+    );
+    $self.reg.a(r.0);
+  };
+}
+pub(crate) use sub_a_r;
 
 macro_rules! cpu_instructions {
   ($self: expr, $op: expr) => {
