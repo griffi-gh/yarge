@@ -504,6 +504,15 @@ macro_rules! cpu_instructions {
       0xA6 => { and_a_mhl!($self); }            //AND A,(HL)
       0xA7 => { and_a_r!($self, A); }           //AND A,A
 
+      0xA8 => { xor_a_r!($self, B); }            //XOR A,B
+      0xA9 => { xor_a_r!($self, C); }            //XOR A,C
+      0xAA => { xor_a_r!($self, D); }            //XOR A,D
+      0xAB => { xor_a_r!($self, E); }            //XOR A,E
+      0xAC => { xor_a_r!($self, H); }            //XOR A,H
+      0xAD => { xor_a_r!($self, L); }            //XOR A,L
+      0xAE => { xor_a_mhl!($self); }             //XOR A,(HL)
+      0xAF => { xor_a_r!($self, A); }            //XOR A,A
+
       0xB0 => { or_a_r!($self, B); }            //OR A,B
       0xB1 => { or_a_r!($self, C); }            //OR A,C
       0xB2 => { or_a_r!($self, D); }            //OR A,D
@@ -512,15 +521,6 @@ macro_rules! cpu_instructions {
       0xB5 => { or_a_r!($self, L); }            //OR A,L
       0xB6 => { or_a_mhl!($self); }             //OR A,(HL)
       0xB7 => { or_a_r!($self, A); }            //OR A,A
-
-      0xB8 => { xor_a_r!($self, B); }            //XOR A,B
-      0xB9 => { xor_a_r!($self, C); }            //XOR A,C
-      0xBA => { xor_a_r!($self, D); }            //XOR A,D
-      0xBB => { xor_a_r!($self, E); }            //XOR A,E
-      0xBC => { xor_a_r!($self, H); }            //XOR A,H
-      0xBD => { xor_a_r!($self, L); }            //XOR A,L
-      0xBE => { xor_a_mhl!($self); }             //XOR A,(HL)
-      0xBF => { xor_a_r!($self, A); }            //XOR A,A
 
       0xC1 => { pop_rr!($self, BC); }           //POP BC
       0xC2 => { cond_jp_u16!($self, NZ); }      //JP NZ,u16
