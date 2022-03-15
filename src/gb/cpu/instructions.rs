@@ -167,15 +167,31 @@ macro_rules! ihalt {
 }
 pub(crate) use ihalt;
 
+macro_rules! inc_flags {
+  ($self: expr, $v: expr, $r: expr) => {
+    $self.reg.set_f_z($r == 0);
+    $self.reg.set_f_n(false);
+    $self.reg.set_f_h(($v & 0x0F) + 1 > 0x0F);
+  }
+}
+pub(crate) use inc_flags;
+
+macro_rules! dec_flags {
+  ($self: expr, $v: expr, $r: expr) => {
+    $self.reg.set_f_z($r == 0);
+    $self.reg.set_f_n(true);
+    $self.reg.set_f_h(($v & 0x0F) == 0);
+  }
+}
+pub(crate) use dec_flags;
+
 macro_rules! inc_r {
   ($self: expr, $reg: ident) => {
     paste! {
       let v = $self.reg.[<$reg:lower>]();
     }
     let r = v.wrapping_add(1);
-    $self.reg.set_f_z(r == 0);
-    $self.reg.set_f_n(false);
-    $self.reg.set_f_h((v & 0x0F) + 1 > 0x0F);
+    inc_flags!($self, v, r);
     paste! {
       $self.reg.[<set_ $reg:lower>](r);
     }
@@ -189,15 +205,33 @@ macro_rules! dec_r {
       let v = $self.reg.[<$reg:lower>]();
     }
     let r = v.wrapping_sub(1);
-    $self.reg.set_f_z(r == 0);
-    $self.reg.set_f_n(true);
-    $self.reg.set_f_h((v & 0x0F) == 0);
+    dec_flags!($self, v, r);
     paste! {
       $self.reg.[<set_ $reg:lower>](r);
     }
   };
 }
 pub(crate) use dec_r;
+
+macro_rules! inc_mhl {
+  ($self: expr) => {
+    let v = $self.rb($self.reg.hl());
+    let r = v.wrapping_add(1);
+    inc_flags!($self, v, r);
+    $self.wb($self.reg.hl(), r);
+  };
+}
+pub(crate) use inc_mhl;
+
+macro_rules! dec_mhl {
+  ($self: expr) => {
+    let v = $self.rb($self.reg.hl());
+    let r = v.wrapping_sub(1);
+    dec_flags!($self, v, r);
+    $self.wb($self.reg.hl(), r);
+  };
+}
+pub(crate) use dec_mhl;
 
 macro_rules! cpu_instructions {
   ($self: expr, $op: expr) => {
@@ -239,6 +273,8 @@ macro_rules! cpu_instructions {
       0x31 => { ld_rr_u16!($self, SP); },       //LD SP,u16
       0x32 => { ld_mhli_a!($self, sub); },      //LD (HL-),A
       0x33 => { incdec_rr!($self, SP, add); },  //INC SP
+      0x34 => { inc_mhl!($self); }              //INC (HL)
+      0x35 => { dec_mhl!($self); }              //DEC (HL)
       0x36 => { ld_mhl_u8!($self); }            //LD (HL), u8
       0x3B => { incdec_rr!($self, SP, sub); },  //DEC SP
       0x3C => { inc_r!($self, A); }             //INC A
