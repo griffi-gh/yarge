@@ -503,7 +503,6 @@ macro_rules! cpu_instructions {
       0xA5 => { and_a_r!($self, L); }           //AND A,L
       0xA6 => { and_a_mhl!($self); }            //AND A,(HL)
       0xA7 => { and_a_r!($self, A); }           //AND A,A
-
       0xA8 => { xor_a_r!($self, B); }            //XOR A,B
       0xA9 => { xor_a_r!($self, C); }            //XOR A,C
       0xAA => { xor_a_r!($self, D); }            //XOR A,D
@@ -568,6 +567,27 @@ macro_rules! swap_mhl {
 }
 pub(crate) use swap_mhl;
 
+macro_rules! bit_r {
+  ($self: expr, $bit: expr, $reg: ident) => {
+    paste! {
+      $self.reg.set_f_z(($self.reg.[<$reg:lower>]() & (1 << $bit)) == 0);
+    }
+    $self.reg.set_f_n(false);
+    $self.reg.set_f_h(true);
+  };
+}
+pub(crate) use bit_r;
+
+macro_rules! bit_mhl {
+  ($self: expr, $bit: expr) => {
+    let v = $self.rb($self.reg.hl());
+    $self.reg.set_f_z((v & (1 << $bit)) == 0);
+    $self.reg.set_f_n(false);
+    $self.reg.set_f_h(true);
+  };
+}
+pub(crate) use bit_mhl;
+
 macro_rules! cpu_instructions_cb {
   ($self: expr, $op: expr) => {
     match($op) {
@@ -579,6 +599,74 @@ macro_rules! cpu_instructions_cb {
       0x35 => { swap_r!($self, L); }            // SWAP L
       0x36 => { swap_mhl!($self); }             // SWAP (HL)
       0x37 => { swap_r!($self, A); }            // SWAP A
+
+      0x40 => { bit_r!($self, 0, B); }          // BIT 0,B
+      0x41 => { bit_r!($self, 0, C); }          // BIT 0,C
+      0x42 => { bit_r!($self, 0, D); }          // BIT 0,D
+      0x43 => { bit_r!($self, 0, E); }          // BIT 0,E
+      0x44 => { bit_r!($self, 0, H); }          // BIT 0,H
+      0x45 => { bit_r!($self, 0, L); }          // BIT 0,L
+      0x46 => { bit_mhl!($self, 0); }           // BIT 0,(HL)
+      0x47 => { bit_r!($self, 0, A); }          // BIT 0,A
+      0x48 => { bit_r!($self, 1, B); }          // BIT 1,B
+      0x49 => { bit_r!($self, 1, C); }          // BIT 1,C
+      0x4A => { bit_r!($self, 1, D); }          // BIT 1,D
+      0x4B => { bit_r!($self, 1, E); }          // BIT 1,E
+      0x4C => { bit_r!($self, 1, H); }          // BIT 1,H
+      0x4D => { bit_r!($self, 1, L); }          // BIT 1,L
+      0x4E => { bit_mhl!($self, 1); }           // BIT 1,(HL)
+      0x4F => { bit_r!($self, 1, A); }          // BIT 1,A
+
+      0x50 => { bit_r!($self, 2, B); }          // BIT 2,B
+      0x51 => { bit_r!($self, 2, C); }          // BIT 2,C
+      0x52 => { bit_r!($self, 2, D); }          // BIT 2,D
+      0x53 => { bit_r!($self, 2, E); }          // BIT 2,E
+      0x54 => { bit_r!($self, 2, H); }          // BIT 2,H
+      0x55 => { bit_r!($self, 2, L); }          // BIT 2,L
+      0x56 => { bit_mhl!($self, 2); }           // BIT 2,(HL)
+      0x57 => { bit_r!($self, 2, A); }          // BIT 2,A
+      0x58 => { bit_r!($self, 3, B); }          // BIT 3,B
+      0x59 => { bit_r!($self, 3, C); }          // BIT 3,C
+      0x5A => { bit_r!($self, 3, D); }          // BIT 3,D
+      0x5B => { bit_r!($self, 3, E); }          // BIT 3,E
+      0x5C => { bit_r!($self, 3, H); }          // BIT 3,H
+      0x5D => { bit_r!($self, 3, L); }          // BIT 3,L
+      0x5E => { bit_mhl!($self, 3); }           // BIT 3,(HL)
+      0x5F => { bit_r!($self, 3, A); }          // BIT 3,A
+
+      0x60 => { bit_r!($self, 4, B); }          // BIT 4,B
+      0x61 => { bit_r!($self, 4, C); }          // BIT 4,C
+      0x62 => { bit_r!($self, 4, D); }          // BIT 4,D
+      0x63 => { bit_r!($self, 4, E); }          // BIT 4,E
+      0x64 => { bit_r!($self, 4, H); }          // BIT 4,H
+      0x65 => { bit_r!($self, 4, L); }          // BIT 4,L
+      0x66 => { bit_mhl!($self, 4); }           // BIT 4,(HL)
+      0x67 => { bit_r!($self, 4, A); }          // BIT 4,A
+      0x68 => { bit_r!($self, 5, B); }          // BIT 5,B
+      0x69 => { bit_r!($self, 5, C); }          // BIT 5,C
+      0x6A => { bit_r!($self, 5, D); }          // BIT 5,D
+      0x6B => { bit_r!($self, 5, E); }          // BIT 5,E
+      0x6C => { bit_r!($self, 5, H); }          // BIT 5,H
+      0x6D => { bit_r!($self, 5, L); }          // BIT 5,L
+      0x6E => { bit_mhl!($self, 5); }           // BIT 5,(HL)
+      0x6F => { bit_r!($self, 5, A); }          // BIT 5,A
+
+      0x70 => { bit_r!($self, 6, B); }          // BIT 6,B
+      0x71 => { bit_r!($self, 6, C); }          // BIT 6,C
+      0x72 => { bit_r!($self, 6, D); }          // BIT 6,D
+      0x73 => { bit_r!($self, 6, E); }          // BIT 6,E
+      0x74 => { bit_r!($self, 6, H); }          // BIT 6,H
+      0x75 => { bit_r!($self, 6, L); }          // BIT 6,L
+      0x76 => { bit_mhl!($self, 6); }           // BIT 6,(HL)
+      0x77 => { bit_r!($self, 6, A); }          // BIT 6,A
+      0x78 => { bit_r!($self, 7, B); }          // BIT 7,B
+      0x79 => { bit_r!($self, 7, C); }          // BIT 7,C
+      0x7A => { bit_r!($self, 7, D); }          // BIT 7,D
+      0x7B => { bit_r!($self, 7, E); }          // BIT 7,E
+      0x7C => { bit_r!($self, 7, H); }          // BIT 7,H
+      0x7D => { bit_r!($self, 7, L); }          // BIT 7,L
+      0x7E => { bit_mhl!($self, 7); }           // BIT 7,(HL)
+      0x7F => { bit_r!($self, 7, A); }          // BIT 7,A
 
       _ => panic_invalid_instruction!($self, $op, true) 
     }
