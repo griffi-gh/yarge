@@ -66,7 +66,7 @@ impl Gameboy {
             }
         }
         #[cfg(feature = "logging-stdout")] {
-            println!(string);
+            println!("{}", string);
         }
     }
 
