@@ -7,29 +7,26 @@ pub use cpu::CPU;
 
 use std::{thread, sync::{Arc, Mutex}};
 
-#[cfg(feature = "logging")]
-const LOG_PATH: &str = "./gameboy.log";
-
 const _VERSION: Option<&str> = option_env!("CARGO_PKG_VERSION");
 const _NAME: Option<&str> = option_env!("CARGO_PKG_NAME");
+#[cfg(feature = "logging-file")] const LOG_PATH: &str = "./gameboy.log";
 
 ///Gameboy emulator
 pub struct Gameboy {
     pub cpu: CPU,
-    #[cfg(feature = "logging")]
+    #[cfg(feature = "logging-file")]
     file: Option<std::fs::File>,
 }
 impl Gameboy {
     pub fn new() -> Self {
         Self{
             cpu: CPU::new(),
-            #[cfg(feature = "logging")]
-            file: None,
+            #[cfg(feature = "logging-file")] file: None,
         }
     }
 
     fn _init(&mut self) {
-        #[cfg(feature = "logging")] {
+        #[cfg(feature = "logging-file")] {
             use std::{fs, io::Write};
             let mut file = fs::File::create(LOG_PATH).unwrap();
             file.write_all(b"").unwrap();
@@ -51,18 +48,24 @@ impl Gameboy {
 
     #[cfg(feature = "logging")]
     fn log_step(&mut self) {
-        use std::io::Write;
-        if self.file.is_none() {
-            return;
-        }
         let r = &self.cpu.reg;
         let m = &self.cpu.mmu;
-        write!(
-            self.file.as_mut().unwrap(),
-            "A: {:02X} F: {:02X} B: {:02X} C: {:02X} D: {:02X} E: {:02X} H: {:02X} L: {:02X} SP: {:04X} PC: 00:{:04X} ({:02X} {:02X} {:02X} {:02X})\n", 
+        let string = format!(
+            "A: {:02X} F: {:02X} B: {:02X} C: {:02X} D: {:02X} E: {:02X} H: {:02X} L: {:02X} SP: {:04X} PC: 00:{:04X} ({:02X} {:02X} {:02X} {:02X})", 
             r.a(), r.f(), r.b(), r.c(), r.d(), r.e(), r.h(), r.l(), r.sp, r.pc,
             m.rb(r.pc), m.rb(r.pc + 1), m.rb(r.pc + 2), m.rb(r.pc + 3)
-        ).unwrap();
+        );
+        #[cfg(feature = "logging-file")] {
+            if self.file.is_none() {
+                panic!("File not inited!");
+            } else {
+                use std::io::Write;
+                write!(self.file.as_mut().unwrap(), "{}\n", string).unwrap();
+            }
+        }
+        #[cfg(feature = "logging-stdout")] {
+            println!(string);
+        }
     }
 
     pub fn step(&mut self) {

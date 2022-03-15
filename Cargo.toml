@@ -4,7 +4,9 @@ version = "0.1.0"
 edition = "2021"
 
 [features]
-default = ["logging"]
+default = ["logging-file"]
+logging-file = ["logging"]
+logging-stdout = ["logging"]
 logging = []
 
 [profile.release]
