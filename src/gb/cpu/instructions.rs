@@ -27,7 +27,6 @@ macro_rules! ld_mhl_u8 {
   ($self: expr) => { 
     let val = $self.fetch();
     $self.wb($self.reg.hl(), val);
-    $self.internal(4);
   };
 }
 pub(crate) use ld_mhl_u8;
@@ -144,7 +143,9 @@ pub(crate) use call_u16;
 
 macro_rules! ld_mhl_r {
   ($self: expr, $reg: ident) => {
-    todo!(); //TODO LD (HL),R macro
+    paste! {
+      $self.wb($self.reg.hl(), $self.reg.[<$reg:lower>]());
+    }
   };
 }
 pub(crate) use ld_mhl_r;
@@ -166,6 +167,38 @@ macro_rules! ihalt {
 }
 pub(crate) use ihalt;
 
+macro_rules! inc_r {
+  ($self: expr, $reg: ident) => {
+    paste! {
+      let v = $self.reg.[<$reg:lower>]();
+    }
+    let r = v.wrapping_add(1);
+    $self.reg.set_f_z(r == 0);
+    $self.reg.set_f_n(false);
+    $self.reg.set_f_h((v & 0x0F) + 1 > 0x0F);
+    paste! {
+      $self.reg.[<set_ $reg:lower>](r);
+    }
+  };
+}
+pub(crate) use inc_r;
+
+macro_rules! dec_r {
+  ($self: expr, $reg: ident) => {
+    paste! {
+      let v = $self.reg.[<$reg:lower>]();
+    }
+    let r = v.wrapping_sub(1);
+    $self.reg.set_f_z(r == 0);
+    $self.reg.set_f_n(true);
+    $self.reg.set_f_h((v & 0x0F) == 0);
+    paste! {
+      $self.reg.[<set_ $reg:lower>](r);
+    }
+  };
+}
+pub(crate) use dec_r;
+
 macro_rules! cpu_instructions {
   ($self: expr, $op: expr) => {
     match($op) {
@@ -173,22 +206,34 @@ macro_rules! cpu_instructions {
       0x01 => { ld_rr_u16!($self, BC); },       //LD BC,u16
       0x02 => { ld_mrr_a!($self, BC); },        //LD (BC),A
       0x03 => { incdec_rr!($self, BC, add); }   //INC BC
+      0x04 => { inc_r!($self, B); }             //INC B
+      0x05 => { dec_r!($self, B); }             //DEC B
       0x06 => { ld_r_u8!($self, B); }           //LD B,u8 
       0x0B => { incdec_rr!($self, BC, sub); }   //DEC BC
+      0x0C => { inc_r!($self, C); }             //INC C
+      0x0D => { dec_r!($self, C); }             //DEC C
       0x0E => { ld_r_u8!($self, C); }           //LD C,u8 
 
       0x11 => { ld_rr_u16!($self, DE); },       //LD DE,u16
       0x12 => { ld_mrr_a!($self, DE); },        //LD (DE),A
       0x13 => { incdec_rr!($self, DE, add); },  //INC DE
+      0x14 => { inc_r!($self, D); }             //INC D
+      0x15 => { dec_r!($self, D); }             //DEC D
       0x16 => { ld_r_u8!($self, D); }           //LD D,u8 
       0x1B => { incdec_rr!($self, DE, sub); }   //DEC DE
+      0x1C => { inc_r!($self, E); }             //INC E
+      0x1D => { dec_r!($self, E); }             //DEC E
       0x1E => { ld_r_u8!($self, E); }           //LD E,u8 
 
       0x21 => { ld_rr_u16!($self, HL); },       //LD HL,u16
       0x22 => { ld_mhli_a!($self, add); },      //LD (HL+),A
       0x23 => { incdec_rr!($self, HL, add); },  //INC HL
+      0x24 => { inc_r!($self, H); }             //INC H
+      0x25 => { dec_r!($self, H); }             //DEC H
       0x26 => { ld_r_u8!($self, H); }           //LD H,u8 
       0x2B => { incdec_rr!($self, HL, sub); }   //DEC HL
+      0x2C => { inc_r!($self, L); }             //INC L
+      0x2D => { dec_r!($self, L); }             //DEC L
       0x2E => { ld_r_u8!($self, L); }           //LD L,u8 
 
       0x31 => { ld_rr_u16!($self, SP); },       //LD SP,u16
@@ -196,6 +241,8 @@ macro_rules! cpu_instructions {
       0x33 => { incdec_rr!($self, SP, add); },  //INC SP
       0x36 => { ld_mhl_u8!($self); }            //LD (HL), u8
       0x3B => { incdec_rr!($self, SP, sub); },  //DEC SP
+      0x3C => { inc_r!($self, A); }             //INC A
+      0x3D => { dec_r!($self, A); }             //DEC A
       0x3E => { ld_r_u8!($self, A); }           //LD A,u8 
 
       0x40 => { /*TODO Breakpoint */ }          //LD B,B
