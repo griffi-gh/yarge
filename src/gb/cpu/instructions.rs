@@ -550,7 +550,7 @@ macro_rules! swap_r {
   ($self: expr, $reg: ident) => {
     paste! {
       let v = $self.reg.[<$reg:lower>]().rotate_left(4);
-      $self.set_f_all(v == 0, false, false, false);
+      $self.reg.set_f_all(v == 0, false, false, false);
       $self.reg.[<set_ $reg:lower>](v);
     }
   };
@@ -561,7 +561,7 @@ macro_rules! swap_mhl {
   ($self: expr) => {
     paste! {
       let v = $self.rb($self.reg.hl());
-      $self.set_f_all(v == 0, false, false, false);
+      $self.reg.set_f_all(v == 0, false, false, false);
       $self.wb($self.reg.hl(), v);
     }
   };
