@@ -9,7 +9,9 @@ use std::{thread, sync::{Arc, Mutex}};
 
 const _VERSION: Option<&str> = option_env!("CARGO_PKG_VERSION");
 const _NAME: Option<&str> = option_env!("CARGO_PKG_NAME");
-#[cfg(feature = "logging-file")] const LOG_PATH: &str = "./gameboy.log";
+
+#[cfg(feature = "logging-file")]
+const LOG_PATH: &str = "./gameboy.log";
 
 ///Gameboy emulator
 pub struct Gameboy {
