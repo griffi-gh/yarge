@@ -388,6 +388,21 @@ macro_rules! jr_i8_cond {
 }
 pub(crate) use jr_i8_cond;
 
+macro_rules! ld_a_m_ff00_add_c {
+  ($self: expr) => {
+    let v = $self.rb(0xFF00 | ($self.reg.c() as u16));
+    $self.reg.set_a(v);
+  };
+}
+pub(crate) use ld_a_m_ff00_add_c;
+
+macro_rules! ld_m_ff00_add_c_a {
+  ($self: expr) => {
+    $self.wb(0xFF00 | ($self.reg.c() as u16), $self.reg.a());
+  };
+}
+pub(crate) use ld_m_ff00_add_c_a;
+
 macro_rules! cpu_instructions {
   ($self: expr, $op: expr) => {
     match($op) {
@@ -565,9 +580,11 @@ macro_rules! cpu_instructions {
       0xDA => { cond_jp_u16!($self, C); }       //JP C,u16
 
       0xE1 => { pop_rr!($self, HL); }           //POP HL
+      0xE2 => { ld_m_ff00_add_c_a!($self); }    //LD (FF00+C),A
       0xE5 => { push_rr!($self, HL); }          //PUSH HL
 
       0xF1 => { pop_rr!($self, AF); }           //POP AF
+      0xF2 => { ld_a_m_ff00_add_c!($self); }    //LD A,(FF00+C)
       0xF5 => { push_rr!($self, AF); }          //PUSH AF
 
       _ => panic_invalid_instruction!($self, $op, false) 
