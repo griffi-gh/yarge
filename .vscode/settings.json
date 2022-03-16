@@ -2,18 +2,10 @@
   "todo-tree.tree.showCountsInTree": true,
   "todo-tree.tree.showBadges": true, 
   "todo-tree.general.tags": [
-    "BUG",
-    "HACK",
-    "HACKY",
-    "FIXME",
-    "TODO",
-    "XXX",
-    "MAYBE",
-    "NOTE",
-    "NOT TESTED",
-    "TEST",
-    "FUCK",
-    "[ ]",
-    "[x]"
+    "BUG", "HACK", "HACKY",
+    "FIXME", "TODO", "XXX",
+    "MAYBE", "NOT TESTED",
+    "NOTE", "TEST", "FUCK", 
+    "GBC", "[ ]", "[x]"
   ],
 }

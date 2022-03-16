@@ -44,7 +44,7 @@ impl MMU {
       },
       //VRAM
       0x8000..=0x9FFF => {
-        0 //TODO self.ppu.read(addr)
+        self.ppu.read_vram(addr)
       }
       //ERAM
       0xA000..=0xBFFF => {
@@ -56,11 +56,11 @@ impl MMU {
       },
       //OAM
       0xFE00..=0xFE9F => {
-        0 //TODO self.ppu.read(addr)
+        self.ppu.read_oam(addr)
       },
       //IO REGISTERS
       0xFF00..=0xFF7F => {
-        #[cfg(feature = "stub_ly")]
+        #[cfg(feature = "ly-stub")]
         if addr == 0xFF44 { return 0x90; }
         0xff //TODO I/O Registers Read
       },
@@ -86,7 +86,7 @@ impl MMU {
       }
       //VRAM
       0x8000..=0x9FFF => {
-        //TODO self.ppu.write(addr, value);
+        self.ppu.write_vram(addr, value);
       }
       //ERAM
       0xA000..=0xBFFF => {
@@ -98,7 +98,7 @@ impl MMU {
       },
       //OAM
       0xFE00..=0xFE9F => {
-        //TODO self.ppu.write(addr, value);
+        self.ppu.write_oam(addr, value);
       },
       //IO REGISTERS
       0xFF00..=0xFF7F => {

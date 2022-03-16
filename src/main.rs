@@ -1,3 +1,5 @@
+#![forbid(unsafe_code)]
+
 pub mod gb;
 use gb::Gameboy;
 use std::sync::{Arc, Mutex};
