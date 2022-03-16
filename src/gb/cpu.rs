@@ -90,6 +90,7 @@ impl CPU {
     }
 
     pub fn step(&mut self) -> u32 {
+        self.t = 0;
         if self.state == CPUState::Running {
             self.t = 0;
             let mut op = self.fetch();
@@ -102,8 +103,6 @@ impl CPU {
         } else {
             self.internal(4);
         }
-        let t = self.t;
-        self.t = 0;
-        return t;
+        return self.t;
     }
 }
