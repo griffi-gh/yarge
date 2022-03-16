@@ -362,6 +362,23 @@ macro_rules! xor_a_mhl {
 }
 pub(crate) use xor_a_mhl;
 
+macro_rules! jr_i8 {
+  ($self: expr) => {
+    let v = $self.fetch_signed();
+    $self.inc_pc(v as u16);
+  };
+}
+pub(crate) use jr_i8;
+
+macro_rules! jr_i8_cond {
+  ($self: expr) => {
+    todo!();
+    let v = $self.fetch_signed();
+    $self.inc_pc(v as u16);
+  };
+}
+pub(crate) use jr_i8_cond;
+
 macro_rules! cpu_instructions {
   ($self: expr, $op: expr) => {
     match($op) {

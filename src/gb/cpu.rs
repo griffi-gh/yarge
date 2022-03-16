@@ -38,6 +38,10 @@ impl CPU {
         self.reg.inc_pc(2);
         return op
     }
+    #[inline]
+    fn fetch_signed(&mut self) -> i8 {
+        i8::from_ne_bytes([self.fetch()])
+    }
 
     fn push(&mut self, value: u16) {
         self.reg.dec_sp(2);
