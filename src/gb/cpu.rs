@@ -92,7 +92,6 @@ impl CPU {
     pub fn step(&mut self) -> u32 {
         self.t = 0;
         if self.state == CPUState::Running {
-            self.t = 0;
             let mut op = self.fetch();
             if op != 0xCB { 
                 cpu_instructions!(self, op);
