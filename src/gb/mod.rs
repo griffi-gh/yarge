@@ -61,10 +61,9 @@ impl Gameboy {
         }
     }
 
-    pub fn step(&mut self) {
+    pub fn step(&mut self) -> u32 {
         #[cfg(feature = "logging")] self.log_step();
-        let _t = self.cpu.step();
-        //TODO Tick other components
+        self.cpu.step()
     }
 
     pub fn run(gb: &mut Gameboy) {

@@ -67,18 +67,26 @@ impl CPU {
     #[inline(always)]
     fn rw(&mut self, addr: u16) -> u16 {
         self.t += 8;
+        self.tick_comp(8);
         self.mmu.rw(addr)
     }
     #[inline(always)]
     fn ww(&mut self, addr: u16, value: u16) {
         self.t += 8;
+        self.tick_comp(8);
         self.mmu.ww(addr, value);
     }
 
     #[inline(always)]
     fn internal(&mut self, cycles: u32) {
         self.t += cycles;
-        //no, tick here!
+        self.tick_comp(cycles);
+    }
+    
+    /// Do not call directly!
+    /// Instead, use internal()
+    fn tick_comp(&mut self, _cycles: u32) {
+        
     }
 
     pub fn step(&mut self) -> u32 {
@@ -90,12 +98,12 @@ impl CPU {
             } else {
                 op = self.fetch();
                 cpu_instructions_cb!(self, op);
-            }
-            let t = self.t;
-            self.t = 0;
-            return t;
+            }         
         } else {
-            return 4;
+            self.internal(4);
         }
+        let t = self.t;
+        self.t = 0;
+        return t;
     }
 }

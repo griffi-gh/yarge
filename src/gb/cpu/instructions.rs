@@ -367,7 +367,7 @@ macro_rules! jr_i8 {
     let v = $self.fetch_signed();
     $self.reg.inc_pc(v as u16);
     $self.internal(4);
-  }; //TEST
+  }; //Works fine?
 }
 pub(crate) use jr_i8;
 
@@ -383,7 +383,7 @@ macro_rules! jr_i8_cond {
         $self.reg.inc_pc(1);
         $self.internal(4); 
       }
-    } //TEST
+    } //Works fine??
   };
 }
 pub(crate) use jr_i8_cond;
