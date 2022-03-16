@@ -11,8 +11,7 @@ macro_rules! panic_invalid_instruction {
       $op, $self.reg.pc.wrapping_sub(1)
     )
   };
-}
-pub(crate) use panic_invalid_instruction;
+} pub(crate) use panic_invalid_instruction;
 
 macro_rules! ld_r_u8 {
   ($self: expr, $reg: ident) => { 
@@ -21,16 +20,14 @@ macro_rules! ld_r_u8 {
       $self.reg.[<set_ $reg:lower>](val);
     }
   };
-}
-pub(crate) use ld_r_u8;
+} pub(crate) use ld_r_u8;
 
 macro_rules! ld_mhl_u8 {
   ($self: expr) => { 
     let val = $self.fetch();
     $self.wb($self.reg.hl(), val);
   };
-}
-pub(crate) use ld_mhl_u8;
+} pub(crate) use ld_mhl_u8;
 
 macro_rules! ld_rr_u16 {
   ($self: expr, $reg: ident) => { 
@@ -39,8 +36,7 @@ macro_rules! ld_rr_u16 {
       $self.reg.[<set_ $reg:lower>](val);
     }
   };
-}
-pub(crate) use ld_rr_u16;
+} pub(crate) use ld_rr_u16;
 
 macro_rules! ld_mrr_a {
   ($self: expr, $reg: ident) => {
@@ -49,8 +45,16 @@ macro_rules! ld_mrr_a {
     } 
     $self.wb(v, $self.reg.a());
   };
-}
-pub(crate) use ld_mrr_a;
+} pub(crate) use ld_mrr_a;
+
+macro_rules! ld_a_mrr {
+  ($self: expr, $reg: ident) => {
+    paste! {
+      let v = $self.rb($self.reg.[<$reg:lower>]());
+      $self.reg.set_a(v);
+    }
+  };
+} pub(crate) use ld_a_mrr;
 
 macro_rules! ld_mhli_a {
   ($self: expr, $inc: ident) => {
@@ -60,8 +64,18 @@ macro_rules! ld_mhli_a {
     }
     $self.wb(v, $self.reg.a());
   };
-}
-pub(crate) use ld_mhli_a;
+} pub(crate) use ld_mhli_a;
+
+macro_rules! ld_a_mhli {
+  ($self: expr, $inc: ident) => {
+    let v = $self.reg.hl();
+    paste! {
+      $self.reg.set_hl($self.reg.hl().[<wrapping_ $inc:lower>](1));
+    }
+    let v = $self.rb(v);
+    $self.reg.set_a(v);
+  };
+} pub(crate) use ld_a_mhli;
 
 macro_rules! incdec_rr {
   ($self: expr, $reg: ident, $inc: ident) => {
@@ -72,8 +86,7 @@ macro_rules! incdec_rr {
     }
     $self.internal(4);
   };
-}
-pub(crate) use incdec_rr;
+} pub(crate) use incdec_rr;
 
 macro_rules! ld_r_r {
   ($self: expr, $a: ident, $b: ident) => {
@@ -83,8 +96,7 @@ macro_rules! ld_r_r {
       );
     }
   };
-}
-pub(crate) use ld_r_r;
+} pub(crate) use ld_r_r;
 
 macro_rules! pop_rr {
   ($self: expr, $reg: ident) => {
@@ -93,8 +105,7 @@ macro_rules! pop_rr {
       $self.reg.[<set_ $reg:lower>](v);
     }
   };
-}
-pub(crate) use pop_rr;
+} pub(crate) use pop_rr;
 
 macro_rules! push_rr {
   ($self: expr, $reg: ident) => {
@@ -103,8 +114,7 @@ macro_rules! push_rr {
       $self.push($self.reg.[<$reg:lower>]());
     }
   };
-}
-pub(crate) use push_rr;
+} pub(crate) use push_rr;
 
 macro_rules! jp_u16 {
   ($self: expr) => {
@@ -112,8 +122,7 @@ macro_rules! jp_u16 {
     $self.reg.pc = to;
     $self.internal(4);
   };
-}
-pub(crate) use jp_u16;
+} pub(crate) use jp_u16;
 
 macro_rules! cond_jp_u16 {
   ($self: expr, $cond: ident) => {
@@ -129,8 +138,7 @@ macro_rules! cond_jp_u16 {
       }
     }
   }
-}
-pub(crate) use cond_jp_u16;
+} pub(crate) use cond_jp_u16;
 
 macro_rules! call_u16 {
   ($self: expr) => {
@@ -139,8 +147,7 @@ macro_rules! call_u16 {
     $self.push($self.reg.pc);
     $self.reg.pc = to;
   };
-}
-pub(crate) use call_u16;
+} pub(crate) use call_u16;
 
 macro_rules! ld_mhl_r {
   ($self: expr, $reg: ident) => {
@@ -148,8 +155,7 @@ macro_rules! ld_mhl_r {
       $self.wb($self.reg.hl(), $self.reg.[<$reg:lower>]());
     }
   };
-}
-pub(crate) use ld_mhl_r;
+} pub(crate) use ld_mhl_r;
 
 macro_rules! ld_r_mhl {
   ($self: expr, $reg: ident) => {
@@ -158,15 +164,13 @@ macro_rules! ld_r_mhl {
       $self.reg.[<set_ $reg:lower>](v);
     }
   };
-}
-pub(crate) use ld_r_mhl;
+} pub(crate) use ld_r_mhl;
 
 macro_rules! ihalt {
   ($self: expr) => {
     $self.state = CPUState::Halt;
   };
-}
-pub(crate) use ihalt;
+} pub(crate) use ihalt;
 
 macro_rules! inc_flags {
   ($self: expr, $v: expr, $r: expr) => {
@@ -174,8 +178,7 @@ macro_rules! inc_flags {
     $self.reg.set_f_n(false);
     $self.reg.set_f_h(($v & 0x0F) + 1 > 0x0F);
   }
-}
-pub(crate) use inc_flags;
+} pub(crate) use inc_flags;
 
 macro_rules! dec_flags {
   ($self: expr, $v: expr, $r: expr) => {
@@ -183,8 +186,7 @@ macro_rules! dec_flags {
     $self.reg.set_f_n(true);
     $self.reg.set_f_h(($v & 0x0F) == 0);
   }
-}
-pub(crate) use dec_flags;
+} pub(crate) use dec_flags;
 
 macro_rules! inc_r {
   ($self: expr, $reg: ident) => {
@@ -197,8 +199,7 @@ macro_rules! inc_r {
       $self.reg.[<set_ $reg:lower>](r);
     }
   };
-}
-pub(crate) use inc_r;
+} pub(crate) use inc_r;
 
 macro_rules! dec_r {
   ($self: expr, $reg: ident) => {
@@ -211,8 +212,7 @@ macro_rules! dec_r {
       $self.reg.[<set_ $reg:lower>](r);
     }
   };
-}
-pub(crate) use dec_r;
+} pub(crate) use dec_r;
 
 macro_rules! inc_mhl {
   ($self: expr) => {
@@ -221,8 +221,7 @@ macro_rules! inc_mhl {
     inc_flags!($self, v, r);
     $self.wb($self.reg.hl(), r);
   };
-}
-pub(crate) use inc_mhl;
+} pub(crate) use inc_mhl;
 
 macro_rules! dec_mhl {
   ($self: expr) => {
@@ -231,8 +230,7 @@ macro_rules! dec_mhl {
     dec_flags!($self, v, r);
     $self.wb($self.reg.hl(), r);
   };
-}
-pub(crate) use dec_mhl;
+} pub(crate) use dec_mhl;
 
 macro_rules! add_a_r {
   ($self: expr, $reg: ident) => {
@@ -249,8 +247,7 @@ macro_rules! add_a_r {
     );
     $self.reg.set_a(r.0);
   };
-}
-pub(crate) use add_a_r;
+} pub(crate) use add_a_r;
 
 macro_rules! add_a_mhl {
   ($self: expr) => {
@@ -265,8 +262,7 @@ macro_rules! add_a_mhl {
     );
     $self.reg.set_a(r.0);
   };
-}
-pub(crate) use add_a_mhl;
+} pub(crate) use add_a_mhl;
 
 macro_rules! sub_a_r {
   ($self: expr, $reg: ident) => {
@@ -283,8 +279,7 @@ macro_rules! sub_a_r {
     );
     $self.reg.set_a(r.0);
   };
-}
-pub(crate) use sub_a_r;
+} pub(crate) use sub_a_r;
 
 macro_rules! sub_a_mhl {
   ($self: expr) => {
@@ -299,8 +294,7 @@ macro_rules! sub_a_mhl {
     );
     $self.reg.set_a(r.0);
   };
-}
-pub(crate) use sub_a_mhl;
+} pub(crate) use sub_a_mhl;
 
 macro_rules! and_a_r {
   ($self: expr, $reg: ident) => {
@@ -310,8 +304,7 @@ macro_rules! and_a_r {
     $self.reg.set_a(r);
     $self.reg.set_f_all(r == 0, false, true, false);
   };
-}
-pub(crate) use and_a_r;
+} pub(crate) use and_a_r;
 
 macro_rules! and_a_mhl {
   ($self: expr) => {
@@ -319,8 +312,7 @@ macro_rules! and_a_mhl {
     $self.reg.set_a(r);
     $self.reg.set_f_all(r == 0, false, true, false);
   };
-}
-pub(crate) use and_a_mhl;
+} pub(crate) use and_a_mhl;
 
 macro_rules! or_a_r {
   ($self: expr, $reg: ident) => {
@@ -330,8 +322,7 @@ macro_rules! or_a_r {
     $self.reg.set_a(r);
     $self.reg.set_f_all(r == 0, false, false, false);
   };
-}
-pub(crate) use or_a_r;
+} pub(crate) use or_a_r;
 
 macro_rules! or_a_mhl {
   ($self: expr) => {
@@ -339,8 +330,7 @@ macro_rules! or_a_mhl {
     $self.reg.set_a(r);
     $self.reg.set_f_all(r == 0, false, false, false);
   };
-}
-pub(crate) use or_a_mhl;
+} pub(crate) use or_a_mhl;
 
 macro_rules! xor_a_r {
   ($self: expr, $reg: ident) => {
@@ -350,8 +340,7 @@ macro_rules! xor_a_r {
     $self.reg.set_a(r);
     $self.reg.set_f_all(r == 0, false, false, false);
   };
-}
-pub(crate) use xor_a_r;
+} pub(crate) use xor_a_r;
 
 macro_rules! xor_a_mhl {
   ($self: expr) => {
@@ -359,8 +348,7 @@ macro_rules! xor_a_mhl {
     $self.reg.set_a(r);
     $self.reg.set_f_all(r == 0, false, false, false);
   };
-}
-pub(crate) use xor_a_mhl;
+} pub(crate) use xor_a_mhl;
 
 macro_rules! jr_i8 {
   ($self: expr) => {
@@ -368,8 +356,7 @@ macro_rules! jr_i8 {
     $self.reg.inc_pc(v as u16);
     $self.internal(4);
   }; //Works fine?
-}
-pub(crate) use jr_i8;
+} pub(crate) use jr_i8;
 
 macro_rules! jr_i8_cond {
   ($self: expr, $cond: ident) => {
@@ -385,23 +372,20 @@ macro_rules! jr_i8_cond {
       }
     } //Works fine??
   };
-}
-pub(crate) use jr_i8_cond;
+} pub(crate) use jr_i8_cond;
 
 macro_rules! ld_a_m_ff00_add_c {
   ($self: expr) => {
     let v = $self.rb(0xFF00 | ($self.reg.c() as u16));
     $self.reg.set_a(v);
   };
-}
-pub(crate) use ld_a_m_ff00_add_c;
+} pub(crate) use ld_a_m_ff00_add_c;
 
 macro_rules! ld_m_ff00_add_c_a {
   ($self: expr) => {
     $self.wb(0xFF00 | ($self.reg.c() as u16), $self.reg.a());
   };
-}
-pub(crate) use ld_m_ff00_add_c_a;
+} pub(crate) use ld_m_ff00_add_c_a;
 
 
 macro_rules! ld_a_m_ff00_add_u8 {
@@ -410,16 +394,14 @@ macro_rules! ld_a_m_ff00_add_u8 {
     let v = $self.rb(0xFF00 | f);
     $self.reg.set_a(v);
   };
-}
-pub(crate) use ld_a_m_ff00_add_u8;
+} pub(crate) use ld_a_m_ff00_add_u8;
 
 macro_rules! ld_m_ff00_add_u8_a {
   ($self: expr) => {
     let f = $self.fetch() as u16;
     $self.wb(0xFF00 | f, $self.reg.a());
   };
-}
-pub(crate) use ld_m_ff00_add_u8_a;
+} pub(crate) use ld_m_ff00_add_u8_a;
 
 macro_rules! cpu_instructions {
   ($self: expr, $op: expr) => {
@@ -431,6 +413,7 @@ macro_rules! cpu_instructions {
       0x04 => { inc_r!($self, B); }             //INC B
       0x05 => { dec_r!($self, B); }             //DEC B
       0x06 => { ld_r_u8!($self, B); }           //LD B,u8 
+      0x0A => { ld_a_mrr!($self, BC); }         //LD A,(BC)
       0x0B => { incdec_rr!($self, BC, sub); }   //DEC BC
       0x0C => { inc_r!($self, C); }             //INC C
       0x0D => { dec_r!($self, C); }             //DEC C
@@ -442,7 +425,8 @@ macro_rules! cpu_instructions {
       0x14 => { inc_r!($self, D); }             //INC D
       0x15 => { dec_r!($self, D); }             //DEC D
       0x16 => { ld_r_u8!($self, D); }           //LD D,u8  
-      0x18 => { jr_i8!($self); }                 //JR i8
+      0x18 => { jr_i8!($self); }                //JR i8
+      0x1A => { ld_a_mrr!($self, DE); }         //LD A,(DE)
       0x1B => { incdec_rr!($self, DE, sub); }   //DEC DE
       0x1C => { inc_r!($self, E); }             //INC E
       0x1D => { dec_r!($self, E); }             //DEC E
@@ -456,6 +440,7 @@ macro_rules! cpu_instructions {
       0x25 => { dec_r!($self, H); }             //DEC H
       0x26 => { ld_r_u8!($self, H); }           //LD H,u8
       0x28 => { jr_i8_cond!($self, Z); }        //JR Z, i8 
+      0x2A => { ld_a_mhli!($self, add); }       //LD A,(HL+)
       0x2B => { incdec_rr!($self, HL, sub); }   //DEC HL
       0x2C => { inc_r!($self, L); }             //INC L
       0x2D => { dec_r!($self, L); }             //DEC L
@@ -469,6 +454,7 @@ macro_rules! cpu_instructions {
       0x35 => { dec_mhl!($self); }              //DEC (HL)
       0x36 => { ld_mhl_u8!($self); }            //LD (HL), u8
       0x38 => { jr_i8_cond!($self, C); }        //JR C, i8 
+      0x3A => { ld_a_mhli!($self, sub); }       //LD A,(HL-)
       0x3B => { incdec_rr!($self, SP, sub); },  //DEC SP
       0x3C => { inc_r!($self, A); }             //INC A
       0x3D => { dec_r!($self, A); }             //DEC A
@@ -610,8 +596,7 @@ macro_rules! cpu_instructions {
       _ => panic_invalid_instruction!($self, $op, false) 
     }
   };
-}
-pub(crate) use cpu_instructions;
+} pub(crate) use cpu_instructions;
 
 macro_rules! swap_r {
   ($self: expr, $reg: ident) => {
@@ -621,8 +606,7 @@ macro_rules! swap_r {
       $self.reg.[<set_ $reg:lower>](v);
     }
   };
-}
-pub(crate) use swap_r;
+} pub(crate) use swap_r;
 
 macro_rules! swap_mhl {
   ($self: expr) => {
@@ -632,8 +616,7 @@ macro_rules! swap_mhl {
       $self.wb($self.reg.hl(), v);
     }
   };
-}
-pub(crate) use swap_mhl;
+} pub(crate) use swap_mhl;
 
 macro_rules! bit_r {
   ($self: expr, $bit: expr, $reg: ident) => {
@@ -643,8 +626,7 @@ macro_rules! bit_r {
     $self.reg.set_f_n(false);
     $self.reg.set_f_h(true);
   };
-}
-pub(crate) use bit_r;
+} pub(crate) use bit_r;
 
 macro_rules! bit_mhl {
   ($self: expr, $bit: expr) => {
@@ -653,8 +635,7 @@ macro_rules! bit_mhl {
     $self.reg.set_f_n(false);
     $self.reg.set_f_h(true);
   };
-}
-pub(crate) use bit_mhl;
+} pub(crate) use bit_mhl;
 
 macro_rules! cpu_instructions_cb {
   ($self: expr, $op: expr) => {
@@ -739,5 +720,4 @@ macro_rules! cpu_instructions_cb {
       _ => panic_invalid_instruction!($self, $op, true) 
     }
   };
-}
-pub(crate) use cpu_instructions_cb;
+} pub(crate) use cpu_instructions_cb;
