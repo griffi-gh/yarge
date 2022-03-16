@@ -366,6 +366,7 @@ macro_rules! jr_i8 {
   ($self: expr) => {
     let v = $self.fetch_signed();
     $self.inc_pc(v as u16);
+    $self.internal(4);
   };
 }
 pub(crate) use jr_i8;
@@ -373,8 +374,10 @@ pub(crate) use jr_i8;
 macro_rules! jr_i8_cond {
   ($self: expr) => {
     todo!();
-    let v = $self.fetch_signed();
-    $self.inc_pc(v as u16);
+    //TODO
+    //let v = $self.fetch_signed();
+    //$self.inc_pc(v as u16);
+    //$self.internal(4);
   };
 }
 pub(crate) use jr_i8_cond;

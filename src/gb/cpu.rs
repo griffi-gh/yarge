@@ -78,6 +78,7 @@ impl CPU {
     #[inline(always)]
     fn internal(&mut self, cycles: u32) {
         self.t += cycles;
+        //no, tick here!
     }
 
     pub fn step(&mut self) -> u32 {
