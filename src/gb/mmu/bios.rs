@@ -17,26 +17,6 @@ pub const BIOS: [u8; 0x100] = [
   0xF5, 0x06, 0x19, 0x78, 0x86, 0x23, 0x05, 0x20, 0xFB, 0x86, 0x20, 0xFE, 0x3E, 0x01, 0xE0, 0x50
 ];
 
-#[cfg(test)]
-mod tests {
-  const EXPECTED_HASH: u64 = 0x9FF868A6F555C7B9;
-
-  use super::*;
-  use std::collections::hash_map::DefaultHasher;
-  use std::hash::{Hash, Hasher};
-  
-  #[derive(Hash)] struct Hashable { v: [u8; 0x100] }
-
-  #[test]
-  fn test_hash() {
-    let hashable = Hashable { v: BIOS };
-    let mut hasher = DefaultHasher::new();
-    hashable.hash(&mut hasher);
-    let hash = hasher.finish();
-    assert_eq!(hash, EXPECTED_HASH);
-  }
-}
-
 /*/\/\/\/\/\/ GAMEBOY BOOTSTRAP ROM /\/\/\/\/\/\/
 
 	LD SP,$fffe		; $0000  Setup Stack
