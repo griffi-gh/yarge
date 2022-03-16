@@ -43,6 +43,7 @@ impl CPU {
         i8::from_ne_bytes([self.fetch()])
     }
 
+    #[inline]
     fn push(&mut self, value: u16) {
         self.reg.dec_sp(2);
         self.ww(self.reg.sp, value);
