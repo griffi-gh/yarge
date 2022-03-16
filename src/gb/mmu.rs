@@ -27,7 +27,6 @@ impl MMU {
   
   // MAYBE? rename to r16/w16/r8/w8 ?
 
-  #[inline(never)]
   pub fn rb(&self, addr: u16) -> u8 {
     match addr {
       //BOOTROM/ROM
@@ -71,7 +70,7 @@ impl MMU {
       _ => 0
     }
   }
-  #[inline(never)]
+  
   pub fn wb(&mut self, addr: u16, value: u8) {
     match addr {
       //BOOTROM/ROM
