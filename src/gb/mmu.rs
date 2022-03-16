@@ -4,8 +4,10 @@ use cartridge::{DynCartridge, get_cartridge};
 
 mod bios;
 use bios::BIOS;
+use super::PPU;
 
 pub struct MMU {
+  pub ppu: PPU,
   cart: DynCartridge,
   bios_disabled: bool,
   wram: [u8; 0x2000],
@@ -19,6 +21,7 @@ impl MMU {
       bios_disabled: false,
       wram: [0; 0x2000],
       hram: [0; 0x007F],
+      ppu: PPU::new(),
     }
   }
   

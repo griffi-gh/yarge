@@ -86,8 +86,8 @@ impl CPU {
     
     /// Do not call directly!
     /// Instead, use internal()
-    fn tick_comp(&mut self, _cycles: u32) {
-        
+    fn tick_comp(&mut self, t: u32) {
+        self.mmu.ppu.tick(t);
     }
 
     pub fn step(&mut self) -> u32 {
