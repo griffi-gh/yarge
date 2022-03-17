@@ -21,13 +21,21 @@ impl CartridgeNone {
 }
 impl Cartridge for CartridgeNone {
     fn load(&mut self, rom: &[u8]) {
+        if rom.len() != 0x8000 {
+            panic!("Invalid size");
+        }
         for (place, data) in self.rom.iter_mut().zip(rom.iter()) {
             *place = *data;
         }
     }
-    #[inline]
+    #[inline(always)]
     fn read(&self, addr: u16) -> u8 {
-        self.rom[addr as usize]
+        //bitwise and allows the compiler to optimize away the bounds checks
+        //...but I want to keep them on debug buils
+        #[cfg(debug_assertions)]
+        return self.rom[addr as usize];
+        #[cfg(not(debug_assertions))]
+        return self.rom[(addr & 0x7FFF) as usize];
     }
 }
 
