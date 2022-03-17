@@ -75,9 +75,8 @@ impl MMU {
     match addr {
       //BOOTROM/ROM
       0..=0xff => {
-        if self.bios_disabled {
-          self.cart.write(addr, value);
-        }
+        //mayybe check for disable_bios?
+        self.cart.write(addr, value);
       },
       //ROM
       0x100..=0x7fff => {
