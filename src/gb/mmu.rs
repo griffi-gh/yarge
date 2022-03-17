@@ -74,12 +74,7 @@ impl MMU {
   pub fn wb(&mut self, addr: u16, value: u8) {
     match addr {
       //BOOTROM/ROM
-      0..=0xff => {
-        //mayybe check for disable_bios?
-        self.cart.write(addr, value);
-      },
-      //ROM
-      0x100..=0x7fff => {
+      0..=0x7fff => {
         self.cart.write(addr, value);
       }
       //VRAM
