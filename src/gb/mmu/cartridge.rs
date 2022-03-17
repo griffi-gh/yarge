@@ -22,7 +22,7 @@ impl CartridgeNone {
 impl Cartridge for CartridgeNone {
     fn load(&mut self, rom: &[u8]) {
         if rom.len() != 0x8000 {
-            panic!("Invalid size");
+            panic!("Invalid ROM size: {:#X}", rom.len());
         }
         for (place, data) in self.rom.iter_mut().zip(rom.iter()) {
             *place = *data;
