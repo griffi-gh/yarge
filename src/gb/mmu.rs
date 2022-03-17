@@ -100,9 +100,10 @@ impl MMU {
         self.ppu.write_oam(addr, value);
       },
       //IO REGISTERS
-      0xFF00..=0xFF7F => {
-        //TODO I/O Registers Write
-      },
+      0xFF50 => {
+        //TODO check the value?
+        self.bios_disabled = true;
+      }
       //HRAM
       0xFF80..=0xFFFE => {
         self.hram[((addr - 0xFF80) & 0x7F) as usize] = value;
