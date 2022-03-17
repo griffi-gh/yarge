@@ -7,7 +7,7 @@ pub use mmu::MMU;
 pub use cpu::CPU;
 pub use ppu::PPU;
 
-use std::{thread, sync::{Arc, Mutex}};
+use std::{thread, sync::{Arc, Mutex}, error::Error};
 
 #[cfg(feature = "logging-file")]
 const LOG_PATH: &str = "./gameboy.log";
@@ -16,6 +16,7 @@ pub struct GameboyBuilder {
     gb: Gameboy,
     err: Option<Box<dyn std::error::Error + 'static>>,
 }
+type Res<T> = Result<T, Box<dyn Error + 'static>>;
 impl GameboyBuilder {
     pub fn new() -> Self {
         Self {
@@ -34,21 +35,13 @@ impl GameboyBuilder {
         (&mut self).gb.load_rom(data);
         return self;
     }
-    pub fn load_rom_file(mut self, path: &String) -> Self {
-        if (&self).check_err() { return self }
-        (&mut self).gb.load_rom_file(&*path).unwrap_or_else(|e| {
-            self.err = Some(e);
-        });
-        return self;
-    }
-    pub fn build(self) -> Result<Gameboy, Box<dyn std::error::Error + 'static>> {
-        let gb = self.gb;
-        let err = self.err;
-        match err {
-            Some(err) => Err(err),
-            None => Ok(gb)
+    pub fn load_rom_file(mut self, path: &str) -> Res<Self> {
+        match (&mut self).gb.load_rom_file(path) {
+            Ok(()) => Ok(self),
+            Err(e) => Err(e)
         }
     }
+    pub fn build(self) -> Gameboy { self.gb }
 }
 
 
@@ -79,8 +72,8 @@ impl Gameboy {
                 .unwrap());
         }
     }
-    pub fn load_rom_file(&mut self, path: &String) -> Result<(), Box<dyn std::error::Error + 'static>> {
-        self.cpu.mmu.cart.load_file(path)?; Ok(())
+    pub fn load_rom_file(&mut self, path: &str) -> Res<()> {
+        self.cpu.mmu.cart.load_file(path)
     }
     pub fn load_rom(&mut self, data: &[u8]) {
         self.cpu.mmu.cart.load(data);
