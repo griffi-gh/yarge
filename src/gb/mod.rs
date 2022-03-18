@@ -22,12 +22,16 @@ impl GameboyBuilder {
             gb: Gameboy::new(),
         }
     }
-    pub fn init(mut self) -> Self {
-        (&mut self).gb.init();
+    pub fn init(mut self, cond: bool) -> Self {
+        if cond {
+            (&mut self).gb.init();
+        }
         return self;
     }
-    pub fn skip_bootrom(mut self) -> Self {
-        (&mut self).gb.skip_bootrom();
+    pub fn skip_bootrom(mut self, cond: bool) -> Self {
+        if cond {
+            (&mut self).gb.skip_bootrom();
+        }
         return self;
     }
     pub fn load_rom(mut self, data: &[u8]) -> Self {
