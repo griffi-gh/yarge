@@ -75,6 +75,7 @@ impl MMU {
     match addr {
       //BOOTROM/ROM
       0..=0x7fff => {
+        //nah it's not worth checking for "bios_disabled" here
         self.cart.write(addr, value);
       }
       //VRAM

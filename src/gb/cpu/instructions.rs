@@ -232,69 +232,85 @@ macro_rules! dec_mhl {
   };
 } pub(crate) use dec_mhl;
 
-macro_rules! add_a_r {
-  ($self: expr, $reg: ident) => {
+//ADD A
+
+macro_rules! alu_add_a {
+  ($self: expr, $b: expr) => {
     let a = $self.reg.a();
-    paste! {
-      let b = $self.reg.[<$reg:lower>]();
-    }
-    let r = a.overflowing_add(b);
+    let r = a.overflowing_add($b);
     $self.reg.set_f_all( //Z N H C
       r.0 == 0,
       false,
-      (a & 0xF) + (b & 0xF) > 0xF,
+      (a & 0xF) + ($b & 0xF) > 0xF,
       r.1
     );
     $self.reg.set_a(r.0);
+  };
+} pub(crate) use alu_add_a;
+
+macro_rules! add_a_r {
+  ($self: expr, $reg: ident) => {
+    paste! {
+      let b = $self.reg.[<$reg:lower>]();
+    }
+    alu_add_a!($self, b);
   };
 } pub(crate) use add_a_r;
 
 macro_rules! add_a_mhl {
   ($self: expr) => {
-    let a = $self.reg.a();
     let b = $self.rb($self.reg.hl());
-    let r = a.overflowing_add(b);
+    alu_add_a!($self, b);
+  };
+} pub(crate) use add_a_mhl;
+
+macro_rules! add_a_u8 {
+  ($self: expr) => {
+    let b = $self.fetch();
+    alu_add_a!($self, b);
+  };
+} pub(crate) use add_a_u8;
+
+//SUB A
+
+macro_rules! alu_sub_a {
+  ($self: expr, $b: expr) => {
+    let a = $self.reg.a();
+    let r = a.overflowing_sub($b);
     $self.reg.set_f_all( //Z N H C
       r.0 == 0,
-      false,
-      (a & 0xF) + (b & 0xF) > 0xF,
+      true,
+      (a & 0x0F) < ($b & 0x0F),
       r.1
     );
     $self.reg.set_a(r.0);
   };
-} pub(crate) use add_a_mhl;
+} pub(crate) use alu_sub_a;
 
 macro_rules! sub_a_r {
   ($self: expr, $reg: ident) => {
-    let a = $self.reg.a();
     paste! {
       let b = $self.reg.[<$reg:lower>]();
     }
-    let r = a.overflowing_sub(b);
-    $self.reg.set_f_all( //Z N H C
-      r.0 == 0,
-      true,
-      (a & 0x0F) < (b & 0x0F),
-      r.1
-    );
-    $self.reg.set_a(r.0);
+    alu_sub_a!($self, b);
   };
 } pub(crate) use sub_a_r;
 
 macro_rules! sub_a_mhl {
   ($self: expr) => {
-    let a = $self.reg.a();
     let b = $self.rb($self.reg.hl());
-    let r = a.overflowing_sub(b);
-    $self.reg.set_f_all( //Z N H C
-      r.0 == 0,
-      true,
-      (a & 0x0F) < (b & 0x0F),
-      r.1
-    );
-    $self.reg.set_a(r.0);
+    alu_sub_a!($self, b);
   };
 } pub(crate) use sub_a_mhl;
+
+macro_rules! sub_a_u8 {
+  ($self: expr) => {
+    let b = $self.fetch();
+    alu_sub_a!($self, b);
+  };
+} pub(crate) use sub_a_u8;
+
+//OR XOR, AND A
 
 macro_rules! and_a_r {
   ($self: expr, $reg: ident) => {
@@ -314,6 +330,14 @@ macro_rules! and_a_mhl {
   };
 } pub(crate) use and_a_mhl;
 
+macro_rules! and_a_u8 {
+  ($self: expr) => {
+    let r = $self.reg.a() & $self.fetch();
+    $self.reg.set_a(r);
+    $self.reg.set_f_all(r == 0, false, true, false);
+  };
+} pub(crate) use and_a_u8;
+
 macro_rules! or_a_r {
   ($self: expr, $reg: ident) => {
     paste! {
@@ -332,6 +356,14 @@ macro_rules! or_a_mhl {
   };
 } pub(crate) use or_a_mhl;
 
+macro_rules! or_a_u8 {
+  ($self: expr) => {
+    let r = $self.reg.a() | $self.fetch();
+    $self.reg.set_a(r);
+    $self.reg.set_f_all(r == 0, false, false, false);
+  };
+} pub(crate) use or_a_u8;
+
 macro_rules! xor_a_r {
   ($self: expr, $reg: ident) => {
     paste! {
@@ -349,6 +381,16 @@ macro_rules! xor_a_mhl {
     $self.reg.set_f_all(r == 0, false, false, false);
   };
 } pub(crate) use xor_a_mhl;
+
+macro_rules! xor_a_u8 {
+  ($self: expr) => {
+    let r = $self.reg.a() ^ $self.fetch();
+    $self.reg.set_a(r);
+    $self.reg.set_f_all(r == 0, false, false, false);
+  };
+} pub(crate) use xor_a_u8;
+
+//JR 
 
 macro_rules! jr_i8 {
   ($self: expr) => {
@@ -575,23 +617,28 @@ macro_rules! cpu_instructions {
       0xC2 => { cond_jp_u16!($self, NZ); }      //JP NZ,u16
       0xC3 => { jp_u16!($self); }               //JP u16
       0xC5 => { push_rr!($self, BC); }          //PUSH BC
+      0xC6 => { add_a_u8!($self); }             //ADD A,u8
       0xCA => { cond_jp_u16!($self, Z); }       //JP Z,u16  
       0xCD => { call_u16!($self); }             //CALL u16
 
       0xD1 => { pop_rr!($self, DE); }           //POP DE
       0xD2 => { cond_jp_u16!($self, NC); }      //JP NC,u16
       0xD5 => { push_rr!($self, DE); }          //PUSH DE
+      0xD6 => { sub_a_u8!($self); }             //SUB A,u8
       0xDA => { cond_jp_u16!($self, C); }       //JP C,u16
 
       0xE0 => { ld_m_ff00_add_u8_a!($self); }   //LD (FFOO+u8),A
       0xE1 => { pop_rr!($self, HL); }           //POP HL
       0xE2 => { ld_m_ff00_add_c_a!($self); }    //LD (FF00+C),A
       0xE5 => { push_rr!($self, HL); }          //PUSH HL
+      0xE6 => { and_a_u8!($self); }             //AND A,u8
+      0xEE => { xor_a_u8!($self); }             //XOR A,u8
 
       0xF0 => { ld_a_m_ff00_add_u8!($self); }   //LD A,(FF00+u8)
       0xF1 => { pop_rr!($self, AF); }           //POP AF
       0xF2 => { ld_a_m_ff00_add_c!($self); }    //LD A,(FF00+C)
       0xF5 => { push_rr!($self, AF); }          //PUSH AF
+      0xF6 => { or_a_u8!($self); }              //OR A,u8
 
       _ => panic_invalid_instruction!($self, $op, false) 
     }
