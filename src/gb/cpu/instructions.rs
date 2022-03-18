@@ -799,9 +799,42 @@ macro_rules! bit_mhl {
   };
 } pub(crate) use bit_mhl;
 
+//RL
+macro_rules! rl_r {
+  ($self: expr, $r: ident) => {
+    paste! {
+      let r = $self.reg.[<$r:lower>]().overflowing_shl(1);
+    }
+    $self.reg.set_f_all(false, false, false, r.1);
+    paste! {
+      $self.reg.[<set_ $r:lower>](
+        r.0 | ($self.reg.f_c() as u8)
+      );
+    }
+  }
+} pub(crate) use rl_r;
+
+macro_rules! rl_mhl {
+  ($self: expr) => {
+    let hl = $self.reg.hl();
+    let r = $self.rb(hl).overflowing_shl(1);
+    $self.reg.set_f_all(false, false, false, r.1);
+    $self.wb(hl, r.0 | ($self.reg.f_c() as u8));
+  }
+} pub(crate) use rl_mhl;
+
 macro_rules! cpu_instructions_cb {
   ($self: expr, $op: expr) => {
     match($op) {
+      0x10 => { rl_r!($self, B); }              // RL B
+      0x11 => { rl_r!($self, C); }              // RL C
+      0x12 => { rl_r!($self, D); }              // RL D
+      0x13 => { rl_r!($self, E); }              // RL E
+      0x14 => { rl_r!($self, H); }              // RL H
+      0x15 => { rl_r!($self, L); }              // RL L
+      0x16 => { rl_mhl!($self); }               // RL (HL)
+      0x17 => { rl_r!($self, A); }              // RL A
+
       0x30 => { swap_r!($self, B); }            // SWAP B
       0x31 => { swap_r!($self, C); }            // SWAP C
       0x32 => { swap_r!($self, D); }            // SWAP D
