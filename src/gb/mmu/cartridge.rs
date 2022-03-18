@@ -22,7 +22,10 @@ impl CartridgeNone {
 impl Cartridge for CartridgeNone {
     fn load(&mut self, rom: &[u8]) {
         if rom.len() != 0x8000 {
-            panic!("Invalid ROM size: {:#X}", rom.len());
+            panic!(
+                "Invalid ROM size: {:#X}.\nPlease note that that MBC cartridges (games larger then 32kb) are not supported yet",
+                rom.len()
+            );
         }
         for (place, data) in self.rom.iter_mut().zip(rom.iter()) {
             *place = *data;

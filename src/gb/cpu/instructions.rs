@@ -805,11 +805,10 @@ macro_rules! rl_r {
     paste! {
       let r = $self.reg.[<$r:lower>]().overflowing_shl(1);
     }
-    $self.reg.set_f_all(false, false, false, r.1);
+    let s = r.0 | ($self.reg.f_c() as u8);
+    $self.reg.set_f_all(s == 0, false, false, r.1);
     paste! {
-      $self.reg.[<set_ $r:lower>](
-        r.0 | ($self.reg.f_c() as u8)
-      );
+      $self.reg.[<set_ $r:lower>](s);
     }
   }
 } pub(crate) use rl_r;
@@ -818,8 +817,9 @@ macro_rules! rl_mhl {
   ($self: expr) => {
     let hl = $self.reg.hl();
     let r = $self.rb(hl).overflowing_shl(1);
-    $self.reg.set_f_all(false, false, false, r.1);
-    $self.wb(hl, r.0 | ($self.reg.f_c() as u8));
+    let s = r.0 | ($self.reg.f_c() as u8);
+    $self.reg.set_f_all(s == 0, false, false, r.1);
+    $self.wb(hl, s);
   }
 } pub(crate) use rl_mhl;
 
