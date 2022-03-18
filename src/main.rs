@@ -3,12 +3,22 @@
 pub mod gb;
 use gb::{Gameboy, GameboyBuilder};
 use std::{env,sync::{Arc, Mutex}};
+use clap::Parser;
+
+#[derive(Parser, Debug)]
+#[clap(author, version, about, long_about = None)]
+struct Args {
+    #[clap(short, long)]
+    skip_bootrom: bool,
+    path: String
+}
 
 fn main() {
-    let rom_path = &env::args().nth(1).expect("No ROM path given")[..];
+    let args = Args::parse();
+    let rom_path = &args.path[..];
     let gb = GameboyBuilder::new()
         .init(true)
-        .skip_bootrom(true)
+        .skip_bootrom(args.skip_bootrom)
         .load_rom_file(rom_path).expect("Failed to load the ROM file")
         .build();
     let gb = Arc::new(Mutex::new(gb));
