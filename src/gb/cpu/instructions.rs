@@ -187,8 +187,18 @@ macro_rules! ret_cond {
         $self.pop(); 
       }
     }
-  } 
+  };
 } pub(crate) use ret_cond;
+
+// RST 
+
+macro_rules! rst {
+  ($self: expr, $addr: expr) => {
+    $self.cycles(4);
+    $self.push($self.reg.pc);
+    $self.reg.pc = $addr;
+  };
+} pub(crate) use rst;
 
 //
 
@@ -663,11 +673,13 @@ macro_rules! cpu_instructions {
       0xC4 => { call_u16_cond!($self, NZ); }    //CALL NZ,u16
       0xC5 => { push_rr!($self, BC); }          //PUSH BC
       0xC6 => { add_a_u8!($self); }             //ADD A,u8
+      0xC7 => { rst!($self, 0x00); }            //RST 00h
       0xC8 => { ret_cond!($self, Z); }          //RET Z
       0xC9 => { ret!($self); }                  //RET
       0xCA => { cond_jp_u16!($self, Z); }       //JP Z,u16
       0xCC => { call_u16_cond!($self, Z); }     //CALL Z,u16
       0xCD => { call_u16!($self); }             //CALL u16
+      0xCF => { rst!($self, 0x08); }            //RST 08h
 
       0xD0 => { ret_cond!($self, NC); }         //RET NC
       0xD1 => { pop_rr!($self, DE); }           //POP DE
@@ -675,22 +687,28 @@ macro_rules! cpu_instructions {
       0xD4 => { call_u16_cond!($self, NC); }    //CALL NZ,u16
       0xD5 => { push_rr!($self, DE); }          //PUSH DE
       0xD6 => { sub_a_u8!($self); }             //SUB A,u8
+      0xD7 => { rst!($self, 0x10); }            //RST 10h
       0xD8 => { ret_cond!($self, C); }          //RET C
       0xDA => { cond_jp_u16!($self, C); }       //JP C,u16
       0xDC => { call_u16_cond!($self, C); }     //CALL C,u16
+      0xDF => { rst!($self, 0x18); }            //RST 18h
 
       0xE0 => { ld_m_ff00_add_u8_a!($self); }   //LD (FFOO+u8),A
       0xE1 => { pop_rr!($self, HL); }           //POP HL
       0xE2 => { ld_m_ff00_add_c_a!($self); }    //LD (FF00+C),A
       0xE5 => { push_rr!($self, HL); }          //PUSH HL
       0xE6 => { and_a_u8!($self); }             //AND A,u8
+      0xE7 => { rst!($self, 0x20); }            //RST 20h
       0xEE => { xor_a_u8!($self); }             //XOR A,u8
+      0xEF => { rst!($self, 0x28); }            //RST 28h
 
       0xF0 => { ld_a_m_ff00_add_u8!($self); }   //LD A,(FF00+u8)
       0xF1 => { pop_rr!($self, AF); }           //POP AF
       0xF2 => { ld_a_m_ff00_add_c!($self); }    //LD A,(FF00+C)
       0xF5 => { push_rr!($self, AF); }          //PUSH AF
       0xF6 => { or_a_u8!($self); }              //OR A,u8
+      0xF7 => { rst!($self, 0x30); }            //RST 30h
+      0xFF => { rst!($self, 0x38); }            //RST 38h
 
       _ => panic_invalid_instruction!($self, $op, false) 
     }
