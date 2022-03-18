@@ -534,6 +534,15 @@ macro_rules! ld_m_ff00_add_u8_a {
   };
 } pub(crate) use ld_m_ff00_add_u8_a;
 
+//RLA
+macro_rules! rla {
+  ($self: expr) => {
+    let r = $self.reg.a().overflowing_shl(1);
+    $self.reg.set_f_all(false , false, false, r.1);
+    $self.reg.set_a(r.0 | ($self.reg.f_c() as u8));
+  }
+} pub(crate) use rla;
+
 macro_rules! cpu_instructions {
   ($self: expr, $op: expr) => {
     match($op) {
@@ -555,7 +564,8 @@ macro_rules! cpu_instructions {
       0x13 => { incdec_rr!($self, DE, add); },  //INC DE
       0x14 => { inc_r!($self, D); }             //INC D
       0x15 => { dec_r!($self, D); }             //DEC D
-      0x16 => { ld_r_u8!($self, D); }           //LD D,u8  
+      0x16 => { ld_r_u8!($self, D); }           //LD D,u8
+      0x17 => { rla!($self); }                  //RLA
       0x18 => { jr_i8!($self); }                //JR i8
       0x1A => { ld_a_mrr!($self, DE); }         //LD A,(DE)
       0x1B => { incdec_rr!($self, DE, sub); }   //DEC DE
