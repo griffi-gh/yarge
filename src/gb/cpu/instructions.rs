@@ -56,6 +56,20 @@ macro_rules! ld_a_mrr {
   };
 } pub(crate) use ld_a_mrr;
 
+macro_rules! ld_a_mu16 {
+  ($self: expr) => {
+    let v = $self.rb($self.fetch_word());
+    $self.reg.set_a(v);
+  };
+} pub(crate) use ld_a_mu16;
+
+macro_rules! ld_mu16_a {
+  ($self: expr) => {
+    let a = $self.fetch_word();
+    $self.wb(a, $self.reg.a());
+  };
+} pub(crate) use ld_mu16_a;
+
 macro_rules! ld_mhli_a {
   ($self: expr, $inc: ident) => {
     let v = $self.reg.hl();
@@ -753,6 +767,7 @@ macro_rules! cpu_instructions {
       0xE5 => { push_rr!($self, HL); }          //PUSH HL
       0xE6 => { and_a_u8!($self); }             //AND A,u8
       0xE7 => { rst!($self, 0x20); }            //RST 20h
+      0xEA => { ld_mu16_a!($self); }            //LD (u16),A
       0xEE => { xor_a_u8!($self); }             //XOR A,u8
       0xEF => { rst!($self, 0x28); }            //RST 28h
 
@@ -762,6 +777,7 @@ macro_rules! cpu_instructions {
       0xF5 => { push_rr!($self, AF); }          //PUSH AF
       0xF6 => { or_a_u8!($self); }              //OR A,u8
       0xF7 => { rst!($self, 0x30); }            //RST 30h
+      0xFA => { ld_a_mu16!($self); }            //LD A,(u16)
       0xFE => { cp_a_u8!($self); }              //CP A,u8
       0xFF => { rst!($self, 0x38); }            //RST 38h
 
