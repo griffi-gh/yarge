@@ -5,7 +5,6 @@ use gb::{Gameboy, GameboyBuilder};
 use std::{env,sync::{Arc, Mutex}};
 
 fn main() {
-    #[cfg(debug_assertions)]
     let rom_path = &env::args().nth(1).expect("No ROM path given")[..];
     let gb = GameboyBuilder::new()
         .init()
