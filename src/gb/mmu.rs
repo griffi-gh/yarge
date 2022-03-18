@@ -9,7 +9,7 @@ use super::PPU;
 pub struct MMU {
   pub ppu: PPU,
   pub cart: DynCartridge,
-  bios_disabled: bool,
+  pub bios_disabled: bool,
   wram: [u8; 0x2000],
   hram: [u8; 0x007F],
   //MAYBE include IE here?

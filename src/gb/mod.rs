@@ -14,24 +14,23 @@ const LOG_PATH: &str = "./gameboy.log";
 
 pub struct GameboyBuilder {
     gb: Gameboy,
-    err: Option<Box<dyn std::error::Error + 'static>>,
 }
 type Res<T> = Result<T, Box<dyn Error + 'static>>;
 impl GameboyBuilder {
     pub fn new() -> Self {
         Self {
             gb: Gameboy::new(),
-            err: None
         }
     }
-    fn check_err(&self) -> bool { self.err.is_some() }
     pub fn init(mut self) -> Self {
-        if (&self).check_err() { return self }
         (&mut self).gb.init();
         return self;
     }
+    pub fn skip_bootrom(mut self) -> Self {
+        (&mut self).gb.skip_bootrom();
+        return self;
+    }
     pub fn load_rom(mut self, data: &[u8]) -> Self {
-        if (&self).check_err() { return self }
         (&mut self).gb.load_rom(data);
         return self;
     }
@@ -77,6 +76,19 @@ impl Gameboy {
     }
     pub fn load_rom(&mut self, data: &[u8]) {
         self.cpu.mmu.cart.load(data);
+    }
+    pub fn skip_bootrom(&mut self) {
+        if self.cpu.mmu.bios_disabled {
+            panic!("Attempt to skip bios while not in bootrom");
+        }
+        let reg = &mut self.cpu.reg;
+        reg.pc = 0x0100;
+        reg.sp = 0xFFFE;
+        reg.set_af(0x01B0);
+        reg.set_bc(0x0013);
+        reg.set_de(0x00D8);
+        reg.set_hl(0x014D);
+        self.cpu.mmu.bios_disabled = true;
     }
 
     #[cfg(feature = "logging")]
