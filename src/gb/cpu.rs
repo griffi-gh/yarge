@@ -57,11 +57,13 @@ impl CPU {
     #[inline(always)]
     fn rb(&mut self, addr: u16) -> u8 {
         self.t += 4;
+        self.tick_comp(4);
         self.mmu.rb(addr)
     }
     #[inline(always)]
     fn wb(&mut self, addr: u16, value: u8) {
         self.t += 4;
+        self.tick_comp(4);
         self.mmu.wb(addr, value);
     }
 

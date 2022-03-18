@@ -149,6 +149,21 @@ macro_rules! call_u16 {
   };
 } pub(crate) use call_u16;
 
+macro_rules! call_u16_cond {
+  ($self: expr, $cond: ident) => {
+    paste! {
+      if $self.reg.[<f_ $cond:lower>]() {
+        call_u16!($self);
+      } else {
+        //simulate fetch timing
+        $self.internal(8);
+        $self.reg.inc_pc(2);
+      }
+    }
+  };
+} pub(crate) use call_u16_cond;
+
+
 macro_rules! ld_mhl_r {
   ($self: expr, $reg: ident) => {
     paste! {
@@ -409,8 +424,8 @@ macro_rules! jr_i8_cond {
         $self.internal(4);
       } else {
         //simulate fetch
-        $self.reg.inc_pc(1);
         $self.internal(4); 
+        $self.reg.inc_pc(1);
       }
     } //Works fine??
   };
@@ -616,16 +631,20 @@ macro_rules! cpu_instructions {
       0xC1 => { pop_rr!($self, BC); }           //POP BC
       0xC2 => { cond_jp_u16!($self, NZ); }      //JP NZ,u16
       0xC3 => { jp_u16!($self); }               //JP u16
+      0xC4 => { call_u16_cond!($self, NZ); }    //CALL NZ,u16
       0xC5 => { push_rr!($self, BC); }          //PUSH BC
       0xC6 => { add_a_u8!($self); }             //ADD A,u8
-      0xCA => { cond_jp_u16!($self, Z); }       //JP Z,u16  
+      0xCA => { cond_jp_u16!($self, Z); }       //JP Z,u16
+      0xCC => { call_u16_cond!($self, Z); }     //CALL Z,u16
       0xCD => { call_u16!($self); }             //CALL u16
 
       0xD1 => { pop_rr!($self, DE); }           //POP DE
       0xD2 => { cond_jp_u16!($self, NC); }      //JP NC,u16
+      0xD4 => { call_u16_cond!($self, NC); }    //CALL NZ,u16
       0xD5 => { push_rr!($self, DE); }          //PUSH DE
       0xD6 => { sub_a_u8!($self); }             //SUB A,u8
       0xDA => { cond_jp_u16!($self, C); }       //JP C,u16
+      0xDC => { call_u16_cond!($self, C); }     //CALL C,u16
 
       0xE0 => { ld_m_ff00_add_u8_a!($self); }   //LD (FFOO+u8),A
       0xE1 => { pop_rr!($self, HL); }           //POP HL
