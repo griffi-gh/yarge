@@ -363,6 +363,42 @@ macro_rules! sub_a_u8 {
   };
 } pub(crate) use sub_a_u8;
 
+//CP A
+macro_rules! alu_cp_a {
+  ($self: expr, $b: expr) => {
+    let a = $self.reg.a();
+    $self.reg.set_f_all(
+      a.wrapping_sub($b) == 0,
+      true,
+      ($b & 0xF) > (a & 0xF),
+      $b > a
+    );
+  };
+} pub(crate) use alu_cp_a;
+
+macro_rules! cp_a_r {
+  ($self: expr, $reg: ident) => {
+    paste! {
+      let b = $self.reg.[<$reg:lower>]();
+    }
+    alu_cp_a!($self, b);
+  };
+} pub(crate) use cp_a_r;
+
+macro_rules! cp_a_mhl {
+  ($self: expr) => {
+    let b = $self.rb($self.reg.hl());
+    alu_cp_a!($self, b);
+  };
+} pub(crate) use cp_a_mhl;
+
+macro_rules! cp_a_u8 {
+  ($self: expr) => {
+    let b = $self.fetch();
+    alu_cp_a!($self, b);
+  };
+} pub(crate) use cp_a_u8;
+
 //OR XOR, AND A
 
 macro_rules! and_a_r {
@@ -665,6 +701,14 @@ macro_rules! cpu_instructions {
       0xB5 => { or_a_r!($self, L); }            //OR A,L
       0xB6 => { or_a_mhl!($self); }             //OR A,(HL)
       0xB7 => { or_a_r!($self, A); }            //OR A,A
+      0xB8 => { cp_a_r!($self, B); }            //CP A,B
+      0xB9 => { cp_a_r!($self, C); }            //CP A,C
+      0xBA => { cp_a_r!($self, D); }            //CP A,D
+      0xBB => { cp_a_r!($self, E); }            //CP A,E
+      0xBC => { cp_a_r!($self, H); }            //CP A,H
+      0xBD => { cp_a_r!($self, L); }            //CP A,L
+      0xBE => { cp_a_mhl!($self); }             //CP A,(HL)
+      0xBF => { cp_a_r!($self, A); }            //CP A,A
 
       0xC0 => { ret_cond!($self, NZ); }         //RET NZ
       0xC1 => { pop_rr!($self, BC); }           //POP BC
@@ -708,6 +752,7 @@ macro_rules! cpu_instructions {
       0xF5 => { push_rr!($self, AF); }          //PUSH AF
       0xF6 => { or_a_u8!($self); }              //OR A,u8
       0xF7 => { rst!($self, 0x30); }            //RST 30h
+      0xFE => { cp_a_u8!($self); }              //CP A,u8
       0xFF => { rst!($self, 0x38); }            //RST 38h
 
       _ => panic_invalid_instruction!($self, $op, false) 
