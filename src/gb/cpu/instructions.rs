@@ -84,7 +84,7 @@ macro_rules! incdec_rr {
         $self.reg.[<$reg:lower>]().[<wrapping_ $inc:lower>](1)
       );
     }
-    $self.internal(4);
+    $self.cycles(4);
   };
 } pub(crate) use incdec_rr;
 
@@ -109,18 +109,20 @@ macro_rules! pop_rr {
 
 macro_rules! push_rr {
   ($self: expr, $reg: ident) => {
-    $self.internal(4);
+    $self.cycles(4);
     paste! {
       $self.push($self.reg.[<$reg:lower>]());
     }
   };
 } pub(crate) use push_rr;
 
+// JP u16
+
 macro_rules! jp_u16 {
   ($self: expr) => {
     let to = $self.rw($self.reg.pc);
     $self.reg.pc = to;
-    $self.internal(4);
+    $self.cycles(4);
   };
 } pub(crate) use jp_u16;
 
@@ -130,20 +132,22 @@ macro_rules! cond_jp_u16 {
       if $self.reg.[<f_ $cond:lower>]() {
         let to = $self.rw($self.reg.pc);
         $self.reg.pc = to;
-        $self.internal(4);
+        $self.cycles(4);
       } else {
         //simulate fetch timing without actually doing it
-        $self.internal(8); 
+        $self.cycles(8); 
         $self.reg.inc_pc(2);
       }
     }
   }
 } pub(crate) use cond_jp_u16;
 
+// CALL
+
 macro_rules! call_u16 {
   ($self: expr) => {
     let to = $self.fetch_word();
-    $self.internal(4);
+    $self.cycles(4);
     $self.push($self.reg.pc);
     $self.reg.pc = to;
   };
@@ -156,13 +160,37 @@ macro_rules! call_u16_cond {
         call_u16!($self);
       } else {
         //simulate fetch timing
-        $self.internal(8);
+        $self.cycles(8);
         $self.reg.inc_pc(2);
       }
     }
   };
 } pub(crate) use call_u16_cond;
 
+// RET
+
+macro_rules! ret {
+  ($self: expr) => {
+    $self.reg.pc = $self.pop();
+    $self.cycles(4);
+  } 
+} pub(crate) use ret;
+
+macro_rules! ret_cond {
+  ($self: expr, $cond: ident) => {
+    $self.cycles(4);
+    paste! {
+      if $self.reg.[<f_ $cond:lower>]() {
+        ret!($self);
+      } else {
+        //TODO simulate pop timing instead
+        $self.pop(); 
+      }
+    }
+  } 
+} pub(crate) use ret_cond;
+
+//
 
 macro_rules! ld_mhl_r {
   ($self: expr, $reg: ident) => {
@@ -181,11 +209,11 @@ macro_rules! ld_r_mhl {
   };
 } pub(crate) use ld_r_mhl;
 
-macro_rules! ihalt {
+macro_rules! cpu_halt {
   ($self: expr) => {
     $self.state = CPUState::Halt;
   };
-} pub(crate) use ihalt;
+} pub(crate) use cpu_halt;
 
 macro_rules! inc_flags {
   ($self: expr, $v: expr, $r: expr) => {
@@ -411,7 +439,7 @@ macro_rules! jr_i8 {
   ($self: expr) => {
     let v = $self.fetch_signed();
     $self.reg.inc_pc(v as u16);
-    $self.internal(4);
+    $self.cycles(4);
   }; //Works fine?
 } pub(crate) use jr_i8;
 
@@ -421,10 +449,10 @@ macro_rules! jr_i8_cond {
       if $self.reg.[<f_ $cond:lower>]() {
         let v = $self.fetch_signed();
         $self.reg.inc_pc(v as u16);
-        $self.internal(4);
+        $self.cycles(4);
       } else {
         //simulate fetch
-        $self.internal(4); 
+        $self.cycles(4); 
         $self.reg.inc_pc(1);
       }
     } //Works fine??
@@ -574,7 +602,7 @@ macro_rules! cpu_instructions {
       0x73 => { ld_mhl_r!($self, E); }          //LD (HL),E
       0x74 => { ld_mhl_r!($self, H); }          //LD (HL),H
       0x75 => { ld_mhl_r!($self, L); }          //LD (HL),L
-      0x76 => { ihalt!($self); }                //HALT
+      0x76 => { cpu_halt!($self); }             //HALT
       0x77 => { ld_mhl_r!($self, A); }          //LD (HL),A
       0x78 => { ld_r_r!($self, A, B); }         //LD A,B
       0x79 => { ld_r_r!($self, A, C); }         //LD A,C
@@ -610,14 +638,14 @@ macro_rules! cpu_instructions {
       0xA5 => { and_a_r!($self, L); }           //AND A,L
       0xA6 => { and_a_mhl!($self); }            //AND A,(HL)
       0xA7 => { and_a_r!($self, A); }           //AND A,A
-      0xA8 => { xor_a_r!($self, B); }            //XOR A,B
-      0xA9 => { xor_a_r!($self, C); }            //XOR A,C
-      0xAA => { xor_a_r!($self, D); }            //XOR A,D
-      0xAB => { xor_a_r!($self, E); }            //XOR A,E
-      0xAC => { xor_a_r!($self, H); }            //XOR A,H
-      0xAD => { xor_a_r!($self, L); }            //XOR A,L
-      0xAE => { xor_a_mhl!($self); }             //XOR A,(HL)
-      0xAF => { xor_a_r!($self, A); }            //XOR A,A
+      0xA8 => { xor_a_r!($self, B); }           //XOR A,B
+      0xA9 => { xor_a_r!($self, C); }           //XOR A,C
+      0xAA => { xor_a_r!($self, D); }           //XOR A,D
+      0xAB => { xor_a_r!($self, E); }           //XOR A,E
+      0xAC => { xor_a_r!($self, H); }           //XOR A,H
+      0xAD => { xor_a_r!($self, L); }           //XOR A,L
+      0xAE => { xor_a_mhl!($self); }            //XOR A,(HL)
+      0xAF => { xor_a_r!($self, A); }           //XOR A,A
 
       0xB0 => { or_a_r!($self, B); }            //OR A,B
       0xB1 => { or_a_r!($self, C); }            //OR A,C
@@ -628,21 +656,26 @@ macro_rules! cpu_instructions {
       0xB6 => { or_a_mhl!($self); }             //OR A,(HL)
       0xB7 => { or_a_r!($self, A); }            //OR A,A
 
+      0xC0 => { ret_cond!($self, NZ); }         //RET NZ
       0xC1 => { pop_rr!($self, BC); }           //POP BC
       0xC2 => { cond_jp_u16!($self, NZ); }      //JP NZ,u16
       0xC3 => { jp_u16!($self); }               //JP u16
       0xC4 => { call_u16_cond!($self, NZ); }    //CALL NZ,u16
       0xC5 => { push_rr!($self, BC); }          //PUSH BC
       0xC6 => { add_a_u8!($self); }             //ADD A,u8
+      0xC8 => { ret_cond!($self, Z); }          //RET Z
+      0xC9 => { ret!($self); }                  //RET
       0xCA => { cond_jp_u16!($self, Z); }       //JP Z,u16
       0xCC => { call_u16_cond!($self, Z); }     //CALL Z,u16
       0xCD => { call_u16!($self); }             //CALL u16
 
+      0xD0 => { ret_cond!($self, NC); }         //RET NC
       0xD1 => { pop_rr!($self, DE); }           //POP DE
       0xD2 => { cond_jp_u16!($self, NC); }      //JP NC,u16
       0xD4 => { call_u16_cond!($self, NC); }    //CALL NZ,u16
       0xD5 => { push_rr!($self, DE); }          //PUSH DE
       0xD6 => { sub_a_u8!($self); }             //SUB A,u8
+      0xD8 => { ret_cond!($self, C); }          //RET C
       0xDA => { cond_jp_u16!($self, C); }       //JP C,u16
       0xDC => { call_u16_cond!($self, C); }     //CALL C,u16
 

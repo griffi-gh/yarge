@@ -56,39 +56,34 @@ impl CPU {
 
     #[inline(always)]
     fn rb(&mut self, addr: u16) -> u8 {
-        self.t += 4;
-        self.tick_comp(4);
+        self.cycles(4);
         self.mmu.rb(addr)
     }
     #[inline(always)]
     fn wb(&mut self, addr: u16, value: u8) {
-        self.t += 4;
-        self.tick_comp(4);
+        self.cycles(4);
         self.mmu.wb(addr, value);
     }
 
     #[inline(always)]
     fn rw(&mut self, addr: u16) -> u16 {
-        self.t += 8;
-        self.tick_comp(8);
+        self.cycles(8);
         self.mmu.rw(addr)
     }
     #[inline(always)]
     fn ww(&mut self, addr: u16, value: u16) {
-        self.t += 8;
-        self.tick_comp(8);
+        self.cycles(8);
         self.mmu.ww(addr, value);
     }
 
     #[inline(always)]
-    fn internal(&mut self, cycles: u32) {
+    fn cycles(&mut self, cycles: u32) {
         self.t += cycles;
         self.tick_comp(cycles);
     }
-    
-    /// Do not call directly!
-    /// Instead, use internal()
+
     fn tick_comp(&mut self, t: u32) {
+        self.t += t;
         self.mmu.ppu.tick(t);
     }
 
@@ -103,7 +98,7 @@ impl CPU {
                 cpu_instructions_cb!(self, op);
             }         
         } else {
-            self.internal(4);
+            self.cycles(4);
         }
         return self.t;
     }
