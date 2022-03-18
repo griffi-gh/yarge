@@ -58,7 +58,8 @@ macro_rules! ld_a_mrr {
 
 macro_rules! ld_a_mu16 {
   ($self: expr) => {
-    let v = $self.rb($self.fetch_word());
+    let a = $self.fetch_word();
+    let v = $self.rb(a);
     $self.reg.set_a(v);
   };
 } pub(crate) use ld_a_mu16;
