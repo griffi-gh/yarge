@@ -11,3 +11,6 @@ target/
 
 #Log files
 *.log
+
+#Copyrighted rom files
+_*.gb
