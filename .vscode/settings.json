@@ -8,4 +8,5 @@
     "NOTE", "TEST", "FUCK", 
     "GBC", "[ ]", "[x]"
   ],
+  "editor.tabSize": 2,
 }
