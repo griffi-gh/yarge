@@ -103,19 +103,19 @@ impl Framework {
     );*/ //FIXME
     //self.rpass.update_user_textures(&context.device, &context.queue);
     self.rpass.update_buffers(
-        &context.device,
-        &context.queue,
-        &self.paint_jobs,
-        &self.screen_descriptor,
+      &context.device,
+      &context.queue,
+      &self.paint_jobs,
+      &self.screen_descriptor,
     );
 
     // Record all render passes.
     self.rpass.execute(
-        encoder,
-        render_target,
-        &self.paint_jobs,
-        &self.screen_descriptor,
-        None,
+      encoder,
+      render_target,
+      &self.paint_jobs,
+      &self.screen_descriptor,
+      None,
     )
   }
 }

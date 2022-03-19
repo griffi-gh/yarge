@@ -23,7 +23,7 @@ winit_input_helper = { version = "0.11", optional = true }
 pixels = { version = "0.9", optional = true }
 
 [features]
-default = ["gui", "logging-file", "ly-stub"]
+default = ["gui", "ly-stub"]
 # FEATURES
 gui = ["egui", "egui_wgpu_backend", "egui-winit", "winit", "winit_input_helper", "pixels"]
 # DEBUG FEAUTURES
