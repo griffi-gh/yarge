@@ -8,6 +8,8 @@ use clap::Parser;
 struct Args {
     #[clap(short, long)]
     skip_bootrom: bool,
+    #[clap(short, long)]
+    gui: bool,
     path: String
 }
 
@@ -20,5 +22,16 @@ fn main() {
         .load_rom_file(rom_path).expect("Failed to load the ROM file")
         .build();
     let gb = Arc::new(Mutex::new(gb));
-    Gameboy::run_thread(&gb).join().unwrap();
+    let gb_thread = Gameboy::run_thread(&gb);
+    if !args.gui {
+        #[cfg(feature = "gui")]
+        println!("Hint: Use --gui or -g to enable the GUI");
+        gb_thread.join().unwrap();
+    } else {
+        #[cfg(not(feature = "gui"))]
+        panic!("Please build again with the 'gui' feature enabled");
+        #[cfg(feature = "gui")] {
+
+        }
+    }
 }

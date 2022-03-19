@@ -74,6 +74,12 @@ impl Gameboy {
                 .append(true)
                 .open(LOG_PATH)
                 .unwrap());
+            println!(
+                "Writing trace log to file: \"{}\"\n\
+                Warning! The log files can get as big as a few gigabytes in size!\n\
+                Build without the 'logging-file' feature to disable.", 
+                LOG_PATH
+            )
         }
     }
     pub fn load_rom_file(&mut self, path: &str) -> Res<()> {

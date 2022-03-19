@@ -3,13 +3,6 @@ name = "rustish-gb"
 version = "0.1.0"
 edition = "2021"
 
-[features]
-default = ["logging-file", "logging-stdout", "ly-stub"]
-logging = []
-logging-file = ["logging"]
-logging-stdout = ["logging"]
-ly-stub = []
-
 [profile.release]
 opt-level = 3
 codegen-units = 1
@@ -20,12 +13,24 @@ lto = true
 [dependencies]
 paste = "1.0"
 clap = { version = "3.1", features = ["derive"] }
-egui = "0.17"
-egui_wgpu_backend = "0.17"
-egui-winit = { version = "0.17", default_features = false, features = [] }
-winit = "0.26"
-winit_input_helper = "0.11"
-pixels = "0.9"
+egui = { version = "0.17", optional = true }
+egui_wgpu_backend = { version = "0.17", optional = true }
+egui-winit = { version = "0.17", default_features = false, optional = true }
+winit = { version = "0.26", optional = true }
+winit_input_helper = { version = "0.11", optional = true }
+pixels = { version = "0.9", optional = true }
+
+[features]
+default = ["gui", "logging-file", "ly-stub"]
+# FEATURES
+gui = ["egui", "egui_wgpu_backend", "egui-winit", "winit", "winit_input_helper", "pixels"]
+# DEBUG FEAUTURES
+ly-stub = []
+logging = []
+logging-file = ["logging"]
+logging-stdout = ["logging"]
+logging-all = ["logging-file", "logging-stdout"]
+
 
 #[dev-dependencies]
 #bencher = "0.1.5"
