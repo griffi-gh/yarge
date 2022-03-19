@@ -43,7 +43,7 @@ impl Framework {
     let rpass = RenderPass::new(
       pixels.device(), 
       pixels.render_texture_format(),
-      0
+      1
     );
     let state = GuiState::default();
     Self {
