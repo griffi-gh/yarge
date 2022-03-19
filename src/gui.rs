@@ -19,6 +19,9 @@ const HEIGHT: u32 = 144;
 struct GuiState {
   //TODO GuiState
 }
+impl GuiState {
+  
+}
 
 struct Framework {
   state: GuiState,
@@ -153,6 +156,7 @@ pub fn init() -> Result<(), PixelsError> {
 
       // Resize the window
       if let Some(size) = input.window_resized() {
+        framework.resize(size.width, size.height);
         pixels.resize_surface(size.width, size.height);
       }
 
