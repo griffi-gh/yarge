@@ -1,4 +1,3 @@
-#[allow(dead_code)]
 pub(crate) mod gb;
 use gb::{Gameboy, GameboyBuilder};
 use std::sync::{Arc, Mutex};

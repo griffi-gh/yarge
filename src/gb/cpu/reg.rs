@@ -79,8 +79,8 @@ impl Registers {
 
   // 16-bit reg ops, for compatability.
   #[inline(always)] pub fn set_sp(&mut self, val: u16) { self.sp = val; }
-  #[inline(always)] pub fn set_pc(&mut self, val: u16) { self.pc = val; }
   #[inline(always)] pub fn sp(&self) -> u16 { self.sp }
+  #[inline(always)] pub fn set_pc(&mut self, val: u16) { self.pc = val; }
   #[inline(always)] pub fn pc(&self) -> u16 { self.pc }
 
   // Flag register

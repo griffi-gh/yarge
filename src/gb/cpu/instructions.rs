@@ -558,6 +558,30 @@ macro_rules! rla {
   }
 } pub(crate) use rla;
 
+macro_rules! daa {
+  ($self: expr) => {
+    //TEST does m >=0x60 work? Do i need c|| in the second if?
+    let n = $self.reg.f_n();
+    let h = $self.reg.f_h();
+    let c = $self.reg.f_c();
+    let a = $self.reg.a();
+    let mut m: u8 = if c { 0x60 } else { 0 };
+    if h | (!n && (a & 0xF) > 9) {
+      m |= 0x06;
+    }
+    if !n && a > 0x99 {
+      m |= 0x60;
+    }
+    let r = if n {
+      a.wrapping_sub(m)
+    } else {
+      a.wrapping_add(m)
+    };
+    $self.reg.set_f_all(r == 0, n, false, m >= 0x60);
+    $self.reg.set_a(r);
+  };
+} pub(crate) use daa;
+
 macro_rules! cpu_instructions {
   ($self: expr, $op: expr) => {
     match($op) {
@@ -595,6 +619,7 @@ macro_rules! cpu_instructions {
       0x24 => { inc_r!($self, H); }             //INC H
       0x25 => { dec_r!($self, H); }             //DEC H
       0x26 => { ld_r_u8!($self, H); }           //LD H,u8
+      0x27 => { daa!($self); }                  //DAA
       0x28 => { jr_i8_cond!($self, Z); }        //JR Z, i8 
       0x2A => { ld_a_mhli!($self, add); }       //LD A,(HL+)
       0x2B => { incdec_rr!($self, HL, sub); }   //DEC HL
