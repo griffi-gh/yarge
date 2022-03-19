@@ -52,7 +52,7 @@ struct Framework {
   screen_descriptor: ScreenDescriptor,
   rpass: RenderPass,
   paint_jobs: Vec<ClippedMesh>,
-  texture_delta: TexturesDelta,
+  texture_delta: Option<TexturesDelta>,
 }
 impl Framework {
   fn new(width: u32, height: u32, scale_factor: f32, pixels: &pixels::Pixels) -> Self {
@@ -79,7 +79,7 @@ impl Framework {
       screen_descriptor,
       rpass,
       paint_jobs: Vec::<ClippedMesh>::new(),
-      texture_delta: TexturesDelta::default()
+      texture_delta: None
     }
   }
 
@@ -105,7 +105,7 @@ impl Framework {
       window, &self.egui_ctx, 
       full_output.platform_output
     );
-    self.texture_delta = full_output.textures_delta;
+    self.texture_delta = Some(full_output.textures_delta);
     self.paint_jobs = self.egui_ctx.tessellate(full_output.shapes);
   }
 
@@ -117,12 +117,12 @@ impl Framework {
   ) -> Result<(), BackendError> {
     // Upload all resources to the GPU.
     //TODO remove clone
-    let delta = self.texture_delta.clone();
+    let delta = self.texture_delta.take().unwrap();
     self.rpass.add_textures(
       &context.device,
       &context.queue, 
       &delta
-    ).unwrap();
+    )?;
     self.rpass.update_buffers(
       &context.device,
       &context.queue,
@@ -130,15 +130,15 @@ impl Framework {
       &self.screen_descriptor,
     );
     // Record all render passes.
-    let result = self.rpass.execute(
+    self.rpass.execute(
       encoder,
       render_target,
       &self.paint_jobs,
       &self.screen_descriptor,
       None,
-    );
-    self.rpass.remove_textures(delta).unwrap();
-    result
+    )?;
+    self.rpass.remove_textures(delta)?;
+    Ok(())
   }
 }
 
