@@ -34,6 +34,7 @@ impl GameboyBuilder {
         }
         return self;
     }
+    #[allow(dead_code)]
     pub fn load_rom(mut self, data: &[u8]) -> Self {
         (&mut self).gb.load_rom(data);
         return self;
@@ -122,9 +123,11 @@ impl Gameboy {
         self.cpu.step()
     }
 
+    #[allow(dead_code)]
     pub fn run(gb: &mut Gameboy) {
         loop { gb.step(); }
     }
+    #[allow(dead_code)]
     pub fn run_thread(gb: &Arc<Mutex<Gameboy>>) -> thread::JoinHandle<()> {   
         let gb = Arc::clone(&*gb);
         thread::spawn(move || {
