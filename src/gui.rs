@@ -7,7 +7,7 @@ use winit::{
 };
 use winit_input_helper::WinitInputHelper;
 use pixels::{PixelsContext, Pixels, SurfaceTexture, Error as PixelsError, wgpu};
-use egui::{ClippedMesh, Context as EguiCtx};
+use egui::{ClippedMesh, Context as EguiCtx, TexturesDelta};
 use egui_wgpu_backend::{RenderPass, ScreenDescriptor, BackendError};
 
 const PKG_NAME: Option<&str> = option_env!("CARGO_PKG_NAME");
@@ -15,13 +15,35 @@ const PKG_NAME: Option<&str> = option_env!("CARGO_PKG_NAME");
 const WIDTH: u32 = 160;
 const HEIGHT: u32 = 144;
 
-#[derive(Default)]
 struct GuiState {
-  //TODO GuiState
+  age: u32,
+  name: String
+}
+impl Default for GuiState {
+  fn default() -> Self{
+    Self {
+      age: 3,
+      name: "fuck".to_string()
+    }
+  }
 }
 impl GuiState {
-  
+  pub fn gui(&mut self, ui: &EguiCtx) {
+    egui::SidePanel::left("side_panel").show(ui, |ui| {
+      ui.heading("My egui Application");
+      ui.horizontal(|ui| {
+          ui.label("Your name: ");
+          ui.text_edit_singleline(&mut self.name);
+      });
+      ui.add(egui::Slider::new(&mut self.age, 0..=120).text("age"));
+      if ui.button("Click each year").clicked() {
+        self.age += 1;
+      }
+      ui.label(format!("Hello '{}', age {}", self.name, self.age));
+    });
+  }
 }
+
 
 struct Framework {
   state: GuiState,
@@ -30,6 +52,7 @@ struct Framework {
   screen_descriptor: ScreenDescriptor,
   rpass: RenderPass,
   paint_jobs: Vec<ClippedMesh>,
+  texture_delta: TexturesDelta,
 }
 impl Framework {
   fn new(width: u32, height: u32, scale_factor: f32, pixels: &pixels::Pixels) -> Self {
@@ -55,12 +78,9 @@ impl Framework {
       egui_state,
       screen_descriptor,
       rpass,
-      paint_jobs: Vec::<ClippedMesh>::new()
+      paint_jobs: Vec::<ClippedMesh>::new(),
+      texture_delta: TexturesDelta::default()
     }
-  }
-
-  pub fn ui(&mut self, _egui_ctx: &EguiCtx) {
-    //TODO
   }
 
   pub fn handle_event(&mut self, event: &winit::event::WindowEvent) {
@@ -79,13 +99,13 @@ impl Framework {
     // Run the egui frame and create all paint jobs to prepare for rendering.
     let raw_input = self.egui_state.take_egui_input(window);
     let full_output = self.egui_ctx.run(raw_input, |egui_ctx| {
-      //self.ui(egui_ctx);
+      self.state.gui(egui_ctx);
     });
-
     self.egui_state.handle_platform_output(
       window, &self.egui_ctx, 
       full_output.platform_output
     );
+    self.texture_delta = full_output.textures_delta;
     self.paint_jobs = self.egui_ctx.tessellate(full_output.shapes);
   }
 
@@ -96,27 +116,29 @@ impl Framework {
       context: &PixelsContext,
   ) -> Result<(), BackendError> {
     // Upload all resources to the GPU.
-    /*self.rpass.add_textures(
+    //TODO remove clone
+    let delta = self.texture_delta.clone();
+    self.rpass.add_textures(
       &context.device,
       &context.queue, 
-      &self.egui_ctx.fonts().font_image_delta().unwrap()
-    );*/ //FIXME
-    //self.rpass.update_user_textures(&context.device, &context.queue);
+      &delta
+    ).unwrap();
     self.rpass.update_buffers(
       &context.device,
       &context.queue,
       &self.paint_jobs,
       &self.screen_descriptor,
     );
-
     // Record all render passes.
-    self.rpass.execute(
+    let result = self.rpass.execute(
       encoder,
       render_target,
       &self.paint_jobs,
       &self.screen_descriptor,
       None,
-    )
+    );
+    self.rpass.remove_textures(delta).unwrap();
+    result
   }
 }
 
@@ -126,11 +148,11 @@ pub fn init() -> Result<(), PixelsError> {
   let window = {
     let size = LogicalSize::new(WIDTH as f64, HEIGHT as f64);
     WindowBuilder::new()
-        .with_title(PKG_NAME.unwrap_or("open source gameboy emulator"))
-        .with_inner_size(size)
-        .with_min_inner_size(size)
-        .build(&event_loop)
-        .unwrap()
+      .with_title(PKG_NAME.unwrap_or("open source gameboy emulator"))
+      .with_inner_size(size)
+      .with_min_inner_size(size)
+      .build(&event_loop)
+      .unwrap()
   };
   let (mut pixels, mut framework) = {
     let window_size = window.inner_size();
