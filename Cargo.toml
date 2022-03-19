@@ -1,7 +1,8 @@
 [package]
 name = "rustish-gb"
 authors = ["griffi-gh <prasol258@gmail.com>"]
-version = "0.1.0"
+version = "0.0.0"
+publish = false
 edition = "2021"
 
 [profile.release]
