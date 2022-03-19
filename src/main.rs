@@ -1,8 +1,7 @@
-#![forbid(unsafe_code)]
-
-pub mod gb;
+#[allow(dead_code)]
+pub(crate) mod gb;
 use gb::{Gameboy, GameboyBuilder};
-use std::{env,sync::{Arc, Mutex}};
+use std::sync::{Arc, Mutex};
 use clap::Parser;
 
 #[derive(Parser, Debug)]
