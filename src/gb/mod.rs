@@ -54,6 +54,7 @@ pub struct Gameboy {
     #[cfg(feature = "logging-file")]
     log_file: Option<std::fs::File>,
 }
+#[allow(dead_code)]
 impl Gameboy {
     pub fn new() -> Self {
         Self{

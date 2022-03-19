@@ -240,6 +240,13 @@ macro_rules! cpu_halt {
   };
 } pub(crate) use cpu_halt;
 
+macro_rules! cpu_stop {
+  ($self: expr) => {
+    //TODO realistic STOP
+    $self.state = CPUState::Stop;
+  };
+} pub(crate) use cpu_stop;
+
 macro_rules! inc_flags {
   ($self: expr, $v: expr, $r: expr) => {
     $self.reg.set_f_z($r == 0);
@@ -598,6 +605,7 @@ macro_rules! cpu_instructions {
       0x0D => { dec_r!($self, C); }             //DEC C
       0x0E => { ld_r_u8!($self, C); }           //LD C,u8 
 
+      0x10 => { cpu_stop!($self); }
       0x11 => { ld_rr_u16!($self, DE); },       //LD DE,u16
       0x12 => { ld_mrr_a!($self, DE); },        //LD (DE),A
       0x13 => { incdec_rr!($self, DE, add); },  //INC DE
