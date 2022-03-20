@@ -4,9 +4,7 @@ use std::sync::{Arc, Mutex};
 use clap::Parser;
 
 #[cfg(feature = "gui")]
-pub(crate) mod gui;
-#[cfg(feature = "gui")]
-use gui::GuiState;
+mod gui;
 
 #[derive(Parser, Debug)]
 #[clap(author, version, about, long_about = None)]
@@ -36,7 +34,7 @@ fn main() {
     #[cfg(not(feature = "gui"))]
     panic!("Please build again with the 'gui' feature enabled");
     #[cfg(feature = "gui")] {
-      GuiState::new().init();
+      gui::GuiState::new().init();
     }
   }
 }
