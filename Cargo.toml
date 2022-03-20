@@ -6,27 +6,21 @@ publish = false
 edition = "2021"
 
 [profile.release]
-opt-level = 3
 codegen-units = 1
-debug = 0
-strip = true
-lto = true
 
 [dependencies]
-paste = "1.0"
 clap = { version = "3.1", features = ["derive"] }
 framework = { path = "lib/framework", optional = true }
+rustish_core = { path = "lib/rustish_core" }
 
 [features]
 default = ["gui", "ly-stub"]
-# FEATURES
 gui = ["framework"]
-# DEBUG FEAUTURES
-ly-stub = []
-logging = []
-logging-file = ["logging"]
-logging-stdout = ["logging"]
-logging-all = ["logging-file", "logging-stdout"]
+ly-stub = ["rustish_core/ly-stub"]
+logging = ["rustish_core/logging"]
+logging-file = ["logging", "rustish_core/logging-file"]
+logging-stdout = ["logging", "rustish_core/logging-stdout"]
+logging-all = ["logging-file", "logging-stdout", "rustish_core/logging-all"]
 
 #[dev-dependencies]
 #bencher = "0.1.5"

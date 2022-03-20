@@ -1,4 +1,4 @@
-pub(crate) mod gb;
+pub use rustish_core as gb;
 use gb::{Gameboy, GameboyBuilder};
 use std::sync::{Arc, Mutex};
 use clap::Parser;

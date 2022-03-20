@@ -1,5 +1,6 @@
 [package]
 name = "framework"
+authors = ["griffi-gh <prasol258@gmail.com>"]
 version = "0.0.0"
 publish = false
 edition = "2021"

@@ -113,7 +113,7 @@ impl Gameboy {
     );
     #[cfg(feature = "logging-file")] {
       if self.log_file.is_none() {
-        panic!("File not inited!");
+        panic!("File not inited! Call <Gameboy>.init() or <GameboyBuilder>.init()");
       } else {
         use std::io::Write;
         write!(self.log_file.as_mut().unwrap(), "{}\n", string).unwrap();
