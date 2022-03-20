@@ -84,10 +84,10 @@ impl Framework {
   }
 
   pub(crate) fn render(
-      &mut self,
-      encoder: &mut wgpu::CommandEncoder,
-      render_target: &wgpu::TextureView,
-      context: &PixelsContext,
+    &mut self,
+    encoder: &mut wgpu::CommandEncoder,
+    render_target: &wgpu::TextureView,
+    context: &PixelsContext,
   ) -> Result<(), BackendError> {
     // Upload all resources to the GPU.
     let delta = self.texture_delta.take().unwrap();

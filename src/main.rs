@@ -34,7 +34,7 @@ fn main() {
     #[cfg(not(feature = "gui"))]
     panic!("Build with the 'gui' feature enabled to use the --gui flag");
     #[cfg(feature = "gui")] {
-      gui::GuiState::new().init();
+      gui::GuiState::new(Arc::clone(&gb)).init();
     }
   }
 }
