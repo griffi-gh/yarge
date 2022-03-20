@@ -18,8 +18,8 @@ impl Default for GuiState {
 }
 impl framework::Gui for GuiState {
   fn gui(&mut self, ui: &Context) {
-    egui::Window::new(framework::PKG_NAME.unwrap_or("Debug")).show(ui, |ui| {
-      ui.label("My egui Application");
+    egui::Window::new(framework::PKG_NAME.unwrap_or("debug")).show(ui, |ui| {
+      ui.label("TODO");
     });
   }
 }

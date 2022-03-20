@@ -32,7 +32,7 @@ fn main() {
     gb_thread.join().unwrap();
   } else {
     #[cfg(not(feature = "gui"))]
-    panic!("Please build again with the 'gui' feature enabled");
+    panic!("Build with the 'gui' feature enabled to use the --gui flag");
     #[cfg(feature = "gui")] {
       gui::GuiState::new().init();
     }
