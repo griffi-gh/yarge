@@ -1,3 +1,4 @@
+pub use egui;
 use winit::{
   window::WindowBuilder,
   event_loop::{ControlFlow, EventLoop},

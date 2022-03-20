@@ -101,16 +101,17 @@ impl Default for PPUMode {
 pub struct PPU {
   vram: [u8; 0x2000],
   oam: [OAMObject; 40],
+  pub ly: u8,
 }
 impl PPU {
   pub fn new() -> Self {
     Self {
       vram: [0; 0x2000],
       oam: [OAMObject::default(); 40],
+      ly: 0,
     }
   }
   pub fn write_oam(&mut self, addr: u16, value: u8) {
-    //TEST
     self.oam[(addr >> 2) as usize].set_byte((addr & 3) as u8, value);
   }
   pub fn read_oam(&self, addr: u16) -> u8 {
