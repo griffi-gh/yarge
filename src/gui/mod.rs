@@ -7,33 +7,19 @@ const HEIGHT: u32 = 144;
 const SCALE: u32 = 2;
 
 pub struct GuiState {
-  age: u32,
-  name: String,
+  
 }
 impl Default for GuiState {
   fn default() -> Self{
     Self {
-      age: 3,
-      name: "fuck".to_string()
+      
     }
   }
 }
 impl framework::Gui for GuiState {
   fn gui(&mut self, ui: &Context) {
     egui::Window::new(framework::PKG_NAME.unwrap_or("Debug")).show(ui, |ui| {
-      ui.heading("My egui Application");
-    });
-    egui::SidePanel::left("side_panel").show(ui, |ui| {
-      
-      ui.horizontal(|ui| {
-        ui.label("Your name: ");
-        ui.text_edit_singleline(&mut self.name);
-      });
-      ui.add(egui::Slider::new(&mut self.age, 0..=120).text("age"));
-      if ui.button("Click each year").clicked() {
-        self.age += 1;
-      }
-      ui.label(format!("Hello '{}', age {}", self.name, self.age));
+      ui.label("My egui Application");
     });
   }
 }
