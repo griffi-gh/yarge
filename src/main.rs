@@ -34,7 +34,7 @@ fn main() {
     #[cfg(not(feature = "gui"))]
     panic!("Please build again with the 'gui' feature enabled");
     #[cfg(feature = "gui")] {
-      gui::init().unwrap();
+      gui::init();
     }
   }
 }

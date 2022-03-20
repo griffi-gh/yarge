@@ -6,47 +6,20 @@ use winit::{
   window::Window
 };
 use winit_input_helper::WinitInputHelper;
-use pixels::{PixelsContext, Pixels, SurfaceTexture, Error as PixelsError, wgpu};
+use pixels::{PixelsContext, Pixels, SurfaceTexture, wgpu};
 use egui::{ClippedMesh, Context as EguiCtx, TexturesDelta};
 use egui_wgpu_backend::{RenderPass, ScreenDescriptor, BackendError};
 
 const PKG_NAME: Option<&str> = option_env!("CARGO_PKG_NAME");
-
 const WIDTH: u32 = 160;
 const HEIGHT: u32 = 144;
 
-struct GuiState {
-  age: u32,
-  name: String
+pub trait Gui {
+  fn gui(&mut self, ctx: &EguiCtx);
 }
-impl Default for GuiState {
-  fn default() -> Self{
-    Self {
-      age: 3,
-      name: "fuck".to_string()
-    }
-  }
-}
-impl GuiState {
-  pub fn gui(&mut self, ui: &EguiCtx) {
-    egui::SidePanel::left("side_panel").show(ui, |ui| {
-      ui.heading("My egui Application");
-      ui.horizontal(|ui| {
-          ui.label("Your name: ");
-          ui.text_edit_singleline(&mut self.name);
-      });
-      ui.add(egui::Slider::new(&mut self.age, 0..=120).text("age"));
-      if ui.button("Click each year").clicked() {
-        self.age += 1;
-      }
-      ui.label(format!("Hello '{}', age {}", self.name, self.age));
-    });
-  }
-}
-
 
 struct Framework {
-  state: GuiState,
+  state: Box<dyn Gui + Send>,
   egui_ctx: EguiCtx,
   egui_state: egui_winit::State,
   screen_descriptor: ScreenDescriptor,
@@ -55,7 +28,11 @@ struct Framework {
   texture_delta: Option<TexturesDelta>,
 }
 impl Framework {
-  fn new(width: u32, height: u32, scale_factor: f32, pixels: &pixels::Pixels) -> Self {
+  fn new(
+    width: u32, height: u32, 
+    scale_factor: f32, pixels: &pixels::Pixels,
+    gui_state: Box<dyn Gui + Send>
+  ) -> Self {
     let egui_ctx = EguiCtx::default();
     let egui_state = egui_winit::State::from_pixels_per_point(
       pixels.device().limits().max_texture_dimension_2d as usize,
@@ -71,9 +48,8 @@ impl Framework {
       pixels.render_texture_format(),
       1
     );
-    let state = GuiState::default();
     Self {
-      state,
+      state: gui_state,
       egui_ctx,
       egui_state,
       screen_descriptor,
@@ -116,7 +92,6 @@ impl Framework {
       context: &PixelsContext,
   ) -> Result<(), BackendError> {
     // Upload all resources to the GPU.
-    //TODO remove clone
     let delta = self.texture_delta.take().unwrap();
     self.rpass.add_textures(
       &context.device,
@@ -129,7 +104,6 @@ impl Framework {
       &self.paint_jobs,
       &self.screen_descriptor,
     );
-    // Record all render passes.
     self.rpass.execute(
       encoder,
       render_target,
@@ -142,7 +116,7 @@ impl Framework {
   }
 }
 
-pub fn init() -> Result<(), PixelsError> {
+pub fn init(state: Box<dyn Gui + Send>) {
   let event_loop = EventLoop::new();
   let mut input = WinitInputHelper::new();
   let window = {
@@ -158,8 +132,11 @@ pub fn init() -> Result<(), PixelsError> {
     let window_size = window.inner_size();
     let scale_factor = window.scale_factor() as f32;
     let surface_texture = SurfaceTexture::new(window_size.width, window_size.height, &window);
-    let pixels = Pixels::new(WIDTH, HEIGHT, surface_texture)?;
-    let framework = Framework::new(window_size.width, window_size.height, scale_factor, &pixels);
+    let pixels = Pixels::new(WIDTH, HEIGHT, surface_texture).unwrap();
+    let framework = Framework::new(
+      window_size.width, window_size.height, 
+      scale_factor, &pixels, state
+    );
     (pixels, framework)
   };
 
