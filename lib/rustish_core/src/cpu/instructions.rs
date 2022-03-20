@@ -1,7 +1,9 @@
-pub use paste::paste;
+pub(crate) use paste::paste;
+
+//WARNING: pls never use my macro approach.
 
 //MAYBE Separate macro and instruction table?
-//MAYBE Use enums instead of macros?
+//MAYBE Use functions w/enums instead of macros?
 
 macro_rules! panic_invalid_instruction {
   ($self: expr, $op: expr, $cb: expr) => {
