@@ -5,6 +5,7 @@ use clap::Parser;
 
 #[cfg(feature = "gui")]
 pub(crate) mod gui;
+#[cfg(feature = "gui")]
 use gui::GuiState;
 
 #[derive(Parser, Debug)]
