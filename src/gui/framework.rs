@@ -16,7 +16,7 @@ pub trait Gui {
   fn gui(&mut self, ctx: &EguiCtx);
 }
 
-pub struct Framework {
+struct Framework {
   state: Box<dyn Gui + Send>,
   egui_ctx: EguiCtx,
   egui_state: egui_winit::State,
@@ -117,6 +117,7 @@ impl Framework {
 pub struct InitProperties<'a> {
   pub size: (u32, u32),
   pub min_size: (u32, u32),
+  pub pixels_resoltion: (u32, u32),
   pub title: &'a str,
 }
 
@@ -143,7 +144,11 @@ pub fn init(state: Box<dyn Gui + Send>, prop: InitProperties) {
     let window_size = window.inner_size();
     let scale_factor = window.scale_factor() as f32;
     let surface_texture = SurfaceTexture::new(window_size.width, window_size.height, &window);
-    let pixels = Pixels::new(prop.size.0, prop.size.1, surface_texture).unwrap();
+    let pixels = Pixels::new(
+      prop.pixels_resoltion.0, 
+      prop.pixels_resoltion.1,
+      surface_texture
+    ).unwrap();
     let framework = Framework::new(
       window_size.width, window_size.height, 
       scale_factor, &pixels, state

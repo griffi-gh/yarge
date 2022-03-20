@@ -46,7 +46,8 @@ impl GuiState {
     framework::init(Box::new(self), InitProperties {
       title: framework::PKG_NAME.unwrap_or("open source gameboy emulator"),
       min_size: (WIDTH, HEIGHT),
-      size: (WIDTH * SCALE, HEIGHT * SCALE)
+      size: (WIDTH * SCALE, HEIGHT * SCALE),
+      pixels_resoltion: (WIDTH, HEIGHT),
     });
   }
 }
