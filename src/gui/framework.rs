@@ -10,15 +10,13 @@ use pixels::{PixelsContext, Pixels, SurfaceTexture, wgpu};
 use egui::{ClippedMesh, Context as EguiCtx, TexturesDelta};
 use egui_wgpu_backend::{RenderPass, ScreenDescriptor, BackendError};
 
-const PKG_NAME: Option<&str> = option_env!("CARGO_PKG_NAME");
-const WIDTH: u32 = 160;
-const HEIGHT: u32 = 144;
+pub const PKG_NAME: Option<&str> = option_env!("CARGO_PKG_NAME");
 
 pub trait Gui {
   fn gui(&mut self, ctx: &EguiCtx);
 }
 
-struct Framework {
+pub struct Framework {
   state: Box<dyn Gui + Send>,
   egui_ctx: EguiCtx,
   egui_state: egui_winit::State,
@@ -116,15 +114,28 @@ impl Framework {
   }
 }
 
-pub fn init(state: Box<dyn Gui + Send>) {
+pub struct InitProperties<'a> {
+  pub size: (u32, u32),
+  pub min_size: (u32, u32),
+  pub title: &'a str,
+}
+
+pub fn init(state: Box<dyn Gui + Send>, prop: InitProperties) {
   let event_loop = EventLoop::new();
   let mut input = WinitInputHelper::new();
   let window = {
-    let size = LogicalSize::new(WIDTH as f64, HEIGHT as f64);
+    let size = LogicalSize::new(
+      prop.size.0 as f64, 
+      prop.size.1 as f64
+    );
+    let min_size = LogicalSize::new(
+      prop.min_size.0 as f64,
+      prop.min_size.1 as f64
+    );
     WindowBuilder::new()
-      .with_title(PKG_NAME.unwrap_or("open source gameboy emulator"))
+      .with_title(prop.title)
       .with_inner_size(size)
-      .with_min_inner_size(size)
+      .with_min_inner_size(min_size)
       .build(&event_loop)
       .unwrap()
   };
@@ -132,7 +143,7 @@ pub fn init(state: Box<dyn Gui + Send>) {
     let window_size = window.inner_size();
     let scale_factor = window.scale_factor() as f32;
     let surface_texture = SurfaceTexture::new(window_size.width, window_size.height, &window);
-    let pixels = Pixels::new(WIDTH, HEIGHT, surface_texture).unwrap();
+    let pixels = Pixels::new(prop.size.0, prop.size.1, surface_texture).unwrap();
     let framework = Framework::new(
       window_size.width, window_size.height, 
       scale_factor, &pixels, state

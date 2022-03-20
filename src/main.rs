@@ -5,6 +5,7 @@ use clap::Parser;
 
 #[cfg(feature = "gui")]
 pub(crate) mod gui;
+use gui::GuiState;
 
 #[derive(Parser, Debug)]
 #[clap(author, version, about, long_about = None)]
@@ -34,7 +35,7 @@ fn main() {
     #[cfg(not(feature = "gui"))]
     panic!("Please build again with the 'gui' feature enabled");
     #[cfg(feature = "gui")] {
-      gui::init();
+      GuiState::new().init();
     }
   }
 }
