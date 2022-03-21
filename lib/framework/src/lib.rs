@@ -1,4 +1,6 @@
 pub use egui;
+pub use pixels;
+pub use winit;
 use winit::{
   window::WindowBuilder,
   event_loop::{ControlFlow, EventLoop},
@@ -16,7 +18,7 @@ pub const PKG_NAME: Option<&str> = option_env!("CARGO_PKG_NAME");
 pub type Dimensions<T> = (T, T);
 
 pub trait Gui {
-  fn gui(&mut self, ctx: &EguiCtx, size: Dimensions<f32>);
+  fn gui(&mut self, ctx: &EguiCtx, size: Dimensions<f32>) -> bool;
 }
 
 struct Framework {
@@ -72,15 +74,16 @@ impl Framework {
   pub fn scale_factor(&mut self, scale_factor: f64) {
     self.screen_descriptor.scale_factor = scale_factor as f32;
   }
-  pub fn prepare(&mut self, window: &Window) {
+  pub fn prepare(&mut self, window: &Window) -> bool {
     // Run the egui frame and create all paint jobs to prepare for rendering.
     let size: Dimensions<f32> = {
       let size = window.inner_size();
       (size.width as f32, size.height as f32)
     };
     let raw_input = self.egui_state.take_egui_input(window);
+    let mut do_exit = false;
     let full_output = self.egui_ctx.run(raw_input, |egui_ctx| {
-      self.state.gui(egui_ctx, size);
+      do_exit = self.state.gui(egui_ctx, size);
     });
     self.egui_state.handle_platform_output(
       window, &self.egui_ctx, 
@@ -88,6 +91,7 @@ impl Framework {
     );
     self.texture_delta = Some(full_output.textures_delta);
     self.paint_jobs = self.egui_ctx.tessellate(full_output.shapes);
+    do_exit
   }
 
   pub(crate) fn render(
@@ -191,7 +195,10 @@ pub fn init(state: Box<dyn Gui + Send>, prop: InitProperties) {
       // Draw the current frame
       Event::RedrawRequested(_) => {
         // Prepare egui
-        framework.prepare(&window);
+        let exit_requested = framework.prepare(&window);
+        if exit_requested {
+          *control_flow = ControlFlow::Exit; 
+        }
         let render_result = pixels.render_with(|encoder, render_target, context| {
           context.scaling_renderer.render(encoder, render_target);
           framework.render(encoder, render_target, context)?;

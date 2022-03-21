@@ -51,6 +51,7 @@ impl GameboyBuilder {
 
 ///Gameboy emulator
 pub struct Gameboy {
+  pub running: bool,
   pub cpu: CPU,
   #[cfg(feature = "logging-file")]
   log_file: Option<std::fs::File>,
@@ -58,6 +59,7 @@ pub struct Gameboy {
 impl Gameboy {
   pub fn new() -> Self {
     Self{
+      running: true,
       cpu: CPU::new(),
       #[cfg(feature = "logging-file")] log_file: None,
     }
@@ -102,6 +104,13 @@ impl Gameboy {
     self.cpu.mmu.bios_disabled = true;
   }
 
+  pub fn pause(&mut self) {
+    self.running = false;
+  }
+  pub fn resume(&mut self) {
+    self.running = true;
+  }
+
   #[cfg(feature = "logging")]
   fn log_step(&mut self) {
     let r = &self.cpu.reg;
@@ -125,6 +134,9 @@ impl Gameboy {
   }
 
   pub fn step(&mut self) -> u32 {
+    if !self.running {
+      return 0;
+    }
     #[cfg(feature = "logging")] self.log_step();
     self.cpu.step()
   }
@@ -137,10 +149,18 @@ impl Gameboy {
   pub fn run_thread(gb: &Arc<Mutex<Gameboy>>) -> thread::JoinHandle<()> {   
     let gb = Arc::clone(&*gb);
     thread::spawn(move || {
+      use std::time;
+      let paused_sleep_duration = time::Duration::from_millis(100);
       loop {
-        let mut gb = gb.lock().unwrap();
-        gb.step();
-        drop(gb);
+        if {
+          let mut gb = gb.lock().unwrap();
+          gb.step();
+          !gb.running
+        } {
+          //Reduce CPU usage while paused
+          //MAYBE I should use messages instead?
+          thread::sleep(paused_sleep_duration);
+        }
       }
     })
   }

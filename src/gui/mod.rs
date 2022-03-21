@@ -1,4 +1,7 @@
-use framework::{egui, Gui, InitProperties, Dimensions as Dim};
+use framework::{
+  egui, InitProperties,
+  Gui, Dimensions as Dim
+};
 use egui::{Context, RichText, Color32};
 use std::{
   sync::{Mutex, Arc},
@@ -8,7 +11,7 @@ use super::{gb::Gameboy, NAME}; //TODO get rid of dependency on gb
 
 const WIDTH: u32 = 160;
 const HEIGHT: u32 = 144;
-const SCALE: u32 = 2;
+const SCALE: u32 = 3;
 
 pub struct GuiState {
   gb: Arc<Mutex<Gameboy>>,
@@ -31,18 +34,34 @@ impl GuiState {
 }
 
 impl Gui for GuiState {
-  fn gui(&mut self, ui: &Context, _dim: Dim<f32>) {
-    fn error_window(ui: &Context, title: &str, color: Color32, details: &str) {
-      egui::TopBottomPanel::new(egui::panel::TopBottomSide::Top, "error_panel").show(ui, |ui| {
+  fn gui(&mut self, ui: &Context, _dim: Dim<f32>) -> bool {
+    let mut exit = false;
+
+    //ERROR WINDOW
+    let mut error_window = |title: &str, color: Color32, details: &str, id: &str| {
+      egui::TopBottomPanel::new(
+        egui::panel::TopBottomSide::Top, 
+        format!("error_panel_{}", id).as_str()
+      ).resizable(false).show(ui, |ui| {
         ui.vertical_centered(|ui| {
           ui.label(RichText::new(title).color(color).size(18.));
         });
         ui.collapsing("Details", |ui| {
+          egui::warn_if_debug_build(ui);
           ui.label(details);
           ui.label("Check console output for more details");
         });
+        ui.vertical_centered_justified(|ui| {
+          if ui.button("Exit").clicked() {
+            exit = true;
+          }
+          //let _ = ui.button("Restart"); TODO
+        });
+        ui.add_space(2.);
       });
-    }
+    };
+
+    //HANDLE PANIC/POISON
     let gb = match self.gb.lock() {
       Ok(gb) => { gb },
       Err(err) => {
@@ -51,33 +70,59 @@ impl Gui for GuiState {
           err_info += format!("\nCaused by: {}", source).as_str();
         }
         error_window(
-          &ui,
           format!(
             "{} thread panicked",
             NAME.unwrap_or("emulator")
           ).as_str(),
           Color32::RED,
-          err_info.as_str()
+          err_info.as_str(),
+          "panic_panel"
         );
         err.into_inner()
       }
     };
-    /*if let Some(err) = gb.error {
+
+    // TODO - HANDLE ERROR
+    /*
       error_window(
-        &ui,
         format!(
           "{} crashed",
           NAME.unwrap_or("emulator")
         ).as_str(),
         Color32::YELLOW,
-        "TODO"
+        "TODO",
+        "err_panel"
       );
-    }*/
-    egui::Window::new(NAME.unwrap_or("debug")).show(ui, |ui| {
-      ui.label("Registers");
-      ui.horizontal_wrapped(|ui| {
-        ui.label(format!("PC: {:04X}", gb.cpu.reg.pc));
+    */
+
+    // MAIN WINDOW
+
+    fn register_view(ui: &mut egui::Ui, name: &str, value: u16) {
+      ui.horizontal(|ui| {
+        ui.monospace(name.to_uppercase());
+        ui.monospace(format!("{:04X}", value));
+      });
+    }
+
+    egui::Window::new(NAME.unwrap_or("debug")).show(ui, |ui| {      
+      egui::CollapsingHeader::new(
+        "Registers"
+      ).default_open(true).show(ui, |ui| {
+        ui.horizontal(|ui| {
+          register_view(ui, "af", gb.cpu.reg.af());
+          register_view(ui, "bc", gb.cpu.reg.bc());
+        });
+        ui.horizontal(|ui| {
+          register_view(ui, "de", gb.cpu.reg.de());
+          register_view(ui, "hl", gb.cpu.reg.hl());
+        });
+        ui.horizontal(|ui| {
+          register_view(ui, "sp", gb.cpu.reg.sp());
+          register_view(ui, "pc", gb.cpu.reg.pc());
+        });
       });
     });
+
+    return exit;
   }
 }
