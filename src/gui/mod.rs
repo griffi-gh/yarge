@@ -4,9 +4,8 @@ use std::{
   sync::{Mutex, Arc},
   error::Error
 };
-use super::gb::Gameboy; //TODO get rid of dependency on gb
+use super::{gb::Gameboy, NAME}; //TODO get rid of dependency on gb
 
-const NAME: Option<&str> = option_env!("CARGO_PKG_NAME");
 const WIDTH: u32 = 160;
 const HEIGHT: u32 = 144;
 const SCALE: u32 = 2;
@@ -43,19 +42,6 @@ impl Gui for GuiState {
           ui.label("Check console output for more details");
         });
       });
-     /*  egui::Window::new(RichText::new("Error"))
-        .fixed_pos((0., 0.))
-        .resizable(false)
-        .collapsible(false)
-        .show(ui, |ui| {
-          ui.vertical_centered(|ui| {
-            ui.label(RichText::new(title).color(color).size(18.));
-          });
-          ui.collapsing("Details", |ui| {
-            ui.label(details);
-            ui.label("Check console output for more details");
-          });
-        });*/
     }
     let gb = match self.gb.lock() {
       Ok(gb) => { gb },
