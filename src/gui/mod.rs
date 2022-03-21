@@ -30,12 +30,13 @@ impl GuiState {
     });
   }
 }
-fn error_window(ui: &Context, title_text: &str, title_color: Color32, details: &str) {
+fn error_window(ui: &Context, title: &str, color: Color32, details: &str) {
   egui::Window::new(RichText::new("Error"))
     .collapsible(false)
     .show(ui, |ui| {
-      let title = RichText::new(title_text).color(title_color).size(18.);
-      ui.label(title);
+      ui.vertical_centered(|ui| {
+        ui.label(RichText::new(title).color(color).size(18.));
+      });
       ui.collapsing("Details", |ui| {
         ui.label(details);
         ui.label("Check console output for more details");
