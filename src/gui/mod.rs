@@ -1,5 +1,9 @@
 use framework::{egui, Gui, InitProperties};
-use std::sync::{Mutex, Arc};
+use egui::{Context, RichText, Color32};
+use std::{
+  sync::{Mutex, Arc},
+  error::Error
+};
 use super::gb::Gameboy; //TODO get rid of dependency on gb
 
 const NAME: Option<&str> = option_env!("CARGO_PKG_NAME");
@@ -25,13 +29,35 @@ impl GuiState {
   }
 }
 impl Gui for GuiState {
-  fn gui(&mut self, ui: &egui::Context) {
-    let gb = self.gb.lock().unwrap();
-    egui::Window::new(NAME.unwrap_or("debug")).show(ui, |ui| {
-      ui.label("Registers");
-      ui.horizontal_wrapped(|ui| {
-        ui.label(format!("PC: {:02X}", gb.cpu.reg.pc));
-      });
-    });
+  fn gui(&mut self, ui: &Context) {
+    match self.gb.lock() {
+      Ok(gb) => {
+        egui::Window::new(NAME.unwrap_or("debug")).show(ui, |ui| {
+          ui.label("Registers");
+          ui.horizontal_wrapped(|ui| {
+            ui.label(format!("PC: {:04X}", gb.cpu.reg.pc));
+          });
+        });
+      }
+      Err(err) => {
+        egui::Window::new("Error").show(ui, |ui| {
+          ui.label(
+            RichText::new(format!(
+              "{} has crashed",
+              NAME.unwrap_or("The emulator")
+            ))
+            .color(Color32::from_rgb(0xff, 0x00, 0x00))
+            .heading()
+          );
+          ui.collapsing("Details", |ui| {
+            ui.label(format!("{}", err));
+            if let Some(source) = err.source() {
+              ui.separator();
+              ui.label(format!("Caused by: {}", source));
+            }
+          });
+        });
+      }
+    }
   }
 }
