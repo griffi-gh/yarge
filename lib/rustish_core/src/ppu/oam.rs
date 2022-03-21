@@ -7,7 +7,6 @@ pub struct OAMFlags {
   //GBC other flags
 }
 impl OAMFlags {
-  pub fn new() -> Self { Self::default() }
   pub fn into_u8(&self) -> u8 {
     ((self.priority as u8) << 7) |
     ((self.flip_x   as u8) << 6) |
@@ -40,7 +39,6 @@ pub struct OAMObject {
   pub flags: OAMFlags,
 }
 impl OAMObject {
-  pub fn new() -> Self { Self::default() }
   pub fn get_byte(&self, byte: u8) -> u8 {
     match byte & 3 {
       0 => self.y,
@@ -58,30 +56,5 @@ impl OAMObject {
       3 => { self.flags.from_u8(value); },
       _ => unreachable!()
     }
-  }
-}
-
-//todo cache oam?
-
-#[derive(Clone, Copy)]
-pub struct OAM {
-  objects: [OAMObject; 40],
-}
-impl Default for OAM {
-  fn default() -> Self { Self::new() }
-}
-impl OAM {
-  pub fn new() -> Self {
-    Self { objects: [OAMObject::default(); 40] }
-  }
-  #[inline]
-  pub fn get(&mut self, idx: usize) -> &mut OAMObject {
-    &mut (self.objects[idx])
-  }
-  pub fn write_mem(&mut self, addr: usize, value: u8) {
-    self.objects[addr >> 2].set_byte((addr & 3) as u8, value);
-  }
-  pub fn read_mem(&self, addr: usize) -> u8 {
-    self.objects[addr >> 2].get_byte((addr & 3) as u8)
   }
 }

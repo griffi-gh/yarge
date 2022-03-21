@@ -1,5 +1,5 @@
 pub mod oam;
-use oam::{OAM, OAMObject};
+use oam::OAMObject;
 
 #[derive(Clone, Copy)]
 pub enum PPUMode {
@@ -42,22 +42,22 @@ impl Default for PPUMode {
 
 pub struct PPU {
   vram: [u8; 0x2000],
-  oam: OAM,
+  oam: [OAMObject; 40],
   pub ly: u8,
 }
 impl PPU {
   pub fn new() -> Self {
     Self {
       vram: [0; 0x2000],
-      oam: OAM::default(),
+      oam: [OAMObject::default(); 40],
       ly: 0,
     }
   }
   pub fn write_oam(&mut self, addr: u16, value: u8) {
-    self.oam.write_mem(addr as usize, value);
+    self.oam[(addr >> 2) as usize].set_byte((addr & 3) as u8, value);
   }
   pub fn read_oam(&self, addr: u16) -> u8 {
-    self.oam.read_mem(addr as usize)
+    self.oam[(addr >> 2) as usize].get_byte((addr & 3) as u8)
   }
   pub fn write_vram(&mut self, addr: u16, value: u8) {
     self.vram[(addr & 0x1FFF) as usize] = value;
