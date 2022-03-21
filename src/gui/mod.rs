@@ -1,4 +1,4 @@
-use framework::{egui, Gui, InitProperties};
+use framework::{egui, Gui, InitProperties, Dimensions as Dim};
 use egui::{Context, RichText, Color32};
 use std::{
   sync::{Mutex, Arc},
@@ -30,25 +30,35 @@ impl GuiState {
     });
   }
 }
-fn error_window(ui: &Context, title: &str, color: Color32, details: &str) {
-  egui::Window::new(RichText::new("Error"))
-    .collapsible(false)
-    .show(ui, |ui| {
-      ui.vertical_centered(|ui| {
-        ui.label(RichText::new(title).color(color).size(18.));
-      });
-      ui.collapsing("Details", |ui| {
-        ui.label(details);
-        ui.label("Check console output for more details");
-      });
-    });
-}
+
 impl Gui for GuiState {
-  fn gui(&mut self, ui: &Context) {
+  fn gui(&mut self, ui: &Context, _dim: Dim<f32>) {
+    fn error_window(ui: &Context, title: &str, color: Color32, details: &str) {
+      egui::TopBottomPanel::new(egui::panel::TopBottomSide::Top, "error_panel").show(ui, |ui| {
+        ui.vertical_centered(|ui| {
+          ui.label(RichText::new(title).color(color).size(18.));
+        });
+        ui.collapsing("Details", |ui| {
+          ui.label(details);
+          ui.label("Check console output for more details");
+        });
+      });
+     /*  egui::Window::new(RichText::new("Error"))
+        .fixed_pos((0., 0.))
+        .resizable(false)
+        .collapsible(false)
+        .show(ui, |ui| {
+          ui.vertical_centered(|ui| {
+            ui.label(RichText::new(title).color(color).size(18.));
+          });
+          ui.collapsing("Details", |ui| {
+            ui.label(details);
+            ui.label("Check console output for more details");
+          });
+        });*/
+    }
     let gb = match self.gb.lock() {
-      Ok(gb) => {
-        gb
-      },
+      Ok(gb) => { gb },
       Err(err) => {
         let mut err_info = format!("{}", err);
         if let Some(source) = err.source() {
@@ -57,8 +67,8 @@ impl Gui for GuiState {
         error_window(
           &ui,
           format!(
-            "{} has panicked",
-            NAME.unwrap_or("the emulator")
+            "{} thread panicked",
+            NAME.unwrap_or("emulator")
           ).as_str(),
           Color32::RED,
           err_info.as_str()
@@ -70,8 +80,8 @@ impl Gui for GuiState {
       error_window(
         &ui,
         format!(
-          "{} has suffered an irrecoverable error",
-          NAME.unwrap_or("the emulator")
+          "{} crashed",
+          NAME.unwrap_or("emulator")
         ).as_str(),
         Color32::YELLOW,
         "TODO"
