@@ -61,8 +61,10 @@ impl Gui for GuiState {
       });
     };
 
+    let mut crashed = false;
+
     //HANDLE PANIC/POISON
-    let gb = match self.gb.lock() {
+    let mut gb = match self.gb.lock() {
       Ok(gb) => { gb },
       Err(err) => {
         let mut err_info = format!("{}", err);
@@ -78,22 +80,13 @@ impl Gui for GuiState {
           err_info.as_str(),
           "panic_panel"
         );
+        crashed = true;
         err.into_inner()
       }
     };
 
     // TODO - HANDLE ERROR
-    /*
-      error_window(
-        format!(
-          "{} crashed",
-          NAME.unwrap_or("emulator")
-        ).as_str(),
-        Color32::YELLOW,
-        "TODO",
-        "err_panel"
-      );
-    */
+    //error_window(format!("{} crashed", NAME.unwrap_or("emulator")).as_str(), Color32::YELLOW, "TODO", "err_panel");
 
     // MAIN WINDOW
 
@@ -105,6 +98,13 @@ impl Gui for GuiState {
     }
 
     egui::Window::new(NAME.unwrap_or("debug")).show(ui, |ui| {      
+      {
+        let mut temp = false;
+        ui.checkbox(
+          if crashed { &mut temp } else { &mut gb.running }, 
+          "Running"
+        );
+      }
       egui::CollapsingHeader::new(
         "Registers"
       ).default_open(true).show(ui, |ui| {
