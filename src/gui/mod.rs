@@ -12,11 +12,15 @@ const HEIGHT: u32 = 144;
 const SCALE: u32 = 2;
 
 pub struct GuiState {
-  gb: Arc<Mutex<Gameboy>>
+  gb: Arc<Mutex<Gameboy>>,
+  error_window_open: bool,
 }
 impl GuiState {
   pub fn new(gb: Arc<Mutex<Gameboy>>) -> Self {
-    Self { gb }
+    Self {
+      gb,
+      error_window_open: true,
+    }
   }
   ///Warning: consumes self!
   pub fn init(self) {
@@ -30,34 +34,40 @@ impl GuiState {
 }
 impl Gui for GuiState {
   fn gui(&mut self, ui: &Context) {
-    match self.gb.lock() {
+    let gb = match self.gb.lock() {
       Ok(gb) => {
-        egui::Window::new(NAME.unwrap_or("debug")).show(ui, |ui| {
-          ui.label("Registers");
-          ui.horizontal_wrapped(|ui| {
-            ui.label(format!("PC: {:04X}", gb.cpu.reg.pc));
-          });
-        });
-      }
+        self.error_window_open = true;
+        gb
+      },
       Err(err) => {
-        egui::Window::new("Error").show(ui, |ui| {
-          ui.label(
-            RichText::new(format!(
-              "{} has crashed",
-              NAME.unwrap_or("The emulator")
-            ))
-            .color(Color32::from_rgb(0xff, 0x00, 0x00))
-            .heading()
-          );
-          ui.collapsing("Details", |ui| {
-            ui.label(format!("{}", err));
-            if let Some(source) = err.source() {
-              ui.separator();
-              ui.label(format!("Caused by: {}", source));
-            }
+        egui::Window::new(RichText::new("Error"))
+          .collapsible(false)
+          .open(&mut self.error_window_open)
+          .show(ui, |ui| {
+            ui.label(
+              RichText::new(format!(
+                "{} has panicked",
+                NAME.unwrap_or("the emulator")
+              ))
+              .color(Color32::from_rgb(0xff, 0x00, 0x00))
+              .size(18.)
+            );
+            ui.collapsing("Details", |ui| {
+              ui.label(format!("{}", err));
+              if let Some(source) = err.source() {
+                ui.label(format!("Caused by: {}", source));
+              }
+              ui.label("Check console output for more details");
+            });
           });
-        });
+        err.into_inner()
       }
-    }
+    };
+    egui::Window::new(NAME.unwrap_or("debug")).show(ui, |ui| {
+      ui.label("Registers");
+      ui.horizontal_wrapped(|ui| {
+        ui.label(format!("PC: {:04X}", gb.cpu.reg.pc));
+      });
+    });
   }
 }
