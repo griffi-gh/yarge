@@ -48,6 +48,10 @@ impl GameboyBuilder {
   pub fn build(self) -> Gameboy { self.gb }
 }
 
+pub struct ThreadInfo {
+  pub instrs: u64,
+  pub time: std::time::Instant,
+}
 
 ///Gameboy emulator
 pub struct Gameboy {
@@ -55,6 +59,7 @@ pub struct Gameboy {
   pub cpu: CPU,
   #[cfg(feature = "logging-file")]
   log_file: Option<std::fs::File>,
+  pub thread_info: Option<ThreadInfo>
 }
 impl Gameboy {
   pub fn new() -> Self {
@@ -62,6 +67,7 @@ impl Gameboy {
       running: true,
       cpu: CPU::new(),
       #[cfg(feature = "logging-file")] log_file: None,
+      thread_info: None,
     }
   }
 
@@ -151,14 +157,25 @@ impl Gameboy {
     thread::spawn(move || {
       use std::time;
       let paused_sleep_duration = time::Duration::from_millis(100);
+      {
+        let mut gb = gb.lock().unwrap();
+        gb.thread_info = Some(ThreadInfo {
+          instrs: 0,
+          time: time::Instant::now() 
+        });
+      }
       loop {
-        if {
-          let mut gb = gb.lock().unwrap();
-          gb.step();
-          !gb.running
-        } {
+        let mut should_sleep = false;
+        {
+          let gb = gb.try_lock();
+          if let Ok(mut gb) = gb {
+            should_sleep = !gb.running;
+            gb.step();
+            gb.thread_info.as_mut().unwrap().instrs += 1;
+          }
+        }
+        if should_sleep {
           //Reduce CPU usage while paused
-          //MAYBE I should use messages instead?
           thread::sleep(paused_sleep_duration);
         }
       }

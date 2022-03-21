@@ -98,13 +98,22 @@ impl Gui for GuiState {
     }
 
     egui::Window::new(NAME.unwrap_or("debug")).show(ui, |ui| {      
+      // Control
       {
         let mut temp = false;
         ui.checkbox(
           if crashed { &mut temp } else { &mut gb.running }, 
           "Running"
         );
+        drop(temp);
+        if let Some(info) = &gb.thread_info {
+          let elapsed = info.time.elapsed().as_secs_f64();
+          ui.label(format!(
+            "~{} IPS", ((info.instrs as f64) / elapsed).round() as u64
+          ));
+        }
       }
+      // Registers
       egui::CollapsingHeader::new(
         "Registers"
       ).default_open(true).show(ui, |ui| {
