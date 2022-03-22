@@ -122,13 +122,13 @@ impl Gui for GuiState {
         let mut ret = None;
         ui.horizontal(|ui| {
           ui.monospace(name.to_uppercase());
-          //works but consumes space in ui
-          //let w = egui::Label::new(RichText::new("0000").monospace()).layout_in_ui(ui).1.size().x;
-          //Works but how do i get the size??
-          //let w: f32 = ui.fonts().glyph_width(&egui::FontId::monospace(/*size*/), '0') * 4.;
-          //Is there any better way?
-          let w = 29.; //TODO get rid of this hardcoded value
           if allow_edit {
+            let w = egui::WidgetText::from("0000").into_galley(
+                ui, 
+                Some(false), 
+                f32::MAX, 
+                TextStyle::Monospace
+              ).galley().size().x;
             let mut value_str = format!("{:X}", value).to_string();
             let res = ui.add(
               egui::TextEdit::singleline(&mut value_str)
