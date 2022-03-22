@@ -136,6 +136,7 @@ impl Gui for GuiState {
                 text_style.clone()
               ).galley().size().x;
             let mut value_str = format!("{:X}", value).to_string();
+            let was_zero = value == 0;
             let res = ui.add(
               egui::TextEdit::singleline(&mut value_str)
                 .font(text_style)
@@ -146,6 +147,9 @@ impl Gui for GuiState {
                 .margin(egui::Vec2::from((0.,0.)))
             );
             if res.changed() {
+              if was_zero {
+                value_str = value_str.replace("0", "");
+              }
               let x = u16::from_str_radix(
                 ("0".to_string() + value_str.trim()).as_str(), 
                 16
@@ -171,7 +175,7 @@ impl Gui for GuiState {
       ).default_open(true).show(ui, |ui| {
         let allow_edit = !((&gb).running || crashed);
         let reg = &mut gb.cpu.reg;
-        ui.horizontal_wrapped(|ui| {
+        ui.horizontal(|ui| {
           if let Some(v) = register_view(ui, "af", reg.af(), allow_edit, 0x10) {
             reg.set_af(v);
           }
@@ -180,7 +184,7 @@ impl Gui for GuiState {
             reg.set_bc(v);
           }
         });
-        ui.horizontal_wrapped(|ui| {
+        ui.horizontal(|ui| {
           if let Some(v) = register_view(ui, "de", reg.de(), allow_edit, 1) {
             reg.set_de(v);
           }
@@ -189,7 +193,7 @@ impl Gui for GuiState {
             reg.set_hl(v);
           }
         });
-        ui.horizontal_wrapped(|ui| {
+        ui.horizontal(|ui| {
           if let Some(v) = register_view(ui, "sp", reg.sp(), allow_edit, 1) {
             reg.set_sp(v);
           }
