@@ -1,3 +1,5 @@
+use std::cmp::Ordering;
+
 #[derive(Clone, Copy, Default)]
 pub struct OAMFlags {
   pub priority: bool, //BG/Sprite order
@@ -59,6 +61,22 @@ impl OAMObject {
     }
   }
 }
+impl Ord for OAMObject {
+  fn cmp(&self, other: &Self) -> Ordering {
+    (self.x, &self.id).cmp(&(other.x, &other.id))
+  }
+}
+impl PartialOrd for OAMObject {
+  fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+    Some(self.cmp(other))
+  }
+}
+impl PartialEq for OAMObject {
+  fn eq(&self, other: &Self) -> bool {
+    (self.x, self.id) == (other.x, other.id)
+  }
+}
+impl Eq for OAMObject {}
 
 #[derive(Clone)]
 pub struct OAMMemory {
