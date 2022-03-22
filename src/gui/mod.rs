@@ -92,7 +92,6 @@ impl Gui for GuiState {
 
     // MAIN WINDOW
     let gb_running = gb.running && !crashed;
-
     egui::Window::new(NAME.unwrap_or("debug")).show(ui, |ui| {      
       // Control
       ui.horizontal_wrapped(|ui| {
@@ -113,8 +112,13 @@ impl Gui for GuiState {
             info.time = std::time::Instant::now();
             info.instrs = 0;
           } else {
-            ui.label("Paused");
+            ui.label(if crashed { "Crashed" } else { "Paused"});
           }
+        }
+      });
+      ui.add_enabled_ui(!gb.cpu.mmu.bios_disabled, |ui| {
+        if ui.button("Skip bootrom").clicked() {
+          gb.skip_bootrom();
         }
       });
       // Registers
@@ -122,7 +126,9 @@ impl Gui for GuiState {
         let mut ret = None;
         ui.horizontal(|ui| {
           ui.add_enabled_ui(allow_edit, |ui| {
-            if ui.button(RichText::new("-").monospace()).clicked() {
+            if ui.button(
+              RichText::new("-").monospace()
+            ).on_hover_text(format!("-{:#X}", mul)).clicked() {
               ret = Some(value.wrapping_sub(mul));
             }
           });
@@ -164,7 +170,9 @@ impl Gui for GuiState {
           }
         });
         ui.add_enabled_ui(allow_edit, |ui| {
-          if ui.button(RichText::new("+").monospace()).clicked() {
+          if ui.button(
+            RichText::new("+").monospace()
+          ).on_hover_text(format!("+{:#X}", mul)).clicked() {
             ret = Some(value.wrapping_add(mul));
           }
         });
