@@ -37,6 +37,7 @@ pub struct OAMObject {
   pub x: u8,
   pub tile: u8,
   pub flags: OAMFlags,
+  pub id: u8
 }
 impl OAMObject {
   pub fn get_byte(&self, byte: u8) -> u8 {
@@ -57,4 +58,34 @@ impl OAMObject {
       _ => unreachable!()
     }
   }
+}
+
+pub struct OAMMemory {
+  pub objects: [OAMObject; 40],
+}
+impl OAMMemory {
+  pub fn new() -> Self {
+    let mut objects = [OAMObject::default(); 40];
+    for (i, v) in objects.iter_mut().enumerate() {
+      v.id = i as u8;
+    }
+    Self { objects }
+  }
+  #[allow(dead_code)]
+  pub fn get(&self, i: u8) -> &OAMObject {
+    &self.objects[i as usize]
+  }
+  #[allow(dead_code)]
+  pub fn get_mut(&mut self, i: u8) -> &mut OAMObject {
+    &mut self.objects[i as usize]
+  }
+  pub fn write_oam(&mut self, addr: u16, value: u8) {
+    self.objects[(addr >> 2) as usize].set_byte((addr & 3) as u8, value);
+  }
+  pub fn read_oam(&self, addr: u16) -> u8 {
+    self.objects[(addr >> 2) as usize].get_byte((addr & 3) as u8)
+  }
+}
+impl Default for OAMMemory {
+  fn default() -> Self { Self::new() }
 }
