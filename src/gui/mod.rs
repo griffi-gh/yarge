@@ -105,9 +105,14 @@ impl Gui for GuiState {
         if gb.thread_info.is_some() {
           let info = gb.thread_info.as_mut().unwrap();
           let elapsed = info.time.elapsed().as_secs_f64();
-          ui.label(format!(
-            "~{} IPS", ((info.instrs as f64) / elapsed).round() as u64
-          ));
+          if gb_running {
+            ui.label(format!(
+              "~{} IPS", ((info.instrs as f64) / elapsed).round() as u64
+            ));
+          } else {
+            ui.label("Paused");
+          }
+          
           info.time = std::time::Instant::now();
           info.instrs = 0;
         }
@@ -117,23 +122,35 @@ impl Gui for GuiState {
         let mut ret = None;
         ui.horizontal(|ui| {
           ui.monospace(name.to_uppercase());
-          let w = ui.spacing().interact_size.x;
+          //works but consumes space in ui
+          //let w = egui::Label::new(RichText::new("0000").monospace()).layout_in_ui(ui).1.size().x;
+          //Works but how do i get the size??
+          //let w: f32 = ui.fonts().glyph_width(&egui::FontId::monospace(/*size*/), '0') * 4.;
+          //Is there any better way?
+          let w = 30.; //FIXME
           if allow_edit {
-            let mut value_str = format!("{:04X}", value).to_string();
-            if ui.add(
+            let mut value_str = format!("{:X}", value).to_string();
+            let res = ui.add(
               egui::TextEdit::singleline(&mut value_str)
                 .font(TextStyle::Monospace)
                 .cursor_at_end(true)
                 .desired_width(w)
                 .id_source("regview_".to_string() + name)
-            ).changed() {
-              let x = u16::from_str_radix(value_str.as_str(), 16);
+                .hint_text("0000")
+                .margin(egui::Vec2::from((0.,0.)))
+            );
+            if res.changed() {
+              let x = u16::from_str_radix(
+                ("0".to_string() + value_str.as_str()).as_str(), 
+                16
+              );
               if x.is_ok() {
                 ret = Some(x.unwrap());
               }
             }
           } else {
-            ui.monospace(format!("{:04X}", value));
+            ui.monospace(format!("{:04X}", value))
+              .on_hover_text("Pause emulation to change");
           }
         });
         ret
