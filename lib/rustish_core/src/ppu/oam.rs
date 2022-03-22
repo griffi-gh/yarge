@@ -60,6 +60,7 @@ impl OAMObject {
   }
 }
 
+#[derive(Clone)]
 pub struct OAMMemory {
   pub objects: [OAMObject; 40],
 }
