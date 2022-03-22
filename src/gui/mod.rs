@@ -95,7 +95,7 @@ impl Gui for GuiState {
 
     egui::Window::new(NAME.unwrap_or("debug")).show(ui, |ui| {      
       // Control
-      {
+      ui.horizontal_wrapped(|ui| {
         ui.add_enabled_ui(!crashed, |ui| {
           let mut temp = false;
           ui.checkbox(
@@ -116,11 +116,16 @@ impl Gui for GuiState {
             ui.label("Paused");
           }
         }
-      }
+      });
       // Registers
-      fn register_view(ui: &mut egui::Ui, name: &str, value: u16, allow_edit: bool) -> Option<u16> {
+      fn register_view(ui: &mut egui::Ui, name: &str, value: u16, allow_edit: bool, mul: u16) -> Option<u16> {
         let mut ret = None;
         ui.horizontal(|ui| {
+          ui.add_enabled_ui(allow_edit, |ui| {
+            if ui.button(RichText::new("-").monospace()).clicked() {
+              ret = Some(value.wrapping_sub(mul));
+            }
+          });
           ui.monospace(name.to_uppercase());
           if allow_edit {
             let text_style = TextStyle::Monospace;
@@ -142,7 +147,7 @@ impl Gui for GuiState {
             );
             if res.changed() {
               let x = u16::from_str_radix(
-                ("0".to_string() + value_str.as_str()).as_str(), 
+                ("0".to_string() + value_str.trim()).as_str(), 
                 16
               );
               if x.is_ok() {
@@ -154,6 +159,11 @@ impl Gui for GuiState {
               .on_hover_text("Pause emulation to change");
           }
         });
+        ui.add_enabled_ui(allow_edit, |ui| {
+          if ui.button(RichText::new("+").monospace()).clicked() {
+            ret = Some(value.wrapping_add(mul));
+          }
+        });
         ret
       }
       egui::CollapsingHeader::new(
@@ -161,27 +171,30 @@ impl Gui for GuiState {
       ).default_open(true).show(ui, |ui| {
         let allow_edit = !((&gb).running || crashed);
         let reg = &mut gb.cpu.reg;
-        ui.horizontal(|ui| {
-          if let Some(v) = register_view(ui, "af", reg.af(), allow_edit) {
+        ui.horizontal_wrapped(|ui| {
+          if let Some(v) = register_view(ui, "af", reg.af(), allow_edit, 0x10) {
             reg.set_af(v);
           }
-          if let Some(v) = register_view(ui, "bc", reg.bc(), allow_edit) {
+          ui.separator();
+          if let Some(v) = register_view(ui, "bc", reg.bc(), allow_edit, 1) {
             reg.set_bc(v);
           }
         });
-        ui.horizontal(|ui| {
-          if let Some(v) = register_view(ui, "de", reg.de(), allow_edit) {
+        ui.horizontal_wrapped(|ui| {
+          if let Some(v) = register_view(ui, "de", reg.de(), allow_edit, 1) {
             reg.set_de(v);
           }
-          if let Some(v) = register_view(ui, "hl", reg.hl(), allow_edit) {
+          ui.separator();
+          if let Some(v) = register_view(ui, "hl", reg.hl(), allow_edit, 1) {
             reg.set_hl(v);
           }
         });
-        ui.horizontal(|ui| {
-          if let Some(v) = register_view(ui, "sp", reg.sp(), allow_edit) {
+        ui.horizontal_wrapped(|ui| {
+          if let Some(v) = register_view(ui, "sp", reg.sp(), allow_edit, 1) {
             reg.set_sp(v);
           }
-          if let Some(v) = register_view(ui, "pc", reg.pc(), allow_edit) {
+          ui.separator();
+          if let Some(v) = register_view(ui, "pc", reg.pc(), allow_edit, 1) {
             reg.set_pc(v);
           }
         });
