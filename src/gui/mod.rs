@@ -110,12 +110,11 @@ impl Gui for GuiState {
             ui.label(format!(
               "~{} IPS", ((info.instrs as f64) / elapsed).round() as u64
             ));
+            info.time = std::time::Instant::now();
+            info.instrs = 0;
           } else {
             ui.label("Paused");
           }
-          
-          info.time = std::time::Instant::now();
-          info.instrs = 0;
         }
       }
       // Registers
