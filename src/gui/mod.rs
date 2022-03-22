@@ -127,7 +127,7 @@ impl Gui for GuiState {
           //Works but how do i get the size??
           //let w: f32 = ui.fonts().glyph_width(&egui::FontId::monospace(/*size*/), '0') * 4.;
           //Is there any better way?
-          let w = 30.; //FIXME
+          let w = 29.; //TODO get rid of this hardcoded value
           if allow_edit {
             let mut value_str = format!("{:X}", value).to_string();
             let res = ui.add(
