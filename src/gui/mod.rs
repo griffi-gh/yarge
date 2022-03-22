@@ -96,12 +96,13 @@ impl Gui for GuiState {
     egui::Window::new(NAME.unwrap_or("debug")).show(ui, |ui| {      
       // Control
       {
-        let mut temp = false;
-        ui.checkbox(
-          if crashed { &mut temp } else { &mut gb.running }, 
-          "Running"
-        );
-        drop(temp);
+        ui.add_enabled_ui(!crashed, |ui| {
+          let mut temp = false;
+          ui.checkbox(
+            if crashed { &mut temp } else { &mut gb.running }, 
+            "Running"
+          ).on_disabled_hover_text("Crashed, unable to resume");
+        });
         if gb.thread_info.is_some() {
           let info = gb.thread_info.as_mut().unwrap();
           let elapsed = info.time.elapsed().as_secs_f64();
@@ -159,28 +160,29 @@ impl Gui for GuiState {
       egui::CollapsingHeader::new(
         "Registers"
       ).default_open(true).show(ui, |ui| {
+        let allow_edit = !((&gb).running || crashed);
         let reg = &mut gb.cpu.reg;
         ui.horizontal(|ui| {
-          if let Some(v) = register_view(ui, "af", reg.af(), !gb_running) {
+          if let Some(v) = register_view(ui, "af", reg.af(), allow_edit) {
             reg.set_af(v);
           }
-          if let Some(v) = register_view(ui, "bc", reg.bc(), !gb_running) {
+          if let Some(v) = register_view(ui, "bc", reg.bc(), allow_edit) {
             reg.set_bc(v);
           }
         });
         ui.horizontal(|ui| {
-          if let Some(v) = register_view(ui, "de", reg.de(), !gb_running) {
+          if let Some(v) = register_view(ui, "de", reg.de(), allow_edit) {
             reg.set_de(v);
           }
-          if let Some(v) = register_view(ui, "hl", reg.hl(), !gb_running) {
+          if let Some(v) = register_view(ui, "hl", reg.hl(), allow_edit) {
             reg.set_hl(v);
           }
         });
         ui.horizontal(|ui| {
-          if let Some(v) = register_view(ui, "sp", reg.sp(), !gb_running) {
+          if let Some(v) = register_view(ui, "sp", reg.sp(), allow_edit) {
             reg.set_sp(v);
           }
-          if let Some(v) = register_view(ui, "pc", reg.pc(), !gb_running) {
+          if let Some(v) = register_view(ui, "pc", reg.pc(), allow_edit) {
             reg.set_pc(v);
           }
         });
