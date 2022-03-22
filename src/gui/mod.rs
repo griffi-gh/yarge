@@ -123,20 +123,21 @@ impl Gui for GuiState {
         ui.horizontal(|ui| {
           ui.monospace(name.to_uppercase());
           if allow_edit {
+            let text_style = TextStyle::Monospace;
             let w = egui::WidgetText::from("0000").into_galley(
                 ui, 
                 Some(false), 
                 f32::MAX, 
-                TextStyle::Monospace
+                text_style.clone()
               ).galley().size().x;
             let mut value_str = format!("{:X}", value).to_string();
             let res = ui.add(
               egui::TextEdit::singleline(&mut value_str)
-                .font(TextStyle::Monospace)
+                .font(text_style)
                 .cursor_at_end(true)
                 .desired_width(w)
                 .id_source("regview_".to_string() + name)
-                .hint_text("0000")
+                .hint_text("0")
                 .margin(egui::Vec2::from((0.,0.)))
             );
             if res.changed() {
