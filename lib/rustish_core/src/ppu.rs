@@ -1,5 +1,7 @@
 pub mod oam;
+pub mod ppu_registers;
 use oam::OAMMemory;
+use ppu_registers::LCDC;
 
 #[derive(Clone, Copy, PartialEq)]
 pub enum PPUMode {
@@ -40,11 +42,13 @@ impl Default for PPUMode {
 pub struct PPU {
   vram: [u8; 0x2000],
   oam: OAMMemory,
+  pub lcdc: LCDC,
   pub ly: u8,
 }
 impl PPU {
   pub fn new() -> Self {
     Self {
+      lcdc: LCDC::default(),
       vram: [0; 0x2000],
       oam: OAMMemory::new(),
       ly: 0,

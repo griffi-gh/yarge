@@ -124,7 +124,6 @@ impl Gui for GuiState {
         crashed = true;
       }
     }
-    
     let crashed = crashed; //Can't modify crashed after this point
 
     // MAIN WINDOW
