@@ -12,6 +12,11 @@ use std::{thread, sync::{Arc, Mutex}, error::Error};
 #[cfg(feature = "logging-file")]
 const LOG_PATH: &str = "./gameboy.log";
 
+//TODO GameboyManager
+/*pub struct GameboyManager {
+  pub gb: Gameboy,
+}*/
+
 pub struct GameboyBuilder {
   gb: Gameboy,
 }
@@ -51,6 +56,7 @@ impl GameboyBuilder {
 pub struct ThreadInfo {
   pub instrs: u64,
   pub time: std::time::Instant,
+  pub error: Option<String>
 }
 
 ///Gameboy emulator
@@ -139,17 +145,18 @@ impl Gameboy {
     }
   }
 
-  pub fn step(&mut self) -> u32 {
+  pub fn step(&mut self) -> Result<u32, Box<dyn Error>> {
     if !self.running {
-      return 0;
+      return Ok(0);
     }
     #[cfg(feature = "logging")] self.log_step();
-    self.cpu.step()
+    let cycles = self.cpu.step()?;
+    Ok(cycles)
   }
 
   #[allow(dead_code)]
-  pub fn run(gb: &mut Gameboy) {
-    loop { gb.step(); }
+  pub fn run(gb: &mut Gameboy) -> Result<(), Box<dyn Error>> {
+    loop { gb.step()?; }
   }
   #[allow(dead_code)]
   pub fn run_thread(gb: &Arc<Mutex<Gameboy>>) -> thread::JoinHandle<()> {   
@@ -161,17 +168,25 @@ impl Gameboy {
         let mut gb = gb.lock().unwrap();
         gb.thread_info = Some(ThreadInfo {
           instrs: 0,
-          time: time::Instant::now() 
+          time: time::Instant::now(),
+          error: None,
         });
       }
-      loop {
+      'main: loop {
         let mut should_sleep = false;
         {
           let gb = gb.try_lock();
           if let Ok(mut gb) = gb {
             should_sleep = !gb.running;
-            gb.step();
-            gb.thread_info.as_mut().unwrap().instrs += 1;
+            let stp_res = gb.step();
+            let info = gb.thread_info.as_mut().unwrap();
+            if stp_res.is_err() {
+              let error = stp_res.unwrap_err();
+              info.error = Some(error.to_string());
+              println!("Rustish Error: {}", error);
+              break 'main;
+            }
+            info.instrs += 1;
           }
         }
         if should_sleep {

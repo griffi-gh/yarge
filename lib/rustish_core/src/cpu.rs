@@ -3,6 +3,24 @@ mod instructions;
 use instructions::*;
 pub use reg::Registers;
 use super::MMU;
+use std::{fmt, error::Error};
+
+#[derive(Debug, Clone)]
+pub struct InvalidInstrError {
+  is_cb: bool,
+  instr: u8,
+  addr: u16,
+}
+impl fmt::Display for InvalidInstrError {
+  fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    write!(
+      f, "Invalid CPU instruction 0x{}{:02X} at {:#06X}",
+      if self.is_cb { "CB" } else { "" },
+      self.instr, self.addr
+    )
+  }
+}
+impl Error for InvalidInstrError {}
 
 #[derive(PartialEq)]
 pub enum CPUState {
@@ -87,19 +105,19 @@ impl CPU {
     self.mmu.ppu.tick(t);
   }
 
-  pub fn step(&mut self) -> u32 {
+  pub fn step(&mut self) -> Result<u32, Box<dyn Error>> {
     self.t = 0;
     if self.state == CPUState::Running {
       let mut op = self.fetch();
       if op != 0xCB { 
-        cpu_instructions!(self, op);
+        cpu_instructions!(self, op)?;
       } else {
         op = self.fetch();
-        cpu_instructions_cb!(self, op);
+        cpu_instructions_cb!(self, op)?;
       }         
     } else {
       self.cycles(4);
     }
-    return self.t;
+    Ok(self.t)
   }
 }

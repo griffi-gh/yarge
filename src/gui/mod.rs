@@ -5,9 +5,13 @@ use framework::{
 use egui::{Context, RichText, TextStyle, Color32};
 use std::{
   sync::{Mutex, Arc},
-  error::Error
+  error::Error,
+  hash::Hasher as _
 };
-use super::{gb::Gameboy, NAME}; //TODO get rid of dependency on gb
+use super::{gb::Gameboy, NAME}; 
+mod error_words;
+use error_words::WORDS as ERROR_WORDS;
+use ahash::AHasher;
 
 const WIDTH: u32 = 160;
 const HEIGHT: u32 = 144;
@@ -19,7 +23,7 @@ pub struct GuiState {
 impl GuiState {
   pub fn new(gb: Arc<Mutex<Gameboy>>) -> Self {
     Self {
-      gb
+      gb,
     }
   }
   ///Warning: consumes self!
@@ -38,13 +42,34 @@ impl Gui for GuiState {
     let mut exit = false;
 
     //ERROR WINDOW
+    //MAYBE use error type instead of message to generate error code?
     let mut error_window = |title: &str, color: Color32, details: &str, id: &str| {
       egui::TopBottomPanel::new(
         egui::panel::TopBottomSide::Top, 
         format!("error_panel_{}", id).as_str()
       ).resizable(false).show(ui, |ui| {
+        let error_code = {
+          let mut error_code = String::new();
+          let mut hasher = AHasher::new_with_keys(0, 0);
+          hasher.write(details.as_bytes());
+          hasher.write(id.as_bytes());
+          let hash = hasher.finish();
+          let max_index = ERROR_WORDS.len() - 1;
+          for (i, w) in ERROR_WORDS.iter().enumerate() {
+            let shift: u8 = (i * 8) as u8;
+            if i == max_index {
+              error_code += "is ";
+            }
+            error_code += w[(((hash & (0xFF << shift)) >> shift) & 0xFF) as usize];
+            if i != max_index {
+              error_code += " ";
+            }
+          }
+          error_code
+        };
         ui.vertical_centered(|ui| {
           ui.label(RichText::new(title).color(color).size(18.));
+          ui.label(error_code);
         });
         ui.collapsing("Details", |ui| {
           egui::warn_if_debug_build(ui);
@@ -55,9 +80,6 @@ impl Gui for GuiState {
           if ui.button("Exit").clicked() {
             exit = true;
           }
-          ui.add_enabled_ui(false, |ui| {
-            ui.button("Restart").on_disabled_hover_text("WIP");
-          });
         });
         ui.add_space(2.);
       });
@@ -88,7 +110,22 @@ impl Gui for GuiState {
     };
 
     // TODO - HANDLE ERROR
-    //error_window(format!("{} crashed", NAME.unwrap_or("emulator")).as_str(), Color32::YELLOW, "TODO", "err_panel");
+    if let Some(info) = &gb.thread_info {
+      if info.error.is_some() {
+        let str = info.error.as_ref().unwrap().as_str();
+        drop(info);
+        error_window(format!(
+          "{} error", 
+          NAME.unwrap_or("emulator")).as_str(), 
+          Color32::YELLOW, 
+          str, 
+          "err_panel"
+        );
+        crashed = true;
+      }
+    }
+    
+    let crashed = crashed; //Can't modify crashed after this point
 
     // MAIN WINDOW
     let gb_running = gb.running && !crashed;
