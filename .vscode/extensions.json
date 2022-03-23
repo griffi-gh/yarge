@@ -6,6 +6,7 @@
     "vadimcn.vscode-lldb",
     "bungcip.better-toml",
     "swellaby.vscode-rust-test-adapter",
-    "hbenl.vscode-test-explorer"
+    "hbenl.vscode-test-explorer",
+    "christian-kohler.path-intellisense"
   ]
 }

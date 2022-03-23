@@ -54,29 +54,29 @@ impl CPU {
     return value;
   }
 
-  #[inline(always)]
+  #[inline]
   fn rb(&mut self, addr: u16) -> u8 {
     self.cycles(4);
     self.mmu.rb(addr)
   }
-  #[inline(always)]
+  #[inline]
   fn wb(&mut self, addr: u16, value: u8) {
     self.cycles(4);
     self.mmu.wb(addr, value);
   }
 
-  #[inline(always)]
+  #[inline]
   fn rw(&mut self, addr: u16) -> u16 {
     self.cycles(8);
     self.mmu.rw(addr)
   }
-  #[inline(always)]
+  #[inline]
   fn ww(&mut self, addr: u16, value: u16) {
     self.cycles(8);
     self.mmu.ww(addr, value);
   }
 
-  #[inline(always)]
+  #[inline]
   fn cycles(&mut self, cycles: u32) {
     self.t += cycles;
     self.tick_comp(cycles);

@@ -10,11 +10,8 @@ pub enum PPUMode {
 }
 impl PPUMode {
   pub fn from_u8(val: u8) -> Self {
-    #[cfg(not(debug_assertions))]
-    let mut val = val;
-    #[cfg(not(debug_assertions))] {
-      val &= 3;
-    }
+    #[cfg(not(debug_assertions))] let mut val = val;
+    #[cfg(not(debug_assertions))] { val &= 3; }
     match val {
       0 => Self::HBlank,
       1 => Self::VBlank,
