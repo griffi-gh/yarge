@@ -10,7 +10,12 @@ pub struct LCDC {
   pub enable_display: bool,
 }
 impl LCDC {
-  pub fn from_u8(&mut self, val: u8) {
+  pub fn from_u8(val: u8) -> Self {
+    let mut new = Self::default();
+    new.set_from_u8(val);
+    return new;
+  }
+  pub fn set_from_u8(&mut self, val: u8) {
     self.enable_bg        = (val & 0x1) != 0;
     self.enable_obj       = (val & 0x2) != 0;
     self.obj_size         = (val & 0x4) != 0;
@@ -35,9 +40,5 @@ impl Into<u8> for LCDC {
   fn into(self) -> u8 { self.into_u8() }
 }
 impl From<u8> for LCDC {
-  fn from(v: u8) -> Self {
-    let mut new = Self::default();
-    new.from_u8(v);
-    return new;
-  }
+  fn from(v: u8) -> Self { Self::from_u8(v) }
 }
