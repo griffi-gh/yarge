@@ -88,7 +88,7 @@ impl Gui for GuiState {
     let mut crashed = false;
 
     //HANDLE PANIC/POISON
-    let gb = match self.gb.lock() {
+    let mut gb = match self.gb.lock() {
       Ok(gb) => { gb },
       Err(err) => {
         let mut err_info = format!("{}", err);
@@ -134,6 +134,11 @@ impl Gui for GuiState {
     let gb_reg_pc = gb.cpu.reg.pc;
     let gb_bios_disabled = gb.cpu.mmu.bios_disabled;
     let gb_thread_info = gb.thread_info.clone();
+    if gb.thread_info.is_some() {
+      let t = gb.thread_info.as_mut().unwrap();
+      t.instrs = 0;  
+      t.time = std::time::Instant::now();
+    }
     drop(gb);
 
     let crashed = crashed;
@@ -233,6 +238,7 @@ impl Gui for GuiState {
       ).default_open(true).show(ui, |ui| {
         ui.horizontal(|ui| {
           if let Some(v) = register_view(ui, "af", gb_reg_af, allow_edit, 0x10) {
+            let v = if v <= 0xF { v << 4 } else { v };
             self.gb.lock().unwrap().cpu.reg.set_af(v);
           }
           ui.separator();
