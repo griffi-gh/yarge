@@ -39,10 +39,10 @@ impl PPU {
     }
   }
   pub fn write_oam(&mut self, addr: u16, value: u8) {
-    self.oam.write_oam(addr, value);
+    self.oam.write_oam(addr - 0xFE00, value);
   }
   pub fn read_oam(&self, addr: u16) -> u8 {
-    self.oam.read_oam(addr)
+    self.oam.read_oam(addr - 0xFE00)
   }
   pub fn write_vram(&mut self, addr: u16, value: u8) {
     self.vram[(addr & 0x1FFF) as usize] = value;

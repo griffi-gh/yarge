@@ -282,12 +282,12 @@ impl Gui for GuiState {
     if self.show_mem_view && !crashed {
       egui::Window::new("Memory view").open(&mut self.show_mem_view).show(ui, |ui| {
         ui.label(
-          RichText::new("WARNING! MemView is alpha feature and can cause instability and/or crashes")
+          RichText::new("WARNING! this shit is broken")
           .color(Color32::YELLOW)
         );
         let height = ui.text_style_height(&egui::TextStyle::Monospace);
-        egui::ScrollArea::vertical().always_show_scroll(true).show_rows(ui, height, 0x100,|ui, row_range| {
-          let offset = (row_range.start as u16) << 8;
+        egui::ScrollArea::vertical().always_show_scroll(true).show_rows(ui, height, 0x1111,|ui, row_range| {
+          let offset = (row_range.start as u16) << 4;
           let row_amount = row_range.end - row_range.start;
           let mem = {
             let mem_needed = row_amount * 16;
@@ -295,23 +295,22 @@ impl Gui for GuiState {
             let mut mem = vec!();
             mem.reserve(0xff);
             for addr in 0..mem_needed {
-              mem.push(gb.cpu.mmu.rb((addr as u16) | offset))
+              mem.push(gb.cpu.mmu.rb((addr as u16) + offset))
             }
             mem
           };
           for row in 0..row_amount {
             let row_start = row << 4;
             ui.horizontal(|ui| {
-              ui.monospace(format!("{:04X}", row_start));
+              ui.monospace(format!("{:04X}", row_start + offset as usize));
               ui.separator();
               for col in 0..16_u16 {
                 let addr = col | row_start as u16;
                 ui.monospace(format!("{:02X}", mem[addr as usize]))
-                  .on_hover_text(format!("{:#06X}", addr | offset));
+                  .on_hover_text(format!("{:#06X}", addr + offset));
               }
             });
           }
-          ui.add_space(999.);
         });
       });
     }
