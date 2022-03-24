@@ -101,7 +101,7 @@ macro_rules! incdec_rr {
         $self.reg.[<$reg:lower>]().[<wrapping_ $inc:lower>](1)
       );
     }
-    $self.cycles(4);
+    $self.cycle();
   };
 } pub(crate) use incdec_rr;
 
@@ -126,7 +126,7 @@ macro_rules! pop_rr {
 
 macro_rules! push_rr {
   ($self: expr, $reg: ident) => {
-    $self.cycles(4);
+    $self.cycle();
     paste! {
       $self.push($self.reg.[<$reg:lower>]());
     }
@@ -139,7 +139,7 @@ macro_rules! jp_u16 {
   ($self: expr) => {
     let to = $self.rw($self.reg.pc);
     $self.reg.pc = to;
-    $self.cycles(4);
+    $self.cycle();
   };
 } pub(crate) use jp_u16;
 
@@ -149,10 +149,11 @@ macro_rules! cond_jp_u16 {
       if $self.reg.[<f_ $cond:lower>]() {
         let to = $self.rw($self.reg.pc);
         $self.reg.pc = to;
-        $self.cycles(4);
+        $self.cycle();
       } else {
         //simulate fetch timing without actually doing it
-        $self.cycles(8); 
+        $self.cycle(); 
+        $self.cycle();
         $self.reg.inc_pc(2);
       }
     }
@@ -164,7 +165,7 @@ macro_rules! cond_jp_u16 {
 macro_rules! call_u16 {
   ($self: expr) => {
     let to = $self.fetch_word();
-    $self.cycles(4);
+    $self.cycle();
     $self.push($self.reg.pc);
     $self.reg.pc = to;
   };
@@ -177,7 +178,8 @@ macro_rules! call_u16_cond {
         call_u16!($self);
       } else {
         //simulate fetch timing
-        $self.cycles(8);
+        $self.cycle();
+        $self.cycle();
         $self.reg.inc_pc(2);
       }
     }
@@ -189,13 +191,13 @@ macro_rules! call_u16_cond {
 macro_rules! ret {
   ($self: expr) => {
     $self.reg.pc = $self.pop();
-    $self.cycles(4);
+    $self.cycle();
   } 
 } pub(crate) use ret;
 
 macro_rules! ret_cond {
   ($self: expr, $cond: ident) => {
-    $self.cycles(4);
+    $self.cycle();
     paste! {
       if $self.reg.[<f_ $cond:lower>]() {
         ret!($self);
@@ -211,7 +213,7 @@ macro_rules! ret_cond {
 
 macro_rules! rst {
   ($self: expr, $addr: expr) => {
-    $self.cycles(4);
+    $self.cycle();
     $self.push($self.reg.pc);
     $self.reg.pc = $addr;
   };
@@ -509,7 +511,7 @@ macro_rules! jr_i8 {
   ($self: expr) => {
     let v = $self.fetch_signed();
     $self.reg.inc_pc(v as u16);
-    $self.cycles(4);
+    $self.cycle();
   }; //Works fine?
 } pub(crate) use jr_i8;
 
@@ -519,10 +521,10 @@ macro_rules! jr_i8_cond {
       if $self.reg.[<f_ $cond:lower>]() {
         let v = $self.fetch_signed();
         $self.reg.inc_pc(v as u16);
-        $self.cycles(4);
+        $self.cycle();
       } else {
         //simulate fetch
-        $self.cycles(4); 
+        $self.cycle(); 
         $self.reg.inc_pc(1);
       }
     } //Works fine??

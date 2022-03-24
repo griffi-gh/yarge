@@ -1,10 +1,11 @@
-pub mod oam;
-pub mod ppu_registers;
+mod oam;
+mod ppu_registers;
+
 use oam::OAMMemory;
 use ppu_registers::LCDC;
 use arraydeque::ArrayDeque;
 
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Clone, Copy, PartialEq, FromPrimitive, ToPrimitive)]
 pub enum PPUMode {
   HBlank = 0_u8,
   VBlank = 1_u8,
@@ -16,17 +17,23 @@ impl Default for PPUMode {
 }
 
 pub struct PPU {
+  mode: PPUMode,
   vram: [u8; 0x2000],
   oam: OAMMemory,
+  bg_fetcher: BgFetcher,
+  bg_fifo: ArrayDeque<[u8; 16]>,
   pub lcdc: LCDC,
   pub ly: u8,
 }
 impl PPU {
   pub fn new() -> Self {
     Self {
-      lcdc: LCDC::default(),
+      mode: PPUMode::default(),
       vram: [0; 0x2000],
       oam: OAMMemory::new(),
+      bg_fetcher: BgFetcher::new(),
+      bg_fifo: ArrayDeque::default(),
+      lcdc: LCDC::default(),
       ly: 0,
     }
   }
@@ -42,7 +49,7 @@ impl PPU {
   pub fn read_vram(&self, addr: u16) -> u8 {
     self.vram[(addr & 0x1FFF) as usize]
   }
-  pub fn tick(&self, _t: u32) {
-    //TODO
+  pub fn tick(&self) {
+    //TODO ppu.tick()
   }
 }

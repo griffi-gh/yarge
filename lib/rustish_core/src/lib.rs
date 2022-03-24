@@ -1,12 +1,13 @@
 #![forbid(unsafe_code)]
 
+#[macro_use]
+extern crate num_derive;
 mod mmu;
 mod cpu;
 mod ppu;
 pub use mmu::MMU;
 pub use cpu::CPU;
 pub use ppu::PPU;
-
 use std::{thread, sync::{Arc, Mutex}, error::Error};
 
 #[cfg(feature = "logging-file")]

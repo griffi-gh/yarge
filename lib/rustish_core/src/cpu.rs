@@ -66,44 +66,38 @@ impl CPU {
     self.reg.dec_sp(2);
     self.ww(self.reg.sp, value);
   }
+  #[inline]
   fn pop(&mut self) -> u16 {
     let value = self.rw(self.reg.sp);
     self.reg.inc_sp(2);
-    return value;
+    value
   }
 
   #[inline]
   fn rb(&mut self, addr: u16) -> u8 {
-    self.cycles(4);
+    self.cycle();
     self.mmu.rb(addr)
   }
   #[inline]
   fn wb(&mut self, addr: u16, value: u8) {
-    self.cycles(4);
+    self.cycle();
     self.mmu.wb(addr, value);
   }
 
   #[inline]
   fn rw(&mut self, addr: u16) -> u16 {
-    self.cycles(8);
-    self.mmu.rw(addr)
+    self.rb(addr) as u16 | 
+    ((self.rb(addr.wrapping_add(1)) as u16) << 8)
   }
   #[inline]
   fn ww(&mut self, addr: u16, value: u16) {
-    self.cycles(8);
-    self.mmu.ww(addr, value);
+    self.wb(addr, (value & 0xFF) as u8);
+    self.wb(addr.wrapping_add(1), (value >> 8) as u8);
   }
 
-  //TODO hardcode cycles to 4, call multiple times when needed
-  #[inline]
-  fn cycles(&mut self, cycles: u32) {
-    self.t += cycles;
-    self.tick_comp(cycles);
-  }
-
-  fn tick_comp(&mut self, t: u32) {
-    self.t += t;
-    self.mmu.ppu.tick(t);
+  fn cycle(&mut self) {
+    self.t += 4;
+    self.mmu.ppu.tick();
   }
 
   pub fn step(&mut self) -> Result<u32, Box<dyn Error>> {
