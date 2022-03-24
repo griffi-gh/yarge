@@ -7,10 +7,10 @@ use arraydeque::ArrayDeque;
 
 #[derive(Clone, Copy, PartialEq, FromPrimitive, ToPrimitive)]
 pub enum PPUMode {
-  HBlank = 0_u8,
-  VBlank = 1_u8,
-  OAM    = 2_u8,
-  VRAM   = 3_u8,
+  HBlank = 0,
+  VBlank = 1,
+  OAM    = 2,
+  VRAM   = 3,
 }
 impl Default for PPUMode {
   fn default() -> Self { Self::HBlank }
