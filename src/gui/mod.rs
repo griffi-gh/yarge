@@ -291,9 +291,9 @@ impl Gui for GuiState {
           let row_amount = row_range.end - row_range.start;
           let mem = {
             let mem_needed = row_amount * 16;
-            let gb = self.gb.lock().unwrap();
             let mut mem = vec!();
             mem.reserve(0xff);
+            let gb = self.gb.lock().unwrap();
             for addr in 0..mem_needed {
               mem.push(gb.cpu.mmu.rb((addr as u16) + offset))
             }
