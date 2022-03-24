@@ -94,6 +94,7 @@ impl CPU {
     self.mmu.ww(addr, value);
   }
 
+  //TODO hardcode cycles to 4, call multiple times when needed
   #[inline]
   fn cycles(&mut self, cycles: u32) {
     self.t += cycles;
