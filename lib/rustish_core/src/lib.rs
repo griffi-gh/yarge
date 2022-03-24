@@ -54,6 +54,7 @@ impl GameboyBuilder {
   pub fn build(self) -> Gameboy { self.gb }
 }
 
+#[derive(Clone)]
 pub struct ThreadInfo {
   pub instrs: u64,
   pub time: std::time::Instant,

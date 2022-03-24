@@ -88,7 +88,7 @@ impl Gui for GuiState {
     let mut crashed = false;
 
     //HANDLE PANIC/POISON
-    let mut gb = match self.gb.lock() {
+    let gb = match self.gb.lock() {
       Ok(gb) => { gb },
       Err(err) => {
         let mut err_info = format!("{}", err);
@@ -124,18 +124,20 @@ impl Gui for GuiState {
         crashed = true;
       }
     }
-    let crashed = crashed; //Can't modify crashed after this point
     let gb_running = gb.running && !crashed;
-    let gb_running_raw = gb.running;
-    let gb_reg_af = gb.reg.af();
-    let gb_reg_bc = gb.reg.bc();
-    let gb_reg_de = gb.reg.de();
-    let gb_reg_hl = gb.reg.hl();
-    let gb_reg_sp = gb.reg.sp;
-    let gb_reg_pc = gb.reg.pc;
+    let mut gb_running_raw = gb.running;
+    let gb_reg_af = gb.cpu.reg.af();
+    let gb_reg_bc = gb.cpu.reg.bc();
+    let gb_reg_de = gb.cpu.reg.de();
+    let gb_reg_hl = gb.cpu.reg.hl();
+    let gb_reg_sp = gb.cpu.reg.sp;
+    let gb_reg_pc = gb.cpu.reg.pc;
     let gb_bios_disabled = gb.cpu.mmu.bios_disabled;
     let gb_thread_info = gb.thread_info.clone();
     drop(gb);
+
+    let crashed = crashed;
+    let allow_edit = !(gb_running_raw || crashed);
 
     // MAIN WINDOW
     egui::Window::new(NAME.unwrap_or("debug")).show(ui, |ui| {      
@@ -143,20 +145,22 @@ impl Gui for GuiState {
       ui.horizontal_wrapped(|ui| {
         ui.add_enabled_ui(!crashed, |ui| {
           let mut temp = false;
-          ui.checkbox(
+          if ui.checkbox(
             if crashed { &mut temp } else { &mut gb_running_raw }, 
             "Running"
-          ).on_disabled_hover_text("Crashed, unable to resume");
+          ).on_disabled_hover_text("Crashed, unable to resume").changed() {
+            self.gb.lock().unwrap().running = gb_running_raw;
+          }
         });
         if gb_thread_info.is_some() {
-          let info = gb_thread_info.as_mut().unwrap();
+          let info = gb_thread_info.unwrap();
           let elapsed = info.time.elapsed().as_secs_f64();
           if gb_running {
             ui.label(format!(
               "~{} IPS", ((info.instrs as f64) / elapsed).round() as u64
             ));
-            info.time = std::time::Instant::now();
-            info.instrs = 0;
+            /*info.time = std::time::Instant::now();
+            info.instrs = 0;*/
           } else {
             ui.label(if crashed { "Crashed" } else { "Paused"});
           }
@@ -227,7 +231,6 @@ impl Gui for GuiState {
       egui::CollapsingHeader::new(
         "Registers"
       ).default_open(true).show(ui, |ui| {
-        let allow_edit = !((&gb).running || crashed);
         ui.horizontal(|ui| {
           if let Some(v) = register_view(ui, "af", gb_reg_af, allow_edit, 0x10) {
             self.gb.lock().unwrap().cpu.reg.set_af(v);
