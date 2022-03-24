@@ -111,7 +111,7 @@ impl CPU {
         cpu_instructions_cb!(self, op)?;
       }         
     } else {
-      self.cycles(4);
+      self.cycle();
     }
     Ok(self.t)
   }

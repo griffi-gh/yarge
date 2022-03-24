@@ -1,6 +1,7 @@
 mod oam;
 mod ppu_registers;
-
+mod bg_fetcher;
+use bg_fetcher::BgFetcher;
 use oam::OAMMemory;
 use ppu_registers::LCDC;
 use arraydeque::ArrayDeque;
