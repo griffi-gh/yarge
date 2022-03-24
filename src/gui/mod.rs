@@ -20,12 +20,14 @@ const SCALE: u32 = 3;
 pub struct GuiState {
   gb: Arc<Mutex<Gameboy>>,
   show_mem_view: bool,
+  mem_view_offset: u16,
 }
 impl GuiState {
   pub fn new(gb: Arc<Mutex<Gameboy>>) -> Self {
     Self {
       gb,
       show_mem_view: false,
+      mem_view_offset: 0,
     }
   }
   ///Warning: consumes self!
@@ -174,12 +176,12 @@ impl Gui for GuiState {
         }
       });
       ui.horizontal_wrapped(|ui| {
-        ui.add_enabled_ui(!gb_bios_disabled, |ui| {
+        ui.add_enabled_ui(!(gb_bios_disabled || crashed), |ui| {
           if ui.button("Skip bootrom").clicked() {
             self.gb.lock().unwrap().skip_bootrom();
           }
         });
-        ui.add_enabled_ui(!self.show_mem_view, |ui| {
+        ui.add_enabled_ui(!(self.show_mem_view || crashed), |ui| {
           if ui.button("Memory view").clicked() {
             self.show_mem_view = true;
           }
@@ -277,9 +279,40 @@ impl Gui for GuiState {
       });
     });
 
-    if self.show_mem_view {
+    if self.show_mem_view && !crashed {
       egui::Window::new("Memory view").open(&mut self.show_mem_view).show(ui, |ui| {
-
+        ui.label(
+          RichText::new("WARNING! MemView is alpha feature and can cause instability and/or crashes")
+          .color(Color32::YELLOW)
+        );
+        let height = ui.text_style_height(&egui::TextStyle::Monospace);
+        egui::ScrollArea::vertical().always_show_scroll(true).show_rows(ui, height, 0x100,|ui, row_range| {
+          let offset = (row_range.start as u16) << 8;
+          let row_amount = row_range.end - row_range.start;
+          let mem = {
+            let mem_needed = row_amount * 16;
+            let gb = self.gb.lock().unwrap();
+            let mut mem = vec!();
+            mem.reserve(0xff);
+            for addr in 0..mem_needed {
+              mem.push(gb.cpu.mmu.rb((addr as u16) | offset))
+            }
+            mem
+          };
+          for row in 0..row_amount {
+            let row_start = row << 4;
+            ui.horizontal(|ui| {
+              ui.monospace(format!("{:04X}", row_start));
+              ui.separator();
+              for col in 0..16_u16 {
+                let addr = col | row_start as u16;
+                ui.monospace(format!("{:02X}", mem[addr as usize]))
+                  .on_hover_text(format!("{:#06X}", addr | offset));
+              }
+            });
+          }
+          ui.add_space(999.);
+        });
       });
     }
 
