@@ -125,21 +125,31 @@ impl Gui for GuiState {
       }
     }
     let crashed = crashed; //Can't modify crashed after this point
+    let gb_running = gb.running && !crashed;
+    let gb_running_raw = gb.running;
+    let gb_reg_af = gb.reg.af();
+    let gb_reg_bc = gb.reg.bc();
+    let gb_reg_de = gb.reg.de();
+    let gb_reg_hl = gb.reg.hl();
+    let gb_reg_sp = gb.reg.sp;
+    let gb_reg_pc = gb.reg.pc;
+    let gb_bios_disabled = gb.cpu.mmu.bios_disabled;
+    let gb_thread_info = gb.thread_info.clone();
+    drop(gb);
 
     // MAIN WINDOW
-    let gb_running = gb.running && !crashed;
     egui::Window::new(NAME.unwrap_or("debug")).show(ui, |ui| {      
       // Control
       ui.horizontal_wrapped(|ui| {
         ui.add_enabled_ui(!crashed, |ui| {
           let mut temp = false;
           ui.checkbox(
-            if crashed { &mut temp } else { &mut gb.running }, 
+            if crashed { &mut temp } else { &mut gb_running_raw }, 
             "Running"
           ).on_disabled_hover_text("Crashed, unable to resume");
         });
-        if gb.thread_info.is_some() {
-          let info = gb.thread_info.as_mut().unwrap();
+        if gb_thread_info.is_some() {
+          let info = gb_thread_info.as_mut().unwrap();
           let elapsed = info.time.elapsed().as_secs_f64();
           if gb_running {
             ui.label(format!(
@@ -152,9 +162,9 @@ impl Gui for GuiState {
           }
         }
       });
-      ui.add_enabled_ui(!gb.cpu.mmu.bios_disabled, |ui| {
+      ui.add_enabled_ui(!gb_bios_disabled, |ui| {
         if ui.button("Skip bootrom").clicked() {
-          gb.skip_bootrom();
+          self.gb.lock().unwrap().skip_bootrom();
         }
       });
       // Registers
@@ -218,32 +228,31 @@ impl Gui for GuiState {
         "Registers"
       ).default_open(true).show(ui, |ui| {
         let allow_edit = !((&gb).running || crashed);
-        let reg = &mut gb.cpu.reg;
         ui.horizontal(|ui| {
-          if let Some(v) = register_view(ui, "af", reg.af(), allow_edit, 0x10) {
-            reg.set_af(v);
+          if let Some(v) = register_view(ui, "af", gb_reg_af, allow_edit, 0x10) {
+            self.gb.lock().unwrap().cpu.reg.set_af(v);
           }
           ui.separator();
-          if let Some(v) = register_view(ui, "bc", reg.bc(), allow_edit, 1) {
-            reg.set_bc(v);
+          if let Some(v) = register_view(ui, "bc", gb_reg_bc, allow_edit, 1) {
+            self.gb.lock().unwrap().cpu.reg.set_bc(v);
           }
         });
         ui.horizontal(|ui| {
-          if let Some(v) = register_view(ui, "de", reg.de(), allow_edit, 1) {
-            reg.set_de(v);
+          if let Some(v) = register_view(ui, "de", gb_reg_de, allow_edit, 1) {
+            self.gb.lock().unwrap().cpu.reg.set_de(v);
           }
           ui.separator();
-          if let Some(v) = register_view(ui, "hl", reg.hl(), allow_edit, 1) {
-            reg.set_hl(v);
+          if let Some(v) = register_view(ui, "hl", gb_reg_hl, allow_edit, 1) {
+            self.gb.lock().unwrap().cpu.reg.set_hl(v);
           }
         });
         ui.horizontal(|ui| {
-          if let Some(v) = register_view(ui, "sp", reg.sp(), allow_edit, 1) {
-            reg.set_sp(v);
+          if let Some(v) = register_view(ui, "sp", gb_reg_sp, allow_edit, 1) {
+            self.gb.lock().unwrap().cpu.reg.set_sp(v);
           }
           ui.separator();
-          if let Some(v) = register_view(ui, "pc", reg.pc(), allow_edit, 1) {
-            reg.set_pc(v);
+          if let Some(v) = register_view(ui, "pc", gb_reg_pc, allow_edit, 1) {
+            self.gb.lock().unwrap().cpu.reg.set_pc(v);
           }
         });
       });
