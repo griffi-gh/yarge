@@ -286,7 +286,7 @@ impl Gui for GuiState {
           .color(Color32::YELLOW)
         );
         let height = ui.text_style_height(&egui::TextStyle::Monospace);
-        egui::ScrollArea::vertical().always_show_scroll(true).show_rows(ui, height, 0x1111,|ui, row_range| {
+        egui::ScrollArea::vertical().always_show_scroll(true).show_rows(ui, height, 0x1000,|ui, row_range| {
           let offset = (row_range.start as u16) << 4;
           let row_amount = row_range.end - row_range.start;
           let mem = {
