@@ -16,10 +16,10 @@ impl LCDC {
     return new;
   }
   pub fn set_from_u8(&mut self, val: u8) {
-    self.enable_bg        = (val & 0x1) != 0;
-    self.enable_obj       = (val & 0x2) != 0;
-    self.obj_size         = (val & 0x4) != 0;
-    self.bg_tilemap_addr  = (val & 0x8) != 0;
+    self.enable_bg        = (val & 0x01) != 0;
+    self.enable_obj       = (val & 0x02) != 0;
+    self.obj_size         = (val & 0x04) != 0;
+    self.bg_tilemap_addr  = (val & 0x08) != 0;
     self.bg_tiledata_addr = (val & 0x10) != 0;
     self.enable_win       = (val & 0x20) != 0;
     self.win_tilemap_addr = (val & 0x40) != 0;
