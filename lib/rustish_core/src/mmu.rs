@@ -59,9 +59,20 @@ impl MMU {
       },
       //IO REGISTERS
       0xFF00..=0xFF7F => {
-        #[cfg(feature = "ly-stub")]
-        if addr == 0xFF44 { return 0x90; }
-        0xff //TODO I/O Registers Read
+        match addr {
+          0xFF40 => {
+            self.ppu.lcdc.into_u8()
+          }
+          0xFF44 => {
+            #[cfg(not(feature = "ly-stub"))] {
+              self.ppu.ly
+            }
+            #[cfg(feature = "ly-stub")] {
+              0x90
+            }
+          }
+          _ => 0xff
+        }
       },
       //HRAM
       0xFF80..=0xFFFE => {
