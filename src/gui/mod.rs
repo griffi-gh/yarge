@@ -19,11 +19,13 @@ const SCALE: u32 = 3;
 
 pub struct GuiState {
   gb: Arc<Mutex<Gameboy>>,
+  show_mem_view: bool,
 }
 impl GuiState {
   pub fn new(gb: Arc<Mutex<Gameboy>>) -> Self {
     Self {
       gb,
+      show_mem_view: false,
     }
   }
   ///Warning: consumes self!
@@ -171,11 +173,19 @@ impl Gui for GuiState {
           }
         }
       });
-      ui.add_enabled_ui(!gb_bios_disabled, |ui| {
-        if ui.button("Skip bootrom").clicked() {
-          self.gb.lock().unwrap().skip_bootrom();
-        }
+      ui.horizontal_wrapped(|ui| {
+        ui.add_enabled_ui(!gb_bios_disabled, |ui| {
+          if ui.button("Skip bootrom").clicked() {
+            self.gb.lock().unwrap().skip_bootrom();
+          }
+        });
+        ui.add_enabled_ui(!self.show_mem_view, |ui| {
+          if ui.button("Memory view").clicked() {
+            self.show_mem_view = true;
+          }
+        });
       });
+      
       // Registers
       fn register_view(ui: &mut egui::Ui, name: &str, value: u16, allow_edit: bool, mul: u16) -> Option<u16> {
         let mut ret = None;
@@ -266,6 +276,12 @@ impl Gui for GuiState {
         });
       });
     });
+
+    if self.show_mem_view {
+      egui::Window::new("Memory view").open(&mut self.show_mem_view).show(ui, |ui| {
+
+      });
+    }
 
     return exit;
   }
