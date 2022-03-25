@@ -4,9 +4,10 @@ use framework::{
 };
 use egui::{Context, RichText, TextStyle, Color32};
 use std::{
+  fs,
   sync::{Mutex, Arc},
   error::Error,
-  hash::Hasher as _
+  hash::Hasher as _,
 };
 use super::{gb::Gameboy, NAME}; 
 mod error_words;
@@ -148,7 +149,34 @@ impl Gui for GuiState {
     let allow_edit = !(gb_running_raw || crashed);
 
     // MAIN WINDOW
-    egui::Window::new(NAME.unwrap_or("debug")).show(ui, |ui| {      
+    egui::Window::new(NAME.unwrap_or("debug")).show(ui, |ui| {  
+      egui::menu::bar(ui, |ui| {
+        ui.menu_button("File", |ui| {
+          if ui.button("Load ROM...").clicked() {
+            let files = FileDialog::new()
+              .add_filter("Nintendo Gameboy ROM file", &["gb", "gbc", "sgb"])
+              .set_directory("/")
+              .pick_file();
+            if let Some(files) = files {
+              let data = fs::read(files);
+              if let Ok(data) = data {
+                let data_ref = &data[..];
+                self.gb.lock().unwrap().load_rom(data_ref);
+              }
+            }
+          }
+          if ui.button("Exit").clicked() {
+            exit = true;
+          }
+        });
+        ui.menu_button("Tools", |ui| {
+          ui.add_enabled_ui(!(self.show_mem_view || crashed), |ui| {
+            if ui.button("Memory view").clicked() {
+              self.show_mem_view = true;
+            }
+          });
+        });
+      });    
       // Control
       ui.horizontal_wrapped(|ui| {
         ui.add_enabled_ui(!crashed, |ui| {
@@ -178,11 +206,6 @@ impl Gui for GuiState {
         ui.add_enabled_ui(!(gb_bios_disabled || crashed), |ui| {
           if ui.button("Skip bootrom").clicked() {
             self.gb.lock().unwrap().skip_bootrom();
-          }
-        });
-        ui.add_enabled_ui(!(self.show_mem_view || crashed), |ui| {
-          if ui.button("Memory view").clicked() {
-            self.show_mem_view = true;
           }
         });
       });

@@ -42,10 +42,12 @@ fn main() {
       rom_path.expect("No ROM path specified").as_str()
     ).expect("Failed to load the ROM file");
   } else {
+    gb.pause();
     if let Some(rom_path) = rom_path {
       gb.load_rom_file(
         rom_path.as_str()
       ).expect("Failed to load the ROM file");
+      gb.resume();
     }
   }
   let gb = Arc::new(Mutex::new(gb));
