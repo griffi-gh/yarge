@@ -19,15 +19,13 @@ const SCALE: u32 = 3;
 
 pub struct GuiState {
   gb: Arc<Mutex<Gameboy>>,
-  show_mem_view: bool,
-  mem_view_offset: u16,
+  show_mem_view: bool
 }
 impl GuiState {
   pub fn new(gb: Arc<Mutex<Gameboy>>) -> Self {
     Self {
       gb,
       show_mem_view: false,
-      mem_view_offset: 0,
     }
   }
   ///Warning: consumes self!

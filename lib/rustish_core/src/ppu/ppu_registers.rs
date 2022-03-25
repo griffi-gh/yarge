@@ -1,3 +1,14 @@
+#[derive(Clone, Copy, PartialEq, FromPrimitive, ToPrimitive)]
+pub enum PPUMode {
+  HBlank = 0,
+  VBlank = 1,
+  OAM    = 2,
+  VRAM   = 3,
+}
+impl Default for PPUMode {
+  fn default() -> Self { Self::HBlank }
+}
+
 #[derive(Default, Clone, Copy)]
 pub struct LCDC {
   pub enable_bg: bool,

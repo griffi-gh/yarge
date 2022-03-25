@@ -61,15 +61,11 @@ impl MMU {
       0xFF00..=0xFF7F => {
         match addr {
           0xFF40 => {
-            self.ppu.lcdc.into_u8()
+            self.ppu.get_lcdc()
           }
           0xFF44 => {
-            #[cfg(not(feature = "ly-stub"))] {
-              self.ppu.ly
-            }
-            #[cfg(feature = "ly-stub")] {
-              0x90
-            }
+            #[cfg(feature = "ly-stub")] { 0x90 }
+            #[cfg(not(feature = "ly-stub"))] { self.ppu.ly }
           }
           _ => 0xff
         }
@@ -106,6 +102,9 @@ impl MMU {
         self.ppu.write_oam(addr, value);
       },
       //IO REGISTERS
+      0xFF40 => {
+        self.ppu.set_lcdc(value);
+      }
       0xFF50 => {
         //TODO check the value?
         self.bios_disabled = true;
