@@ -154,7 +154,7 @@ impl Gui for GuiState {
         ui.menu_button("File", |ui| {
           if ui.button("Load ROM...").clicked() {
             let files = FileDialog::new()
-              .add_filter("Nintendo Gameboy ROM file", &["gb", "gbc", "sgb"])
+              .add_filter("Nintendo Gameboy ROM file", &["gb", "gbc"])
               .set_directory("/")
               .pick_file();
             if let Some(files) = files {
