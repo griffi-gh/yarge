@@ -7,15 +7,15 @@
       {
           "type": "lldb",
           "request": "launch",
-          "name": "Debug executable 'rustish'",
+          "name": "Debug executable 'rustish-gb'",
           "cargo": {
               "args": [
                   "build",
-                  "--bin=rustish",
-                  "--package=rustish"
+                  "--bin=rustish-gb",
+                  "--package=rustish-gb"
               ],
               "filter": {
-                  "name": "rustish",
+                  "name": "rustish-gb",
                   "kind": "bin"
               }
           },
@@ -25,16 +25,16 @@
       {
           "type": "lldb",
           "request": "launch",
-          "name": "Debug unit tests in executable 'rustish'",
+          "name": "Debug unit tests in executable 'rustish-gb'",
           "cargo": {
               "args": [
                   "test",
                   "--no-run",
-                  "--bin=rustish",
-                  "--package=rustish"
+                  "--bin=rustish-gb",
+                  "--package=rustish-gb"
               ],
               "filter": {
-                  "name": "rustish",
+                  "name": "rustish-gb",
                   "kind": "bin"
               }
           },
