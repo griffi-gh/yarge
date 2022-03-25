@@ -279,10 +279,6 @@ impl Gui for GuiState {
 
     if self.show_mem_view && !crashed {
       egui::Window::new("Memory view").open(&mut self.show_mem_view).show(ui, |ui| {
-        ui.label(
-          RichText::new("WARNING! this shit is broken")
-          .color(Color32::YELLOW)
-        );
         let height = ui.text_style_height(&egui::TextStyle::Monospace);
         egui::ScrollArea::vertical().always_show_scroll(true).show_rows(ui, height, 0x1000,|ui, row_range| {
           let offset = (row_range.start as u16) << 4;
