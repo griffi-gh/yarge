@@ -14,6 +14,7 @@ codegen-units = 1
 [dependencies]
 build-time = "0.1.1"
 ahash = "0.7.6"
+rfd = "0.8.1"
 clap = { version = "3.1", features = ["derive"] }
 framework = { path = "lib/framework", optional = true }
 rustish_core = { path = "lib/rustish_core" }

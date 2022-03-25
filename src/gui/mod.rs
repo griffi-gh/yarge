@@ -12,6 +12,7 @@ use super::{gb::Gameboy, NAME};
 mod error_words;
 use error_words::WORDS as ERROR_WORDS;
 use ahash::AHasher;
+use rfd::FileDialog;
 
 const WIDTH: u32 = 160;
 const HEIGHT: u32 = 144;

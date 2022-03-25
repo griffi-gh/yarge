@@ -21,23 +21,33 @@ struct Args {
   skip_bootrom: bool,
   #[clap(short, long)]
   nogui: bool,
-  path: String
+  path: Option<String>
 }
 
 fn main() {
   let args = Args::parse();
+  let rom_path = args.path;
   println!(
     "[ {} v.{} (built on {}) ]",
     NAME.unwrap_or("<name?>"),
     VERSION.unwrap_or("<version?>"),
     BUILD_TIME
   );
-  let rom_path = &args.path[..];
-  let gb = GameboyBuilder::new()
+  let mut gb = GameboyBuilder::new()
     .init(true)
     .skip_bootrom(args.skip_bootrom)
-    .load_rom_file(rom_path).expect("Failed to load the ROM file")
     .build();
+  if args.nogui {
+    gb.load_rom_file(
+      rom_path.expect("No ROM path specified").as_str()
+    ).expect("Failed to load the ROM file");
+  } else {
+    if let Some(rom_path) = rom_path {
+      gb.load_rom_file(
+        rom_path.as_str()
+      ).expect("Failed to load the ROM file");
+    }
+  }
   let gb = Arc::new(Mutex::new(gb));
   let gb_thread = Gameboy::run_thread(&gb);
   if args.nogui {
