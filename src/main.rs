@@ -1,6 +1,5 @@
-//TODO Hide console in release builds on Windows
-//#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
-//^completely disables stdout
+//Hide console in release builds on Windows
+#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 pub(crate) use rustish_core as gb;
 use gb::{Gameboy, GameboyBuilder};
