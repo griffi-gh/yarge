@@ -45,8 +45,21 @@ impl Gui for GuiState {
   fn gui(&mut self, ui: &Context, _dim: Dim<f32>) -> bool {
     let mut exit = false;
 
+    let reset_if_crashed = || {
+      {
+        let mut gb = match self.gb.lock() {
+          Ok(gb) => { gb },
+          Err(gb) => { gb.into_inner() }
+        };
+        gb.pause();
+        gb._reset();
+      }
+      Gameboy::run_thread(&self.gb);
+    };
+
     //ERROR WINDOW
     //MAYBE use error type instead of message to generate error code?
+    let mut error_window_reset_after_drop = false;
     let mut error_window = |title: &str, color: Color32, details: &str, id: &str| {
       egui::TopBottomPanel::new(
         egui::panel::TopBottomSide::Top, 
@@ -83,6 +96,9 @@ impl Gui for GuiState {
         ui.vertical_centered_justified(|ui| {
           if ui.button("Exit").clicked() {
             exit = true;
+          }
+          if ui.button("Reset").clicked() {
+            error_window_reset_after_drop = true;
           }
         });
         ui.add_space(2.);
@@ -159,6 +175,10 @@ impl Gui for GuiState {
     }
     drop(gb);
 
+    if error_window_reset_after_drop {
+      reset_if_crashed();
+    }
+
     let crashed = crashed;
     let allow_edit = !(gb_running_raw || crashed);
 
@@ -188,7 +208,11 @@ impl Gui for GuiState {
         ui.menu_button("Emulation", |ui| {
           if ui.button("Reset").clicked() {
             ui.close_menu();
-            self.gb.lock().unwrap()._reset();
+            if !crashed {
+              self.gb.lock().unwrap()._reset();
+            } else {
+              reset_if_crashed();
+            }
           }
           ui.add_enabled_ui(!(gb_bios_disabled || crashed), |ui| { 
             if ui.button("Skip bootrom").clicked() {
