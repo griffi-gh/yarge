@@ -134,6 +134,14 @@ impl Gameboy {
     self.running = true;
   }
 
+  pub fn _reset(&mut self) {
+    //TODO better reset 
+    self.cpu = CPU::new();
+    if self.thread_info.is_some() {
+      self.thread_info = Some(ThreadInfo::default());
+    }
+  }
+
   #[cfg(feature = "logging")]
   fn log_step(&mut self) {
     let r = &self.cpu.reg;
@@ -164,14 +172,6 @@ impl Gameboy {
     let cycles = self.cpu.step()?;
     Ok(cycles)
   }
-
-  /*pub fn reset(&mut self) {
-    let mut new = Self::new();
-    if self.thread_info.is_some() {
-      new.thread_info = Some(ThreadInfo::default());
-    }
-    *self = new;
-  }*/
 
   #[allow(dead_code)]
   pub fn run(gb: &mut Gameboy) -> Result<(), Box<dyn Error>> {

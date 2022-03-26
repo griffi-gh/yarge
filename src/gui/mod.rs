@@ -166,13 +166,36 @@ impl Gui for GuiState {
     egui::Window::new(NAME.unwrap_or("debug")).show(ui, |ui| {  
       egui::menu::bar(ui, |ui| {
         ui.menu_button("File", |ui| {
-          if ui.button("Load ROM...").clicked() {
-            ui.close_menu();
-            load_dialog();
-          }
+          ui.add_enabled_ui(!crashed, |ui| { 
+            if ui.button("Load ROM...").clicked() {
+              ui.close_menu();
+              { 
+                let mut gb = self.gb.lock().unwrap();
+                gb._reset();
+                gb.pause();
+              }
+              load_dialog();
+            }
+            if ui.button("Load ROM (No reset)...").clicked() {
+              ui.close_menu();
+              load_dialog();
+            }
+          });
           if ui.button("Exit").clicked() {
             exit = true;
           }
+        });
+        ui.menu_button("Emulation", |ui| {
+          if ui.button("Reset").clicked() {
+            ui.close_menu();
+            self.gb.lock().unwrap()._reset();
+          }
+          ui.add_enabled_ui(!(gb_bios_disabled || crashed), |ui| { 
+            if ui.button("Skip bootrom").clicked() {
+              ui.close_menu();
+              self.gb.lock().unwrap().skip_bootrom();
+            }
+          });
         });
         ui.menu_button("Tools", |ui| {
           ui.add_enabled_ui(!(self.show_mem_view || crashed), |ui| {
@@ -208,14 +231,7 @@ impl Gui for GuiState {
           }
         }
       });
-      ui.horizontal_wrapped(|ui| {
-        ui.add_enabled_ui(!(gb_bios_disabled || crashed), |ui| {
-          if ui.button("Skip bootrom").clicked() {
-            self.gb.lock().unwrap().skip_bootrom();
-          }
-        });
-      });
-      
+
       // Registers
       fn register_view(ui: &mut egui::Ui, name: &str, value: u16, allow_edit: bool, mul: u16) -> Option<u16> {
         let mut ret = None;
