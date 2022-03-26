@@ -6,7 +6,11 @@ use oam::OAMMemory;
 use ppu_registers::LCDC;
 use arraydeque::ArrayDeque;
 
+const WIDTH: usize = 160;
+const HEIGHT: usize = 144;
+
 pub struct PPU {
+  pub display: [u8; WIDTH * HEIGHT],
   vram: [u8; 0x2000],
   oam: OAMMemory,
   _bg_fetcher: BgFetcher,
@@ -17,6 +21,7 @@ pub struct PPU {
 impl PPU {
   pub fn new() -> Self {
     Self {
+      display: [1; WIDTH * HEIGHT],
       vram: [0; 0x2000],
       oam: OAMMemory::new(),
       _bg_fetcher: BgFetcher::new(),

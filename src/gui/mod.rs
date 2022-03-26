@@ -9,7 +9,7 @@ use std::{
   error::Error,
   hash::Hasher as _,
 };
-use super::{gb::Gameboy, NAME}; 
+use super::{gb::Gameboy, NAME, VERSION}; 
 mod error_words;
 use error_words::WORDS as ERROR_WORDS;
 use ahash::AHasher;
@@ -17,7 +17,7 @@ use rfd::FileDialog;
 
 const WIDTH: u32 = 160;
 const HEIGHT: u32 = 144;
-const SCALE: u32 = 3;
+const SCALE: u32 = 4;
 
 pub struct GuiState {
   gb: Arc<Mutex<Gameboy>>,
@@ -42,6 +42,15 @@ impl GuiState {
 }
 
 impl Gui for GuiState {
+  fn render(&mut self, frame: &mut [u8]) {
+    for (i, pixel) in frame.chunks_exact_mut(4).enumerate() {
+      let x = (i % WIDTH as usize) as u32;
+      let y = (i / WIDTH as usize) as u32;
+      let c: u8 = ((x + y) & 1) as u8 * 0xff;
+      let rgba = [c, c , c, 0xff];
+      pixel.copy_from_slice(&rgba);
+    }
+  }
   fn gui(&mut self, ui: &Context, _dim: Dim<f32>) -> bool {
     let mut exit = false;
 
@@ -345,12 +354,32 @@ impl Gui for GuiState {
           }
         });
       });
+      ui.separator();
+      {
+        #[cfg(debug_assertions)]
+        let build_type = "debug";
+        #[cfg(not(debug_assertions))]
+        let build_type = "release";
+        ui.label(format!("{} v.{} ({} build)",
+          NAME.unwrap_or("<name?>"),
+          VERSION.unwrap_or("<version?>"),
+          build_type
+        ));
+      }
     });
 
     if self.show_mem_view && !crashed {
       egui::Window::new("Memory view").open(&mut self.show_mem_view).show(ui, |ui| {
         let height = ui.text_style_height(&egui::TextStyle::Monospace);
-        egui::ScrollArea::vertical().always_show_scroll(true).show_rows(ui, height, 0x1000,|ui, row_range| {
+        ui.horizontal(|ui| {
+          egui::Label::new(RichText::new("0000").monospace()).layout_in_ui(ui);
+          ui.separator();
+          for i in 0..=0xF_u8 {
+            ui.monospace(format!("+{:X}", i));
+          }
+        });
+        ui.separator();
+        egui::ScrollArea::vertical().always_show_scroll(true).hscroll(false).vscroll(true).show_rows(ui, height, 0x1000,|ui, row_range| {
           let offset = (row_range.start as u16) << 4;
           let row_amount = row_range.end - row_range.start;
           let mem = {
@@ -358,7 +387,10 @@ impl Gui for GuiState {
             let mut mem = vec!();
             mem.reserve(0xff);
             let gb = self.gb.lock().unwrap();
-            for addr in 0..mem_needed {
+            'mem_read: for addr in 0..mem_needed {
+              if (addr + offset as usize) > 0xFFFF {
+                break 'mem_read;
+              }
               mem.push(gb.cpu.mmu.rb((addr as u16) + offset))
             }
             mem

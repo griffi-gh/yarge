@@ -19,10 +19,11 @@ pub type Dimensions<T> = (T, T);
 
 pub trait Gui {
   fn gui(&mut self, ctx: &EguiCtx, size: Dimensions<f32>) -> bool;
+  fn render(&mut self, frame: &mut [u8]);
 }
 
 struct Framework {
-  state: Box<dyn Gui + Send>,
+  pub(crate) state: Box<dyn Gui + Send>,
   egui_ctx: EguiCtx,
   egui_state: egui_winit::State,
   screen_descriptor: ScreenDescriptor,
@@ -194,6 +195,8 @@ pub fn init(state: Box<dyn Gui + Send>, prop: InitProperties) {
       }
       // Draw the current frame
       Event::RedrawRequested(_) => {
+        // Render
+        framework.state.render(pixels.get_frame());
         // Prepare egui
         let exit_requested = framework.prepare(&window);
         if exit_requested {
