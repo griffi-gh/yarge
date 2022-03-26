@@ -88,6 +88,20 @@ impl Gui for GuiState {
         ui.add_space(2.);
       });
     };
+    //FILE LOAD DIALOG
+    let load_dialog = || {
+      let files = FileDialog::new()
+        .add_filter("Nintendo Gameboy ROM file", &["gb", "gbc"])
+        .set_directory("/")
+        .pick_file();
+      if let Some(files) = files {
+        let data = fs::read(files);
+        if let Ok(data) = data {
+          let data_ref = &data[..];
+          self.gb.lock().unwrap().load_rom(data_ref);
+        }
+      }
+    };
 
     let mut crashed = false;
 
@@ -153,17 +167,8 @@ impl Gui for GuiState {
       egui::menu::bar(ui, |ui| {
         ui.menu_button("File", |ui| {
           if ui.button("Load ROM...").clicked() {
-            let files = FileDialog::new()
-              .add_filter("Nintendo Gameboy ROM file", &["gb", "gbc"])
-              .set_directory("/")
-              .pick_file();
-            if let Some(files) = files {
-              let data = fs::read(files);
-              if let Ok(data) = data {
-                let data_ref = &data[..];
-                self.gb.lock().unwrap().load_rom(data_ref);
-              }
-            }
+            ui.close_menu();
+            load_dialog();
           }
           if ui.button("Exit").clicked() {
             exit = true;
@@ -172,6 +177,7 @@ impl Gui for GuiState {
         ui.menu_button("Tools", |ui| {
           ui.add_enabled_ui(!(self.show_mem_view || crashed), |ui| {
             if ui.button("Memory view").clicked() {
+              ui.close_menu();
               self.show_mem_view = true;
             }
           });

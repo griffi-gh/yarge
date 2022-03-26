@@ -60,6 +60,15 @@ pub struct ThreadInfo {
   pub time: std::time::Instant,
   pub error: Option<String>
 }
+impl Default for ThreadInfo {
+  fn default() -> Self {
+    Self {
+      instrs: 0,
+      time: std::time::Instant::now(),
+      error: None,
+    }
+  }
+}
 
 ///Gameboy emulator
 pub struct Gameboy {
@@ -156,6 +165,14 @@ impl Gameboy {
     Ok(cycles)
   }
 
+  /*pub fn reset(&mut self) {
+    let mut new = Self::new();
+    if self.thread_info.is_some() {
+      new.thread_info = Some(ThreadInfo::default());
+    }
+    *self = new;
+  }*/
+
   #[allow(dead_code)]
   pub fn run(gb: &mut Gameboy) -> Result<(), Box<dyn Error>> {
     loop { gb.step()?; }
@@ -168,11 +185,7 @@ impl Gameboy {
       let paused_sleep_duration = time::Duration::from_millis(100);
       {
         let mut gb = gb.lock().unwrap();
-        gb.thread_info = Some(ThreadInfo {
-          instrs: 0,
-          time: time::Instant::now(),
-          error: None,
-        });
+        gb.thread_info = Some(ThreadInfo::default());
       }
       'main: loop {
         let mut should_sleep = false;
@@ -180,15 +193,19 @@ impl Gameboy {
           let gb = gb.try_lock();
           if let Ok(mut gb) = gb {
             should_sleep = !gb.running;
-            let stp_res = gb.step();
-            let info = gb.thread_info.as_mut().unwrap();
-            if stp_res.is_err() {
-              let error = stp_res.unwrap_err();
-              info.error = Some(error.to_string());
-              println!("Rustish Error: {}", error);
-              break 'main;
+            if gb.thread_info.is_some() {
+              let stp_res = gb.step();
+              let info = gb.thread_info.as_mut().unwrap();
+              if stp_res.is_err() {
+                let error = stp_res.unwrap_err();
+                info.error = Some(error.to_string());
+                println!("Rustish Error: {}", error);
+                break 'main;
+              }
+              info.instrs += 1;
+            } else {
+              panic!("No thread_info but the thread is still running");
             }
-            info.instrs += 1;
           }
         }
         if should_sleep {
