@@ -18,6 +18,12 @@ use rfd::FileDialog;
 const WIDTH: u32 = 160;
 const HEIGHT: u32 = 144;
 const SCALE: u32 = 4;
+const GB_PALETTE: [[u8; 4]; 4] = [
+  [0xe0, 0xf8, 0xd0, 0xff],
+  [0x88, 0xc0, 0x70, 0xff],
+  [0x34, 0x68, 0x56, 0xff],
+  [0x08, 0x18, 0x20, 0xff],
+];
 
 pub struct GuiState {
   gb: Arc<Mutex<Gameboy>>,
@@ -43,12 +49,21 @@ impl GuiState {
 
 impl Gui for GuiState {
   fn render(&mut self, frame: &mut [u8]) {
+    let data = if let Ok(gb) = self.gb.lock() {
+      Some(gb.cpu.mmu.ppu.display)
+    } else {
+      None
+    };
     for (i, pixel) in frame.chunks_exact_mut(4).enumerate() {
-      let x = (i % WIDTH as usize) as u32;
-      let y = (i / WIDTH as usize) as u32;
-      let c: u8 = ((x + y) & 1) as u8 * 0xff;
-      let rgba = [c, c , c, 0xff];
-      pixel.copy_from_slice(&rgba);
+      if let Some(data) = data {
+        pixel.copy_from_slice(&GB_PALETTE[(data[i] & 3) as usize]);
+      } else {
+        let x = (i % WIDTH as usize) as u32;
+        let y = (i / WIDTH as usize) as u32;
+        let c: u8 = 0x7F + (((x + y) & 1) as u8 * 0x80);
+        let rgba = [c, 0, 0, 0xff];
+        pixel.copy_from_slice(&rgba);
+      }
     }
   }
   fn gui(&mut self, ui: &Context, _dim: Dim<f32>) -> bool {
