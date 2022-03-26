@@ -382,7 +382,7 @@ impl Gui for GuiState {
         egui::ScrollArea::vertical().always_show_scroll(true).hscroll(false).vscroll(true).show_rows(ui, height, 0x1000,|ui, row_range| {
           let offset = (row_range.start as u16) << 4;
           let row_amount = row_range.end - row_range.start;
-          let mem = {
+          let (mem,  pc) = {
             let mem_needed = row_amount * 16;
             let mut mem = vec!();
             mem.reserve(0xff);
@@ -393,7 +393,7 @@ impl Gui for GuiState {
               }
               mem.push(gb.cpu.mmu.rb((addr as u16) + offset))
             }
-            mem
+            (mem, gb.cpu.reg.pc)
           };
           for row in 0..row_amount {
             let row_start = row << 4;
@@ -401,9 +401,17 @@ impl Gui for GuiState {
               ui.monospace(format!("{:04X}", row_start + offset as usize));
               ui.separator();
               for col in 0..16_u16 {
-                let addr = col | row_start as u16;
-                ui.monospace(format!("{:02X}", mem[addr as usize]))
-                  .on_hover_text(format!("{:#06X}", addr + offset));
+                let addr_rel = col | row_start as u16;
+                let addr = addr_rel + offset;
+                ui.label(
+                  RichText::new(
+                    format!("{:02X}", mem[addr_rel as usize])
+                  ).monospace().color(
+                    if pc == addr { Color32::LIGHT_RED } else { Color32::WHITE }
+                  )
+                ).on_hover_text(
+                  format!("{:#06X}", addr)
+                );
               }
             });
           }
