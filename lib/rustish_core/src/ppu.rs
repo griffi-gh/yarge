@@ -56,7 +56,8 @@ impl PPU {
     self.vram[(addr & 0x1FFF) as usize] = value;
   }
   
-  pub fn tick(&self) {
+  pub fn tick(&mut self) {
+    
     //TODO ppu.tick()
   }
 }
