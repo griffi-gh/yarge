@@ -21,7 +21,7 @@ pub struct PPU {
 impl PPU {
   pub fn new() -> Self {
     Self {
-      display: [1; WIDTH * HEIGHT],
+      display: [0; WIDTH * HEIGHT],
       vram: [0; 0x2000],
       oam: OAMMemory::new(),
       _bg_fetcher: BgFetcher::new(),
