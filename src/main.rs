@@ -1,5 +1,6 @@
-#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
-//Hide console in release builds on Windows
+//TODO Hide console in release builds on Windows
+//#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
+//^completely disables stdout
 
 pub(crate) use rustish_core as gb;
 use gb::{Gameboy, GameboyBuilder};
@@ -50,11 +51,12 @@ fn main() {
       gb.resume();
     }
   }
-  let gb = Arc::new(Mutex::new(gb));
-  let gb_thread = Gameboy::run_thread(&gb);
+  
   if args.nogui {
-    gb_thread.join().unwrap();
+    Gameboy::run(&mut gb).unwrap();
   } else {
+    let gb = Arc::new(Mutex::new(gb));
+    Gameboy::run_thread(&gb);
     #[cfg(not(feature = "gui"))]
     panic!("No GUI support, use the --nogui (-n) flag or build {} with 'gui' feature", NAME.unwrap_or(""));
     #[cfg(feature = "gui")] {
