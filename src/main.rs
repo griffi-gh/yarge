@@ -1,6 +1,3 @@
-//Hide console in release builds on Windows
-#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
-
 pub(crate) use rustish_core as gb;
 use gb::{Gameboy, GameboyBuilder};
 use std::sync::{Arc, Mutex};
