@@ -11,8 +11,6 @@ codegen-units = 1
 [dependencies]
 paste = "1.0"
 arraydeque = "0.4.5"
-#num-traits = "0.2"
-#num-derive = "0.3"
 
 [features]
 default = []
