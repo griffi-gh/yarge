@@ -1,4 +1,5 @@
 use arraydeque::ArrayDeque;
+use super::VRAM_SIZE;
 
 struct FifoPixel {
   color: u8,
@@ -45,9 +46,10 @@ impl Fetcher {
       fifo: ArrayDeque::default(),
     }
   }
-  pub fn tick(&mut self) {
+  pub fn tick(&mut self, vram: &[u8; VRAM_SIZE]) {
+    //run only on every second cycle 
     self.cycle ^= true; //toggle self.cycle
-    if self.cycle { return; }
+    if self.cycle { return; } //if self.cycle *was* false, skip this cycle
     match self.state {
       FetcherState::ReadTileId => {
 

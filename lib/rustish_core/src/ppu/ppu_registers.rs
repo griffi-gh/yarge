@@ -1,9 +1,9 @@
-#[derive(Clone, Copy, PartialEq, FromPrimitive, ToPrimitive)]
+#[derive(Clone, Copy, PartialEq)]
 pub enum PPUMode {
-  HBlank = 0,
-  VBlank = 1,
-  OAM    = 2,
-  VRAM   = 3,
+  HBlank     = 0,
+  VBlank     = 1,
+  OamSearch  = 2,
+  PxTransfer = 3,
 }
 impl Default for PPUMode {
   fn default() -> Self { Self::HBlank }

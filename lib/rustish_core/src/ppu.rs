@@ -3,28 +3,31 @@ mod ppu_registers;
 mod fetcher;
 use fetcher::{Fetcher, FetcherLayer};
 use oam::OAMMemory;
-use ppu_registers::LCDC;
+use ppu_registers::{LCDC, PPUMode};
 
-const WIDTH: usize = 160;
-const HEIGHT: usize = 144;
+pub const VRAM_SIZE: usize = 0x2000;
+pub const WIDTH: usize = 160;
+pub const HEIGHT: usize = 144;
 
 pub struct PPU {
   pub display: [u8; WIDTH * HEIGHT],
+  pub ly: u8,
+  mode: PPUMode,
   vram: [u8; 0x2000],
   oam: OAMMemory,
-  bg_fetcher: Fetcher,
   lcdc: LCDC,
-  pub ly: u8,
+  bg_fetcher: Fetcher,
 }
 impl PPU {
   pub fn new() -> Self {
     Self {
-      display: [0; WIDTH * HEIGHT],
-      vram: [0; 0x2000],
+      /*pub*/ display: [0; WIDTH * HEIGHT],
+      /*pub*/ ly: 0,
+      mode: PPUMode::HBlank,
+      vram: [0; VRAM_SIZE],
       oam: OAMMemory::new(),
-      bg_fetcher: Fetcher::new(FetcherLayer::Background),
       lcdc: LCDC::default(),
-      ly: 0,
+      bg_fetcher: Fetcher::new(FetcherLayer::Background),
     }
   }
 
