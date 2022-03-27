@@ -1,36 +1,18 @@
 mod oam;
 mod ppu_registers;
-mod bg_fetcher;
-use bg_fetcher::BgFetcher;
+mod fetcher;
+use fetcher::Fetcher;
 use oam::OAMMemory;
 use ppu_registers::LCDC;
-use arraydeque::ArrayDeque;
 
 const WIDTH: usize = 160;
 const HEIGHT: usize = 144;
-
-struct FifoPixel {
-  color: u8,
-  priority: bool,
-  pal: u8,
-}
-impl Default for FifoPixel {
-  fn default() -> Self {
-    Self {
-      color: 0,
-      priority: false,
-      pal: 0,
-    }
-  }
-}
 
 pub struct PPU {
   pub display: [u8; WIDTH * HEIGHT],
   vram: [u8; 0x2000],
   oam: OAMMemory,
-  bg_fetcher: BgFetcher,
-  bg_fifo: ArrayDeque<[FifoPixel; 16]>,
-  obj_fifo: ArrayDeque<[FifoPixel; 16]>,
+  bg_fetcher: Fetcher,
   lcdc: LCDC,
   pub ly: u8,
 }
@@ -40,9 +22,7 @@ impl PPU {
       display: [0; WIDTH * HEIGHT],
       vram: [0; 0x2000],
       oam: OAMMemory::new(),
-      bg_fetcher: BgFetcher::new(),
-      bg_fifo: ArrayDeque::default(),
-      obj_fifo: ArrayDeque::default(),
+      bg_fetcher: Fetcher::new(),
       lcdc: LCDC::default(),
       ly: 0,
     }
