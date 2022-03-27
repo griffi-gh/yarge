@@ -1,3 +1,4 @@
+#[repr(u8)]
 #[derive(Clone, Copy, PartialEq)]
 pub enum PPUMode {
   HBlank     = 0,
@@ -5,6 +6,7 @@ pub enum PPUMode {
   OamSearch  = 2,
   PxTransfer = 3,
 }
+
 impl Default for PPUMode {
   fn default() -> Self { Self::HBlank }
 }

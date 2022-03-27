@@ -1,6 +1,4 @@
 #![forbid(unsafe_code)]
-/*#[macro_use]
-extern crate num_derive;*/
 mod mmu;
 mod cpu;
 mod ppu;
