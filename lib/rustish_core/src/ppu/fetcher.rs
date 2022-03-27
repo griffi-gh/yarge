@@ -17,6 +17,7 @@ impl Default for FifoPixel {
 }
 
 
+#[repr(u8)]
 #[derive(Clone, Copy, PartialEq)]
 enum FetcherState {
   ReadTileId,
