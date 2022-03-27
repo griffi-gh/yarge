@@ -27,13 +27,18 @@ impl Default for FetcherState {
   fn default() -> Self { Self::ReadTileId }
 }
 
+#[derive(Clone, Copy, PartialEq)]
+pub enum FetcherLayer {
+  Background, Window
+}
+
 pub struct Fetcher {
   cycle: bool,
   state: FetcherState,
   fifo: ArrayDeque<[FifoPixel; 16]>
 }
 impl Fetcher {
-  pub fn new() -> Self { 
+  pub fn new(layer: FetcherLayer) -> Self { 
     Self {
       cycle: false,
       state: FetcherState::default(),

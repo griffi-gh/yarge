@@ -1,7 +1,7 @@
 mod oam;
 mod ppu_registers;
 mod fetcher;
-use fetcher::Fetcher;
+use fetcher::{Fetcher, FetcherLayer};
 use oam::OAMMemory;
 use ppu_registers::LCDC;
 
@@ -22,7 +22,7 @@ impl PPU {
       display: [0; WIDTH * HEIGHT],
       vram: [0; 0x2000],
       oam: OAMMemory::new(),
-      bg_fetcher: Fetcher::new(),
+      bg_fetcher: Fetcher::new(FetcherLayer::Background),
       lcdc: LCDC::default(),
       ly: 0,
     }
