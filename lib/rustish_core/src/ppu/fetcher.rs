@@ -15,16 +15,47 @@ impl Default for FifoPixel {
   }
 }
 
+
+#[derive(Clone, Copy, PartialEq)]
+enum FetcherState {
+  ReadTileId,
+  ReadTileDataLow,
+  ReadTileDataHigh,
+  PushToFifo,
+}
+impl Default for FetcherState {
+  fn default() -> Self { Self::ReadTileId }
+}
+
 pub struct Fetcher {
+  cycle: bool,
+  state: FetcherState,
   fifo: ArrayDeque<[FifoPixel; 16]>
 }
 impl Fetcher {
   pub fn new() -> Self { 
     Self {
-      fifo: ArrayDeque::default()
+      cycle: false,
+      state: FetcherState::default(),
+      fifo: ArrayDeque::default(),
     }
   }
   pub fn tick(&mut self) {
-    
+    self.cycle ^= true; //toggle self.cycle
+    if self.cycle { return; }
+    match self.state {
+      FetcherState::ReadTileId => {
+
+      },
+      FetcherState::ReadTileDataLow => {
+
+      },
+      FetcherState::ReadTileDataHigh => {
+
+      },
+      FetcherState::PushToFifo => {
+
+      }
+    }
   }
 }
