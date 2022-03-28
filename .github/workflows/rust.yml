@@ -16,6 +16,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+    - name: Install required packages
+      run: sudo apt install libatk1.0-dev
     - name: Build
       run: cargo build --release
     - name: Run tests
