@@ -6,6 +6,7 @@ use oam::OAMMemory;
 use ppu_registers::{LCDC, PPUMode};
 
 pub const VRAM_SIZE: usize = 0x2000;
+pub const VRAM_MAX: u16 = (VRAM_SIZE - 1) as u16;
 pub const WIDTH: usize = 160;
 pub const HEIGHT: usize = 144;
 
@@ -46,10 +47,10 @@ impl PPU {
   }
 
   #[inline] pub fn read_vram(&self, addr: u16) -> u8 {
-    self.vram[(addr & 0x1FFF) as usize]
+    self.vram[(addr & VRAM_MAX) as usize]
   }
   #[inline] pub fn write_vram(&mut self, addr: u16, value: u8) {
-    self.vram[(addr & 0x1FFF) as usize] = value;
+    self.vram[(addr & VRAM_MAX) as usize] = value;
   }
   
   pub fn tick(&mut self) {

@@ -17,7 +17,7 @@ pub struct LCDC {
   pub enable_obj: bool,      
   pub obj_size: bool,         // 0: 8x8, 1: 8x16
   pub bg_tilemap_addr: bool,  // 0: 0x9800-0x9BFF, 1: 0x9C00-0x9FFF
-  pub bg_tiledata_addr: bool, // 0: 0x8800-0x97FF, 1: 0x8000-0x87FF
+  pub tiledata_addr: bool,    // BG/WIN tile data addr 0: 0x8800-0x97FF, 1: 0x8000-0x87FF
   pub enable_win: bool,
   pub win_tilemap_addr: bool, // 0: 0x9800-0x9BFF, 1: 0x9C00-0x9FFF
   pub enable_display: bool,
@@ -33,7 +33,7 @@ impl LCDC {
     self.enable_obj       = (val & 0x02) != 0;
     self.obj_size         = (val & 0x04) != 0;
     self.bg_tilemap_addr  = (val & 0x08) != 0;
-    self.bg_tiledata_addr = (val & 0x10) != 0;
+    self.tiledata_addr    = (val & 0x10) != 0;
     self.enable_win       = (val & 0x20) != 0;
     self.win_tilemap_addr = (val & 0x40) != 0;
     self.enable_display   = (val & 0x80) != 0;
@@ -43,10 +43,30 @@ impl LCDC {
     ((self.enable_obj       as u8) << 1) |
     ((self.obj_size         as u8) << 2) |
     ((self.bg_tilemap_addr  as u8) << 3) |
-    ((self.bg_tiledata_addr as u8) << 4) |
+    ((self.tiledata_addr    as u8) << 4) |
     ((self.enable_win       as u8) << 5) |
     ((self.win_tilemap_addr as u8) << 6) |
     ((self.enable_display   as u8) << 7)
+  }
+  #[inline] pub fn bg_tilemap_addr(&self) -> u16 {
+    if self.bg_tilemap_addr { 0x9800 } else { 0x9C00 }
+  }
+  #[inline] pub fn win_tilemap_addr(&self) -> u16 {
+    if self.bg_tilemap_addr { 0x9800 } else { 0x9C00 }
+  }
+  #[inline] pub fn bg_tiledata_addr(&self) -> u16 {
+    if self.bg_tilemap_addr { 0x8800 } else { 0x8000 }
+  }
+  #[inline] pub fn obj_size(&self) -> u8 {
+    if self.obj_size { 16 } else { 8 }
+  }
+  pub fn get_tile_offset(&self, tile_id: u8) -> u16 {
+    todo!();
+    if self.tiledata_addr {
+      tile_id as u16
+    } else { 
+      tile_id as i8 as u16
+    }
   }
 }
 impl Into<u8> for LCDC {
