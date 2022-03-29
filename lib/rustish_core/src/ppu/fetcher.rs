@@ -53,16 +53,19 @@ impl Fetcher {
     if self.cycle { return; } //if self.cycle *was* false, skip this cycle
     match self.state {
       FetcherState::ReadTileId => {
-
+        self.state = FetcherState::ReadTileDataLow;
       },
       FetcherState::ReadTileDataLow => {
-
+        self.state = FetcherState::ReadTileDataHigh;
       },
       FetcherState::ReadTileDataHigh => {
-
+        self.state = FetcherState::PushToFifo;
       },
       FetcherState::PushToFifo => {
-
+        if self.fifo.len() <= 8 {
+          //TODO
+          self.state = FetcherState::ReadTileId;
+        }
       }
     }
   }
