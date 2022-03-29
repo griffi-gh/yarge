@@ -23,13 +23,24 @@ jobs:
       with:
         profile: minimal
         toolchain: stable
+        target: x86_64-pc-windows-gnu
+        default: true
+        override: true
     - uses: Swatinem/rust-cache@v1
-    - name: Build
-      run: cargo build --release
+    - name: Build lin64
+      run: cargo build --release --target x86_64-unknown-linux-musl
+    - name: Build win64
+      run: cargo build --release --target x86_64-pc-windows-gnu
     - name: Run tests
       run: cargo test --release
-    - name: Upload build artifact
+    - name: Upload build artifact (lin64)
       uses: actions/upload-artifact@v3
       with:
         name: build-lin64
         path: ./target/release/rustish-gb
+    - name: Upload build artifact (win64)
+      uses: actions/upload-artifact@v3
+      with:
+        name: build-win64
+        path: ./target/release/rustish-gb.exe
+
