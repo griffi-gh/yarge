@@ -4,11 +4,7 @@ mod fetcher;
 use fetcher::{Fetcher, FetcherLayer};
 use oam::OAMMemory;
 use ppu_registers::{LCDC, PPUMode};
-
-pub const VRAM_SIZE: usize = 0x2000;
-pub const VRAM_MAX: u16 = (VRAM_SIZE - 1) as u16;
-pub const WIDTH: usize = 160;
-pub const HEIGHT: usize = 144;
+use crate::consts::{VRAM_MAX, VRAM_SIZE, WIDTH, HEIGHT};
 
 pub struct PPU {
   pub display: [u8; WIDTH * HEIGHT],

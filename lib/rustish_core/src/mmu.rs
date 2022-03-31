@@ -1,10 +1,7 @@
 pub mod cartridge;
-
 use cartridge::{DynCartridge, get_cartridge};
-
-mod bios;
-use bios::BIOS;
 use super::PPU;
+use crate::consts::BIOS;
 
 pub struct MMU {
   pub ppu: PPU,

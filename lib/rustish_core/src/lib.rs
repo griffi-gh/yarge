@@ -1,4 +1,5 @@
 #![forbid(unsafe_code)]
+pub mod consts;
 mod mmu;
 mod cpu;
 mod ppu;
