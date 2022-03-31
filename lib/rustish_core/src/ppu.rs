@@ -51,5 +51,19 @@ impl PPU {
   
   pub fn tick(&mut self) {
     //TODO ppu.tick()
+    match self.mode { 
+      PPUMode::HBlank => {
+
+      },
+      PPUMode::VBlank => {
+
+      },
+      PPUMode::OamSearch => {
+
+      },
+      PPUMode::PxTransfer => {
+        
+      }
+    }
   }
 }
