@@ -60,12 +60,12 @@ impl LCDC {
   #[inline] pub fn obj_size(&self) -> u8 {
     if self.obj_size { 16 } else { 8 }
   }
-  pub fn transform_tile_index(&self, tile_id: u8) -> u16 {
+  pub fn transform_tile_index(&self, index: u8) -> u16 {
     //TEST
     if self.tiledata_addr {
-      tile_id as u16
+      index as u16
     } else { 
-      (tile_id as i8 as u16).wrapping_add(0x100)
+      (index as i8 as u16).wrapping_add(0x100)
     }
   }
 }
