@@ -292,6 +292,12 @@ impl Gui for GuiState {
             }
           });
           ui.monospace(name.to_uppercase());
+          let details = format!(
+            "Bin: {:#010b}_{:08b}\nDec: {}",
+            ((value & 0xFF00) >> 8) as u8,
+            (value & 0xFF) as u8,
+            value
+          );
           if allow_edit {
             let text_style = TextStyle::Monospace;
             let w = egui::WidgetText::from("0000").into_galley(
@@ -310,6 +316,8 @@ impl Gui for GuiState {
                 .id_source("regview_".to_string() + name)
                 .hint_text("0")
                 .margin(egui::Vec2::from((0.,0.)))
+            ).on_hover_text(
+              details
             );
             if res.changed() {
               if was_zero {
@@ -325,7 +333,7 @@ impl Gui for GuiState {
             }
           } else {
             ui.monospace(format!("{:04X}", value))
-              .on_hover_text("Pause emulation to change");
+              .on_hover_text(format!("{}\nPause emulation to change", details));
           }
         });
         ui.add_enabled_ui(allow_edit, |ui| {
@@ -418,14 +426,15 @@ impl Gui for GuiState {
               for col in 0..16_u16 {
                 let addr_rel = col | row_start as u16;
                 let addr = addr_rel + offset;
+                let val = mem[addr_rel as usize];
                 ui.label(
                   RichText::new(
-                    format!("{:02X}", mem[addr_rel as usize])
+                    format!("{:02X}", val)
                   ).monospace().color(
                     if pc == addr { Color32::LIGHT_RED } else { Color32::WHITE }
                   )
                 ).on_hover_text(
-                  format!("{:#06X}", addr)
+                  format!("Dec: {0}\nBin: {0:#010b}\nAddr: {1:#06X}", val, addr)
                 );
               }
             });
