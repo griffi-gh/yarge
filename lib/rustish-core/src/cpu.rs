@@ -107,6 +107,8 @@ impl CPU {
     } else {
       self.cycle();
     }
+    #[cfg(debug_assertions)]
+    assert!(self.t >= 4);
     Ok(self.t)
   }
 }
