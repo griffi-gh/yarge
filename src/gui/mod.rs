@@ -50,7 +50,9 @@ impl GuiState {
 
 impl Gui for GuiState {
   fn prepare(&mut self) {
-    self.gb_result = self.gb.run_for_frame();
+    if self.gb_result.is_ok() {
+      self.gb_result = self.gb.run_for_frame();
+    }
   }
   fn render(&mut self, frame: &mut [u8]) {
     let data = self.gb.get_display_data();
@@ -61,8 +63,12 @@ impl Gui for GuiState {
   fn gui(&mut self, ui: &Context, _dim: Dim<f32>) -> bool {
     let mut exit = false;
 
-    //ERROR WINDOW
-    //MAYBE use error type instead of message to generate error code?
+    let mut reset = |gb: &mut Gameboy| {
+      gb.reset();
+      gb.pause();
+      //self.gb_result = Ok(());
+    };
+
     let mut error_window = |title: &str, color: Color32, details: &str, id: &str| {
       egui::TopBottomPanel::new(
         egui::panel::TopBottomSide::Top, 
@@ -101,14 +107,12 @@ impl Gui for GuiState {
             exit = true;
           }
           if ui.button("Reset").clicked() {
-            self.gb.reset();
-            self.gb.pause();
+            reset(&mut self.gb);
           }
         });
         ui.add_space(2.);
       });
     };
-    //FILE LOAD DIALOG
     fn load_dialog(gb: &mut Gameboy) {
       let files = FileDialog::new()
         .add_filter("Nintendo Gameboy ROM file", &["gb", "gbc"])
@@ -124,7 +128,7 @@ impl Gui for GuiState {
     }
 
     // HANDLE ERROR
-    if self.gb_result.is_err() {
+    /*if self.gb_result.is_err() {
       let str = self.gb_result.as_ref().unwrap_err().to_string();
       error_window(format!(
         "{} error", 
@@ -133,7 +137,7 @@ impl Gui for GuiState {
         str.as_str(), 
         "err_panel"
       );
-    }
+    }*/
 
     // MAIN WINDOW
     egui::Window::new(NAME.unwrap_or("debug")).show(ui, |ui| {  
@@ -141,8 +145,7 @@ impl Gui for GuiState {
         ui.menu_button("File", |ui| {
           if ui.button("Load ROM...").clicked() {
             ui.close_menu();
-            self.gb.reset();
-            self.gb.pause();
+            reset(&mut self.gb);
             load_dialog(&mut self.gb);
           }
           if ui.button("Load ROM (No reset)...").clicked() {
@@ -156,8 +159,7 @@ impl Gui for GuiState {
         ui.menu_button("Emulation", |ui| {
           if ui.button("Reset").clicked() {
             ui.close_menu();
-            self.gb.reset();
-            self.gb.pause();
+            reset(&mut self.gb);
           }
           ui.add_enabled_ui(!self.gb.cpu.mmu.bios_disabled, |ui| { 
             if ui.button("Skip bootrom").clicked() {
@@ -328,7 +330,7 @@ impl Gui for GuiState {
             let mut mem = vec!();
             mem.reserve(0xff);
             for addr in 0..mem_needed {
-              mem.push(self.gb.cpu.mmu.rb((addr as u16) + offset))
+              mem.push(self.gb.cpu.mmu.rb(addr as u16 + offset))
             }
             mem
           };

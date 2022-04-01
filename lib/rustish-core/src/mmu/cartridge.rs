@@ -4,6 +4,8 @@ use std::{fs, error::Error};
 pub trait Cartridge {
   fn read(&self, addr: u16) -> u8;
   fn write(&self, addr: u16, value: u8) {}
+  fn read_eram(&self, addr: u16) -> u8 { 0xff }
+  fn write_eram(&self, addr: u16, value: u8) {}
   fn load(&mut self, data: &[u8]) {}
   fn load_file(&mut self, path: &str) -> Result<(), Box<dyn Error + 'static>> {
     let data: &[u8] = &(fs::read(path)?)[..];

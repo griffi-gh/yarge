@@ -44,7 +44,7 @@ impl MMU {
       }
       //ERAM
       0xA000..=0xBFFF => {
-        self.cart.read(addr)
+        self.cart.read_eram(addr)
       }
       //WRAM/ECHO
       0xC000..=0xFDFF => {
@@ -88,7 +88,7 @@ impl MMU {
       }
       //ERAM
       0xA000..=0xBFFF => {
-        self.cart.write(addr, value);
+        self.cart.write_eram(addr, value);
       }
       //WRAM/ECHO
       0xC000..=0xFDFF => {
