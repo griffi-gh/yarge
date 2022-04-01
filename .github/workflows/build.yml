@@ -3,6 +3,13 @@ name: Build
 on:
   push:
     branches: [ master ]
+    paths:
+    - 'src/**'
+    - '*.rs'
+    - '*.toml'
+    - '*.lock'
+    - 'Cargo.*'
+    - '!roms/**'
   pull_request:
     branches: [ master ]
 
