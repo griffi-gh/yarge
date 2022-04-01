@@ -183,6 +183,8 @@ impl Gameboy {
   }
 
   pub fn run_for_frame(&mut self) -> Result<(), Box<dyn Error>> {
+    println!("REMOVE THE RETURN IN run_for_frame"); //TODO REMOVE THE RETURN IN run_for_fram
+    return Ok(());
     let mut t = 0;
     while t < CYCLES_PER_FRAME {
       t += self.step()?;
