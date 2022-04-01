@@ -1,6 +1,5 @@
 pub(crate) use rustish_core as gb;
-use gb::{Gameboy, GameboyBuilder};
-use std::sync::{Arc, Mutex};
+use gb::GameboyBuilder;
 use clap::Parser;
 use build_time::build_time_local;
 

@@ -26,12 +26,14 @@ const GB_PALETTE: [[u8; 4]; 4] = [
 
 pub struct GuiState {
   gb: Gameboy,
+  gb_result: Result<(), Box<dyn Error>>,
   show_mem_view: bool
 }
 impl GuiState {
   pub fn new(gb: Gameboy) -> Self {
     Self {
       gb,
+      gb_result: Ok(()),
       show_mem_view: false,
     }
   }
@@ -47,7 +49,9 @@ impl GuiState {
 }
 
 impl Gui for GuiState {
-  fn prepare(&mut self) {}
+  fn prepare(&mut self) {
+    self.gb_result = self.gb.run_for_frame();
+  }
   fn render(&mut self, frame: &mut [u8]) {
     let data = self.gb.get_display_data();
     for (i, pixel) in frame.chunks_exact_mut(4).enumerate() {
@@ -59,7 +63,6 @@ impl Gui for GuiState {
 
     //ERROR WINDOW
     //MAYBE use error type instead of message to generate error code?
-    let mut error_window_reset_after_drop = false;
     let mut error_window = |title: &str, color: Color32, details: &str, id: &str| {
       egui::TopBottomPanel::new(
         egui::panel::TopBottomSide::Top, 
@@ -98,7 +101,8 @@ impl Gui for GuiState {
             exit = true;
           }
           if ui.button("Reset").clicked() {
-            error_window_reset_after_drop = true;
+            self.gb.reset();
+            self.gb.pause();
           }
         });
         ui.add_space(2.);
@@ -117,21 +121,19 @@ impl Gui for GuiState {
           gb.load_rom(data_ref);
         }
       }
-    };
+    }
 
     // HANDLE ERROR
-      /*if info.error.is_some() {
-        let str = info.error.as_ref().unwrap().as_str();
-        drop(info);
-        error_window(format!(
-          "{} error", 
-          NAME.unwrap_or("emulator")).as_str(), 
-          Color32::YELLOW, 
-          str, 
-          "err_panel"
-        );
-        crashed = true;
-      }*/
+    if self.gb_result.is_err() {
+      let str = self.gb_result.as_ref().unwrap_err().to_string();
+      error_window(format!(
+        "{} error", 
+        NAME.unwrap_or("emulator")).as_str(), 
+        Color32::YELLOW, 
+        str.as_str(), 
+        "err_panel"
+      );
+    }
 
     // MAIN WINDOW
     egui::Window::new(NAME.unwrap_or("debug")).show(ui, |ui| {  

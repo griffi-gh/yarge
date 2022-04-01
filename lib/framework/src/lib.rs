@@ -24,7 +24,7 @@ pub trait Gui {
 }
 
 struct Framework {
-  pub(crate) state: Box<dyn Gui + Send>,
+  pub(crate) state: Box<dyn Gui>,
   egui_ctx: EguiCtx,
   egui_state: egui_winit::State,
   screen_descriptor: ScreenDescriptor,
@@ -36,7 +36,7 @@ impl Framework {
   fn new(
     width: u32, height: u32, 
     scale_factor: f32, pixels: &pixels::Pixels,
-    gui_state: Box<dyn Gui + Send>
+    gui_state: Box<dyn Gui>
   ) -> Self {
     let egui_ctx = EguiCtx::default();
     let egui_state = egui_winit::State::from_pixels_per_point(
@@ -134,7 +134,7 @@ pub struct InitProperties<'a> {
   pub title: &'a str,
 }
 
-pub fn init(state: Box<dyn Gui + Send>, prop: InitProperties) {
+pub fn init(state: Box<dyn Gui>, prop: InitProperties) {
   let event_loop = EventLoop::new();
   let mut input = WinitInputHelper::new();
   let window = {
