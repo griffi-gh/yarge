@@ -63,10 +63,12 @@ impl Gui for GuiState {
   fn gui(&mut self, ui: &Context, _dim: Dim<f32>) -> bool {
     let mut exit = false;
 
-    let reset = |gb: &mut Gameboy| {
+    //TODO fix this ugly shit
+    let mut reset_error_window = false;
+    let mut reset = |gb: &mut Gameboy| {
       gb.reset();
       gb.pause();
-      //self.gb_result = Ok(()); //FIXME
+      reset_error_window = true;
     };
 
     let mut error_window = |title: &str, color: Color32, details: &str, id: &str| {
@@ -146,7 +148,6 @@ impl Gui for GuiState {
           if ui.button("Load ROM...").clicked() {
             ui.close_menu();
             reset(&mut self.gb);
-            self.gb_result = Ok(());
             load_dialog(&mut self.gb);
           }
           if ui.button("Load ROM (No reset)...").clicked() {
@@ -161,7 +162,6 @@ impl Gui for GuiState {
           if ui.button("Reset").clicked() {
             ui.close_menu();
             reset(&mut self.gb);
-            self.gb_result = Ok(());
           }
           ui.add_enabled_ui(!self.gb.cpu.mmu.bios_disabled, |ui| { 
             if ui.button("Skip bootrom").clicked() {
@@ -362,6 +362,10 @@ impl Gui for GuiState {
       });
     }
 
+    if reset_error_window {
+      self.gb_result = Ok(());
+    }
+    
     return exit;
   }
 }
