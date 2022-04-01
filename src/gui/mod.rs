@@ -379,14 +379,13 @@ impl Gui for GuiState {
       });
       ui.separator();
       {
-        #[cfg(debug_assertions)]
-        let build_type = "debug";
-        #[cfg(not(debug_assertions))]
-        let build_type = "release";
         ui.label(format!("{} v.{} ({} build)",
           NAME.unwrap_or("<name?>"),
           VERSION.unwrap_or("<version?>"),
-          build_type
+          {
+            #[cfg(not(debug_assertions))] { "release" }
+            #[cfg(debug_assertions)]      { "debug" }
+          }
         ));
       }
     });
