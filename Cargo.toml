@@ -5,9 +5,6 @@ version = "0.0.0"
 publish = false
 edition = "2021"
 
-[profile.dev]
-strip = "debuginfo"
-
 [profile.release]
 codegen-units = 1
 
