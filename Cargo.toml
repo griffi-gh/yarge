@@ -17,16 +17,16 @@ ahash = "0.7.6"
 rfd = "0.8.1"
 clap = { version = "3.1", features = ["derive"] }
 framework = { path = "lib/framework", optional = true }
-rustish_core = { path = "lib/rustish_core" }
+rustish-core = { path = "lib/rustish-core" }
 
 [features]
 default = ["gui", "ly-stub"]
 gui = ["framework"]
-ly-stub = ["rustish_core/ly-stub"]
-logging = ["rustish_core/logging"]
-logging-file = ["logging", "rustish_core/logging-file"]
-logging-stdout = ["logging", "rustish_core/logging-stdout"]
-logging-all = ["logging-file", "logging-stdout", "rustish_core/logging-all"]
+ly-stub = ["rustish-core/ly-stub"]
+logging = ["rustish-core/logging"]
+logging-file = ["logging", "rustish-core/logging-file"]
+logging-stdout = ["logging", "rustish-core/logging-stdout"]
+logging-all = ["logging-file", "logging-stdout", "rustish-core/logging-all"]
 
 #[dev-dependencies]
 #bencher = "0.1.5"

@@ -182,7 +182,8 @@ impl Gameboy {
   pub fn run(&mut self) -> Result<(), Box<dyn Error>> {
     loop { self.step()?; }
   }
-  pub fn run_thread(gb: &Arc<Mutex<Gameboy>>) -> thread::JoinHandle<()> {   
+  pub fn run_thread(gb: &Arc<Mutex<Gameboy>>) -> thread::JoinHandle<()> { 
+    println!("[ WARNING ] Gameboy::run_thread(&Arc<Mutex<Gameboy>>) is deprecated!");  
     let gb = Arc::clone(&*gb);
     thread::spawn(move || {
       use std::time;
