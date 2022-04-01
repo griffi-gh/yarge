@@ -18,8 +18,9 @@ pub const PKG_NAME: Option<&str> = option_env!("CARGO_PKG_NAME");
 pub type Dimensions<T> = (T, T);
 
 pub trait Gui {
-  fn gui(&mut self, ctx: &EguiCtx, size: Dimensions<f32>) -> bool;
+  fn prepare(&mut self);
   fn render(&mut self, frame: &mut [u8]);
+  fn gui(&mut self, ctx: &EguiCtx, size: Dimensions<f32>) -> bool;
 }
 
 struct Framework {
@@ -195,6 +196,7 @@ pub fn init(state: Box<dyn Gui + Send>, prop: InitProperties) {
       }
       // Draw the current frame
       Event::RedrawRequested(_) => {
+        framework.state.prepare();
         // Render
         framework.state.render(pixels.get_frame());
         // Prepare egui

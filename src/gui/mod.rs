@@ -48,6 +48,7 @@ impl GuiState {
 }
 
 impl Gui for GuiState {
+  fn prepare(&mut self) {}
   fn render(&mut self, frame: &mut [u8]) {
     let data = if let Ok(gb) = self.gb.lock() {
       Some(gb.cpu.mmu.ppu.display)

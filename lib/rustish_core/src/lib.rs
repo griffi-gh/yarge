@@ -3,6 +3,7 @@ pub mod consts;
 mod mmu;
 mod cpu;
 mod ppu;
+use consts::CYCLES_PER_FRAME;
 pub use mmu::MMU;
 pub use cpu::CPU;
 pub use ppu::PPU;
@@ -162,7 +163,7 @@ impl Gameboy {
     }
   }
 
-  pub fn step(&mut self) -> Result<u32, Box<dyn Error>> {
+  pub fn step(&mut self) -> Result<usize, Box<dyn Error>> {
     if !self.running {
       return Ok(0);
     }
@@ -171,11 +172,16 @@ impl Gameboy {
     Ok(cycles)
   }
 
-  #[allow(dead_code)]
-  pub fn run(gb: &mut Gameboy) -> Result<(), Box<dyn Error>> {
-    loop { gb.step()?; }
+  pub fn run_for_frame(&mut self) -> Result<(), Box<dyn Error>> {
+    let mut t = 0;
+    while t < CYCLES_PER_FRAME {
+      t += self.step()?;
+    }
+    Ok(())
   }
-  #[allow(dead_code)]
+  pub fn run(&mut self) -> Result<(), Box<dyn Error>> {
+    loop { self.step()?; }
+  }
   pub fn run_thread(gb: &Arc<Mutex<Gameboy>>) -> thread::JoinHandle<()> {   
     let gb = Arc::clone(&*gb);
     thread::spawn(move || {

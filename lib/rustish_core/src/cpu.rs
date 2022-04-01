@@ -33,7 +33,7 @@ pub struct CPU {
   pub reg: Registers,
   pub mmu: MMU,
   pub state: CPUState,
-  t: u32,
+  t: usize,
 }
 
 impl CPU {
@@ -94,7 +94,7 @@ impl CPU {
     self.mmu.ppu.tick();
   }
 
-  pub fn step(&mut self) -> Result<u32, Box<dyn Error>> {
+  pub fn step(&mut self) -> Result<usize, Box<dyn Error>> {
     self.t = 0;
     if self.state == CPUState::Running {
       let mut op = self.fetch();
