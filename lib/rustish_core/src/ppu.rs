@@ -4,10 +4,10 @@ mod fetcher;
 use fetcher::{Fetcher, FetcherLayer};
 use oam::OAMMemory;
 use ppu_registers::{LCDC, PPUMode};
-use crate::consts::{VRAM_MAX, VRAM_SIZE, WIDTH, HEIGHT};
+use crate::consts::{VRAM_MAX, VRAM_SIZE, WIDTH, FB_SIZE};
 
 pub struct PPU {
-  pub display: [u8; WIDTH * HEIGHT],
+  pub display: [u8; FB_SIZE],
   pub ly: u8,
   mode: PPUMode,
   vram: [u8; 0x2000],
@@ -18,8 +18,14 @@ pub struct PPU {
 impl PPU {
   pub fn new() -> Self {
     Self {
-      /*pub*/ display: [0; WIDTH * HEIGHT],
-      /*pub*/ ly: 0,
+      display: {
+        let mut display = [0; FB_SIZE];
+        for i in 0..FB_SIZE {
+          display[i] = (((i + (i / WIDTH)) & 1) as u8) * (1 + (i % 3) as u8);
+        }
+        display
+      },
+      ly: 0,
       mode: PPUMode::HBlank,
       vram: [0; VRAM_SIZE],
       oam: OAMMemory::new(),
