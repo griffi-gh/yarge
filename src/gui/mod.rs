@@ -5,7 +5,6 @@ use framework::{
 use egui::{Context, RichText, TextStyle, Color32};
 use std::{
   fs,
-  sync::{Mutex, Arc},
   error::Error,
   hash::Hasher as _,
 };
@@ -26,11 +25,11 @@ const GB_PALETTE: [[u8; 4]; 4] = [
 ];
 
 pub struct GuiState {
-  gb: Arc<Mutex<Gameboy>>,
+  gb: Gameboy,
   show_mem_view: bool
 }
 impl GuiState {
-  pub fn new(gb: Arc<Mutex<Gameboy>>) -> Self {
+  pub fn new(gb: Gameboy) -> Self {
     Self {
       gb,
       show_mem_view: false,
@@ -50,37 +49,13 @@ impl GuiState {
 impl Gui for GuiState {
   fn prepare(&mut self) {}
   fn render(&mut self, frame: &mut [u8]) {
-    let data = if let Ok(gb) = self.gb.lock() {
-      Some(gb.cpu.mmu.ppu.display)
-    } else {
-      None
-    };
+    let data = self.gb.get_display_data();
     for (i, pixel) in frame.chunks_exact_mut(4).enumerate() {
-      if let Some(data) = data {
-        pixel.copy_from_slice(&GB_PALETTE[(data[i] & 3) as usize]);
-      } else {
-        let x = (i % WIDTH as usize) as u32;
-        let y = (i / WIDTH as usize) as u32;
-        let c: u8 = 0x7F + (((x + y) & 1) as u8 * 0x80);
-        let rgba = [c, 0, 0, 0xff];
-        pixel.copy_from_slice(&rgba);
-      }
+      pixel.copy_from_slice(&GB_PALETTE[(data[i] & 3) as usize]);
     }
   }
   fn gui(&mut self, ui: &Context, _dim: Dim<f32>) -> bool {
     let mut exit = false;
-
-    let reset_if_crashed = || {
-      {
-        let mut gb = match self.gb.lock() {
-          Ok(gb) => { gb },
-          Err(gb) => { gb.into_inner() }
-        };
-        gb.pause();
-        gb._reset();
-      }
-      Gameboy::run_thread(&self.gb);
-    };
 
     //ERROR WINDOW
     //MAYBE use error type instead of message to generate error code?
@@ -130,7 +105,7 @@ impl Gui for GuiState {
       });
     };
     //FILE LOAD DIALOG
-    let load_dialog = || {
+    fn load_dialog(gb: &mut Gameboy) {
       let files = FileDialog::new()
         .add_filter("Nintendo Gameboy ROM file", &["gb", "gbc"])
         .set_directory("/")
@@ -139,38 +114,13 @@ impl Gui for GuiState {
         let data = fs::read(files);
         if let Ok(data) = data {
           let data_ref = &data[..];
-          self.gb.lock().unwrap().load_rom(data_ref);
+          gb.load_rom(data_ref);
         }
       }
     };
 
-    let mut crashed = false;
-
-    //HANDLE PANIC/POISON
-    let mut gb = match self.gb.lock() {
-      Ok(gb) => { gb },
-      Err(err) => {
-        let mut err_info = format!("{}", err);
-        if let Some(source) = err.source() {
-          err_info += format!("\nCaused by: {}", source).as_str();
-        }
-        error_window(
-          format!(
-            "{} thread panicked",
-            NAME.unwrap_or("emulator")
-          ).as_str(),
-          Color32::RED,
-          err_info.as_str(),
-          "panic_panel"
-        );
-        crashed = true;
-        err.into_inner()
-      }
-    };
-
-    // TODO - HANDLE ERROR
-    if let Some(info) = &gb.thread_info {
-      if info.error.is_some() {
+    // HANDLE ERROR
+      /*if info.error.is_some() {
         let str = info.error.as_ref().unwrap().as_str();
         drop(info);
         error_window(format!(
@@ -181,51 +131,22 @@ impl Gui for GuiState {
           "err_panel"
         );
         crashed = true;
-      }
-    }
-    let gb_running = gb.running && !crashed;
-    let mut gb_running_raw = gb.running;
-    let gb_reg_af = gb.cpu.reg.af();
-    let gb_reg_bc = gb.cpu.reg.bc();
-    let gb_reg_de = gb.cpu.reg.de();
-    let gb_reg_hl = gb.cpu.reg.hl();
-    let gb_reg_sp = gb.cpu.reg.sp;
-    let gb_reg_pc = gb.cpu.reg.pc;
-    let gb_bios_disabled = gb.cpu.mmu.bios_disabled;
-    let gb_thread_info = gb.thread_info.clone();
-    if gb.thread_info.is_some() {
-      let t = gb.thread_info.as_mut().unwrap();
-      t.instrs = 0;  
-      t.time = std::time::Instant::now();
-    }
-    drop(gb);
-
-    if error_window_reset_after_drop {
-      reset_if_crashed();
-    }
-
-    let crashed = crashed;
-    let allow_edit = !(gb_running_raw || crashed);
+      }*/
 
     // MAIN WINDOW
     egui::Window::new(NAME.unwrap_or("debug")).show(ui, |ui| {  
       egui::menu::bar(ui, |ui| {
         ui.menu_button("File", |ui| {
-          ui.add_enabled_ui(!crashed, |ui| { 
-            if ui.button("Load ROM...").clicked() {
-              ui.close_menu();
-              { 
-                let mut gb = self.gb.lock().unwrap();
-                gb._reset();
-                gb.pause();
-              }
-              load_dialog();
-            }
-            if ui.button("Load ROM (No reset)...").clicked() {
-              ui.close_menu();
-              load_dialog();
-            }
-          });
+          if ui.button("Load ROM...").clicked() {
+            ui.close_menu();
+            self.gb.reset();
+            self.gb.pause();
+            load_dialog(&mut self.gb);
+          }
+          if ui.button("Load ROM (No reset)...").clicked() {
+            ui.close_menu();
+            load_dialog(&mut self.gb);
+          }
           if ui.button("Exit").clicked() {
             exit = true;
           }
@@ -233,21 +154,18 @@ impl Gui for GuiState {
         ui.menu_button("Emulation", |ui| {
           if ui.button("Reset").clicked() {
             ui.close_menu();
-            if !crashed {
-              self.gb.lock().unwrap()._reset();
-            } else {
-              reset_if_crashed();
-            }
+            self.gb.reset();
+            self.gb.pause();
           }
-          ui.add_enabled_ui(!(gb_bios_disabled || crashed), |ui| { 
+          ui.add_enabled_ui(!self.gb.cpu.mmu.bios_disabled, |ui| { 
             if ui.button("Skip bootrom").clicked() {
               ui.close_menu();
-              self.gb.lock().unwrap().skip_bootrom();
+              self.gb.skip_bootrom();
             }
           });
         });
         ui.menu_button("Tools", |ui| {
-          ui.add_enabled_ui(!(self.show_mem_view || crashed), |ui| {
+          ui.add_enabled_ui(!self.show_mem_view, |ui| {
             if ui.button("Memory view").clicked() {
               ui.close_menu();
               self.show_mem_view = true;
@@ -257,15 +175,12 @@ impl Gui for GuiState {
       });    
       // Control
       ui.horizontal_wrapped(|ui| {
-        ui.add_enabled_ui(!crashed, |ui| {
-          let mut temp = false;
-          if ui.checkbox(
-            if crashed { &mut temp } else { &mut gb_running_raw }, 
-            "Running"
-          ).on_disabled_hover_text("Crashed, unable to resume").changed() {
-            self.gb.lock().unwrap().running = gb_running_raw;
-          }
-        });
+        //ui.add_enabled_ui(!crashed, |ui| {
+        ui.checkbox(
+          &mut self.gb.running, 
+          "Running"
+        ).on_disabled_hover_text("Crashed");
+        /*
         if gb_thread_info.is_some() {
           let info = gb_thread_info.unwrap();
           let elapsed = info.time.elapsed().as_secs_f64();
@@ -278,7 +193,7 @@ impl Gui for GuiState {
           } else {
             ui.label(if crashed { "Crashed" } else { "Paused"});
           }
-        }
+        } */
       });
 
       // Registers
@@ -349,32 +264,33 @@ impl Gui for GuiState {
       egui::CollapsingHeader::new(
         "Registers"
       ).default_open(true).show(ui, |ui| {
+        let reg = &mut self.gb.cpu.reg;
         ui.horizontal(|ui| {
-          if let Some(v) = register_view(ui, "af", gb_reg_af, allow_edit, 0x10) {
+          if let Some(v) = register_view(ui, "af", reg.af(), !self.gb.running, 0x10) {
             let v = if v <= 0xF { v << 4 } else { v };
-            self.gb.lock().unwrap().cpu.reg.set_af(v);
+            reg.set_af(v);
           }
           ui.separator();
-          if let Some(v) = register_view(ui, "bc", gb_reg_bc, allow_edit, 1) {
-            self.gb.lock().unwrap().cpu.reg.set_bc(v);
+          if let Some(v) = register_view(ui, "bc", reg.bc(), !self.gb.running, 1) {
+            reg.set_bc(v);
           }
         });
         ui.horizontal(|ui| {
-          if let Some(v) = register_view(ui, "de", gb_reg_de, allow_edit, 1) {
-            self.gb.lock().unwrap().cpu.reg.set_de(v);
+          if let Some(v) = register_view(ui, "de", reg.de(), !self.gb.running, 1) {
+            reg.set_de(v);
           }
           ui.separator();
-          if let Some(v) = register_view(ui, "hl", gb_reg_hl, allow_edit, 1) {
-            self.gb.lock().unwrap().cpu.reg.set_hl(v);
+          if let Some(v) = register_view(ui, "hl", reg.hl(), !self.gb.running, 1) {
+            reg.set_hl(v);
           }
         });
         ui.horizontal(|ui| {
-          if let Some(v) = register_view(ui, "sp", gb_reg_sp, allow_edit, 1) {
-            self.gb.lock().unwrap().cpu.reg.set_sp(v);
+          if let Some(v) = register_view(ui, "sp", reg.sp, !self.gb.running, 1) {
+            reg.set_sp(v);
           }
           ui.separator();
-          if let Some(v) = register_view(ui, "pc", gb_reg_pc, allow_edit, 1) {
-            self.gb.lock().unwrap().cpu.reg.set_pc(v);
+          if let Some(v) = register_view(ui, "pc", reg.pc, !self.gb.running, 1) {
+            reg.set_pc(v);
           }
         });
       });
@@ -391,7 +307,7 @@ impl Gui for GuiState {
       }
     });
 
-    if self.show_mem_view && !crashed {
+    if self.show_mem_view {
       egui::Window::new("Memory view").open(&mut self.show_mem_view).show(ui, |ui| {
         let height = ui.text_style_height(&egui::TextStyle::Monospace);
         ui.horizontal(|ui| {
@@ -405,19 +321,16 @@ impl Gui for GuiState {
         egui::ScrollArea::vertical().always_show_scroll(true).hscroll(false).vscroll(true).show_rows(ui, height, 0x1000,|ui, row_range| {
           let offset = (row_range.start as u16) << 4;
           let row_amount = row_range.end - row_range.start;
-          let (mem,  pc) = {
+          let mem = {
             let mem_needed = row_amount * 16;
             let mut mem = vec!();
             mem.reserve(0xff);
-            let gb = self.gb.lock().unwrap();
-            'mem_read: for addr in 0..mem_needed {
-              if (addr + offset as usize) > 0xFFFF {
-                break 'mem_read;
-              }
-              mem.push(gb.cpu.mmu.rb((addr as u16) + offset))
+            for addr in 0..mem_needed {
+              mem.push(self.gb.cpu.mmu.rb((addr as u16) + offset))
             }
-            (mem, gb.cpu.reg.pc)
+            mem
           };
+          let pc = self.gb.cpu.reg.pc;
           for row in 0..row_amount {
             let row_start = row << 4;
             ui.horizontal(|ui| {

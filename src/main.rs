@@ -54,9 +54,7 @@ fn main() {
     #[cfg(not(feature = "gui"))]
     panic!("No GUI support, use the --nogui (-n) flag or build {} with 'gui' feature", NAME.unwrap_or(""));
     #[cfg(feature = "gui")] {
-      let gb = Arc::new(Mutex::new(gb));
-      Gameboy::run_thread(&gb);
-      gui::GuiState::new(Arc::clone(&gb)).init();
+      gui::GuiState::new(gb).init();
     }
   }
 }

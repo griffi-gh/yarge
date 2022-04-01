@@ -3,12 +3,14 @@ pub mod consts;
 mod mmu;
 mod cpu;
 mod ppu;
-use consts::CYCLES_PER_FRAME;
+use consts::{CYCLES_PER_FRAME, FB_SIZE};
 pub use mmu::MMU;
 pub use cpu::CPU;
 pub use ppu::PPU;
 use std::{thread, sync::{Arc, Mutex}, error::Error};
 
+#[cfg(feature = "logging-file")]
+use std::fs::File;
 #[cfg(feature = "logging-file")]
 const LOG_PATH: &str = "./gameboy.log";
 
@@ -73,16 +75,19 @@ impl Default for ThreadInfo {
 pub struct Gameboy {
   pub running: bool,
   pub cpu: CPU,
-  #[cfg(feature = "logging-file")]
-  log_file: Option<std::fs::File>,
-  pub thread_info: Option<ThreadInfo>
+  #[cfg(feature = "logging-file")] 
+  log_file: Option<File>,
+  #[deprecated = "Use custom thread runners instead"] 
+  pub thread_info: Option<ThreadInfo>,
 }
 impl Gameboy {
   pub fn new() -> Self {
-    Self{
+    #[allow(deprecated)]
+    Self {
       running: true,
       cpu: CPU::new(),
-      #[cfg(feature = "logging-file")] log_file: None,
+      #[cfg(feature = "logging-file")]
+      log_file: None,
       thread_info: None,
     }
   }
@@ -133,12 +138,17 @@ impl Gameboy {
     self.running = true;
   }
 
-  pub fn _reset(&mut self) {
+  pub fn reset(&mut self) {
     //TODO better reset 
     self.cpu = CPU::new();
+    #[allow(deprecated)]
     if self.thread_info.is_some() {
       self.thread_info = Some(ThreadInfo::default());
     }
+  }
+
+  pub fn get_display_data(&self) -> [u8; FB_SIZE] {
+    self.cpu.mmu.ppu.display
   }
 
   #[cfg(feature = "logging")]
@@ -182,6 +192,9 @@ impl Gameboy {
   pub fn run(&mut self) -> Result<(), Box<dyn Error>> {
     loop { self.step()?; }
   }
+
+  #[deprecated = "Use custom thread runners instead"]
+  #[allow(deprecated)]
   pub fn run_thread(gb: &Arc<Mutex<Gameboy>>) -> thread::JoinHandle<()> { 
     println!("[ WARNING ] Gameboy::run_thread(&Arc<Mutex<Gameboy>>) is deprecated!");  
     let gb = Arc::clone(&*gb);
