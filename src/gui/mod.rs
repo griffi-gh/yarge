@@ -128,7 +128,7 @@ impl Gui for GuiState {
     }
 
     // HANDLE ERROR
-    /*if self.gb_result.is_err() {
+    if self.gb_result.is_err() {
       let str = self.gb_result.as_ref().unwrap_err().to_string();
       error_window(format!(
         "{} error", 
@@ -137,7 +137,7 @@ impl Gui for GuiState {
         str.as_str(), 
         "err_panel"
       );
-    }*/
+    }
 
     // MAIN WINDOW
     egui::Window::new(NAME.unwrap_or("debug")).show(ui, |ui| {  
