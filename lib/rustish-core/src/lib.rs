@@ -14,7 +14,7 @@ use consts::{CYCLES_PER_FRAME, FB_SIZE};
 #[cfg(feature = "logging-file")]
 use std::fs::File;
 #[cfg(feature = "logging-file")]
-const LOG_PATH: &str = "./gameboy.log";
+use consts::LOG_PATH;
 
 pub struct GameboyBuilder {
   gb: Gameboy,
