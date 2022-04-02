@@ -4,11 +4,12 @@ pub mod errors;
 mod mmu;
 mod cpu;
 mod ppu;
-use consts::{CYCLES_PER_FRAME, FB_SIZE};
 pub use mmu::MMU;
 pub use cpu::CPU;
 pub use ppu::PPU;
+use mmu::cartridge::RomHeader;
 use std::{thread, sync::{Arc, Mutex}, error::Error};
+use consts::{CYCLES_PER_FRAME, FB_SIZE};
 
 #[cfg(feature = "logging-file")]
 use std::fs::File;
@@ -111,16 +112,32 @@ impl Gameboy {
     }
   }
   
-  pub fn load_rom_file(&mut self, path: &str) -> Res<()> {
+  //Shorthands
+  #[inline] pub fn pause(&mut self) {
+    self.running = false;
+  }
+  #[inline] pub fn resume(&mut self) {
+    self.running = true;
+  }
+  #[inline] pub fn load_rom_file(&mut self, path: &str) -> Res<()> {
     self.cpu.mmu.load_file(path)
   }
-  pub fn load_rom(&mut self, data: &[u8]) -> Res<()> {
+  #[inline] pub fn load_rom(&mut self, data: &[u8]) -> Res<()> {
     self.cpu.mmu.load_rom(data)
   }
-  pub fn load_rom_no_mbc(&mut self, data: &[u8]) -> Res<()> {
+  #[inline] pub fn load_rom_no_mbc(&mut self, data: &[u8]) -> Res<()> {
     self.cpu.mmu.load_rom_no_mbc(data)
   }
-
+  #[inline] pub fn get_mbc_name(&self) -> &str {
+    self.cpu.mmu.mbc_type_name()
+  }
+  #[inline] pub fn get_mbc_type(&self) -> u8 {
+    self.cpu.mmu.mbc_index()
+  }
+  #[inline] pub fn get_rom_header(&self) -> RomHeader {
+    self.cpu.mmu.header()
+  }
+  
   pub fn skip_bootrom(&mut self) {
     if self.cpu.mmu.bios_disabled {
       panic!("Attempt to skip bios while not in bootrom");
@@ -135,19 +152,12 @@ impl Gameboy {
     self.cpu.mmu.bios_disabled = true;
   }
 
-  pub fn pause(&mut self) {
-    self.running = false;
-  }
-  pub fn resume(&mut self) {
-    self.running = true;
-  }
-
   pub fn reset(&mut self) {
-    //TODO better reset 
     self.cpu = CPU::new();
-    #[allow(deprecated)]
-    if self.thread_info.is_some() {
-      self.thread_info = Some(ThreadInfo::default());
+    #[allow(deprecated)] {
+      if self.thread_info.is_some() {
+        self.thread_info = Some(ThreadInfo::default());
+      }
     }
   }
 
@@ -178,9 +188,7 @@ impl Gameboy {
   }
 
   pub fn step(&mut self) -> Result<usize, Box<dyn Error>> {
-    if !self.running {
-      return Ok(0);
-    }
+    if !self.running { return Ok(0); }
     #[cfg(feature = "logging")] self.log_step();
     let cycles = self.cpu.step()?;
     Ok(cycles)

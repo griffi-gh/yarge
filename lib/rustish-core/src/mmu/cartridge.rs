@@ -1,10 +1,12 @@
 use std::error::Error;
+use std::fmt;
 use crate::Res;
 use crate::errors::{RomLoadError, InvalidMBCError};
 
 #[allow(unused_variables)]
 pub trait Cartridge {
   fn index(&self) -> u8;
+  fn name(&self) -> &str;
   fn read(&self, addr: u16) -> u8;
   fn write(&self, addr: u16, value: u8) {}
   fn read_eram(&self, addr: u16) -> u8 { 0xff }
@@ -13,14 +15,21 @@ pub trait Cartridge {
 }
 pub type DynCartridge = Box<(dyn Cartridge + Send)>;
 
-pub struct CartridgeNone { rom: [u8; 0x8000] }
+pub struct CartridgeNone {
+  index: u8,
+  rom: [u8; 0x8000],
+}
 impl CartridgeNone {
-  pub fn new() -> Self {
-    Self { rom: [0; 0x8000] }
+  pub fn new(index: u8) -> Self {
+    Self {
+      index,
+      rom: [0; 0x8000],
+    }
   }
 }
 impl Cartridge for CartridgeNone {
-  fn index(&self) -> u8 { 0 }
+  fn name(&self) -> &str { "MBC0" }
+  fn index(&self) -> u8 { self.index }
   fn load(&mut self, rom: &[u8]) -> Res<()> {
     if rom.len() != 0x8000 {
       return Err(
@@ -48,9 +57,14 @@ impl Cartridge for CartridgeNone {
   }
 }
 
-//TODO
+#[derive(Clone, Copy, Default, Debug)]
 pub struct RomHeader {
   pub cart_type: u8,
+}
+impl fmt::Display for RomHeader {
+  fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    write!(f, "MBC Type: {:#04X}", self.cart_type)
+  }
 }
 pub fn parse_header(rom: &[u8]) -> RomHeader {
   RomHeader {
@@ -59,7 +73,7 @@ pub fn parse_header(rom: &[u8]) -> RomHeader {
 }
 pub fn get_cartridge(cart_type: u8) -> Res<DynCartridge> {
   match cart_type {
-    0x00 => Ok(Box::new(CartridgeNone::new())),
+    0x00 => Ok(Box::new(CartridgeNone::new(cart_type))),
     _ => Err(Box::new(InvalidMBCError { mbc: cart_type }))
   }
 }

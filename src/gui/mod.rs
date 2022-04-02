@@ -317,6 +317,31 @@ impl Gui for GuiState {
           }
         });
       });
+
+      egui::CollapsingHeader::new(
+        "Cartridge"
+      ).show(ui, |ui| {
+        const H_SPACING: f32 = 10.;
+        const V_SPACING: f32 = 3.;
+        ui.label("MBC Type");
+        ui.horizontal(|ui| {
+          ui.add_space(H_SPACING);
+          ui.label(format!(
+            "{} (with index: {:#04X})",
+            self.gb.get_mbc_name(),
+            self.gb.get_mbc_type()
+          ));
+        });
+        ui.add_space(V_SPACING);
+        ui.label("ROM Header");
+        ui.horizontal(|ui| {
+          ui.add_space(H_SPACING);
+          ui.label(format!(
+            "{}", self.gb.get_rom_header()
+          ));
+        });
+      });
+
       ui.separator();
       {
         ui.label(format!("{} v.{} ({} build)",

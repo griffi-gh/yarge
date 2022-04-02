@@ -1,5 +1,6 @@
 pub mod cartridge;
-use cartridge::{DynCartridge, get_cartridge};
+use cartridge::{RomHeader, DynCartridge, get_cartridge};
+
 use super::PPU;
 use crate::{ Res, consts::BIOS };
 use std::fs;
@@ -8,6 +9,7 @@ pub struct MMU {
   pub ppu: PPU,
   pub bios_disabled: bool,
   cart: DynCartridge,
+  cart_header: RomHeader,
   wram: [u8; 0x2000],
   hram: [u8; 0x007F],
   //MAYBE include IE here?
@@ -15,11 +17,12 @@ pub struct MMU {
 impl MMU {
   pub fn new() -> Self {
     Self {
-      cart: get_cartridge(0).unwrap(),
+      ppu: PPU::new(),
       bios_disabled: false,
+      cart: get_cartridge(0).unwrap(),
+      cart_header: RomHeader::default(),
       wram: [0; 0x2000],
       hram: [0; 0x007F],
-      ppu: PPU::new(),
     }
   }
   
@@ -115,38 +118,42 @@ impl MMU {
     }
   }
 
-  #[inline]
-  pub fn rw(&self, addr: u16) -> u16 {
+  #[inline] pub fn rw(&self, addr: u16) -> u16 {
     self.rb(addr) as u16 | 
     ((self.rb(addr.wrapping_add(1)) as u16) << 8)
   }
-  #[inline]
-  pub fn ww(&mut self, addr: u16, value: u16) {
+  #[inline] pub fn ww(&mut self, addr: u16, value: u16) {
     self.wb(addr, (value & 0xFF) as u8);
     self.wb(addr.wrapping_add(1), (value >> 8) as u8);
-  }
-
-  pub fn load_rom_no_mbc(&mut self, data: &[u8]) -> Res<()> {
-    if self.cart.index() != 0 {
-      self.cart = cartridge::get_cartridge(0).unwrap();
-    }
-    self.cart.load(data)?;
-    Ok(())
-  }
-
-  pub fn load_rom(&mut self, data: &[u8]) -> Res<()> {
-    let header = cartridge::parse_header(data);
-    let cart_type = header.cart_type;
-    if self.cart.index() != cart_type {
-      self.cart = cartridge::get_cartridge(cart_type)?;
-    }
-    self.cart.load(data)?;
-    Ok(())
   }
 
   pub fn load_file(&mut self, path: &str) -> Res<()> {
     let data: &[u8] = &(fs::read(path)?)[..];
     self.load_rom(data)?;
     Ok(())
+  }
+  pub fn load_rom_no_mbc(&mut self, data: &[u8]) -> Res<()> {
+    self.cart_header = cartridge::parse_header(data);
+    self.cart = cartridge::get_cartridge(0).unwrap();
+    self.cart.load(data)?;
+    Ok(())
+  }
+  pub fn load_rom(&mut self, data: &[u8]) -> Res<()> {
+    let header = cartridge::parse_header(data);
+    let cart_type = header.cart_type;
+    self.cart_header = header;
+    self.cart = cartridge::get_cartridge(cart_type)?;
+    self.cart.load(data)?;
+    Ok(())
+  }
+
+  #[inline] pub fn mbc_type_name(&self) -> &str {
+    self.cart.name()
+  }
+  #[inline] pub fn mbc_index(&self) -> u8 {
+    self.cart.index()
+  }
+  #[inline] pub fn header(&self) -> RomHeader {
+    self.cart_header
   }
 }
