@@ -184,23 +184,6 @@ impl Gui for GuiState {
                 }
               );
             }
-            //ui.checkbox(&mut self.load_force_mbc, "Force MBC type");
-            /*ui.horizontal(|ui| {
-              ui.checkbox(&mut self.load_force_mbc, "Force MBC");
-              ui.add_enabled_ui(self.load_force_mbc, |ui| {
-                egui::ComboBox::new("SELECT_THINGY", "")
-                  .selected_text(format!("{}", MBC_TYPE_NAMES.get(&self.load_force_mbc_type).unwrap()))
-                  .width(ui.available_width())
-                  .show_ui(ui, |ui| {
-                    for v in MBC_TYPE_LIST {
-                      ui.selectable_value(
-                        &mut self.load_force_mbc_type, 
-                        v.0, v.1
-                      );
-                    }
-                  });
-              });
-            });*/
             ui.checkbox(&mut self.load_no_reset, "No reset");
             if clicked {
               ui.close_menu();
@@ -241,28 +224,9 @@ impl Gui for GuiState {
           });
         });
       });    
+
       // Control
-      ui.horizontal_wrapped(|ui| {
-        //ui.add_enabled_ui(!crashed, |ui| {
-        ui.checkbox(
-          &mut self.gb.running, 
-          "Running"
-        ).on_disabled_hover_text("Crashed");
-        /*
-        if gb_thread_info.is_some() {
-          let info = gb_thread_info.unwrap();
-          let elapsed = info.time.elapsed().as_secs_f64();
-          if gb_running {
-            ui.label(format!(
-              "~{} IPS", ((info.instrs as f64) / elapsed).round() as u64
-            ));
-            /*info.time = std::time::Instant::now();
-            info.instrs = 0;*/
-          } else {
-            ui.label(if crashed { "Crashed" } else { "Paused"});
-          }
-        } */
-      });
+      ui.checkbox(&mut self.gb.running, "Running");
 
       // Registers
       fn register_view(ui: &mut egui::Ui, name: &str, value: u16, allow_edit: bool, mul: u16) -> Option<u16> {
