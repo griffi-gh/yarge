@@ -39,7 +39,6 @@ impl GameboyBuilder {
     }
     return self;
   }
-  #[allow(dead_code)]
   pub fn load_rom(mut self, data: &[u8]) -> Res<Self> {
     (&mut self).gb.load_rom(data)?;
     return Ok(self);
@@ -62,7 +61,6 @@ pub struct Gameboy {
 }
 impl Gameboy {
   pub fn new() -> Self {
-    #[allow(deprecated)]
     Self {
       running: true,
       cpu: CPU::new(),

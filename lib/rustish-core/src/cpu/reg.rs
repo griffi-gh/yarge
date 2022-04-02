@@ -31,7 +31,6 @@ impl Registers {
     self.pc
   }
   #[inline(always)]
-  #[allow(dead_code)]
   pub fn dec_pc(&mut self, by: u16) -> u16 {
     self.pc = self.pc.wrapping_sub(by);
     self.pc
@@ -82,9 +81,7 @@ impl Registers {
   // 16-bit reg setters/getters, for compatability.
   #[inline(always)] pub fn set_sp(&mut self, val: u16) { self.sp = val; }
   #[inline(always)] pub fn sp(&self) -> u16 { self.sp }
-  #[allow(dead_code)]
   #[inline(always)] pub fn set_pc(&mut self, val: u16) { self.pc = val; }
-  #[allow(dead_code)]
   #[inline(always)] pub fn pc(&self) -> u16 { self.pc }
 
   // Flag register
@@ -111,7 +108,6 @@ impl Registers {
     self.set_f((self.f() & 0b11011111) | (v as u8) << 5);
   }
   #[inline(always)]
-  #[allow(dead_code)]
   pub fn set_f_c(&mut self, v: bool) {
     self.set_f((self.f() & 0b11101111) | (v as u8) << 4);
   }

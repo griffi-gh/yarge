@@ -90,11 +90,9 @@ impl OAMMemory {
     }
     Self { objects }
   }
-  #[allow(dead_code)]
   pub fn get(&self, i: u8) -> &OAMObject {
     &self.objects[i as usize]
   }
-  #[allow(dead_code)]
   pub fn get_mut(&mut self, i: u8) -> &mut OAMObject {
     &mut self.objects[i as usize]
   }
