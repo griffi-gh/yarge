@@ -9,7 +9,7 @@ pub use mmu::MMU;
 pub use cpu::CPU;
 pub use ppu::PPU;
 use mmu::cartridge::RomHeader;
-use std::{thread, sync::{Arc, Mutex}, error::Error};
+use std::error::Error;
 use consts::{CYCLES_PER_FRAME, FB_SIZE};
 
 #[cfg(feature = "logging-file")]
@@ -53,33 +53,12 @@ impl GameboyBuilder {
   pub fn build(self) -> Gameboy { self.gb }
 }
 
-#[derive(Clone)]
-#[deprecated]
-pub struct ThreadInfo {
-  pub instrs: u64,
-  pub time: std::time::Instant,
-  pub error: Option<String>
-}
-#[allow(deprecated)]
-impl Default for ThreadInfo {
-  fn default() -> Self {
-    Self {
-      instrs: 0,
-      time: std::time::Instant::now(),
-      error: None,
-    }
-  }
-}
-
 ///Gameboy emulator
-#[allow(deprecated)]
 pub struct Gameboy {
   pub running: bool,
   pub cpu: CPU,
   #[cfg(feature = "logging-file")] 
   log_file: Option<File>,
-  #[deprecated = "Use custom thread runners instead"] 
-  pub thread_info: Option<ThreadInfo>,
 }
 impl Gameboy {
   pub fn new() -> Self {
@@ -89,7 +68,6 @@ impl Gameboy {
       cpu: CPU::new(),
       #[cfg(feature = "logging-file")]
       log_file: None,
-      thread_info: None,
     }
   }
 
@@ -155,11 +133,6 @@ impl Gameboy {
 
   pub fn reset(&mut self) {
     self.cpu = CPU::new();
-    #[allow(deprecated)] {
-      if self.thread_info.is_some() {
-        self.thread_info = Some(ThreadInfo::default());
-      }
-    }
   }
 
   pub fn get_display_data(&self) -> [u8; FB_SIZE] {
@@ -207,46 +180,5 @@ impl Gameboy {
   }
   pub fn run(&mut self) -> Res<()> {
     loop { self.step()?; }
-  }
-
-  #[deprecated = "Use custom thread runners instead"]
-  #[allow(deprecated)]
-  pub fn run_thread(gb: &Arc<Mutex<Gameboy>>) -> thread::JoinHandle<()> { 
-    println!("[ WARNING ] Gameboy::run_thread(&Arc<Mutex<Gameboy>>) is deprecated!");  
-    let gb = Arc::clone(&*gb);
-    thread::spawn(move || {
-      use std::time;
-      let paused_sleep_duration = time::Duration::from_millis(100);
-      {
-        let mut gb = gb.lock().unwrap();
-        gb.thread_info = Some(ThreadInfo::default());
-      }
-      'main: loop {
-        let mut should_sleep = false;
-        {
-          let gb = gb.try_lock();
-          if let Ok(mut gb) = gb {
-            should_sleep = !gb.running;
-            if gb.thread_info.is_some() {
-              let stp_res = gb.step();
-              let info = gb.thread_info.as_mut().unwrap();
-              if stp_res.is_err() {
-                let error = stp_res.unwrap_err();
-                info.error = Some(error.to_string());
-                println!("Rustish Error: {}", error);
-                break 'main;
-              }
-              info.instrs += 1;
-            } else {
-              panic!("No thread_info but the thread is still running");
-            }
-          }
-        }
-        if should_sleep {
-          //Reduce CPU usage while paused
-          thread::sleep(paused_sleep_duration);
-        }
-      }
-    })
   }
 }
