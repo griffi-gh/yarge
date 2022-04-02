@@ -84,7 +84,6 @@ impl Fetcher {
         self.state = FetcherState::ReadTileDataHigh;
       },
       FetcherState::ReadTileDataHigh => {
-        let addr = get_addr(1);
         self.tile_data |= (vram[(get_addr(1) & VRAM_MAX) as usize] as u16) << 8;
         self.state = FetcherState::PushToFifo;
       },

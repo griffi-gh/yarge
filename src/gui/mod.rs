@@ -28,6 +28,8 @@ pub struct GuiState {
   gb: Gameboy,
   gb_result: Result<(), Box<dyn Error>>,
   show_mem_view: bool,
+  load_no_mbc: bool,
+  load_no_reset: bool,
 }
 impl GuiState {
   pub fn new(gb: Gameboy) -> Self {
@@ -35,6 +37,8 @@ impl GuiState {
       gb,
       gb_result: Ok(()),
       show_mem_view: false,
+      load_no_mbc: false,
+      load_no_reset: false,
     }
   }
   ///Warning: consumes self!
@@ -115,7 +119,7 @@ impl Gui for GuiState {
         ui.add_space(2.);
       });
     };
-    fn load_dialog(gb: &mut Gameboy) -> Result<bool, Box<dyn Error>> {
+    fn load_dialog(gb: &mut Gameboy, no_mbc: bool) -> Result<bool, Box<dyn Error>> {
       let files = FileDialog::new()
         .add_filter("Nintendo Gameboy ROM file", &["gb", "gbc"])
         .set_directory("/")
@@ -124,7 +128,11 @@ impl Gui for GuiState {
         let data = fs::read(files);
         if let Ok(data) = data {
           let data_ref = &data[..];
-          gb.load_rom(data_ref)?;
+          if no_mbc {
+            gb.load_rom_no_mbc(data_ref)?;
+          } else {
+            gb.load_rom(data_ref)?;
+          }
           return Ok(true);
         }
       }
@@ -147,20 +155,22 @@ impl Gui for GuiState {
     egui::Window::new(NAME.unwrap_or("debug")).show(ui, |ui| {  
       egui::menu::bar(ui, |ui| {
         ui.menu_button("File", |ui| {
-          if ui.button("Load ROM...").clicked() {
-            ui.close_menu();
-            reset(&mut self.gb);
-            match load_dialog(&mut self.gb) {
-              Err(err) => {
-                self.gb_result = Err(err);
-              },
-              _ => {}
+          ui.menu_button("Load ROM...", |ui| {
+            let clicked = ui.button("Load ROM...").clicked();
+            ui.separator();
+            ui.checkbox(&mut self.load_no_mbc, "No MBC support");
+            ui.checkbox(&mut self.load_no_reset, "No reset");
+            if clicked {
+              ui.close_menu();
+              let _ = load_dialog(&mut self.gb, self.load_no_mbc)
+                .map_err(|err| { println!("Load error: {err}"); });
+              if !self.load_no_reset {
+                reset(&mut self.gb);
+              }
+              self.load_no_mbc = false;
+              self.load_no_reset = false;
             }
-          }
-          if ui.button("Load ROM (No reset)...").clicked() {
-            ui.close_menu();
-            load_dialog(&mut self.gb).unwrap();
-          }
+          });
           if ui.button("Exit").clicked() {
             exit = true;
           }

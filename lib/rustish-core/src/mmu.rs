@@ -126,15 +126,24 @@ impl MMU {
     self.wb(addr.wrapping_add(1), (value >> 8) as u8);
   }
 
+  pub fn load_rom_no_mbc(&mut self, data: &[u8]) -> Res<()> {
+    if self.cart.index() != 0 {
+      self.cart = cartridge::get_cartridge(0).unwrap();
+    }
+    self.cart.load(data)?;
+    Ok(())
+  }
+
   pub fn load_rom(&mut self, data: &[u8]) -> Res<()> {
     let header = cartridge::parse_header(data);
     let cart_type = header.cart_type;
-    if cart_type != self.cart.index() {
+    if self.cart.index() != cart_type {
       self.cart = cartridge::get_cartridge(cart_type)?;
     }
     self.cart.load(data)?;
     Ok(())
   }
+
   pub fn load_file(&mut self, path: &str) -> Res<()> {
     let data: &[u8] = &(fs::read(path)?)[..];
     self.load_rom(data)?;

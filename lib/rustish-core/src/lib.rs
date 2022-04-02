@@ -110,12 +110,17 @@ impl Gameboy {
       )
     }
   }
+  
   pub fn load_rom_file(&mut self, path: &str) -> Res<()> {
     self.cpu.mmu.load_file(path)
   }
   pub fn load_rom(&mut self, data: &[u8]) -> Res<()> {
     self.cpu.mmu.load_rom(data)
   }
+  pub fn load_rom_no_mbc(&mut self, data: &[u8]) -> Res<()> {
+    self.cpu.mmu.load_rom_no_mbc(data)
+  }
+
   pub fn skip_bootrom(&mut self) {
     if self.cpu.mmu.bios_disabled {
       panic!("Attempt to skip bios while not in bootrom");
