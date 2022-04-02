@@ -161,19 +161,46 @@ impl Gui for GuiState {
             let clicked = ui.button("Load ROM...").clicked();
             ui.separator();
             ui.checkbox(&mut self.load_force_mbc, "Force MBC type");
-            ui.add_enabled_ui(self.load_force_mbc, |ui| {
-              egui::ComboBox::new("SELECT_THINGY", "")
-                .selected_text(format!("{}", MBC_TYPE_NAMES.get(&self.load_force_mbc_type).unwrap()))
-                .width(ui.available_width())
-                .show_ui(ui, |ui| {
-                  for v in MBC_TYPE_LIST {
-                    ui.selectable_value(
-                      &mut self.load_force_mbc_type, 
-                      v.0, v.1
-                    );
+            if self.load_force_mbc {
+              ui.menu_button(
+                format!(
+                  "\"{}\"",
+                  if self.load_force_mbc {
+                    MBC_TYPE_NAMES.get(&self.load_force_mbc_type).unwrap()
+                  } else {
+                    &"Disabled"
                   }
-                });
-            });
+                ), 
+                |ui| {
+                  ui.allocate_at_least(egui::Vec2::new(215.,0.), egui::Sense::hover());
+                  egui::ScrollArea::new([false, true]).max_height(150.).show(ui, |ui| {
+                    for v in MBC_TYPE_LIST {
+                      ui.radio_value(
+                        &mut self.load_force_mbc_type, 
+                        v.0, v.1
+                      );
+                    }
+                  });
+                }
+              );
+            }
+            //ui.checkbox(&mut self.load_force_mbc, "Force MBC type");
+            /*ui.horizontal(|ui| {
+              ui.checkbox(&mut self.load_force_mbc, "Force MBC");
+              ui.add_enabled_ui(self.load_force_mbc, |ui| {
+                egui::ComboBox::new("SELECT_THINGY", "")
+                  .selected_text(format!("{}", MBC_TYPE_NAMES.get(&self.load_force_mbc_type).unwrap()))
+                  .width(ui.available_width())
+                  .show_ui(ui, |ui| {
+                    for v in MBC_TYPE_LIST {
+                      ui.selectable_value(
+                        &mut self.load_force_mbc_type, 
+                        v.0, v.1
+                      );
+                    }
+                  });
+              });
+            });*/
             ui.checkbox(&mut self.load_no_reset, "No reset");
             if clicked {
               ui.close_menu();
