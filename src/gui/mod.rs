@@ -150,11 +150,16 @@ impl Gui for GuiState {
           if ui.button("Load ROM...").clicked() {
             ui.close_menu();
             reset(&mut self.gb);
-            load_dialog(&mut self.gb).unwrap(); // TODO <- Remove unwrap() (Load ROM...)
+            match load_dialog(&mut self.gb) {
+              Err(err) => {
+                self.gb_result = Err(err);
+              },
+              _ => {}
+            }
           }
           if ui.button("Load ROM (No reset)...").clicked() {
             ui.close_menu();
-            load_dialog(&mut self.gb).unwrap(); // TODO <- Remove unwrap() (Load ROM (No reset)...)
+            load_dialog(&mut self.gb).unwrap();
           }
           if ui.button("Exit").clicked() {
             exit = true;
@@ -227,7 +232,7 @@ impl Gui for GuiState {
             let w = egui::WidgetText::from("0000").into_galley(
                 ui, 
                 Some(false), 
-                f32::MAX, 
+                f32::INFINITY, 
                 text_style.clone()
               ).galley().size().x;
             let mut value_str = format!("{:X}", value).to_string();
@@ -320,12 +325,10 @@ impl Gui for GuiState {
         let height = ui.text_style_height(&egui::TextStyle::Monospace);
         ui.horizontal(|ui| {
           egui::Label::new(RichText::new("0000").monospace()).layout_in_ui(ui);
-          ui.separator();
           for i in 0..=0xF_u8 {
             ui.monospace(format!("+{:X}", i));
           }
         });
-        ui.separator();
         egui::ScrollArea::vertical().always_show_scroll(true).hscroll(false).vscroll(true).show_rows(ui, height, 0x1000,|ui, row_range| {
           let offset = (row_range.start as u16) << 4;
           let row_amount = row_range.end - row_range.start;
@@ -343,7 +346,6 @@ impl Gui for GuiState {
             let row_start = row << 4;
             ui.horizontal(|ui| {
               ui.monospace(format!("{:04X}", row_start + offset as usize));
-              ui.separator();
               for col in 0..16_u16 {
                 let addr_rel = col | row_start as u16;
                 let addr = addr_rel + offset;

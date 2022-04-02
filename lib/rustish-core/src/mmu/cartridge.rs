@@ -1,31 +1,15 @@
-use std::{fmt, fs, error::Error};
-
-#[derive(Debug, Clone)]
-pub struct RomLoadError {
-  reason: String
-}
-impl fmt::Display for RomLoadError {
-  fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-    write!(
-      f, "Failed to load ROM file, {}",
-      self.reason
-    )
-  }
-}
-impl Error for RomLoadError {}
+use std::error::Error;
+use crate::Res;
+use crate::errors::{RomLoadError, InvalidMBCError};
 
 #[allow(unused_variables)]
 pub trait Cartridge {
+  fn index(&self) -> u8;
   fn read(&self, addr: u16) -> u8;
   fn write(&self, addr: u16, value: u8) {}
   fn read_eram(&self, addr: u16) -> u8 { 0xff }
   fn write_eram(&self, addr: u16, value: u8) {}
   fn load(&mut self, data: &[u8]) -> Result<(), Box<dyn Error>>;
-  fn load_file(&mut self, path: &str) -> Result<(), Box<dyn Error>> {
-    let data: &[u8] = &(fs::read(path)?)[..];
-    self.load(data)?;
-    Ok(())
-  }
 }
 pub type DynCartridge = Box<(dyn Cartridge + Send)>;
 
@@ -36,7 +20,8 @@ impl CartridgeNone {
   }
 }
 impl Cartridge for CartridgeNone {
-  fn load(&mut self, rom: &[u8]) -> Result<(), Box<dyn Error>> {
+  fn index(&self) -> u8 { 0 }
+  fn load(&mut self, rom: &[u8]) -> Res<()> {
     if rom.len() != 0x8000 {
       return Err(
         Box::new(RomLoadError {
@@ -63,12 +48,18 @@ impl Cartridge for CartridgeNone {
   }
 }
 
-pub fn _parse_header(_rom: &[u8]) {
-  todo!(); // TODO parse_header()
+//TODO
+pub struct RomHeader {
+  pub cart_type: u8,
 }
-pub fn get_cartridge(cart_type: u8) -> DynCartridge {
+pub fn parse_header(rom: &[u8]) -> RomHeader {
+  RomHeader {
+    cart_type: rom[0x147]
+  }
+}
+pub fn get_cartridge(cart_type: u8) -> Res<DynCartridge> {
   match cart_type {
-    0x00 => Box::new(CartridgeNone::new()),
-    _ => panic!("Cartridge type not supported {:#04X}", cart_type)
+    0x00 => Ok(Box::new(CartridgeNone::new())),
+    _ => Err(Box::new(InvalidMBCError { mbc: cart_type }))
   }
 }

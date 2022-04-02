@@ -3,24 +3,8 @@ mod instructions;
 use instructions::*;
 pub use reg::Registers;
 use super::MMU;
-use std::{fmt, error::Error};
-
-#[derive(Debug, Clone)]
-pub struct InvalidInstrError {
-  is_cb: bool,
-  instr: u8,
-  addr: u16,
-}
-impl fmt::Display for InvalidInstrError {
-  fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-    write!(
-      f, "Invalid CPU instruction 0x{}{:02X} at {:#06X}",
-      if self.is_cb { "CB" } else { "" },
-      self.instr, self.addr
-    )
-  }
-}
-impl Error for InvalidInstrError {}
+use std::error::Error;
+use crate::errors::InvalidInstrError;
 
 #[derive(PartialEq)]
 pub enum CPUState {

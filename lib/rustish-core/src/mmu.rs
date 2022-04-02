@@ -1,12 +1,13 @@
 pub mod cartridge;
 use cartridge::{DynCartridge, get_cartridge};
 use super::PPU;
-use crate::consts::BIOS;
+use crate::{ Res, consts::BIOS };
+use std::fs;
 
 pub struct MMU {
   pub ppu: PPU,
-  pub cart: DynCartridge,
   pub bios_disabled: bool,
+  cart: DynCartridge,
   wram: [u8; 0x2000],
   hram: [u8; 0x007F],
   //MAYBE include IE here?
@@ -14,7 +15,7 @@ pub struct MMU {
 impl MMU {
   pub fn new() -> Self {
     Self {
-      cart: get_cartridge(0),
+      cart: get_cartridge(0).unwrap(),
       bios_disabled: false,
       wram: [0; 0x2000],
       hram: [0; 0x007F],
@@ -123,5 +124,20 @@ impl MMU {
   pub fn ww(&mut self, addr: u16, value: u16) {
     self.wb(addr, (value & 0xFF) as u8);
     self.wb(addr.wrapping_add(1), (value >> 8) as u8);
+  }
+
+  pub fn load_rom(&mut self, data: &[u8]) -> Res<()> {
+    let header = cartridge::parse_header(data);
+    let cart_type = header.cart_type;
+    if cart_type != self.cart.index() {
+      self.cart = cartridge::get_cartridge(cart_type)?;
+    }
+    self.cart.load(data)?;
+    Ok(())
+  }
+  pub fn load_file(&mut self, path: &str) -> Res<()> {
+    let data: &[u8] = &(fs::read(path)?)[..];
+    self.load_rom(data)?;
+    Ok(())
   }
 }

@@ -1,5 +1,6 @@
 #![forbid(unsafe_code)]
 pub mod consts;
+pub mod errors;
 mod mmu;
 mod cpu;
 mod ppu;
@@ -13,19 +14,6 @@ use std::{thread, sync::{Arc, Mutex}, error::Error};
 use std::fs::File;
 #[cfg(feature = "logging-file")]
 const LOG_PATH: &str = "./gameboy.log";
-
-/*#[derive(Debug)]
-pub enum GameboyError {
-  InvalidInstrError(cpu::InvalidInstrError),
-  RomLoadError(mmu::cartridge::RomLoadError),
-  Error(Box<dyn Error>)
-}
-impl fmt::Display for GameboyError {
-  fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-    write!(f, "{}", self)
-  }
-}
-impl Error for GameboyError {}*/
 
 pub struct GameboyBuilder {
   gb: Gameboy,
@@ -123,10 +111,10 @@ impl Gameboy {
     }
   }
   pub fn load_rom_file(&mut self, path: &str) -> Res<()> {
-    self.cpu.mmu.cart.load_file(path)
+    self.cpu.mmu.load_file(path)
   }
   pub fn load_rom(&mut self, data: &[u8]) -> Res<()> {
-    self.cpu.mmu.cart.load(data)
+    self.cpu.mmu.load_rom(data)
   }
   pub fn skip_bootrom(&mut self) {
     if self.cpu.mmu.bios_disabled {
