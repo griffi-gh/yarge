@@ -124,7 +124,7 @@ impl Gui for GuiState {
         let data = fs::read(files);
         if let Ok(data) = data {
           let data_ref = &data[..];
-          let load_result = gb.load_rom(data_ref)?;
+          gb.load_rom(data_ref)?;
           return Ok(true);
         }
       }

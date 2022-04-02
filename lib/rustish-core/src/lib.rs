@@ -14,10 +14,18 @@ use std::fs::File;
 #[cfg(feature = "logging-file")]
 const LOG_PATH: &str = "./gameboy.log";
 
-/*pub enum GameboyError {
+/*#[derive(Debug)]
+pub enum GameboyError {
   InvalidInstrError(cpu::InvalidInstrError),
   RomLoadError(mmu::cartridge::RomLoadError),
-}*/
+  Error(Box<dyn Error>)
+}
+impl fmt::Display for GameboyError {
+  fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    write!(f, "{}", self)
+  }
+}
+impl Error for GameboyError {}*/
 
 pub struct GameboyBuilder {
   gb: Gameboy,
