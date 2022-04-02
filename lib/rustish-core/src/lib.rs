@@ -14,15 +14,15 @@ use std::fs::File;
 #[cfg(feature = "logging-file")]
 const LOG_PATH: &str = "./gameboy.log";
 
-//TODO GameboyManager
-/*pub struct GameboyManager {
-  pub gb: Gameboy,
+/*pub enum GameboyError {
+  InvalidInstrError(cpu::InvalidInstrError),
+  RomLoadError(mmu::cartridge::RomLoadError),
 }*/
 
 pub struct GameboyBuilder {
   gb: Gameboy,
 }
-type Res<T> = Result<T, Box<dyn Error + 'static>>;
+type Res<T> = Result<T, Box<dyn Error>>;
 impl GameboyBuilder {
   pub fn new() -> Self {
     Self {
@@ -42,9 +42,9 @@ impl GameboyBuilder {
     return self;
   }
   #[allow(dead_code)]
-  pub fn load_rom(mut self, data: &[u8]) -> Self {
-    (&mut self).gb.load_rom(data);
-    return self;
+  pub fn load_rom(mut self, data: &[u8]) -> Res<Self> {
+    (&mut self).gb.load_rom(data)?;
+    return Ok(self);
   }
   pub fn load_rom_file(mut self, path: &str) -> Res<Self> {
     match (&mut self).gb.load_rom_file(path) {
@@ -56,11 +56,13 @@ impl GameboyBuilder {
 }
 
 #[derive(Clone)]
+#[deprecated]
 pub struct ThreadInfo {
   pub instrs: u64,
   pub time: std::time::Instant,
   pub error: Option<String>
 }
+#[allow(deprecated)]
 impl Default for ThreadInfo {
   fn default() -> Self {
     Self {
@@ -72,6 +74,7 @@ impl Default for ThreadInfo {
 }
 
 ///Gameboy emulator
+#[allow(deprecated)]
 pub struct Gameboy {
   pub running: bool,
   pub cpu: CPU,
@@ -114,8 +117,8 @@ impl Gameboy {
   pub fn load_rom_file(&mut self, path: &str) -> Res<()> {
     self.cpu.mmu.cart.load_file(path)
   }
-  pub fn load_rom(&mut self, data: &[u8]) {
-    self.cpu.mmu.cart.load(data);
+  pub fn load_rom(&mut self, data: &[u8]) -> Res<()> {
+    self.cpu.mmu.cart.load(data)
   }
   pub fn skip_bootrom(&mut self) {
     if self.cpu.mmu.bios_disabled {
@@ -182,7 +185,7 @@ impl Gameboy {
     Ok(cycles)
   }
 
-  pub fn run_for_frame(&mut self) -> Result<(), Box<dyn Error>> {
+  pub fn run_for_frame(&mut self) -> Res<()> {
     if !self.running {
       return Ok(());
     }
@@ -192,7 +195,7 @@ impl Gameboy {
     }
     Ok(())
   }
-  pub fn run(&mut self) -> Result<(), Box<dyn Error>> {
+  pub fn run(&mut self) -> Res<()> {
     loop { self.step()?; }
   }
 

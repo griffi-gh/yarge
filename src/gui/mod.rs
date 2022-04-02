@@ -27,7 +27,7 @@ const GB_PALETTE: [[u8; 4]; 4] = [
 pub struct GuiState {
   gb: Gameboy,
   gb_result: Result<(), Box<dyn Error>>,
-  show_mem_view: bool
+  show_mem_view: bool,
 }
 impl GuiState {
   pub fn new(gb: Gameboy) -> Self {
@@ -115,7 +115,7 @@ impl Gui for GuiState {
         ui.add_space(2.);
       });
     };
-    fn load_dialog(gb: &mut Gameboy) {
+    fn load_dialog(gb: &mut Gameboy) -> Result<bool, Box<dyn Error>> {
       let files = FileDialog::new()
         .add_filter("Nintendo Gameboy ROM file", &["gb", "gbc"])
         .set_directory("/")
@@ -124,9 +124,11 @@ impl Gui for GuiState {
         let data = fs::read(files);
         if let Ok(data) = data {
           let data_ref = &data[..];
-          gb.load_rom(data_ref);
+          let load_result = gb.load_rom(data_ref)?;
+          return Ok(true);
         }
       }
+      Ok(false)
     }
 
     // HANDLE ERROR
@@ -148,11 +150,11 @@ impl Gui for GuiState {
           if ui.button("Load ROM...").clicked() {
             ui.close_menu();
             reset(&mut self.gb);
-            load_dialog(&mut self.gb);
+            load_dialog(&mut self.gb).unwrap(); // TODO <- Remove unwrap() (Load ROM...)
           }
           if ui.button("Load ROM (No reset)...").clicked() {
             ui.close_menu();
-            load_dialog(&mut self.gb);
+            load_dialog(&mut self.gb).unwrap(); // TODO <- Remove unwrap() (Load ROM (No reset)...)
           }
           if ui.button("Exit").clicked() {
             exit = true;

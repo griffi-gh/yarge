@@ -30,10 +30,10 @@ impl Default for FetcherState {
 }
 
 #[derive(Clone, Copy, PartialEq)]
+#[repr(u8)]
 pub enum FetcherLayer {
   Background, Window
 }
-
 
 pub struct Fetcher {
   cycle: bool,

@@ -1,4 +1,18 @@
-use std::{fs, error::Error};
+use std::{fmt, fs, error::Error};
+
+#[derive(Debug, Clone)]
+pub struct RomLoadError {
+  reason: String
+}
+impl fmt::Display for RomLoadError {
+  fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    write!(
+      f, "Failed to load ROM file, {}",
+      self.reason
+    )
+  }
+}
+impl Error for RomLoadError {}
 
 #[allow(unused_variables)]
 pub trait Cartridge {
@@ -6,10 +20,10 @@ pub trait Cartridge {
   fn write(&self, addr: u16, value: u8) {}
   fn read_eram(&self, addr: u16) -> u8 { 0xff }
   fn write_eram(&self, addr: u16, value: u8) {}
-  fn load(&mut self, data: &[u8]) {}
-  fn load_file(&mut self, path: &str) -> Result<(), Box<dyn Error + 'static>> {
+  fn load(&mut self, data: &[u8]) -> Result<(), Box<dyn Error>>;
+  fn load_file(&mut self, path: &str) -> Result<(), Box<dyn Error>> {
     let data: &[u8] = &(fs::read(path)?)[..];
-    self.load(data);
+    self.load(data)?;
     Ok(())
   }
 }
@@ -22,16 +36,21 @@ impl CartridgeNone {
   }
 }
 impl Cartridge for CartridgeNone {
-  fn load(&mut self, rom: &[u8]) {
+  fn load(&mut self, rom: &[u8]) -> Result<(), Box<dyn Error>> {
     if rom.len() != 0x8000 {
-      panic!(
-        "Invalid ROM size: {:#X}.\nPlease note that that MBC cartridges (games larger then 32kb) are not supported yet",
-        rom.len()
+      return Err(
+        Box::new(RomLoadError {
+          reason: format!(
+            "Invalid ROM size: {:#X}.\nPlease note that that MBC cartridges (games larger then 32kb) are not supported yet",
+            rom.len()
+          )
+        })
       );
     }
     for (place, data) in self.rom.iter_mut().zip(rom.iter()) {
       *place = *data;
     }
+    Ok(())
   }
   #[inline(always)]
   fn read(&self, addr: u16) -> u8 {
