@@ -132,9 +132,9 @@ impl MMU {
     self.load_rom(data)?;
     Ok(())
   }
-  pub fn load_rom_no_mbc(&mut self, data: &[u8]) -> Res<()> {
+  pub fn load_rom_force_mbc(&mut self, data: &[u8], mbc_type: u8) -> Res<()> {
     self.cart_header = cartridge::parse_header(data);
-    self.cart = cartridge::get_cartridge(0).unwrap();
+    self.cart = cartridge::get_cartridge(mbc_type).unwrap();
     self.cart.load(data)?;
     Ok(())
   }

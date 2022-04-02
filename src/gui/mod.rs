@@ -13,6 +13,7 @@ mod error_words;
 use error_words::WORDS as ERROR_WORDS;
 use ahash::AHasher;
 use rfd::FileDialog;
+use super::gb::mmu::cartridge::{MBC_TYPE_LIST, MBC_TYPE_NAMES};
 
 const WIDTH: u32 = 160;
 const HEIGHT: u32 = 144;
@@ -28,7 +29,8 @@ pub struct GuiState {
   gb: Gameboy,
   gb_result: Result<(), Box<dyn Error>>,
   show_mem_view: bool,
-  load_no_mbc: bool,
+  load_force_mbc: bool,
+  load_force_mbc_type: u8,
   load_no_reset: bool,
 }
 impl GuiState {
@@ -37,7 +39,8 @@ impl GuiState {
       gb,
       gb_result: Ok(()),
       show_mem_view: false,
-      load_no_mbc: false,
+      load_force_mbc: false,
+      load_force_mbc_type: 0,
       load_no_reset: false,
     }
   }
@@ -119,7 +122,7 @@ impl Gui for GuiState {
         ui.add_space(2.);
       });
     };
-    fn load_dialog(gb: &mut Gameboy, no_mbc: bool) -> Result<bool, Box<dyn Error>> {
+    fn load_dialog(gb: &mut Gameboy, force_mbc: Option<u8>) -> Result<bool, Box<dyn Error>> {
       let files = FileDialog::new()
         .add_filter("Nintendo Gameboy ROM file", &["gb", "gbc"])
         .set_directory("/")
@@ -128,10 +131,9 @@ impl Gui for GuiState {
         let data = fs::read(files);
         if let Ok(data) = data {
           let data_ref = &data[..];
-          if no_mbc {
-            gb.load_rom_no_mbc(data_ref)?;
-          } else {
-            gb.load_rom(data_ref)?;
+          match force_mbc {
+            Some(x) => { gb.load_rom_force_mbc(data_ref, x)?; },
+            None => { gb.load_rom(data_ref)?; }
           }
           return Ok(true);
         }
@@ -158,17 +160,33 @@ impl Gui for GuiState {
           ui.menu_button("Load ROM...", |ui| {
             let clicked = ui.button("Load ROM...").clicked();
             ui.separator();
-            ui.checkbox(&mut self.load_no_mbc, "No MBC support");
+            ui.checkbox(&mut self.load_force_mbc, "Force MBC type");
+            ui.add_enabled_ui(self.load_force_mbc, |ui| {
+              egui::ComboBox::new("SELECT_THINGY", "")
+                .selected_text(format!("{}", MBC_TYPE_NAMES.get(&self.load_force_mbc_type).unwrap()))
+                .width(ui.available_width())
+                .show_ui(ui, |ui| {
+                  for v in MBC_TYPE_LIST {
+                    ui.selectable_value(
+                      &mut self.load_force_mbc_type, 
+                      v.0, v.1
+                    );
+                  }
+                });
+            });
             ui.checkbox(&mut self.load_no_reset, "No reset");
             if clicked {
               ui.close_menu();
               if !self.load_no_reset {
                 reset(&mut self.gb);
               }
-              let _ = load_dialog(&mut self.gb, self.load_no_mbc)
+              let opt = match self.load_force_mbc {
+                true => Some(self.load_force_mbc_type),
+                false => None
+              };
+              //TODO
+              let _ = load_dialog(&mut self.gb, opt)
                 .map_err(|err| { println!("Load error: {err}"); });
-              self.load_no_mbc = false;
-              self.load_no_reset = false;
             }
           });
           if ui.button("Exit").clicked() {

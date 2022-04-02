@@ -1,9 +1,10 @@
 #![forbid(unsafe_code)]
+#[macro_use] extern crate lazy_static;
 pub mod consts;
 pub mod errors;
-mod mmu;
-mod cpu;
-mod ppu;
+pub mod mmu;
+pub mod cpu;
+pub mod ppu;
 pub use mmu::MMU;
 pub use cpu::CPU;
 pub use ppu::PPU;
@@ -125,8 +126,8 @@ impl Gameboy {
   #[inline] pub fn load_rom(&mut self, data: &[u8]) -> Res<()> {
     self.cpu.mmu.load_rom(data)
   }
-  #[inline] pub fn load_rom_no_mbc(&mut self, data: &[u8]) -> Res<()> {
-    self.cpu.mmu.load_rom_no_mbc(data)
+  #[inline] pub fn load_rom_force_mbc(&mut self, data: &[u8], mbc_type: u8) -> Res<()> {
+    self.cpu.mmu.load_rom_force_mbc(data, mbc_type)
   }
   #[inline] pub fn get_mbc_name(&self) -> &str {
     self.cpu.mmu.mbc_type_name()

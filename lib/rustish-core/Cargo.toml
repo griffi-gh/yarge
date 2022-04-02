@@ -11,6 +11,7 @@ codegen-units = 1
 [dependencies]
 paste = "1.0"
 arraydeque = "0.4.5"
+lazy_static = "1.4.0"
 
 [features]
 default = []
