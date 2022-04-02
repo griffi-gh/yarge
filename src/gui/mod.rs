@@ -162,11 +162,11 @@ impl Gui for GuiState {
             ui.checkbox(&mut self.load_no_reset, "No reset");
             if clicked {
               ui.close_menu();
-              let _ = load_dialog(&mut self.gb, self.load_no_mbc)
-                .map_err(|err| { println!("Load error: {err}"); });
               if !self.load_no_reset {
                 reset(&mut self.gb);
               }
+              let _ = load_dialog(&mut self.gb, self.load_no_mbc)
+                .map_err(|err| { println!("Load error: {err}"); });
               self.load_no_mbc = false;
               self.load_no_reset = false;
             }
