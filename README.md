@@ -1,8 +1,8 @@
 <div>
-  <img alt="logo" src="https://i.ibb.co/Yks0vdb/image.png" border="0" width="92.1" height="92.1" align="right">
+  <img alt="logo" src="https://raw.githubusercontent.com/griffi-gh/rustish/master/.assets/logo.png" border="0" width="92.1" height="92.1" align="right">
   <!--HEADER-->
   <h1 align="center">
-    <img alt="rustish" src="https://i.ibb.co/j8BLphf/path56284.png" border="0" height="24">
+    <img alt="rustish" src="https://raw.githubusercontent.com/griffi-gh/rustish/master/.assets/rustish-2.png" border="0" height="24">
   </h1>
   <!--BADGES-->
   <div align="center">
