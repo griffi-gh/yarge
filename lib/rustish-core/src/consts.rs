@@ -23,5 +23,47 @@ pub const BIOS: [u8; 0x100] = [
   0x21, 0x04, 0x01, 0x11, 0xA8, 0x00, 0x1A, 0x13, 0xBE, 0x20, 0xFE, 0x23, 0x7D, 0xFE, 0x34, 0x20,
   0xF5, 0x06, 0x19, 0x78, 0x86, 0x23, 0x05, 0x20, 0xFB, 0x86, 0x20, 0xFE, 0x3E, 0x01, 0xE0, 0x50
 ];
+pub const MBC_TYPE_LIST: &'static[(u8, &'static str)] = &[
+  (0x00, "ROM ONLY"),
+  (0x01, "MBC1"),
+  (0x02, "MBC1+RAM"),
+  (0x03, "MBC1+RAM+BATTERY"),
+  (0x05, "MBC2"),
+  (0x06, "MBC2+BATTERY"),
+  (0x08, "ROM+RAM 1"),
+  (0x09, "ROM+RAM+BATTERY 1"),
+  (0x0B, "MMM01"),
+  (0x0C, "MMM01+RAM"),
+  (0x0D, "MMM01+RAM+BATTERY"),
+  (0x0F, "MBC3+TIMER+BATTERY"),
+  (0x10, "MBC3+TIMER+RAM+BATTERY 2"),
+  (0x11, "MBC3"),
+  (0x12, "MBC3+RAM 2"),
+  (0x13, "MBC3+RAM+BATTERY 2"),
+  (0x19, "MBC5"),
+  (0x1A, "MBC5+RAM"),
+  (0x1B, "MBC5+RAM+BATTERY"),
+  (0x1C, "MBC5+RUMBLE"),
+  (0x1D, "MBC5+RUMBLE+RAM"),
+  (0x1E, "MBC5+RUMBLE+RAM+BATTERY"),
+  (0x20, "MBC6"),
+  (0x22, "MBC7+SENSOR+RUMBLE+RAM+BATTERY"),
+  (0xFC, "POCKET CAMERA"),
+  (0xFD, "BANDAI TAMA5"),
+  (0xFE, "HuC3"),
+  (0xFF, "HuC1+RAM+BATTERY"),
+];
 #[cfg(feature = "logging-file")]
 pub const LOG_PATH: &str = "./gameboy.log";
+
+//static
+
+use std::collections::HashMap;
+lazy_static! {
+  pub static ref MBC_TYPE_NAMES: HashMap<u8, &'static str> = {
+    let mut map = HashMap::new();
+    for v in MBC_TYPE_LIST { map.insert(v.0, v.1); }
+    map.shrink_to_fit();
+    map
+  };
+}

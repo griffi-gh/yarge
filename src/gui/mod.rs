@@ -13,7 +13,7 @@ mod error_words;
 use error_words::WORDS as ERROR_WORDS;
 use ahash::AHasher;
 use rfd::FileDialog;
-use super::gb::mmu::cartridge::{MBC_TYPE_LIST, MBC_TYPE_NAMES};
+use super::gb::consts::{MBC_TYPE_LIST, MBC_TYPE_NAMES};
 
 const WIDTH: u32 = 160;
 const HEIGHT: u32 = 144;

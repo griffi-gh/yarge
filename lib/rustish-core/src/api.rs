@@ -5,8 +5,8 @@ use super::{
 };
 
 impl Gameboy {
-  #[inline] pub fn get_display_data(&self) -> [u8; FB_SIZE] {
-    self.cpu.mmu.ppu.display
+  #[inline] pub fn get_display_data(&self) -> &[u8; FB_SIZE] {
+    &self.cpu.mmu.ppu.display
   }
 
   #[inline] pub fn read_mem(&self, addr: u16) -> u8 {

@@ -1,16 +1,21 @@
 #![forbid(unsafe_code)]
 #[macro_use] extern crate lazy_static;
-pub mod consts;
-pub mod errors;
-pub mod mmu;
-pub mod cpu;
-pub mod ppu;
-pub use mmu::MMU;
-pub use cpu::CPU;
-pub use ppu::PPU;
+
 use std::error::Error;
 use consts::CYCLES_PER_FRAME;
+
+pub mod consts;
+pub(crate) mod errors;
+pub(crate) mod mmu;
+pub(crate) mod cpu;
+pub(crate) mod ppu;
+
+pub(crate) use mmu::MMU;
+pub(crate) use cpu::CPU;
+pub(crate) use ppu::PPU;
+
 mod api;
+pub use api::*;
 
 #[cfg(feature = "logging-file")]
 use std::fs::File;
