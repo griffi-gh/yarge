@@ -1,5 +1,5 @@
 <div>
-  <img alt="logo" src="https://raw.githubusercontent.com/griffi-gh/rustish/master/.assets/ish.png" border="0" width="92.1" height="92.1" align="right">
+  <img alt="logo" src="https://raw.githubusercontent.com/griffi-gh/rustish/master/.assets/ish.png" border="0" width="92" height="92" align="left">
   <!--HEADER-->
   <h1 align="center">
     <b>rust<i>ish</i></b>
