@@ -1,7 +1,7 @@
 <!--HEADER-->
 <h1 align="center">
-  <span><b>rust<i>ish</i></b><span>
-  <img src="https://i.ibb.co/Yks0vdb/image.png" alt="logo" border="0" width="92.1" height="92.1" align="right">
+  <img alt="rustish" src="https://i.ibb.co/j8BLphf/path56284.png" border="0" height="24">
+  <img alt="logo" src="https://i.ibb.co/Yks0vdb/image.png" border="0" width="92.1" height="92.1" align="right">
 </h1>
 <!--BADGES-->
 <div align="center">
