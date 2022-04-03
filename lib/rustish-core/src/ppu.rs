@@ -60,16 +60,16 @@ impl PPU {
     //TODO ppu.tick()
     match self.mode { 
       PPUMode::HBlank => {
-
+        self.mode = PPUMode::VBlank;
       },
       PPUMode::VBlank => {
-
+        self.mode = PPUMode::OamSearch;
       },
       PPUMode::OamSearch => {
-
+        self.mode = PPUMode::PxTransfer;
       },
       PPUMode::PxTransfer => {
-        
+        self.mode = PPUMode::HBlank;
       }
     }
   }
