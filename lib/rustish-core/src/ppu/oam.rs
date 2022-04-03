@@ -78,9 +78,9 @@ impl PartialEq for OAMObject {
 }
 impl Eq for OAMObject {}
 
-#[derive(Clone)]
+#[derive(Clone, Copy)]
 pub struct OAMMemory {
-  pub objects: [OAMObject; 40],
+  objects: [OAMObject; 40],
 }
 impl OAMMemory {
   pub fn new() -> Self {
@@ -90,7 +90,10 @@ impl OAMMemory {
     }
     Self { objects }
   }
-  pub fn get(&self, i: u8) -> &OAMObject {
+  pub fn get(&self, i: u8) -> OAMObject {
+    self.objects[i as usize]
+  }
+  pub fn get_ref(&self, i: u8) -> &OAMObject {
     &self.objects[i as usize]
   }
   pub fn get_mut(&mut self, i: u8) -> &mut OAMObject {

@@ -208,7 +208,7 @@ impl Gui for GuiState {
             ui.close_menu();
             reset(&mut self.gb);
           }
-          ui.add_enabled_ui(!self.gb.cpu.mmu.bios_disabled, |ui| { 
+          ui.add_enabled_ui(!self.gb.get_bios_disabled(), |ui| { 
             if ui.button("Skip bootrom").clicked() {
               ui.close_menu();
               self.gb.skip_bootrom();
@@ -296,33 +296,32 @@ impl Gui for GuiState {
       egui::CollapsingHeader::new(
         "Registers"
       ).default_open(true).show(ui, |ui| {
-        let reg = &mut self.gb.cpu.reg;
         ui.horizontal(|ui| {
-          if let Some(v) = register_view(ui, "af", reg.af(), !self.gb.running, 0x10) {
+          if let Some(v) = register_view(ui, "af", self.gb.get_reg_af(), !self.gb.running, 0x10) {
             let v = if v <= 0xF { v << 4 } else { v };
-            reg.set_af(v);
+            self.gb.set_reg_af(v);
           }
           ui.separator();
-          if let Some(v) = register_view(ui, "bc", reg.bc(), !self.gb.running, 1) {
-            reg.set_bc(v);
+          if let Some(v) = register_view(ui, "bc", self.gb.get_reg_bc(), !self.gb.running, 1) {
+            self.gb.set_reg_bc(v);
           }
         });
         ui.horizontal(|ui| {
-          if let Some(v) = register_view(ui, "de", reg.de(), !self.gb.running, 1) {
-            reg.set_de(v);
+          if let Some(v) = register_view(ui, "de", self.gb.get_reg_de(), !self.gb.running, 1) {
+            self.gb.set_reg_de(v);
           }
           ui.separator();
-          if let Some(v) = register_view(ui, "hl", reg.hl(), !self.gb.running, 1) {
-            reg.set_hl(v);
+          if let Some(v) = register_view(ui, "hl", self.gb.get_reg_hl(), !self.gb.running, 1) {
+            self.gb.set_reg_hl(v);
           }
         });
         ui.horizontal(|ui| {
-          if let Some(v) = register_view(ui, "sp", reg.sp, !self.gb.running, 1) {
-            reg.set_sp(v);
+          if let Some(v) = register_view(ui, "sp", self.gb.get_reg_sp(), !self.gb.running, 1) {
+            self.gb.set_reg_sp(v);
           }
           ui.separator();
-          if let Some(v) = register_view(ui, "pc", reg.pc, !self.gb.running, 1) {
-            reg.set_pc(v);
+          if let Some(v) = register_view(ui, "pc", self.gb.get_reg_pc(), !self.gb.running, 1) {
+            self.gb.set_reg_pc(v);
           }
         });
       });
@@ -376,16 +375,17 @@ impl Gui for GuiState {
         egui::ScrollArea::vertical().always_show_scroll(true).hscroll(false).vscroll(true).show_rows(ui, height, 0x1000,|ui, row_range| {
           let offset = (row_range.start as u16) << 4;
           let row_amount = row_range.end - row_range.start;
+          //TODO GET RID OF THIS
           let mem = {
             let mem_needed = row_amount * 16;
             let mut mem = vec!();
             mem.reserve(0xff);
             for addr in 0..mem_needed {
-              mem.push(self.gb.cpu.mmu.rb(addr as u16 + offset))
+              mem.push(self.gb.read_mem(addr as u16 + offset))
             }
             mem
           };
-          let pc = self.gb.cpu.reg.pc;
+          let pc = self.gb.get_reg_pc();
           for row in 0..row_amount {
             let row_start = row << 4;
             ui.horizontal(|ui| {

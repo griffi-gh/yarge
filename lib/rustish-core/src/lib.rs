@@ -8,9 +8,9 @@ pub mod ppu;
 pub use mmu::MMU;
 pub use cpu::CPU;
 pub use ppu::PPU;
-use mmu::cartridge::RomHeader;
 use std::error::Error;
-use consts::{CYCLES_PER_FRAME, FB_SIZE};
+use consts::CYCLES_PER_FRAME;
+mod api;
 
 #[cfg(feature = "logging-file")]
 use std::fs::File;
@@ -55,7 +55,7 @@ impl GameboyBuilder {
 ///Gameboy emulator
 pub struct Gameboy {
   pub running: bool,
-  pub cpu: CPU,
+  cpu: CPU,
   #[cfg(feature = "logging-file")] 
   log_file: Option<File>,
 }
@@ -89,32 +89,6 @@ impl Gameboy {
     }
   }
   
-  //Shorthands
-  #[inline] pub fn pause(&mut self) {
-    self.running = false;
-  }
-  #[inline] pub fn resume(&mut self) {
-    self.running = true;
-  }
-  #[inline] pub fn load_rom_file(&mut self, path: &str) -> Res<()> {
-    self.cpu.mmu.load_file(path)
-  }
-  #[inline] pub fn load_rom(&mut self, data: &[u8]) -> Res<()> {
-    self.cpu.mmu.load_rom(data)
-  }
-  #[inline] pub fn load_rom_force_mbc(&mut self, data: &[u8], mbc_type: u8) -> Res<()> {
-    self.cpu.mmu.load_rom_force_mbc(data, mbc_type)
-  }
-  #[inline] pub fn get_mbc_name(&self) -> &str {
-    self.cpu.mmu.mbc_type_name()
-  }
-  #[inline] pub fn get_mbc_type(&self) -> u8 {
-    self.cpu.mmu.mbc_index()
-  }
-  #[inline] pub fn get_rom_header(&self) -> RomHeader {
-    self.cpu.mmu.header()
-  }
-  
   pub fn skip_bootrom(&mut self) {
     if self.cpu.mmu.bios_disabled {
       panic!("Attempt to skip bios while not in bootrom");
@@ -129,12 +103,15 @@ impl Gameboy {
     self.cpu.mmu.bios_disabled = true;
   }
 
+  #[inline] pub fn pause(&mut self) {
+    self.running = false;
+  }
+  #[inline] pub fn resume(&mut self) {
+    self.running = true;
+  }
+  
   pub fn reset(&mut self) {
     self.cpu = CPU::new();
-  }
-
-  pub fn get_display_data(&self) -> [u8; FB_SIZE] {
-    self.cpu.mmu.ppu.display
   }
 
   #[cfg(feature = "logging")]
