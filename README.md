@@ -16,10 +16,10 @@
       <img alt="build" src="https://shields.io/github/workflow/status/griffi-gh/rustish/Build" border="0">
     </a>
     <a href="https://nightly.link/griffi-gh/rustish/workflows/build/master/release-win64.zip">
-      <img alt="download win64" src="https://img.shields.io/badge/binary-win64-blue" border="0">
+      <img alt="build win64" src="https://img.shields.io/badge/build-win64-blue" border="0">
     </a>
     <a href="https://nightly.link/griffi-gh/rustish/workflows/build/master/release-lin64.zip">
-      <img alt="download win32" src="https://img.shields.io/badge/binary-lin64-blue" border="0">
+      <img alt="build win32" src="https://img.shields.io/badge/build-lin64-blue" border="0">
     </a>
   </div>
 </div>
