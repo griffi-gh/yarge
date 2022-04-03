@@ -4,6 +4,7 @@ on:
   push:
     branches: [ master ]
     paths:
+    - 'build.yml'
     - 'src/**'
     - '*.rs'
     - '*.toml'
