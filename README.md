@@ -2,7 +2,7 @@
   <img alt="logo" src="https://raw.githubusercontent.com/griffi-gh/rustish/master/.assets/logo.png" border="0" width="92.1" height="92.1" align="right">
   <!--HEADER-->
   <h1 align="center">
-    <img alt="rustish" src="https://raw.githubusercontent.com/griffi-gh/rustish/master/.assets/rustish-2.png" border="0" height="24">
+    <img alt="rustish" src="https://raw.githubusercontent.com/griffi-gh/rustish/master/.assets/rustish.png" border="0" height="24">
   </h1>
   <!--BADGES-->
   <div align="center">
