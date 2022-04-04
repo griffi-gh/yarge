@@ -22,7 +22,6 @@ TITLE
     <img alt="build win32" src="https://img.shields.io/badge/build-lin64-blue" border="0">
   </a>
 </div>
-<hr>
 <i>
   TODO:
 </i>
