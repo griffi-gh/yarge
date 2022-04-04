@@ -8,12 +8,17 @@ use std::{
   error::Error,
   hash::Hasher as _,
 };
-use super::{gb::Gameboy, NAME, VERSION}; 
+use crate::{
+  gb::consts::{MBC_TYPE_LIST, MBC_TYPE_NAMES},
+  gb::Gameboy,
+  NAME,
+  VERSION,
+  GITHUB_REPO,
+}; 
 mod error_words;
 use error_words::WORDS as ERROR_WORDS;
 use ahash::AHasher;
 use rfd::FileDialog;
-use super::gb::consts::{MBC_TYPE_LIST, MBC_TYPE_NAMES};
 
 const WIDTH: u32 = 160;
 const HEIGHT: u32 = 144;
@@ -351,7 +356,7 @@ impl Gui for GuiState {
       });
 
       ui.separator();
-      {
+      ui.horizontal(|ui| {
         ui.label(format!("{} v.{} ({} build)",
           NAME.unwrap_or("<name?>"),
           VERSION.unwrap_or("<version?>"),
@@ -360,7 +365,16 @@ impl Gui for GuiState {
             #[cfg(debug_assertions)]      { "debug" }
           }
         ));
-      }
+        const TEXT: &str = "GitHub";
+        let link_width = egui::WidgetText::from(TEXT).into_galley(
+          ui, 
+          Some(false), 
+          f32::INFINITY,
+          TextStyle::Monospace
+        ).galley().size().x;
+        ui.add_space(ui.available_width() - link_width - 1.);
+        ui.hyperlink_to("GitHub", GITHUB_REPO);
+      });
     });
 
     if self.show_mem_view {

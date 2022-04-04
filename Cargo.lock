@@ -569,15 +569,16 @@ dependencies = [
 
 [[package]]
 name = "dark-light"
-version = "0.2.1"
+version = "0.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0a76de8354e3935082b341ac29aeff1d05dd14eab64d67ffce4c2f6af06cdb2b"
+checksum = "5b83576e2eee2d9cdaa8d08812ae59cbfe1b5ac7ac5ac4b8400303c6148a88c1"
 dependencies = [
  "dconf_rs",
  "detect-desktop-environment",
  "dirs",
  "objc",
  "rust-ini",
+ "web-sys",
  "winreg",
  "zbus",
  "zvariant",
