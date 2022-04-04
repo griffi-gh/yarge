@@ -1,9 +1,9 @@
 <!--LOGO-->
-<img alt="logo" src=".assets/yarge.svg" border="0" width="92" height="92" align="right">
-<!--TITLE-->
-<h1 align="center">
+<img alt="logo" src=".assets/yarge.svg" border="0" width="75" height="75" align="right"><!--
+TITLE
+--><h2 align="center">
   yarge - <b>y</b>et <b>a</b>nother <b>r</b>ust <b>g</b>ameboy <b>e</b>mulator<br>
-</h1>
+</h2>
 <!--BADGES-->
 <div align="center">
   <a href="https://github.com/griffi-gh/yarge/blob/master/LICENSE">
@@ -22,7 +22,7 @@
     <img alt="build win32" src="https://img.shields.io/badge/build-lin64-blue" border="0">
   </a>
 </div>
-
+<hr>
 <i>
   TODO:
 </i>
