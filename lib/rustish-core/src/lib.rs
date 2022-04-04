@@ -153,7 +153,7 @@ impl Gameboy {
       return Ok(());
     }
     let mut t = 0;
-    while t < CYCLES_PER_FRAME {
+    while t <= CYCLES_PER_FRAME {
       t += self.step()?;
     }
     Ok(())

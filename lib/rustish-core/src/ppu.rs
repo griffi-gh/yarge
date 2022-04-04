@@ -57,7 +57,6 @@ impl PPU {
   
   pub fn tick(&mut self) {
     self.bg_fetcher.tick(&self.lcdc, &self.vram);
-    //TODO ppu.tick()
     match self.mode { 
       PPUMode::HBlank => {
         self.mode = PPUMode::VBlank;
