@@ -1,5 +1,5 @@
 [package]
-name = "yarge-gb"
+name = "yarge"
 authors = ["griffi-gh <prasol258@gmail.com>"]
 version = "0.0.0"
 publish = false

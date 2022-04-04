@@ -7,15 +7,15 @@
       {
           "type": "lldb",
           "request": "launch",
-          "name": "Debug executable 'yarge-gb'",
+          "name": "Debug executable 'yarge'",
           "cargo": {
               "args": [
                   "build",
-                  "--bin=yarge-gb",
-                  "--package=yarge-gb"
+                  "--bin=yarge",
+                  "--package=yarge"
               ],
               "filter": {
-                  "name": "yarge-gb",
+                  "name": "yarge",
                   "kind": "bin"
               }
           },
@@ -25,16 +25,16 @@
       {
           "type": "lldb",
           "request": "launch",
-          "name": "Debug unit tests in executable 'yarge-gb'",
+          "name": "Debug unit tests in executable 'yarge'",
           "cargo": {
               "args": [
                   "test",
                   "--no-run",
-                  "--bin=yarge-gb",
-                  "--package=yarge-gb"
+                  "--bin=yarge",
+                  "--package=yarge"
               ],
               "filter": {
-                  "name": "yarge-gb",
+                  "name": "yarge",
                   "kind": "bin"
               }
           },
