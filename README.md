@@ -1,9 +1,10 @@
-<!--LOGO-->
-<img alt="logo" src=".assets/yarge.svg" border="0" width="75" height="75" align="right"><!--
-TITLE
---><h2 align="center">
-  yarge - <b>y</b>et <b>a</b>nother <b>r</b>ust <b>g</b>ameboy <b>e</b>mulator<br>
-</h2>
+<!--BADGES-->
+<div>
+  <img alt="logo" src=".assets/yarge.svg" border="0" width="64" height="64" align="left">
+  <h2 align="center">
+    yarge - <b>y</b>et <b>a</b>nother <b>r</b>ust <b>g</b>ameboy <b>e</b>mulator
+  </h2>
+</div>
 <!--BADGES-->
 <div align="center">
   <a href="https://github.com/griffi-gh/yarge/blob/master/LICENSE">
