@@ -15,13 +15,13 @@ pub struct Registers {
 
 impl Registers {
   pub fn new() -> Self {
-      Self {
-          af: U16Union::default(),
-          bc: U16Union::default(),
-          de: U16Union::default(),
-          hl: U16Union::default(),
-          pc: 0, sp: 0,
-      }
+    Self {
+      af: U16Union::default(),
+      bc: U16Union::default(),
+      de: U16Union::default(),
+      hl: U16Union::default(),
+      pc: 0, sp: 0,
+    }
   }
 
   //Inc/Dec
