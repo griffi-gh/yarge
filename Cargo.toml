@@ -1,5 +1,5 @@
 [package]
-name = "rustish-gb"
+name = "yarge-gb"
 authors = ["griffi-gh <prasol258@gmail.com>"]
 version = "0.0.0"
 publish = false
@@ -14,16 +14,16 @@ ahash = { version = "0.7.6", optional = true }
 rfd = { version = "0.8.1", optional = true } 
 clap = { version = "3.1", features = ["derive"] }
 framework = { path = "lib/framework", optional = true }
-rustish-core = { path = "lib/rustish-core" }
+yarge-core = { path = "lib/yarge-core" }
 
 [features]
 default = ["gui", "ly-stub"]
 gui = ["framework", "rfd", "ahash"]
-ly-stub = ["rustish-core/ly-stub"]
-logging = ["rustish-core/logging"]
-logging-file = ["logging", "rustish-core/logging-file"]
-logging-stdout = ["logging", "rustish-core/logging-stdout"]
-logging-all = ["logging-file", "logging-stdout", "rustish-core/logging-all"]
+ly-stub = ["yarge-core/ly-stub"]
+logging = ["yarge-core/logging"]
+logging-file = ["logging", "yarge-core/logging-file"]
+logging-stdout = ["logging", "yarge-core/logging-stdout"]
+logging-all = ["logging-file", "logging-stdout", "yarge-core/logging-all"]
 
 #[dev-dependencies]
 #bencher = "0.1.5"

@@ -1891,27 +1891,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "08d43f7aa6b08d49f382cde6a7982047c3426db949b1424bc4b7ec9ae12c6ce2"
 
 [[package]]
-name = "rustish-core"
-version = "0.0.0"
-dependencies = [
- "arraydeque",
- "lazy_static",
- "paste",
-]
-
-[[package]]
-name = "rustish-gb"
-version = "0.0.0"
-dependencies = [
- "ahash 0.7.6",
- "build-time",
- "clap",
- "framework",
- "rfd",
- "rustish-core",
-]
-
-[[package]]
 name = "safe_arch"
 version = "0.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2738,6 +2717,27 @@ name = "xml-rs"
 version = "0.8.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d2d7d3948613f75c98fd9328cfdcc45acc4d360655289d0a7d4ec931392200a3"
+
+[[package]]
+name = "yarge-core"
+version = "0.0.0"
+dependencies = [
+ "arraydeque",
+ "lazy_static",
+ "paste",
+]
+
+[[package]]
+name = "yarge-gb"
+version = "0.0.0"
+dependencies = [
+ "ahash 0.7.6",
+ "build-time",
+ "clap",
+ "framework",
+ "rfd",
+ "yarge-core",
+]
 
 [[package]]
 name = "zbus"

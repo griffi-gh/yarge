@@ -1,4 +1,4 @@
-pub(crate) use rustish_core as gb;
+pub(crate) use yarge_core as gb;
 use gb::GameboyBuilder;
 use clap::Parser;
 use build_time::build_time_local;

@@ -7,15 +7,15 @@
       {
           "type": "lldb",
           "request": "launch",
-          "name": "Debug executable 'rustish-gb'",
+          "name": "Debug executable 'yarge-gb'",
           "cargo": {
               "args": [
                   "build",
-                  "--bin=rustish-gb",
-                  "--package=rustish-gb"
+                  "--bin=yarge-gb",
+                  "--package=yarge-gb"
               ],
               "filter": {
-                  "name": "rustish-gb",
+                  "name": "yarge-gb",
                   "kind": "bin"
               }
           },
@@ -25,16 +25,16 @@
       {
           "type": "lldb",
           "request": "launch",
-          "name": "Debug unit tests in executable 'rustish-gb'",
+          "name": "Debug unit tests in executable 'yarge-gb'",
           "cargo": {
               "args": [
                   "test",
                   "--no-run",
-                  "--bin=rustish-gb",
-                  "--package=rustish-gb"
+                  "--bin=yarge-gb",
+                  "--package=yarge-gb"
               ],
               "filter": {
-                  "name": "rustish-gb",
+                  "name": "yarge-gb",
                   "kind": "bin"
               }
           },
