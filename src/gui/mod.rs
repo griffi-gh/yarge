@@ -1,3 +1,4 @@
+use yarge_gui_framework as framework;
 use framework::{
   egui, InitProperties,
   Gui, Dimensions as Dim
@@ -370,9 +371,9 @@ impl Gui for GuiState {
           ui, 
           Some(false), 
           f32::INFINITY,
-          TextStyle::Monospace
+          TextStyle::Body
         ).galley().size().x;
-        ui.add_space(ui.available_width() - link_width - 1.);
+        ui.add_space(ui.available_width() - link_width);
         ui.hyperlink_to("GitHub", GITHUB_REPO);
       });
     });

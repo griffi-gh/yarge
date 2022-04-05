@@ -827,18 +827,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "framework"
-version = "0.0.0"
-dependencies = [
- "egui",
- "egui-winit",
- "egui_wgpu_backend",
- "pixels",
- "winit",
- "winit_input_helper",
-]
-
-[[package]]
 name = "futures-core"
 version = "0.3.21"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2726,9 +2714,9 @@ dependencies = [
  "ahash 0.7.6",
  "build-time",
  "clap",
- "framework",
  "rfd",
  "yarge-core",
+ "yarge-gui-framework",
 ]
 
 [[package]]
@@ -2738,6 +2726,18 @@ dependencies = [
  "arraydeque",
  "lazy_static",
  "paste",
+]
+
+[[package]]
+name = "yarge-gui-framework"
+version = "0.0.0"
+dependencies = [
+ "egui",
+ "egui-winit",
+ "egui_wgpu_backend",
+ "pixels",
+ "winit",
+ "winit_input_helper",
 ]
 
 [[package]]

@@ -9,16 +9,16 @@ edition = "2021"
 codegen-units = 1
 
 [dependencies]
-build-time = "0.1.1"
+yarge-core = { path = "lib/yarge-core" }
+yarge-gui-framework = { path = "lib/yarge-gui-framework", optional = true }
 ahash = { version = "0.7.6", optional = true }
 rfd = { version = "0.8.1", optional = true } 
+build-time = "0.1.1"
 clap = { version = "3.1", features = ["derive"] }
-framework = { path = "lib/framework", optional = true }
-yarge-core = { path = "lib/yarge-core" }
 
 [features]
 default = ["gui", "ly-stub"]
-gui = ["framework", "rfd", "ahash"]
+gui = ["yarge-gui-framework", "rfd", "ahash"]
 ly-stub = ["yarge-core/ly-stub"]
 logging = ["yarge-core/logging"]
 logging-file = ["logging", "yarge-core/logging-file"]
