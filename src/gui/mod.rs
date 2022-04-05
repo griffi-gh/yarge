@@ -289,13 +289,13 @@ impl Gui for GuiState {
             ui.monospace(format!("{:04X}", value))
               .on_hover_text(format!("{}\nPause emulation to change", details));
           }
-        });
-        ui.add_enabled_ui(allow_edit, |ui| {
-          if ui.button(
-            RichText::new("+").monospace()
-          ).on_hover_text(format!("+{:#X}", mul)).clicked() {
-            ret = Some(value.wrapping_add(mul));
-          }
+          ui.add_enabled_ui(allow_edit, |ui| {
+            if ui.button(
+              RichText::new("+").monospace()
+            ).on_hover_text(format!("+{:#X}", mul)).clicked() {
+              ret = Some(value.wrapping_add(mul));
+            }
+          });
         });
         ret
       }
@@ -305,41 +305,29 @@ impl Gui for GuiState {
         "Registers"
       ).default_open(true).show(ui, |ui| {
         egui::Grid::new("register_layout").striped(true).show(ui, |ui| {
-          ui.horizontal(|ui| {
-            if let Some(v) = register_view(ui, "af", self.gb.get_reg_af(), !self.gb.running, 0x10) {
-              let v = if v <= 0xF { v << 4 } else { v };
-              self.gb.set_reg_af(v);
-            }
-          });
-          ui.horizontal(|ui| {
-            if let Some(v) = register_view(ui, "bc", self.gb.get_reg_bc(), !self.gb.running, 1) {
-              self.gb.set_reg_bc(v);
-            }
-          });
+          if let Some(v) = register_view(ui, "af", self.gb.get_reg_af(), !self.gb.running, 0x10) {
+            let v = if v <= 0xF { v << 4 } else { v };
+            self.gb.set_reg_af(v);
+          }
+          if let Some(v) = register_view(ui, "bc", self.gb.get_reg_bc(), !self.gb.running, 1) {
+            self.gb.set_reg_bc(v);
+          }
           ui.end_row();
 
-          ui.horizontal(|ui| {
-            if let Some(v) = register_view(ui, "de", self.gb.get_reg_de(), !self.gb.running, 1) {
-              self.gb.set_reg_de(v);
-            }
-          });
-          ui.horizontal(|ui| {
-            if let Some(v) = register_view(ui, "hl", self.gb.get_reg_hl(), !self.gb.running, 1) {
-              self.gb.set_reg_hl(v);
-            }
-          });
+          if let Some(v) = register_view(ui, "de", self.gb.get_reg_de(), !self.gb.running, 1) {
+            self.gb.set_reg_de(v);
+          }
+          if let Some(v) = register_view(ui, "hl", self.gb.get_reg_hl(), !self.gb.running, 1) {
+            self.gb.set_reg_hl(v);
+          }
           ui.end_row();
 
-          ui.horizontal(|ui| {
-            if let Some(v) = register_view(ui, "sp", self.gb.get_reg_sp(), !self.gb.running, 1) {
-              self.gb.set_reg_sp(v);
-            }
-          });
-          ui.horizontal(|ui| {
-            if let Some(v) = register_view(ui, "pc", self.gb.get_reg_pc(), !self.gb.running, 1) {
-              self.gb.set_reg_pc(v);
-            }
-          });
+          if let Some(v) = register_view(ui, "sp", self.gb.get_reg_sp(), !self.gb.running, 1) {
+            self.gb.set_reg_sp(v);
+          }
+          if let Some(v) = register_view(ui, "pc", self.gb.get_reg_pc(), !self.gb.running, 1) {
+            self.gb.set_reg_pc(v);
+          }
           ui.end_row();
         });
       });
