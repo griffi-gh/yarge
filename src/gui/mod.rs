@@ -234,7 +234,7 @@ impl Gui for GuiState {
       // Control
       ui.checkbox(&mut self.gb.running, "Running");
 
-      // Registers
+      // Register view
       fn register_view(ui: &mut egui::Ui, name: &str, value: u16, allow_edit: bool, mul: u16) -> Option<u16> {
         let mut ret = None;
         ui.horizontal(|ui| {
@@ -299,39 +299,52 @@ impl Gui for GuiState {
         });
         ret
       }
+
+      //REGISTERS
       egui::CollapsingHeader::new(
         "Registers"
       ).default_open(true).show(ui, |ui| {
-        ui.horizontal(|ui| {
-          if let Some(v) = register_view(ui, "af", self.gb.get_reg_af(), !self.gb.running, 0x10) {
-            let v = if v <= 0xF { v << 4 } else { v };
-            self.gb.set_reg_af(v);
-          }
-          ui.separator();
-          if let Some(v) = register_view(ui, "bc", self.gb.get_reg_bc(), !self.gb.running, 1) {
-            self.gb.set_reg_bc(v);
-          }
-        });
-        ui.horizontal(|ui| {
-          if let Some(v) = register_view(ui, "de", self.gb.get_reg_de(), !self.gb.running, 1) {
-            self.gb.set_reg_de(v);
-          }
-          ui.separator();
-          if let Some(v) = register_view(ui, "hl", self.gb.get_reg_hl(), !self.gb.running, 1) {
-            self.gb.set_reg_hl(v);
-          }
-        });
-        ui.horizontal(|ui| {
-          if let Some(v) = register_view(ui, "sp", self.gb.get_reg_sp(), !self.gb.running, 1) {
-            self.gb.set_reg_sp(v);
-          }
-          ui.separator();
-          if let Some(v) = register_view(ui, "pc", self.gb.get_reg_pc(), !self.gb.running, 1) {
-            self.gb.set_reg_pc(v);
-          }
+        egui::Grid::new("register_layout").striped(true).show(ui, |ui| {
+          ui.horizontal(|ui| {
+            if let Some(v) = register_view(ui, "af", self.gb.get_reg_af(), !self.gb.running, 0x10) {
+              let v = if v <= 0xF { v << 4 } else { v };
+              self.gb.set_reg_af(v);
+            }
+          });
+          ui.horizontal(|ui| {
+            if let Some(v) = register_view(ui, "bc", self.gb.get_reg_bc(), !self.gb.running, 1) {
+              self.gb.set_reg_bc(v);
+            }
+          });
+          ui.end_row();
+
+          ui.horizontal(|ui| {
+            if let Some(v) = register_view(ui, "de", self.gb.get_reg_de(), !self.gb.running, 1) {
+              self.gb.set_reg_de(v);
+            }
+          });
+          ui.horizontal(|ui| {
+            if let Some(v) = register_view(ui, "hl", self.gb.get_reg_hl(), !self.gb.running, 1) {
+              self.gb.set_reg_hl(v);
+            }
+          });
+          ui.end_row();
+
+          ui.horizontal(|ui| {
+            if let Some(v) = register_view(ui, "sp", self.gb.get_reg_sp(), !self.gb.running, 1) {
+              self.gb.set_reg_sp(v);
+            }
+          });
+          ui.horizontal(|ui| {
+            if let Some(v) = register_view(ui, "pc", self.gb.get_reg_pc(), !self.gb.running, 1) {
+              self.gb.set_reg_pc(v);
+            }
+          });
+          ui.end_row();
         });
       });
 
+      //CARTRIDGE INFO
       egui::CollapsingHeader::new(
         "Cartridge"
       ).show(ui, |ui| {
@@ -357,6 +370,8 @@ impl Gui for GuiState {
       });
 
       ui.separator();
+
+      //FOOTER
       ui.horizontal(|ui| {
         ui.label(format!("{} v.{} ({} build)",
           NAME.unwrap_or("<name?>"),
@@ -373,11 +388,12 @@ impl Gui for GuiState {
           f32::INFINITY,
           TextStyle::Body
         ).galley().size().x;
-        ui.add_space(ui.available_width() - link_width);
+        ui.add_space((ui.available_width() - link_width).max(0.));
         ui.hyperlink_to("GitHub", GITHUB_REPO);
       });
     });
 
+    //MEMORY VIEW WINDOW
     if self.show_mem_view {
       egui::Window::new("Memory view").open(&mut self.show_mem_view).show(ui, |ui| {
         let height = ui.text_style_height(&egui::TextStyle::Monospace);
