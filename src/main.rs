@@ -1,5 +1,5 @@
 pub(crate) use yarge_core as gb;
-use gb::GameboyBuilder;
+use gb::Gameboy;
 use clap::Parser;
 use build_time::build_time_local;
 
@@ -23,21 +23,35 @@ struct Args {
 
 fn main() {
   let args = Args::parse();
-  let rom_path = args.path;
+  let Args { 
+    path: rom_path, 
+    nogui, 
+    skip_bootrom,
+  } = args;
+
   println!(
     "[ {} v.{} (built on {}) ]",
     NAME.unwrap_or("<name?>"),
     VERSION.unwrap_or("<version?>"),
     BUILD_TIME
   );
-  let mut gb = GameboyBuilder::new()
-    .init(true)
-    .skip_bootrom(args.skip_bootrom)
-    .build();
-  if args.nogui {
+
+  #[cfg(not(feature = "gui"))]
+  if !nogui {
+    panic!("No GUI support, use the --nogui (-n) flag or build {} with 'gui' feature", NAME.unwrap_or(""));
+  }
+  
+  let mut gb = Gameboy::new();
+  gb.init();
+  if skip_bootrom {
+    gb.skip_bootrom();
+  }
+
+  if nogui {
     gb.load_rom_file(
       rom_path.expect("No ROM path specified").as_str()
     ).expect("Failed to load the ROM file");
+    gb.run().unwrap();
   } else {
     gb.pause();
     if let Some(rom_path) = rom_path {
@@ -46,16 +60,8 @@ fn main() {
       ).expect("Failed to load the ROM file");
       gb.resume();
     }
-  }
-  
-  if args.nogui {
-    gb.run().unwrap();
-  } else {
-    #[cfg(not(feature = "gui"))]
-    panic!("No GUI support, use the --nogui (-n) flag or build {} with 'gui' feature", NAME.unwrap_or(""));
-    #[cfg(feature = "gui")] {
+   #[cfg(feature = "gui")] {
       gui::GuiState::new(gb).init();
     }
   }
 }
- 

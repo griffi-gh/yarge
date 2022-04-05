@@ -2,6 +2,7 @@ use std::error::Error;
 use std::fmt;
 use crate::Res;
 use crate::errors::{RomLoadError, InvalidMBCError};
+use arrayvec::ArrayString;
 
 #[allow(unused_variables)]
 pub trait Cartridge {
@@ -57,23 +58,41 @@ impl Cartridge for CartridgeNone {
   }
 }
 
-#[derive(Clone, Copy, Default, Debug)]
-pub struct RomHeader {
-  pub cart_type: u8,
-}
-impl fmt::Display for RomHeader {
-  fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-    write!(f, "MBC Type: {:#04X}", self.cart_type)
-  }
-}
-pub fn parse_header(rom: &[u8]) -> RomHeader {
-  RomHeader {
-    cart_type: rom[0x147]
-  }
-}
 pub fn get_cartridge(cart_type: u8) -> Res<DynCartridge> {
   match cart_type {
     0x00 => Ok(Box::new(CartridgeNone::new(cart_type))),
     _ => Err(Box::new(InvalidMBCError { mbc: cart_type }))
+  }
+}
+
+#[derive(Clone, Copy, Default, Debug)]
+pub struct RomHeader {
+  pub name: ArrayString<16>,
+  pub mbc_type: u8,
+}
+impl RomHeader {
+  pub fn parse(rom: &[u8]) -> Self {
+    Self {
+      mbc_type: rom[0x147],
+      name: {
+        let mut str = ArrayString::<16>::new();
+        for addr in 0x134..=0x143_usize {
+          let byte = rom[addr];
+          if byte == 0 {
+            break;
+          } else {
+            str.push(char::from_u32(byte as u32).unwrap());
+          }
+        }
+        str
+      }
+    }
+  }
+}
+impl fmt::Display for RomHeader {
+  fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+    let mbc_type = self.mbc_type;
+    let name = &self.name[..];
+    write!(formatter, "Name: {name}\nMBC Type: {mbc_type:#04X}")
   }
 }

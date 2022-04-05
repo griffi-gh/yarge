@@ -2724,6 +2724,7 @@ name = "yarge-core"
 version = "0.0.0"
 dependencies = [
  "arraydeque",
+ "arrayvec",
  "lazy_static",
  "paste",
 ]

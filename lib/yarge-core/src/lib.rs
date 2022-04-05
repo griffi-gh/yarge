@@ -1,61 +1,26 @@
 #![forbid(unsafe_code)]
 #[macro_use] extern crate lazy_static;
 
-use std::error::Error;
-use consts::CYCLES_PER_FRAME;
-
-pub mod consts;
-pub(crate) mod errors;
 pub(crate) mod mmu;
 pub(crate) mod cpu;
 pub(crate) mod ppu;
-
 pub(crate) use mmu::MMU;
 pub(crate) use cpu::CPU;
 pub(crate) use ppu::PPU;
-
+pub mod errors;
+pub mod consts;
 mod api;
 pub use api::*;
+
+use std::error::Error;
+use consts::CYCLES_PER_FRAME;
 
 #[cfg(feature = "logging-file")]
 use std::fs::File;
 #[cfg(feature = "logging-file")]
 use consts::LOG_PATH;
 
-pub struct GameboyBuilder {
-  gb: Gameboy,
-}
-type Res<T> = Result<T, Box<dyn Error>>;
-impl GameboyBuilder {
-  pub fn new() -> Self {
-    Self {
-      gb: Gameboy::new(),
-    }
-  }
-  pub fn init(mut self, cond: bool) -> Self {
-    if cond {
-      (&mut self).gb.init();
-    }
-    return self;
-  }
-  pub fn skip_bootrom(mut self, cond: bool) -> Self {
-    if cond {
-      (&mut self).gb.skip_bootrom();
-    }
-    return self;
-  }
-  pub fn load_rom(mut self, data: &[u8]) -> Res<Self> {
-    (&mut self).gb.load_rom(data)?;
-    return Ok(self);
-  }
-  pub fn load_rom_file(mut self, path: &str) -> Res<Self> {
-    match (&mut self).gb.load_rom_file(path) {
-      Ok(()) => Ok(self),
-      Err(e) => Err(e)
-    }
-  }
-  pub fn build(self) -> Gameboy { self.gb }
-}
+pub(crate) type Res<T> = Result<T, Box<dyn Error>>;
 
 ///Gameboy emulator
 pub struct Gameboy {
