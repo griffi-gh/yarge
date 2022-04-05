@@ -126,10 +126,13 @@ impl MMU {
     self.wb(addr, (value & 0xFF) as u8);
     self.wb(addr.wrapping_add(1), (value >> 8) as u8);
   }
-
-  pub fn load_file(&mut self, path: &str) -> Res<()> {
-    let data: &[u8] = &(fs::read(path)?)[..];
-    self.load_rom(data)?;
+  
+  pub fn load_rom(&mut self, data: &[u8]) -> Res<()> {
+    let header = cartridge::parse_header(data);
+    let cart_type = header.cart_type;
+    self.cart_header = header;
+    self.cart = cartridge::get_cartridge(cart_type)?;
+    self.cart.load(data)?;
     Ok(())
   }
   pub fn load_rom_force_mbc(&mut self, data: &[u8], mbc_type: u8) -> Res<()> {
@@ -138,12 +141,14 @@ impl MMU {
     self.cart.load(data)?;
     Ok(())
   }
-  pub fn load_rom(&mut self, data: &[u8]) -> Res<()> {
-    let header = cartridge::parse_header(data);
-    let cart_type = header.cart_type;
-    self.cart_header = header;
-    self.cart = cartridge::get_cartridge(cart_type)?;
-    self.cart.load(data)?;
+  pub fn load_file(&mut self, path: &str) -> Res<()> {
+    let data: &[u8] = &(fs::read(path)?)[..];
+    self.load_rom(data)?;
+    Ok(())
+  }
+  pub fn load_file_force_mbc(&mut self, path: &str, mbc_type: u8) -> Res<()> {
+    let data: &[u8] = &(fs::read(path)?)[..];
+    self.load_rom_force_mbc(data, mbc_type)?;
     Ok(())
   }
 

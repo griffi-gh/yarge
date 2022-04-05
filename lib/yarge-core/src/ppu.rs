@@ -20,6 +20,7 @@ impl PPU {
     Self {
       display: {
         let mut display = [0; FB_SIZE];
+        //fill display with fancy-ass pattern
         for i in 0..FB_SIZE {
           display[i] = (((i + (i / WIDTH)) & 1) as u8) * (1 + (i % 3) as u8);
         }

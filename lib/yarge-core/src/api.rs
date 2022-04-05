@@ -1,3 +1,5 @@
+/// This module exposes some getters/setters
+
 use super::{
   Gameboy, Res,
   mmu::cartridge::RomHeader,
@@ -16,14 +18,24 @@ impl Gameboy {
     self.cpu.mmu.wb(addr, val);
   }
 
-  #[inline] pub fn load_rom_file(&mut self, path: &str) -> Res<()> {
-    self.cpu.mmu.load_file(path)
+  #[inline] pub fn read_mem_word(&self, addr: u16) -> u16 {
+    self.cpu.mmu.rw(addr)
   }
+  #[inline] pub fn write_mem_word(&mut self, addr: u16, val: u16) {
+    self.cpu.mmu.ww(addr, val);
+  }
+
   #[inline] pub fn load_rom(&mut self, data: &[u8]) -> Res<()> {
     self.cpu.mmu.load_rom(data)
   }
   #[inline] pub fn load_rom_force_mbc(&mut self, data: &[u8], mbc_type: u8) -> Res<()> {
     self.cpu.mmu.load_rom_force_mbc(data, mbc_type)
+  }
+  #[inline] pub fn load_rom_file(&mut self, path: &str) -> Res<()> {
+    self.cpu.mmu.load_file(path)
+  }
+  #[inline] pub fn load_rom_file_force_mbc(&mut self, path: &str, mbc_type: u8) -> Res<()> {
+    self.cpu.mmu.load_file_force_mbc(path, mbc_type)
   }
 
   #[inline] pub fn get_mbc_name(&self) -> &str {
