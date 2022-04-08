@@ -3,8 +3,8 @@ use super::ppu_registers::LCDC;
 use crate::consts::{TILE_WIDTH, VRAM_SIZE, VRAM_MAX};
 
 #[derive(Default)]
-struct FifoPixel {
-  color: u8,
+pub struct FifoPixel {
+  pub color: u8,
   //priority: bool,
   //pal: u8,
 }
@@ -102,5 +102,11 @@ impl Fetcher {
         }
       }
     }
+  }
+  #[inline] pub fn len(&self) -> usize {
+    self.fifo.len()
+  }
+  #[inline] pub fn pop(&mut self) -> Option<FifoPixel> {
+    self.fifo.pop_front()
   }
 }

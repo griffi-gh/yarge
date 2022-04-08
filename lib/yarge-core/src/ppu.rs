@@ -1,7 +1,7 @@
 mod oam;
 mod ppu_registers;
 mod fetcher;
-use fetcher::{Fetcher, FetcherLayer};
+use fetcher::{Fetcher, FetcherLayer, FifoPixel};
 use oam::OAMMemory;
 use ppu_registers::{LCDC, PPUMode};
 use crate::consts::{VRAM_MAX, VRAM_SIZE, WIDTH, FB_SIZE};
@@ -9,7 +9,8 @@ use crate::consts::{VRAM_MAX, VRAM_SIZE, WIDTH, FB_SIZE};
 pub struct PPU {
   pub display: [u8; FB_SIZE],
   pub ly: u8,
-  cycles: u64,
+  cycles: usize,
+  x: u8,
   mode: PPUMode,
   vram: [u8; 0x2000],
   oam: OAMMemory,
@@ -29,6 +30,7 @@ impl PPU {
       },
       ly: 0,
       cycles: 0,
+      x: 0,
       mode: PPUMode::HBlank,
       vram: [0; VRAM_SIZE],
       oam: OAMMemory::new(),
@@ -58,20 +60,42 @@ impl PPU {
     self.vram[(addr & VRAM_MAX) as usize] = value;
   }
   
+  fn mode(&mut self, mode: PPUMode) {
+    self.cycles = 0;
+    self.mode = mode;
+  }
+
   pub fn tick(&mut self) {
-    self.bg_fetcher.tick(&self.lcdc, &self.vram);
+    self.cycles += 4;
     match self.mode { 
       PPUMode::HBlank => {
-        self.mode = PPUMode::VBlank;
+        self.ly += 1;
+        if self.ly >= 144 {
+          self.mode(PPUMode::VBlank);
+        }
       },
       PPUMode::VBlank => {
-        self.mode = PPUMode::OamSearch;
+        self.cycles = 0;
+        self.ly = 0;
+        self.mode(PPUMode::OamSearch);
       },
       PPUMode::OamSearch => {
-        self.mode = PPUMode::PxTransfer;
+        //TODO
+        if self.cycles >= 160 {
+          self.mode(PPUMode::PxTransfer);
+        }
       },
       PPUMode::PxTransfer => {
-        self.mode = PPUMode::HBlank;
+        self.bg_fetcher.tick(&self.lcdc, &self.vram);
+        if self.bg_fetcher.len() >= 8 {
+          let FifoPixel { color, .. } = self.bg_fetcher.pop().unwrap();
+          self.display[(self.ly as usize * WIDTH) + self.x as usize] = color;
+          self.x += 1;
+          if self.x >= WIDTH as u8 { 
+            self.x = 0;
+            self.mode(PPUMode::HBlank);
+          }
+        }
       }
     }
   }
