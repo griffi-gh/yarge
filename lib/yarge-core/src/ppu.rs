@@ -91,7 +91,8 @@ impl PPU {
         self.bg_fetcher.tick(&self.lcdc, &self.vram);
         if self.bg_fetcher.len() >= 8 {
           let FifoPixel { color, .. } = self.bg_fetcher.pop().unwrap();
-          self.display[(self.ly as usize * WIDTH) + self.x as usize] = color;
+          let addr = (self.ly as usize * WIDTH) + self.x as usize;
+          self.display[addr] = color;
           self.x += 1;
           if self.x >= WIDTH as u8 { 
             self.x = 0;
