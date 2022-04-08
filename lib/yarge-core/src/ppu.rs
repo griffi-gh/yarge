@@ -9,6 +9,7 @@ use crate::consts::{VRAM_MAX, VRAM_SIZE, WIDTH, FB_SIZE};
 pub struct PPU {
   pub display: [u8; FB_SIZE],
   pub ly: u8,
+  cycles: u64,
   mode: PPUMode,
   vram: [u8; 0x2000],
   oam: OAMMemory,
@@ -27,6 +28,7 @@ impl PPU {
         display
       },
       ly: 0,
+      cycles: 0,
       mode: PPUMode::HBlank,
       vram: [0; VRAM_SIZE],
       oam: OAMMemory::new(),
