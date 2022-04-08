@@ -359,10 +359,10 @@ impl Gui for GuiState {
 
       //BREAKPOINTS
       {
-        #[cfg(not(feature = "breakpoints"))]
-        const ENABLED: bool = false;
-        #[cfg(feature = "breakpoints")]
-        const ENABLED: bool = true;
+        const ENABLED: bool = {
+          #[cfg(not(feature = "breakpoints"))] { false }
+          #[cfg(feature = "breakpoints")]      { true  }
+        };
         ui.add_enabled_ui(ENABLED, |ui| {
           egui::CollapsingHeader::new(
             "Breakpoints"
