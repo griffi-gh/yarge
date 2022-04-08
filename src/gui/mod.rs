@@ -357,6 +357,23 @@ impl Gui for GuiState {
         });
       });
 
+      //BREAKPOINTS
+      {
+        #[cfg(not(feature = "breakpoints"))]
+        const ENABLED: bool = false;
+        #[cfg(feature = "breakpoints")]
+        const ENABLED: bool = true;
+        ui.add_enabled_ui(ENABLED, |ui| {
+          egui::CollapsingHeader::new(
+            "Breakpoints"
+          ).show(ui, |ui| {
+            #[cfg(feature = "breakpoints")] {
+              ui.label("TODO");
+            }
+          });
+        });
+      }
+
       ui.separator();
 
       //FOOTER

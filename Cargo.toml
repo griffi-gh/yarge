@@ -24,6 +24,7 @@ logging = ["yarge-core/logging"]
 logging-file = ["logging", "yarge-core/logging-file"]
 logging-stdout = ["logging", "yarge-core/logging-stdout"]
 logging-all = ["logging-file", "logging-stdout", "yarge-core/logging-all"]
+breakpoints = ["yarge-core/breakpoints"]
 
 #[dev-dependencies]
 #bencher = "0.1.5"

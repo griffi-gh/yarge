@@ -18,6 +18,11 @@ pub struct CPU {
   pub mmu: MMU,
   pub state: CPUState,
   t: usize,
+
+  #[cfg(feature = "breakpoints")]
+  pub mmu_breakpoints: Box<[u8; 0xFFFF]>,
+  #[cfg(feature = "breakpoints")]
+  pub pc_breakpoints: Box<[bool; 0xFFFF]>,
 }
 
 impl CPU {
@@ -27,6 +32,11 @@ impl CPU {
       mmu: MMU::new(),
       state: CPUState::Running,
       t: 0,
+
+      #[cfg(feature = "breakpoints")]
+      mmu_breakpoints: Box::new([0; 0xFFFF]),
+      #[cfg(feature = "breakpoints")]
+      pc_breakpoints: Box::new([false; 0xFFFF]),
     }
   }
 
@@ -55,11 +65,28 @@ impl CPU {
     value
   }
 
+  #[cfg(feature = "breakpoints")]
+  fn check_mmu_breakpoints(&self, is_write: bool, addr: u16, value: Option<u8>) {
+    let acc_type_arg = is_write as u8 + 1;
+    let access_type = self.mmu_breakpoints[addr as usize];
+    if access_type == acc_type_arg {
+      let value = if is_write {
+        let value = value.unwrap();
+        format!("{value:#04X}")
+      } else { "".to_string() };
+      panic!("MMU Breakpoint hit {addr:#06X} {value}");
+    }
+  }
+
   #[inline] fn rb(&mut self, addr: u16) -> u8 {
+    #[cfg(feature = "breakpoints")]
+    self.check_mmu_breakpoints(false, addr, None);
     self.cycle();
     self.mmu.rb(addr)
   }
   #[inline] fn wb(&mut self, addr: u16, value: u8) {
+    #[cfg(feature = "breakpoints")]
+    self.check_mmu_breakpoints(false, addr, Some(value));
     self.cycle();
     self.mmu.wb(addr, value);
   }
