@@ -13,11 +13,6 @@ pub use api::*;
 use std::error::Error;
 use consts::CYCLES_PER_FRAME;
 
-#[cfg(feature = "logging-file")]
-use std::fs::File;
-#[cfg(feature = "logging-file")]
-use consts::LOG_PATH;
-
 pub(crate) type Res<T> = Result<T, Box<dyn Error>>;
 
 ///Gameboy emulator
@@ -25,7 +20,7 @@ pub struct Gameboy {
   pub running: bool,
   cpu: CPU,
   #[cfg(feature = "logging-file")] 
-  log_file: Option<File>,
+  log_file: Option<std::fs::File>,
 }
 impl Gameboy {
   pub fn new() -> Self {
@@ -40,6 +35,7 @@ impl Gameboy {
   pub fn init(&mut self) {
     #[cfg(feature = "logging-file")] {
       use std::{fs, io::Write};
+      use consts::LOG_PATH;
       let mut file = fs::File::create(LOG_PATH).unwrap();
       file.write_all(b"").unwrap();
       drop(file);
