@@ -72,6 +72,8 @@ impl PPU {
         self.ly += 1;
         if self.ly >= 144 {
           self.mode(PPUMode::VBlank);
+        } else {
+          self.mode(PPUMode::OamSearch);
         }
       },
       PPUMode::VBlank => {
