@@ -59,6 +59,7 @@ pub const LOG_PATH: &str = "./gameboy.log";
 //static
 
 use std::collections::HashMap;
+use lazy_static::lazy_static;
 lazy_static! {
   pub static ref MBC_TYPE_NAMES: HashMap<u8, &'static str> = {
     let mut map = HashMap::new();

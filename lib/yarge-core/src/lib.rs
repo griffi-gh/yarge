@@ -1,6 +1,4 @@
 #![forbid(unsafe_code)]
-#[macro_use] extern crate lazy_static;
-
 pub(crate) mod mmu;
 pub(crate) mod cpu;
 pub(crate) mod ppu;

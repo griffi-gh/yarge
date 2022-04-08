@@ -1,11 +1,7 @@
-#![forbid(unsafe_code)]
-
 #[derive(Clone, Copy)]
 pub struct U16Union {
   value: u16
 }
-
-//MAYBE store two u8?
 
 impl U16Union {
   #[inline] pub fn new(value: u16) -> Self {
