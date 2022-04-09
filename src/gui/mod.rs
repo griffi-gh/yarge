@@ -10,6 +10,7 @@ use std::{
   hash::Hasher as _,
 };
 use crate::{
+  gb,
   gb::consts::{MBC_TYPE_LIST, MBC_TYPE_NAMES},
   gb::Gameboy,
   NAME,
@@ -232,6 +233,8 @@ impl Gui for GuiState {
         str.as_str(), 
         "err_panel"
       );
+      //TODO downcast to EmulationError??
+      //let y: Box<dyn gb::errors::EmulationError> = self.gb_result.as_ref().unwrap_err().downcast().unwrap();
     }
 
     // MAIN WINDOW
