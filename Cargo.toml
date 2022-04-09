@@ -17,7 +17,7 @@ build-time = "0.1.1"
 clap = { version = "3.1", features = ["derive"] }
 
 [features]
-default = ["gui", "ly-stub"]
+default = ["gui", "ly-stub", "breakpoints"]
 gui = ["yarge-gui-framework", "rfd", "ahash"]
 ly-stub = ["yarge-core/ly-stub"]
 logging = ["yarge-core/logging"]

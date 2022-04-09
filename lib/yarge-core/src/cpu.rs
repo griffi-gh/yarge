@@ -66,11 +66,11 @@ impl CPU {
   }
 
   #[cfg(feature = "breakpoints")]
-  fn check_mmu_breakpoints(&self, is_write: bool, addr: u16, value: Option<u8>) {
-    let acc_type_arg = is_write as u8 + 1;
-    let access_type = self.mmu_breakpoints[addr as usize];
-    if access_type == acc_type_arg {
-      let value = if is_write {
+  fn check_mmu_breakpoints(&self, access_type: u8, addr: u16, value: Option<u8>) {
+    let breakpoint_acc_type = self.mmu_breakpoints[addr as usize];
+    let trip = breakpoint_acc_type & access_type;
+    if trip != 0 {
+      let value = if value.is_some() {
         let value = value.unwrap();
         format!("{value:#04X}")
       } else { "".to_string() };
@@ -80,13 +80,13 @@ impl CPU {
 
   #[inline] fn rb(&mut self, addr: u16) -> u8 {
     #[cfg(feature = "breakpoints")]
-    self.check_mmu_breakpoints(false, addr, None);
+    self.check_mmu_breakpoints(0b01, addr, None);
     self.cycle();
     self.mmu.rb(addr)
   }
   #[inline] fn wb(&mut self, addr: u16, value: u8) {
     #[cfg(feature = "breakpoints")]
-    self.check_mmu_breakpoints(false, addr, Some(value));
+    self.check_mmu_breakpoints(0b10, addr, Some(value));
     self.cycle();
     self.mmu.wb(addr, value);
   }

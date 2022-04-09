@@ -38,6 +38,11 @@ pub struct GuiState {
   load_force_mbc: bool,
   load_force_mbc_type: u8,
   load_no_reset: bool,
+
+  #[cfg(feature = "breakpoints")]
+  mmu_breakpoint_addr: u16,
+  #[cfg(feature = "breakpoints")]
+  pc_breakpoint_addr: u16,
 }
 impl GuiState {
   pub fn new(gb: Gameboy) -> Self {
@@ -48,6 +53,11 @@ impl GuiState {
       load_force_mbc: false,
       load_force_mbc_type: 0,
       load_no_reset: false,
+
+      #[cfg(feature = "breakpoints")]
+      mmu_breakpoint_addr: 0,
+      #[cfg(feature = "breakpoints")]
+      pc_breakpoint_addr: 0,
     }
   }
   ///Warning: consumes self!
@@ -59,6 +69,71 @@ impl GuiState {
       size: (WIDTH * SCALE, HEIGHT * SCALE),
     });
   }
+}
+
+fn u16_edit(ui: &mut egui::Ui, name: &str, value: u16, allow_edit: bool, mul: u16) -> Option<u16> {
+  let mut ret = None;
+  ui.horizontal(|ui| {
+    ui.add_enabled_ui(allow_edit, |ui| {
+      if ui.button(
+        RichText::new("-").monospace()
+      ).on_hover_text(format!("-{:#X}", mul)).clicked() {
+        ret = Some(value.wrapping_sub(mul));
+      }
+    });
+    ui.monospace(name.to_uppercase());
+    let details = format!(
+      "Bin: {:#010b}_{:08b}\nDec: {}",
+      ((value & 0xFF00) >> 8) as u8,
+      (value & 0xFF) as u8,
+      value
+    );
+    if allow_edit {
+      let text_style = TextStyle::Monospace;
+      let w = egui::WidgetText::from("0000").into_galley(
+          ui, 
+          Some(false), 
+          f32::INFINITY, 
+          text_style.clone()
+        ).galley().size().x;
+      let mut value_str = format!("{:X}", value).to_string();
+      let was_zero = value == 0;
+      let res = ui.add(
+        egui::TextEdit::singleline(&mut value_str)
+          .font(text_style)
+          .cursor_at_end(true)
+          .desired_width(w)
+          .id_source("regview_".to_string() + name)
+          .hint_text("0")
+          .margin(egui::Vec2::from((0.,0.)))
+      ).on_hover_text(
+        details
+      );
+      if res.changed() {
+        if was_zero {
+          value_str = value_str.replace("0", "");
+        }
+        let x = u16::from_str_radix(
+          ("0".to_string() + value_str.trim()).as_str(), 
+          16
+        );
+        if x.is_ok() {
+          ret = Some(x.unwrap());
+        }
+      }
+    } else {
+      ui.monospace(format!("{:04X}", value))
+        .on_hover_text(format!("{}\nPause emulation to change", details));
+    }
+    ui.add_enabled_ui(allow_edit, |ui| {
+      if ui.button(
+        RichText::new("+").monospace()
+      ).on_hover_text(format!("+{:#X}", mul)).clicked() {
+        ret = Some(value.wrapping_add(mul));
+      }
+    });
+  });
+  ret
 }
 
 impl Gui for GuiState {
@@ -234,98 +309,30 @@ impl Gui for GuiState {
       // Control
       ui.checkbox(&mut self.gb.running, "Running");
 
-      // Register view
-      fn register_view(ui: &mut egui::Ui, name: &str, value: u16, allow_edit: bool, mul: u16) -> Option<u16> {
-        let mut ret = None;
-        ui.horizontal(|ui| {
-          ui.add_enabled_ui(allow_edit, |ui| {
-            if ui.button(
-              RichText::new("-").monospace()
-            ).on_hover_text(format!("-{:#X}", mul)).clicked() {
-              ret = Some(value.wrapping_sub(mul));
-            }
-          });
-          ui.monospace(name.to_uppercase());
-          let details = format!(
-            "Bin: {:#010b}_{:08b}\nDec: {}",
-            ((value & 0xFF00) >> 8) as u8,
-            (value & 0xFF) as u8,
-            value
-          );
-          if allow_edit {
-            let text_style = TextStyle::Monospace;
-            let w = egui::WidgetText::from("0000").into_galley(
-                ui, 
-                Some(false), 
-                f32::INFINITY, 
-                text_style.clone()
-              ).galley().size().x;
-            let mut value_str = format!("{:X}", value).to_string();
-            let was_zero = value == 0;
-            let res = ui.add(
-              egui::TextEdit::singleline(&mut value_str)
-                .font(text_style)
-                .cursor_at_end(true)
-                .desired_width(w)
-                .id_source("regview_".to_string() + name)
-                .hint_text("0")
-                .margin(egui::Vec2::from((0.,0.)))
-            ).on_hover_text(
-              details
-            );
-            if res.changed() {
-              if was_zero {
-                value_str = value_str.replace("0", "");
-              }
-              let x = u16::from_str_radix(
-                ("0".to_string() + value_str.trim()).as_str(), 
-                16
-              );
-              if x.is_ok() {
-                ret = Some(x.unwrap());
-              }
-            }
-          } else {
-            ui.monospace(format!("{:04X}", value))
-              .on_hover_text(format!("{}\nPause emulation to change", details));
-          }
-          ui.add_enabled_ui(allow_edit, |ui| {
-            if ui.button(
-              RichText::new("+").monospace()
-            ).on_hover_text(format!("+{:#X}", mul)).clicked() {
-              ret = Some(value.wrapping_add(mul));
-            }
-          });
-        });
-        ret
-      }
-
       //REGISTERS
-      egui::CollapsingHeader::new(
-        "Registers"
-      ).default_open(true).show(ui, |ui| {
+      egui::CollapsingHeader::new("Registers").show(ui, |ui| {
         egui::Grid::new("register_layout").num_columns(2).show(ui, |ui| {
-          if let Some(v) = register_view(ui, "af", self.gb.get_reg_af(), !self.gb.running, 0x10) {
+          if let Some(v) = u16_edit(ui, "af", self.gb.get_reg_af(), !self.gb.running, 0x10) {
             let v = if v <= 0xF { v << 4 } else { v };
             self.gb.set_reg_af(v);
           }
-          if let Some(v) = register_view(ui, "bc", self.gb.get_reg_bc(), !self.gb.running, 1) {
+          if let Some(v) = u16_edit(ui, "bc", self.gb.get_reg_bc(), !self.gb.running, 1) {
             self.gb.set_reg_bc(v);
           }
           ui.end_row();
 
-          if let Some(v) = register_view(ui, "de", self.gb.get_reg_de(), !self.gb.running, 1) {
+          if let Some(v) = u16_edit(ui, "de", self.gb.get_reg_de(), !self.gb.running, 1) {
             self.gb.set_reg_de(v);
           }
-          if let Some(v) = register_view(ui, "hl", self.gb.get_reg_hl(), !self.gb.running, 1) {
+          if let Some(v) = u16_edit(ui, "hl", self.gb.get_reg_hl(), !self.gb.running, 1) {
             self.gb.set_reg_hl(v);
           }
           ui.end_row();
 
-          if let Some(v) = register_view(ui, "sp", self.gb.get_reg_sp(), !self.gb.running, 1) {
+          if let Some(v) = u16_edit(ui, "sp", self.gb.get_reg_sp(), !self.gb.running, 1) {
             self.gb.set_reg_sp(v);
           }
-          if let Some(v) = register_view(ui, "pc", self.gb.get_reg_pc(), !self.gb.running, 1) {
+          if let Some(v) = u16_edit(ui, "pc", self.gb.get_reg_pc(), !self.gb.running, 1) {
             self.gb.set_reg_pc(v);
           }
           ui.end_row();
@@ -368,7 +375,53 @@ impl Gui for GuiState {
             "Breakpoints"
           ).show(ui, |ui| {
             #[cfg(feature = "breakpoints")] {
-              ui.label("TODO");
+              ui.label("WARNING: Breakpoints cause panic lol");
+              ui.horizontal(|ui| {
+                if let Some(v) = u16_edit(ui, "MMU", self.mmu_breakpoint_addr, true, 1) {
+                  self.mmu_breakpoint_addr = v;
+                }
+                if ui.button("R/W").clicked() {
+                  self.gb.set_mmu_breakpoint(
+                    self.mmu_breakpoint_addr,
+                    0b11
+                  )
+                }
+                if ui.button("R").clicked() {
+                  self.gb.set_mmu_breakpoint(
+                    self.mmu_breakpoint_addr,
+                    0b01
+                  )
+                }
+                if ui.button("W").clicked() {
+                  self.gb.set_mmu_breakpoint(
+                    self.mmu_breakpoint_addr,
+                    0b10
+                  )
+                }
+                if ui.button("Disable").clicked() {
+                  self.gb.set_mmu_breakpoint(
+                    self.mmu_breakpoint_addr,
+                    0b00
+                  )
+                }
+              });
+              ui.horizontal(|ui| {
+                if let Some(v) = u16_edit(ui, "PC ", self.pc_breakpoint_addr, true, 1) {
+                  self.pc_breakpoint_addr = v;
+                }
+                if ui.button("Enable").clicked() {
+                  self.gb.set_pc_breakpoint(
+                    self.pc_breakpoint_addr,
+                    true
+                  );
+                }
+                if ui.button("Disable").clicked() {
+                  self.gb.set_pc_breakpoint(
+                    self.pc_breakpoint_addr,
+                    false
+                  );
+                }
+              });
             }
           });
         });
