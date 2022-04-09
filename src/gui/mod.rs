@@ -464,16 +464,6 @@ impl Gui for GuiState {
         egui::ScrollArea::vertical().always_show_scroll(true).hscroll(false).vscroll(true).show_rows(ui, height, 0x1000,|ui, row_range| {
           let offset = (row_range.start as u16) << 4;
           let row_amount = row_range.end - row_range.start;
-          //TODO GET RID OF THIS
-          let mem = {
-            let mem_needed = row_amount * 16;
-            let mut mem = vec!();
-            mem.reserve(0xff);
-            for addr in 0..mem_needed {
-              mem.push(self.gb.read_mem(addr as u16 + offset))
-            }
-            mem
-          };
           let pc = self.gb.get_reg_pc();
           for row in 0..row_amount {
             let row_start = row << 4;
@@ -482,12 +472,20 @@ impl Gui for GuiState {
               for col in 0..16_u16 {
                 let addr_rel = col | row_start as u16;
                 let addr = addr_rel + offset;
-                let val = mem[addr_rel as usize];
+                let val = self.gb.read_mem(addr as u16);
                 ui.label(
                   RichText::new(
                     format!("{:02X}", val)
                   ).monospace().color(
-                    if pc == addr { Color32::LIGHT_RED } else { Color32::WHITE }
+                    if pc == addr {
+                      Color32::LIGHT_RED
+                    } else if self.gb.get_pc_breakpoint(addr) {
+                      Color32::DARK_GREEN
+                    } else if self.gb.get_mmu_breakpoint(addr) > 0 {
+                      Color32::DARK_BLUE
+                    } else {
+                      Color32::WHITE
+                    }
                   )
                 ).on_hover_text(
                   format!("Dec: {0}\nBin: {0:#010b}\nAddr: {1:#06X}", val, addr)
