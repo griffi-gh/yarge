@@ -1,5 +1,9 @@
 use std::{fmt, error::Error};
 
+pub trait EmulationError: Error  {
+  fn recoverable(&self) -> bool { false }
+}
+
 #[derive(Debug, Clone)]
 pub struct InvalidInstrError {
   pub is_cb: bool,
@@ -16,6 +20,7 @@ impl fmt::Display for InvalidInstrError {
   }
 }
 impl Error for InvalidInstrError {}
+impl EmulationError for InvalidInstrError {}
 
 #[derive(Debug, Clone)]
 pub struct RomLoadError {
@@ -30,6 +35,7 @@ impl fmt::Display for RomLoadError {
   }
 }
 impl Error for RomLoadError {}
+impl EmulationError for RomLoadError {}
 
 #[derive(Debug, Clone)]
 pub struct InvalidMBCError {
@@ -44,21 +50,24 @@ impl fmt::Display for InvalidMBCError {
   }
 }
 impl Error for InvalidMBCError {}
+impl EmulationError for InvalidMBCError {}
 
 #[derive(Debug, Clone)]
 pub struct BreakpointHitError {
   pub is_pc: bool,
   pub addr: u16,
-  pub value: Option<u8>,
+  pub value: u8,
 }
 impl fmt::Display for BreakpointHitError {
   fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
     let Self { addr, value, is_pc } = self;
-    let value = value.unwrap_or_default();
     write!(
-      f, "{0} Breakpoint hit {addr:#06X} {value}",
+      f, "{0} Breakpoint hit at {addr:#06X} (value: {value:#04X})",
       if *is_pc { "PC" } else { "MMU" }
     )
   }
 }
 impl Error for BreakpointHitError {}
+impl EmulationError for BreakpointHitError {
+  fn recoverable(&self) -> bool { true }
+}

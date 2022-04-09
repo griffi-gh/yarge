@@ -1,4 +1,3 @@
-use std::error::Error;
 use std::fmt;
 use crate::Res;
 use crate::errors::{RomLoadError, InvalidMBCError};
@@ -12,7 +11,7 @@ pub trait Cartridge {
   fn write(&self, addr: u16, value: u8) {}
   fn read_eram(&self, addr: u16) -> u8 { 0xff }
   fn write_eram(&self, addr: u16, value: u8) {}
-  fn load(&mut self, data: &[u8]) -> Result<(), Box<dyn Error>>;
+  fn load(&mut self, data: &[u8]) -> Res<()>;
 }
 pub type DynCartridge = Box<(dyn Cartridge + Send)>;
 

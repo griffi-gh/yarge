@@ -100,7 +100,7 @@ impl Gameboy {
     }
   }
 
-  pub fn step(&mut self) -> Result<usize, Box<dyn Error>> {
+  pub fn step(&mut self) -> Res<usize> {
     if !self.running { return Ok(0); }
     #[cfg(feature = "logging")] self.log_step();
     let cycles = self.cpu.step()?;

@@ -52,7 +52,7 @@ impl CPU {
     if trip != 0 {
       Err(Box::new(BreakpointHitError {
         is_pc: false,
-        value: Some(value.unwrap_or(self.mmu.rb(addr))),
+        value: value.unwrap_or(self.mmu.rb(addr)),
         addr,
       }))
     } else {
@@ -66,7 +66,7 @@ impl CPU {
     if self.pc_breakpoints[addr as usize] {
       Err(Box::new(BreakpointHitError {
         is_pc: false,
-        value: None,
+        value: self.mmu.rb(addr),
         addr,
       }))
     } else {
