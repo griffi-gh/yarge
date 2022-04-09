@@ -44,3 +44,21 @@ impl fmt::Display for InvalidMBCError {
   }
 }
 impl Error for InvalidMBCError {}
+
+#[derive(Debug, Clone)]
+pub struct BreakpointHitError {
+  pub is_pc: bool,
+  pub addr: u16,
+  pub value: Option<u8>,
+}
+impl fmt::Display for BreakpointHitError {
+  fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    let Self { addr, value, is_pc } = self;
+    let value = value.unwrap_or_default();
+    write!(
+      f, "{0} Breakpoint hit {addr:#06X} {value}",
+      if *is_pc { "PC" } else { "MMU" }
+    )
+  }
+}
+impl Error for BreakpointHitError {}

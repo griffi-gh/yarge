@@ -18,7 +18,6 @@ impl FifoPixel {
 }
 
 #[repr(u8)]
-#[derive(Clone, Copy, PartialEq)]
 enum FetcherState {
   ReadTileId,
   ReadTileDataLow,
@@ -29,7 +28,6 @@ impl Default for FetcherState {
   fn default() -> Self { Self::ReadTileId }
 }
 
-#[derive(Clone, Copy, PartialEq)]
 #[repr(u8)]
 pub enum FetcherLayer {
   Background, Window

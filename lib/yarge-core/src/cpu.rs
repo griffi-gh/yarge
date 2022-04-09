@@ -3,8 +3,13 @@ mod instructions;
 use instructions::*;
 pub use reg::Registers;
 use super::MMU;
-use std::error::Error;
-use crate::errors::InvalidInstrError;
+use crate::{
+  Res, 
+  errors::{
+    InvalidInstrError,
+    BreakpointHitError
+  }
+};
 
 #[derive(PartialEq)]
 pub enum CPUState {
@@ -40,64 +45,81 @@ impl CPU {
     }
   }
 
-  fn fetch(&mut self) -> u8 { 
-    let op = self.rb(self.reg.pc);
-    self.reg.inc_pc(1);
-    return op
-  }
-  fn fetch_word(&mut self) -> u16 {
-    let op = self.rw(self.reg.pc);
-    self.reg.inc_pc(2);
-    return op
-  }
-  #[inline] fn fetch_signed(&mut self) -> i8 {
-    //TODO remove this fn
-    self.fetch() as i8 
-  }
-
-  #[inline] fn push(&mut self, value: u16) {
-    self.reg.dec_sp(2);
-    self.ww(self.reg.sp, value);
-  }
-  #[inline] fn pop(&mut self) -> u16 {
-    let value = self.rw(self.reg.sp);
-    self.reg.inc_sp(2);
-    value
-  }
-
   #[cfg(feature = "breakpoints")]
-  fn check_mmu_breakpoints(&self, access_type: u8, addr: u16, value: Option<u8>) {
+  fn check_mmu_breakpoints(&self, access_type: u8, addr: u16, value: Option<u8>) -> Res<()> {
     let breakpoint_acc_type = self.mmu_breakpoints[addr as usize];
     let trip = breakpoint_acc_type & access_type;
     if trip != 0 {
-      let value = if value.is_some() {
-        let value = value.unwrap();
-        format!("{value:#04X}")
-      } else { "".to_string() };
-      panic!("MMU Breakpoint hit {addr:#06X} {value}");
+      Err(Box::new(BreakpointHitError {
+        is_pc: false,
+        value: Some(value.unwrap_or(self.mmu.rb(addr))),
+        addr,
+      }))
+    } else {
+      Ok(())
     }
   }
 
-  #[inline] fn rb(&mut self, addr: u16) -> u8 {
-    #[cfg(feature = "breakpoints")]
-    self.check_mmu_breakpoints(0b01, addr, None);
-    self.cycle();
-    self.mmu.rb(addr)
-  }
-  #[inline] fn wb(&mut self, addr: u16, value: u8) {
-    #[cfg(feature = "breakpoints")]
-    self.check_mmu_breakpoints(0b10, addr, Some(value));
-    self.cycle();
-    self.mmu.wb(addr, value);
+  #[cfg(feature = "breakpoints")]
+  fn check_pc_breakpoints(&self) -> Res<()> {
+    let addr = self.reg.pc;
+    if self.pc_breakpoints[addr as usize] {
+      Err(Box::new(BreakpointHitError {
+        is_pc: false,
+        value: None,
+        addr,
+      }))
+    } else {
+      Ok(())
+    }
   }
 
-  #[inline] fn rw(&mut self, addr: u16) -> u16 {
-    self.rb(addr) as u16 | 
-    ((self.rb(addr.wrapping_add(1)) as u16) << 8)
+  #[inline] fn rb(&mut self, addr: u16) -> Res<u8> {
+    #[cfg(feature = "breakpoints")]
+    self.check_mmu_breakpoints(0b01, addr, None)?;
+    self.cycle();
+    Ok(self.mmu.rb(addr))
   }
-  #[inline] fn ww(&mut self, addr: u16, value: u16) {
-    self.wb(addr, (value & 0xFF) as u8);
-    self.wb(addr.wrapping_add(1), (value >> 8) as u8);
+  #[inline] fn wb(&mut self, addr: u16, value: u8) -> Res<()> {
+    #[cfg(feature = "breakpoints")]
+    self.check_mmu_breakpoints(0b10, addr, Some(value))?;
+    self.cycle();
+    self.mmu.wb(addr, value);
+    Ok(())
+  }
+
+  #[inline] fn rw(&mut self, addr: u16) -> Res<u16> {
+    Ok(
+      self.rb(addr)? as u16 | 
+      ((self.rb(addr.wrapping_add(1))? as u16) << 8)
+    )
+  }
+  #[inline] fn ww(&mut self, addr: u16, value: u16) -> Res<()> {
+    self.wb(addr, (value & 0xFF) as u8)?;
+    self.wb(addr.wrapping_add(1), (value >> 8) as u8)?;
+    Ok(())
+  }
+
+  fn fetch(&mut self) -> Res<u8> { 
+    let op = self.rb(self.reg.pc)?;
+    self.reg.inc_pc(1);
+    Ok(op)
+  }
+  fn fetch_word(&mut self) -> Res<u16> {
+    let op = self.rw(self.reg.pc)?;
+    self.reg.inc_pc(2);
+    Ok(op)
+  }
+
+  #[inline] fn push(&mut self, value: u16) -> Res<()> {
+    self.reg.dec_sp(2);
+    self.ww(self.reg.sp, value)?;
+    Ok(())
+  }
+  #[inline] fn pop(&mut self) -> Res<u16> {
+    let value = self.rw(self.reg.sp)?;
+    self.reg.inc_sp(2);
+    Ok(value)
   }
 
   fn cycle(&mut self) {
@@ -105,14 +127,17 @@ impl CPU {
     self.mmu.ppu.tick();
   }
 
-  pub fn step(&mut self) -> Result<usize, Box<dyn Error>> {
+  pub fn step(&mut self) -> Res<usize> {
     self.t = 0;
+    #[cfg(feature = "breakpoints")] {
+      self.check_pc_breakpoints()?;
+    }
     if self.state == CPUState::Running {
-      let mut op = self.fetch();
+      let mut op = self.fetch()?;
       if op != 0xCB { 
         cpu_instructions!(self, op)?;
       } else {
-        op = self.fetch();
+        op = self.fetch()?;
         cpu_instructions_cb!(self, op)?;
       }         
     } else {
