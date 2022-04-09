@@ -10,8 +10,8 @@ pub struct MMU {
   pub bios_disabled: bool,
   cart: DynCartridge,
   cart_header: RomHeader,
-  wram: [u8; 0x2000],
-  hram: [u8; 0x007F],
+  wram: Box<[u8; 0x2000]>,
+  hram: Box<[u8; 0x007F]>,
   //MAYBE include IE here?
 }
 impl MMU {
@@ -21,8 +21,8 @@ impl MMU {
       bios_disabled: false,
       cart: get_cartridge(0).unwrap(),
       cart_header: RomHeader::default(),
-      wram: [0; 0x2000],
-      hram: [0; 0x007F],
+      wram: Box::new([0; 0x2000]),
+      hram: Box::new([0; 0x007F]),
     }
   }
   

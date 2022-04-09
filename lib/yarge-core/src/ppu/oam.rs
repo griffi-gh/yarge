@@ -78,13 +78,12 @@ impl PartialEq for OAMObject {
 }
 impl Eq for OAMObject {}
 
-#[derive(Clone, Copy)]
 pub struct OAMMemory {
-  objects: [OAMObject; 40],
+  objects: Box<[OAMObject; 40]>,
 }
 impl OAMMemory {
   pub fn new() -> Self {
-    let mut objects = [OAMObject::default(); 40];
+    let mut objects = Box::new([OAMObject::default(); 40]);
     for (i, v) in objects.iter_mut().enumerate() {
       v.id = i as u8;
     }

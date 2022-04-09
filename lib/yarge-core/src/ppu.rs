@@ -7,12 +7,12 @@ use ppu_registers::{LCDC, PPUMode};
 use crate::consts::{VRAM_MAX, VRAM_SIZE, WIDTH, FB_SIZE};
 
 pub struct PPU {
-  pub display: [u8; FB_SIZE],
+  pub display: Box<[u8; FB_SIZE]>,
   pub ly: u8,
   cycles: usize,
   x: u8,
   mode: PPUMode,
-  vram: [u8; 0x2000],
+  vram: Box<[u8; 0x2000]>,
   oam: OAMMemory,
   lcdc: LCDC,
   bg_fetcher: Fetcher,
@@ -21,7 +21,7 @@ impl PPU {
   pub fn new() -> Self {
     Self {
       display: {
-        let mut display = [0; FB_SIZE];
+        let mut display = Box::new([0; FB_SIZE]);
         //fill display with fancy-ass pattern
         for i in 0..FB_SIZE {
           display[i] = (((i + (i / WIDTH)) & 1) as u8) * (1 + (i % 3) as u8);
@@ -32,7 +32,7 @@ impl PPU {
       cycles: 0,
       x: 0,
       mode: PPUMode::HBlank,
-      vram: [0; VRAM_SIZE],
+      vram: Box::new([0; VRAM_SIZE]),
       oam: OAMMemory::new(),
       lcdc: LCDC::default(),
       bg_fetcher: Fetcher::new(FetcherLayer::Background),

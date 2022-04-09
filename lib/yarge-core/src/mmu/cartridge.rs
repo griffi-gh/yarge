@@ -18,13 +18,13 @@ pub type DynCartridge = Box<(dyn Cartridge + Send)>;
 
 pub struct CartridgeNone {
   index: u8,
-  rom: [u8; 0x8000],
+  rom: Box<[u8; 0x8000]>,
 }
 impl CartridgeNone {
   pub fn new(index: u8) -> Self {
     Self {
       index,
-      rom: [0; 0x8000],
+      rom: Box::new([0; 0x8000]),
     }
   }
 }
