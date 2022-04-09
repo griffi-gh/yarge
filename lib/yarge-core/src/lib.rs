@@ -13,7 +13,7 @@ pub use api::*;
 use std::error::Error;
 use consts::CYCLES_PER_FRAME;
 
-pub(crate) type Res<T> = Result<T, Box<dyn Error>>;
+pub(crate) type Res<T> = Result<T, Box<dyn Error + 'static>>;
 
 ///Gameboy emulator
 pub struct Gameboy {
