@@ -310,7 +310,7 @@ impl Gui for GuiState {
       ui.checkbox(&mut self.gb.running, "Running");
 
       //REGISTERS
-      egui::CollapsingHeader::new("Registers").show(ui, |ui| {
+      egui::CollapsingHeader::new("Registers").default_open(true).show(ui, |ui| {
         egui::Grid::new("register_layout").num_columns(2).show(ui, |ui| {
           if let Some(v) = u16_edit(ui, "af", self.gb.get_reg_af(), !self.gb.running, 0x10) {
             let v = if v <= 0xF { v << 4 } else { v };
