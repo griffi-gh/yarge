@@ -452,8 +452,8 @@ impl Gui for GuiState {
                 });
                 ui.label("Breakpoints are experimental");
                 ui.label("1) PC breakpoints get triggered AFTER the instruction is executed");
-                ui.label("1) PC breakpoints can cause minor timing issues");
-                ui.label("2) MMU breakpoints are NOT recoverable");
+                ui.label("2) PC breakpoints can cause minor timing issues");
+                ui.label("3) MMU breakpoints are NOT recoverable");
               }
               ui.separator();
             }
