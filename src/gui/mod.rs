@@ -542,12 +542,19 @@ impl Gui for GuiState {
                   ).monospace().color(
                     if pc == addr {
                       Color32::LIGHT_RED
-                    } else if self.gb.get_pc_breakpoint(addr) {
-                      Color32::DARK_GREEN
-                    } else if self.gb.get_mmu_breakpoint(addr) > 0 {
-                      Color32::DARK_BLUE
                     } else {
-                      Color32::WHITE
+                      const DEFAULT_COLOR: Color32 = Color32::WHITE;
+                      #[cfg(feature = "breakpoints")]
+                      if self.gb.get_pc_breakpoint(addr) {
+                        Color32::DARK_GREEN
+                      } else if self.gb.get_mmu_breakpoint(addr) > 0 {
+                        Color32::DARK_BLUE
+                      } else {
+                        DEFAULT_COLOR
+                      }
+                      #[cfg(not(feature = "breakpoints"))] {
+                        DEFAULT_COLOR
+                      }
                     }
                   )
                 ).on_hover_text(

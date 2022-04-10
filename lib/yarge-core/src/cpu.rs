@@ -19,9 +19,9 @@ pub struct CPU {
   t: usize,
 
   #[cfg(feature = "breakpoints")]
-  pub mmu_breakpoints: Box<[u8; 0xFFFF]>,
+  pub mmu_breakpoints: Box<[u8; 0x10000]>,
   #[cfg(feature = "breakpoints")]
-  pub pc_breakpoints: Box<[bool; 0xFFFF]>,
+  pub pc_breakpoints: Box<[bool; 0x10000]>,
 }
 
 impl CPU {
@@ -33,9 +33,9 @@ impl CPU {
       t: 0,
 
       #[cfg(feature = "breakpoints")]
-      mmu_breakpoints: Box::new([0; 0xFFFF]),
+      mmu_breakpoints: Box::new([0; 0x10000]),
       #[cfg(feature = "breakpoints")]
-      pc_breakpoints: Box::new([false; 0xFFFF]),
+      pc_breakpoints: Box::new([false; 0x10000]),
     }
   }
 
@@ -130,7 +130,7 @@ impl CPU {
         op = self.fetch()?;
         cpu_instructions_cb!(self, op)?;
       }
-      
+
       #[cfg(feature = "breakpoints")]
       self.check_pc_breakpoints(pc_value)?;
     } else {
