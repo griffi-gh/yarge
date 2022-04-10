@@ -5,15 +5,14 @@ pub(crate) mod ppu;
 pub(crate) use mmu::MMU;
 pub(crate) use cpu::CPU;
 pub(crate) use ppu::PPU;
-pub mod errors;
 pub mod consts;
+mod errors;
 mod api;
+pub use errors::YargeError;
 pub use api::*;
-
-use std::error::Error;
 use consts::CYCLES_PER_FRAME;
 
-pub(crate) type Res<T> = Result<T, Box<dyn Error + 'static>>;
+pub(crate) type Res<T> = Result<T, YargeError>;
 
 ///Gameboy emulator
 pub struct Gameboy {

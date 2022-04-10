@@ -3,13 +3,7 @@ mod instructions;
 use instructions::*;
 pub use reg::Registers;
 use super::MMU;
-use crate::{
-  Res, 
-  errors::{
-    InvalidInstrError,
-    BreakpointHitError
-  }
-};
+use crate::{ Res, YargeError };
 
 #[derive(PartialEq)]
 pub enum CPUState {
@@ -50,25 +44,21 @@ impl CPU {
     let breakpoint_acc_type = self.mmu_breakpoints[addr as usize];
     let trip = breakpoint_acc_type & access_type;
     if trip != 0 {
-      Err(Box::new(BreakpointHitError {
-        is_pc: false,
+      Err(YargeError::MmuBreakpoint {
+        is_write: access_type & 0b10 != 0,
         value: value.unwrap_or(self.mmu.rb(addr)),
         addr,
-      }))
+      })
     } else {
       Ok(())
     }
   }
 
   #[cfg(feature = "breakpoints")]
-  fn check_pc_breakpoints(&self) -> Res<()> {
-    let addr = self.reg.pc;
+  fn check_pc_breakpoints(&mut self, addr: u16) -> Res<()> {
     if self.pc_breakpoints[addr as usize] {
-      Err(Box::new(BreakpointHitError {
-        is_pc: false,
-        value: self.mmu.rb(addr),
-        addr,
-      }))
+      let instr = self.mmu.rb(addr);
+      Err(YargeError::PcBreakpoint { instr, addr })
     } else {
       Ok(())
     }
@@ -129,17 +119,20 @@ impl CPU {
 
   pub fn step(&mut self) -> Res<usize> {
     self.t = 0;
-    #[cfg(feature = "breakpoints")] {
-      self.check_pc_breakpoints()?;
-    }
     if self.state == CPUState::Running {
+      #[cfg(feature = "breakpoints")]
+      let pc_value = self.reg.pc;
+
       let mut op = self.fetch()?;
       if op != 0xCB { 
         cpu_instructions!(self, op)?;
       } else {
         op = self.fetch()?;
         cpu_instructions_cb!(self, op)?;
-      }         
+      }
+      
+      #[cfg(feature = "breakpoints")]
+      self.check_pc_breakpoints(pc_value)?;
     } else {
       self.cycle();
     }

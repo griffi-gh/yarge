@@ -1,7 +1,6 @@
 use std::fmt;
-use crate::Res;
-use crate::errors::{RomLoadError, InvalidMBCError};
 use arrayvec::ArrayString;
+use crate::{Res, YargeError};
 
 #[allow(unused_variables)]
 pub trait Cartridge {
@@ -33,12 +32,7 @@ impl Cartridge for CartridgeNone {
   fn load(&mut self, rom: &[u8]) -> Res<()> {
     if rom.len() != 0x8000 {
       return Err(
-        Box::new(RomLoadError {
-          reason: format!(
-            "Invalid ROM size: {:#X}.\nPlease note that that MBC cartridges (games larger then 32kb) are not supported yet",
-            rom.len()
-          )
-        })
+        YargeError::InvalidRomSize(rom.len())
       );
     }
     for (place, data) in self.rom.iter_mut().zip(rom.iter()) {
@@ -60,7 +54,7 @@ impl Cartridge for CartridgeNone {
 pub fn get_cartridge(cart_type: u8) -> Res<DynCartridge> {
   match cart_type {
     0x00 => Ok(Box::new(CartridgeNone::new(cart_type))),
-    _ => Err(Box::new(InvalidMBCError { mbc: cart_type }))
+    _ => Err(YargeError::InvalidMbcType(cart_type))
   }
 }
 

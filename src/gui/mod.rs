@@ -34,12 +34,11 @@ const GB_PALETTE: [[u8; 4]; 4] = [
 
 pub struct GuiState {
   gb: Gameboy,
-  gb_result: Result<(), Box<dyn Error>>,
+  gb_result: Result<(), gb::YargeError>,
   show_mem_view: bool,
   load_force_mbc: bool,
   load_force_mbc_type: u8,
   load_no_reset: bool,
-
   #[cfg(feature = "breakpoints")]
   mmu_breakpoint_addr: u16,
   #[cfg(feature = "breakpoints")]
@@ -154,13 +153,14 @@ impl Gui for GuiState {
 
     //TODO fix this ugly shit
     let mut reset_error_window = false;
+    let mut error_continue = false;
     let mut reset = |gb: &mut Gameboy| {
       gb.reset();
       gb.pause();
       reset_error_window = true;
     };
-
-    let mut error_window = |title: &str, color: Color32, details: &str, id: &str| {
+    
+    let mut error_window = |title: &str, color: Color32, details: &str, id: &str, recoverable: bool| {
       egui::TopBottomPanel::new(
         egui::panel::TopBottomSide::Top, 
         format!("error_panel_{}", id).as_str()
@@ -200,10 +200,16 @@ impl Gui for GuiState {
           if ui.button("Reset").clicked() {
             reset(&mut self.gb);
           }
+          ui.add_enabled_ui(recoverable, |ui| {
+            if ui.button("Continue").clicked() {
+              error_continue = true;
+            }
+          });
         });
         ui.add_space(2.);
       });
     };
+
     fn load_dialog(gb: &mut Gameboy, force_mbc: Option<u8>) -> Result<bool, Box<dyn Error>> {
       let files = FileDialog::new()
         .add_filter("Nintendo Gameboy ROM file", &["gb", "gbc"])
@@ -225,13 +231,17 @@ impl Gui for GuiState {
 
     // HANDLE ERROR
     if self.gb_result.is_err() {
-      let str = self.gb_result.as_ref().unwrap_err().to_string();
+      let (str, recoverable) = {
+        let error = self.gb_result.as_ref().unwrap_err();
+        (error.to_string(), error.is_recoverable())
+      };
       error_window(format!(
         "{} error", 
         NAME.unwrap_or("emulator")).as_str(), 
         Color32::YELLOW, 
         str.as_str(), 
-        "err_panel"
+        "err_panel",
+        recoverable
       );
       //TODO downcast to EmulationError??
       //let y: Box<dyn gb::errors::EmulationError> = self.gb_result.as_ref().unwrap_err().downcast().unwrap();
@@ -378,7 +388,6 @@ impl Gui for GuiState {
             "Breakpoints"
           ).show(ui, |ui| {
             #[cfg(feature = "breakpoints")] {
-              ui.label("WARNING: Breakpoints cause panic lol");
               ui.horizontal(|ui| {
                 if let Some(v) = u16_edit(ui, "MMU", self.mmu_breakpoint_addr, true, 1) {
                   self.mmu_breakpoint_addr = v;
@@ -425,6 +434,10 @@ impl Gui for GuiState {
                   );
                 }
               });
+              ui.label(RichText::new("WARNING").color(Color32::YELLOW).monospace());
+              ui.label("Breakpoints are experimental");
+              ui.label("1) PC breakpoints get triggered AFTER the instruction is executed");
+              ui.label("2) MMU breakpoints are NOT recoverable");
             }
           });
         });
@@ -500,8 +513,12 @@ impl Gui for GuiState {
       });
     }
 
-    if reset_error_window {
+    //TODO and this ugly shit
+    if reset_error_window || error_continue {
       self.gb_result = Ok(());
+    }
+    if error_continue {
+      self.gb.pause();
     }
     
     return exit;

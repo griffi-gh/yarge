@@ -822,7 +822,7 @@ macro_rules! cpu_instructions {
         0xFF => { rst!($self, 0x38); }            //RST 38h
 
         _ => { 
-          ret = Err(InvalidInstrError{
+          ret = Err(YargeError::InvalidInstruction{
             is_cb: false,
             addr: $self.reg.pc.wrapping_sub(1),
             instr: $op
@@ -989,7 +989,7 @@ macro_rules! cpu_instructions_cb {
         0x7F => { bit_r!($self, 7, A); }          // BIT 7,A
 
         _ => { 
-          ret = Err(InvalidInstrError{
+          ret = Err(YargeError::InvalidInstruction {
             is_cb: true,
             addr: $self.reg.pc.wrapping_sub(1),
             instr: $op
