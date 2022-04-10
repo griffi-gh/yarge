@@ -76,21 +76,29 @@ impl PPU {
     self.cycles += 4;
     match self.mode { 
       PPUMode::HBlank => {
-        self.ly += 1;
-        if self.ly >= 144 {
-          self.mode(PPUMode::VBlank);
-        } else {
-          self.mode(PPUMode::OamSearch);
+        if self.cycles >= 204 {
+          self.cycles = 0;
+          self.ly += 1;
+          if self.ly >= 144 {
+            self.mode(PPUMode::VBlank);
+          } else {
+            self.mode(PPUMode::OamSearch);
+          }
         }
       },
       PPUMode::VBlank => {
-        self.cycles = 0;
-        self.ly = 0;
-        self.mode(PPUMode::OamSearch);
+        if self.cycles >= 456 {
+          self.cycles = 0;
+          self.ly += 1;
+          if self.ly >= 155 {
+            self.ly = 0;
+            self.mode(PPUMode::OamSearch);
+          }
+        }
       },
       PPUMode::OamSearch => {
         //TODO
-        if self.cycles >= 160 {
+        if self.cycles >= 80 {
           self.mode(PPUMode::PxTransfer);
         }
       },
