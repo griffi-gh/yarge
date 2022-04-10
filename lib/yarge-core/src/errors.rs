@@ -38,6 +38,8 @@ impl YargeError {
   pub fn is_recoverable(&self) -> bool {
     match *self {
       Self::PcBreakpoint{..} => true,
+      //TODO Make recoverable
+      //MMU Breakpoint causes an instruction to return mid-execution
       //Self::MmuBreakpoint{..} => true,
       _ => false
     }
