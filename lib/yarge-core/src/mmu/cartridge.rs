@@ -22,7 +22,7 @@ impl CartridgeNone {
   pub fn new(index: u8) -> Self {
     Self {
       index,
-      rom: Box::new([0; 0x8000]),
+      rom: Box::new([0xFF; 0x8000]),
     }
   }
 }
