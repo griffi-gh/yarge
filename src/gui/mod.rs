@@ -39,6 +39,7 @@ pub struct GuiState {
   load_force_mbc: bool,
   load_force_mbc_type: u8,
   load_no_reset: bool,
+  step_amount: usize,
   #[cfg(feature = "breakpoints")]
   mmu_breakpoint_addr: u16,
   #[cfg(feature = "breakpoints")]
@@ -53,7 +54,7 @@ impl GuiState {
       load_force_mbc: false,
       load_force_mbc_type: 0,
       load_no_reset: false,
-
+      step_amount: 1,
       #[cfg(feature = "breakpoints")]
       mmu_breakpoint_addr: 0,
       #[cfg(feature = "breakpoints")]
@@ -322,14 +323,28 @@ impl Gui for GuiState {
       // RUN CONTROL
       ui.horizontal(|ui| {
         ui.checkbox(&mut self.gb.running, "Running");
-        ui.add_space(3.);
+        ui.separator();
         ui.add_enabled_ui(!(self.gb.running || self.gb_result.is_err()), |ui| {
-          if ui.button("Step").clicked() {
-            self.gb_result = match self.gb.step_ignore_running() {
-              Ok(_) => Ok(()),
-              Err(e) => Err(e)
-            };
+          if ui.button(RichText::new("Run for").monospace()).clicked() {
+            for _ in 0..self.step_amount {
+              self.gb_result = match self.gb.step_ignore_running() {
+                Ok(_) => Ok(()),
+                Err(e) => Err(e)
+              };
+              if self.gb_result.is_err() {
+                break;
+              }
+            }
           }
+          ui.add_space(-5.);
+          let mut amt = self.step_amount;
+          ui.add(
+            egui::DragValue::new(&mut amt)
+              .suffix(if self.step_amount <= 1 { " step" } else { " steps"})
+              .max_decimals(0)
+              .clamp_range(1..=usize::MAX)
+          );
+          self.step_amount = amt;
         });
       });
 
