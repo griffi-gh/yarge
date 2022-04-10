@@ -474,17 +474,25 @@ impl Gui for GuiState {
       }
 
       egui::CollapsingHeader::new(
-        "Stats"
+        "Application"
       ).show(ui, |ui| {
-        ui.horizontal(|ui| {
-          ui.label("GuiState stack usage: ");
-          ui.monospace(std::mem::size_of_val(&*self).to_string());
-          ui.label(" bytes");
-        });
-        ui.horizontal(|ui| {
-          ui.label("\t- Gameboy stack usage: ");
-          ui.monospace(std::mem::size_of_val(&self.gb).to_string());
-          ui.label(" bytes");
+        if ui.button("Organize windows").clicked() {
+          ui.ctx().memory().stop_text_input();
+          ui.ctx().memory().reset_areas();
+        }
+        egui::CollapsingHeader::new(
+          "Memory"
+        ).show(ui, |ui| {
+          ui.horizontal(|ui| {
+            ui.label("GuiState stack usage: ");
+            ui.monospace(std::mem::size_of_val(&*self).to_string());
+            ui.label(" bytes");
+          });
+          ui.horizontal(|ui| {
+            ui.label("\t- Gameboy stack usage: ");
+            ui.monospace(std::mem::size_of_val(&self.gb).to_string());
+            ui.label(" bytes");
+          });
         });
       });
 
