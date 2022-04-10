@@ -25,6 +25,10 @@ impl Gameboy {
     self.cpu.mmu.ww(addr, val);
   }
 
+  #[inline] pub fn render_tileset(&self) {
+    self.cpu.mmu.ppu.render_tileset();
+  }
+
   #[inline] pub fn load_rom(&mut self, data: &[u8]) -> Res<()> {
     self.cpu.mmu.load_rom(data)
   }
