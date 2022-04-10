@@ -61,10 +61,9 @@ impl MMU {
       //IO REGISTERS
       0xFF00..=0xFF7F => {
         match addr {
-          0xFF40 => {
-            self.ppu.get_lcdc()
-          }
-          0xFF44 => {
+          0xFF40 => { self.ppu.get_lcdc() } //LCDC
+          0xFF41 => { self.ppu.get_stat() } //STAT
+          0xFF44 => { //LY
             #[cfg(feature = "ly-stub")] { 0x90 }
             #[cfg(not(feature = "ly-stub"))] { self.ppu.ly }
           }
@@ -82,34 +81,20 @@ impl MMU {
   pub fn wb(&mut self, addr: u16, value: u8) {
     match addr {
       //BOOTROM/ROM
-      0..=0x7fff => {
-        //nah it's not worth checking for "bios_disabled" here
-        self.cart.write(addr, value);
-      }
+      //nah it's not worth checking for "bios_disabled" here
+      0..=0x7fff => { self.cart.write(addr, value); }
       //VRAM
-      0x8000..=0x9FFF => {
-        self.ppu.write_vram(addr, value);
-      }
+      0x8000..=0x9FFF => { self.ppu.write_vram(addr, value); }
       //ERAM
-      0xA000..=0xBFFF => {
-        self.cart.write_eram(addr, value);
-      }
+      0xA000..=0xBFFF => { self.cart.write_eram(addr, value); }
       //WRAM/ECHO
-      0xC000..=0xFDFF => {
-        self.wram[(addr & 0x1FFF) as usize] = value;
-      },
+      0xC000..=0xFDFF => { self.wram[(addr & 0x1FFF) as usize] = value; },
       //OAM
-      0xFE00..=0xFE9F => {
-        self.ppu.write_oam(addr, value);
-      },
+      0xFE00..=0xFE9F => { self.ppu.write_oam(addr, value); },
       //IO REGISTERS
-      0xFF40 => {
-        self.ppu.set_lcdc(value);
-      }
-      0xFF50 => {
-        //TODO check the value?
-        self.bios_disabled = true;
-      }
+      0xFF40 => { self.ppu.set_lcdc(value); }
+      0xFF41 => { self.ppu.set_stat(value); }
+      0xFF50 => { self.bios_disabled = true; }
       //HRAM
       0xFF80..=0xFFFE => {
         self.hram[((addr - 0xFF80) & 0x7F) as usize] = value;

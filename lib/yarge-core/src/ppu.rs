@@ -31,7 +31,7 @@ impl PPU {
       ly: 0,
       cycles: 0,
       x: 0,
-      mode: PPUMode::HBlank,
+      mode: PPUMode::default(),
       vram: Box::new([0; VRAM_SIZE]),
       oam: OAMMemory::new(),
       lcdc: LCDC::default(),
@@ -44,6 +44,13 @@ impl PPU {
   }
   #[inline] pub fn get_lcdc(&self) -> u8 {
     self.lcdc.into_u8()
+  }
+
+  pub fn get_stat(&self) -> u8 {
+    self.mode as u8
+  }
+  pub fn set_stat(&mut self, value: u8) {
+    todo!("{}", value) //TODO set_stat()
   }
 
   #[inline] pub fn read_oam(&self, addr: u16) -> u8 {

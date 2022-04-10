@@ -8,7 +8,7 @@ pub enum PPUMode {
 }
 
 impl Default for PPUMode {
-  fn default() -> Self { Self::HBlank }
+  fn default() -> Self { Self::OamSearch }
 }
 
 #[derive(Default, Clone, Copy)]

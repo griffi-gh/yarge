@@ -476,9 +476,23 @@ impl Gui for GuiState {
         });
       }
 
-      ui.separator();
+      egui::CollapsingHeader::new(
+        "Stats"
+      ).show(ui, |ui| {
+        ui.horizontal(|ui| {
+          ui.label("GuiState stack usage: ");
+          ui.monospace(std::mem::size_of_val(&*self).to_string());
+          ui.label(" bytes");
+        });
+        ui.horizontal(|ui| {
+          ui.label("\t- Gameboy stack usage: ");
+          ui.monospace(std::mem::size_of_val(&self.gb).to_string());
+          ui.label(" bytes");
+        });
+      });
 
       //FOOTER
+      ui.separator();
       ui.horizontal(|ui| {
         ui.label(format!("{} v.{} ({} build)",
           NAME.unwrap_or("<name?>"),
