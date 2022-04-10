@@ -445,10 +445,17 @@ impl Gui for GuiState {
                   );
                 }
               });
-              ui.label(RichText::new("WARNING").color(Color32::YELLOW).monospace());
-              ui.label("Breakpoints are experimental");
-              ui.label("1) PC breakpoints get triggered AFTER the instruction is executed");
-              ui.label("2) MMU breakpoints are NOT recoverable");
+              ui.separator();
+              {
+                ui.vertical_centered(|ui| {
+                  ui.label(RichText::new("WARNING").color(Color32::YELLOW).monospace());
+                });
+                ui.label("Breakpoints are experimental");
+                ui.label("1) PC breakpoints get triggered AFTER the instruction is executed");
+                ui.label("1) PC breakpoints can cause minor timing issues");
+                ui.label("2) MMU breakpoints are NOT recoverable");
+              }
+              ui.separator();
             }
           });
         });
