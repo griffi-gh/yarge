@@ -87,7 +87,6 @@ impl Fetcher {
       },
       FetcherState::PushToFifo => {
         if self.fifo.len() <= 8 {
-          //TODO
           for x in (0..TILE_WIDTH).rev() {
             let high_bit = (self.tile_data & (1 << x) != 0) as u8;
             let low_bit = ((self.tile_data >> 8) & (1 << x) != 0) as u8;

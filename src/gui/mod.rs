@@ -244,8 +244,6 @@ impl Gui for GuiState {
         "err_panel",
         recoverable
       );
-      //TODO downcast to EmulationError??
-      //let y: Box<dyn gb::errors::EmulationError> = self.gb_result.as_ref().unwrap_err().downcast().unwrap();
     }
 
     // MAIN WINDOW
@@ -289,7 +287,6 @@ impl Gui for GuiState {
                 true => Some(self.load_force_mbc_type),
                 false => None
               };
-              //TODO
               let _ = load_dialog(&mut self.gb, opt)
                 .map_err(|err| { println!("Load error: {err}"); });
             }
@@ -567,7 +564,7 @@ impl Gui for GuiState {
       });
     }
 
-    //TODO and this ugly shit
+    //TODO ...and this
     if reset_error_window || error_continue {
       self.gb_result = Ok(());
     }

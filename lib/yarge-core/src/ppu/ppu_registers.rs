@@ -61,7 +61,6 @@ impl LCDC {
     if self.obj_size { 16 } else { 8 }
   }
   pub fn transform_tile_index(&self, index: u8) -> u16 {
-    //TEST
     if self.tiledata_addr {
       index as u16
     } else { 

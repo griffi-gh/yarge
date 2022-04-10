@@ -25,8 +25,6 @@ impl MMU {
       hram: Box::new([0; 0x007F]),
     }
   }
-  
-  // MAYBE? rename to r16/w16/r8/w8 ?
 
   pub fn rb(&self, addr: u16) -> u8 {
     match addr {

@@ -6,7 +6,6 @@ pub struct OAMFlags {
   pub flip_y: bool,
   pub flip_x: bool,
   pub palette: bool, //DMG ONLY
-  //GBC other flags
 }
 impl OAMFlags {
   pub fn into_u8(&self) -> u8 {
