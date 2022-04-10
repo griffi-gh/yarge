@@ -99,6 +99,14 @@ impl Gameboy {
     }
   }
 
+  pub fn step_ignore_running(&mut self) -> Res<usize> {
+    let old = self.running;
+    self.resume();
+    let ret = self.step();
+    self.running = old;
+    return ret;
+  }
+
   pub fn step(&mut self) -> Res<usize> {
     if !self.running { return Ok(0); }
     #[cfg(feature = "logging")] self.log_step();

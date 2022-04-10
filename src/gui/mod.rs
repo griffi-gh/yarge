@@ -319,8 +319,19 @@ impl Gui for GuiState {
         });
       });    
 
-      // Control
-      ui.checkbox(&mut self.gb.running, "Running");
+      // RUN CONTROL
+      ui.horizontal(|ui| {
+        ui.checkbox(&mut self.gb.running, "Running");
+        ui.add_space(3.);
+        ui.add_enabled_ui(!(self.gb.running || self.gb_result.is_err()), |ui| {
+          if ui.button("Step").clicked() {
+            self.gb_result = match self.gb.step_ignore_running() {
+              Ok(_) => Ok(()),
+              Err(e) => Err(e)
+            };
+          }
+        });
+      });
 
       //REGISTERS
       egui::CollapsingHeader::new("Registers").default_open(true).show(ui, |ui| {
