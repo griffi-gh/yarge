@@ -194,18 +194,25 @@ impl Gui for GuiState {
           ui.label(details);
           ui.label("Check console output for more details");
         });
-        ui.vertical_centered_justified(|ui| {
-          if ui.button("Exit").clicked() {
-            exit = true;
-          }
-          if ui.button("Reset").clicked() {
-            reset(&mut self.gb);
-          }
-          ui.add_enabled_ui(recoverable, |ui| {
-            if ui.button("Continue").clicked() {
-              error_continue = true;
+        egui::Grid::new("error_buttons").num_columns(3).min_col_width(ui.available_width() / 3.).show(ui, |ui| {
+          ui.vertical_centered_justified(|ui| {
+            if ui.button("Exit").clicked() {
+              exit = true;
             }
           });
+          ui.vertical_centered_justified(|ui| {
+            if ui.button("Reset").clicked() {
+              reset(&mut self.gb);
+            }
+          });
+          ui.vertical_centered_justified(|ui| {
+            ui.add_enabled_ui(recoverable, |ui| {
+              if ui.button("Continue").clicked() {
+                error_continue = true;
+              }
+            });
+          });
+          ui.end_row();
         });
         ui.add_space(2.);
       });
