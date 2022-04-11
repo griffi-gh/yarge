@@ -17,13 +17,12 @@ build-time = "0.1.1"
 clap = { version = "3.1", features = ["derive"] }
 
 [features]
-default = ["gui", "ly-stub", "breakpoints"]
+default = ["gui", "breakpoints"]
 gui = ["yarge-gui-framework", "rfd", "ahash"]
 ly-stub = ["yarge-core/ly-stub"]
 logging = ["yarge-core/logging"]
 logging-file = ["logging", "yarge-core/logging-file"]
 logging-stdout = ["logging", "yarge-core/logging-stdout"]
-logging-all = ["logging-file", "logging-stdout", "yarge-core/logging-all"]
 breakpoints = ["yarge-core/breakpoints"]
 
 #[dev-dependencies]

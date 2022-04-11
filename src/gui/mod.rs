@@ -207,7 +207,7 @@ impl Gui for GuiState {
           });
           ui.vertical_centered_justified(|ui| {
             ui.add_enabled_ui(recoverable, |ui| {
-              if ui.button("Continue").clicked() {
+              if ui.button("Continue").on_disabled_hover_text("This error is not recoverable").clicked() {
                 error_continue = true;
               }
             });

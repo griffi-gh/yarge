@@ -44,7 +44,7 @@ pub struct Fetcher {
   layer: FetcherLayer,
 }
 impl Fetcher {
-  pub fn new(layer: FetcherLayer) -> Self { 
+  pub fn new() -> Self { 
     Self {
       cycle: false,
       state: FetcherState::default(),
@@ -53,8 +53,19 @@ impl Fetcher {
       offset: 0,
       tile: 0,
       tile_data: 0,
-      layer,
+      layer: FetcherLayer::Background,
     }
+  }
+  pub fn start(&mut self, x: u8, y: u8, layer: FetcherLayer) {
+    self.x = x;
+    self.y = y;
+    self.layer = layer;
+    //
+    self.tile = 0;
+    self.offset = 0;
+    self.cycle = false;
+    self.fifo.clear();
+    self.state = FetcherState::ReadTileId;
   }
   pub fn tick(&mut self, lcdc: &LCDC, vram: &[u8; VRAM_SIZE]) {
     //run only on every second cycle 
@@ -71,7 +82,7 @@ impl Fetcher {
         };
         let row = (self.y >> 3) as u16;
         let col = ((self.x as u16 + self.offset << 3) & 0xFF) << 3;
-        let addr_in_tilemap = map_address + (row << 5 + col);
+        let addr_in_tilemap = map_address + ((row << 5) + col);
         let tile = vram[(addr_in_tilemap & VRAM_MAX) as usize];
         self.tile = lcdc.transform_tile_index(tile);
         self.tile_data = 0;
@@ -95,6 +106,7 @@ impl Fetcher {
               FifoPixel::from_color(color)
             ).unwrap();
           }
+          self.offset += 1;
           self.state = FetcherState::ReadTileId;
         }
       }

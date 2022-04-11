@@ -8,9 +8,10 @@ use crate::consts::{VRAM_MAX, VRAM_SIZE, WIDTH, FB_SIZE};
 
 pub struct PPU {
   pub display: Box<[u8; FB_SIZE]>,
-  pub ly: u8,
+  pub scy: u8,
+  pub scx: u8,
+  ly: u8, x: u8, 
   cycles: usize,
-  x: u8,
   mode: PPUMode,
   vram: Box<[u8; 0x2000]>,
   oam: OAMMemory,
@@ -28,16 +29,18 @@ impl PPU {
         }
         display
       },
-      ly: 0,
+      scy: 0, scx: 0,
+      ly: 0, x: 0,
       cycles: 0,
-      x: 0,
       mode: PPUMode::default(),
       vram: Box::new([0; VRAM_SIZE]),
       oam: OAMMemory::new(),
       lcdc: LCDC::default(),
-      bg_fetcher: Fetcher::new(FetcherLayer::Background),
+      bg_fetcher: Fetcher::new(),
     }
   }
+
+  #[inline] pub fn get_ly(&self) -> u8 { self.ly }
 
   #[inline] pub fn set_lcdc(&mut self, value: u8) {
     self.lcdc.set_from_u8(value);
@@ -99,6 +102,9 @@ impl PPU {
       PPUMode::OamSearch => {
         //TODO
         if self.cycles >= 80 {
+          let fetcher_x = self.scx;
+          let fetcher_y = self.ly.wrapping_add(self.scy);
+          self.bg_fetcher.start(fetcher_x, fetcher_y, FetcherLayer::Background);
           self.mode(PPUMode::PxTransfer);
         }
       },
