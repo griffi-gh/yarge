@@ -194,7 +194,8 @@ impl Gui for GuiState {
           ui.label(details);
           ui.label("Check console output for more details");
         });
-        egui::Grid::new("error_buttons").num_columns(3).min_col_width(ui.available_width() / 3.).show(ui, |ui| {
+        let w = ui.available_width() / 3.;
+        egui::Grid::new("error_buttons").num_columns(3).max_col_width(w).show(ui, |ui| {
           ui.vertical_centered_justified(|ui| {
             if ui.button("Exit").clicked() {
               exit = true;
