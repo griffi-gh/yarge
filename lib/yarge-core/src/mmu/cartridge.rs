@@ -1,9 +1,11 @@
 use std::fmt;
 use arrayvec::ArrayString;
+use enum_dispatch::enum_dispatch;
 use crate::{Res, YargeError};
 
 #[allow(unused_variables)]
-pub trait Cartridge {
+#[enum_dispatch]
+pub trait CartridgeImpl {
   fn index(&self) -> u8;
   fn name(&self) -> &str;
   fn read(&self, addr: u16) -> u8;
@@ -12,7 +14,11 @@ pub trait Cartridge {
   fn write_eram(&self, addr: u16, value: u8) {}
   fn load(&mut self, data: &[u8]) -> Res<()>;
 }
-pub type DynCartridge = Box<(dyn Cartridge + Send)>;
+
+#[enum_dispatch(CartridgeImpl)]
+pub enum Cartridge {
+  CartridgeNone
+}
 
 pub struct CartridgeNone {
   index: u8,
@@ -26,7 +32,7 @@ impl CartridgeNone {
     }
   }
 }
-impl Cartridge for CartridgeNone {
+impl CartridgeImpl for CartridgeNone {
   fn name(&self) -> &str { "MBC0" }
   fn index(&self) -> u8 { self.index }
   fn load(&mut self, rom: &[u8]) -> Res<()> {
@@ -51,9 +57,9 @@ impl Cartridge for CartridgeNone {
   }
 }
 
-pub fn get_cartridge(cart_type: u8) -> Res<DynCartridge> {
+pub fn get_cartridge(cart_type: u8) -> Res<Cartridge> {
   match cart_type {
-    0x00 => Ok(Box::new(CartridgeNone::new(cart_type))),
+    0x00 => Ok(CartridgeNone::new(cart_type).into()),
     _ => Err(YargeError::InvalidMbcType(cart_type))
   }
 }

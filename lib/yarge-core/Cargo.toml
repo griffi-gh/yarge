@@ -14,6 +14,7 @@ arrayvec = "0.7"
 arraydeque = "0.4"
 lazy_static = "1.4"
 thiserror = "1.0"
+enum_dispatch = "0.3"
 
 [features]
 default = []

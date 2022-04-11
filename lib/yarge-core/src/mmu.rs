@@ -1,14 +1,12 @@
 pub mod cartridge;
-use cartridge::{RomHeader, DynCartridge, get_cartridge};
-
-use super::PPU;
-use crate::{ Res, consts::BIOS };
+use cartridge::{CartridgeImpl as _, RomHeader, Cartridge, get_cartridge};
+use crate::{PPU, Res, consts::BIOS};
 use std::fs;
 
 pub struct MMU {
   pub ppu: PPU,
   pub bios_disabled: bool,
-  cart: DynCartridge,
+  cart: Cartridge,
   cart_header: RomHeader,
   wram: Box<[u8; 0x2000]>,
   hram: Box<[u8; 0x007F]>,
