@@ -190,7 +190,6 @@ impl Gui for GuiState {
           ui.label(error_code);
         });
         ui.collapsing("Details", |ui| {
-          egui::warn_if_debug_build(ui);
           ui.label(details);
           ui.label("Check console output for more details");
         });
