@@ -15,4 +15,5 @@ target/
 #Copyrighted rom files
 _*.gb
 
-#blargg source
+#log stuff
+_log_*.txt
