@@ -563,9 +563,9 @@ macro_rules! ld_m_ff00_add_u8_a {
 //RLA
 macro_rules! rla {
   ($self: expr) => {
-    let r = $self.reg.a().overflowing_shl(1);
-    $self.reg.set_f_all(false , false, false, r.1);
-    $self.reg.set_a(r.0 | ($self.reg.f_c() as u8));
+    let val = $self.reg.a();
+    $self.reg.set_a((val << 1) | ($self.reg.f_c() as u8));
+    $self.reg.set_f_all(false, false, false, val & 0x80 != 0);
   }
 } pub(crate) use rla;
 
@@ -877,12 +877,13 @@ macro_rules! bit_mhl {
 macro_rules! rl_r {
   ($self: expr, $r: ident) => {
     paste! {
-      let r = $self.reg.[<$r:lower>]().overflowing_shl(1);
+      let val = $self.reg.[<$r:lower>]();
     }
-    let s = r.0 | ($self.reg.f_c() as u8);
-    $self.reg.set_f_all(s == 0, false, false, r.1);
+    let carry = val & 0x80 == 0x80;
+    let val = (val << 1) | ($self.reg.f_c() as u8);
+    $self.reg.set_f_all(val == 0, false, false, carry);
     paste! {
-      $self.reg.[<set_ $r:lower>](s);
+      $self.reg.[<set_ $r:lower>](val);
     }
   }
 } pub(crate) use rl_r;
@@ -890,10 +891,11 @@ macro_rules! rl_r {
 macro_rules! rl_mhl {
   ($self: expr) => {
     let hl = $self.reg.hl();
-    let r = $self.rb(hl)?.overflowing_shl(1);
-    let s = r.0 | ($self.reg.f_c() as u8);
-    $self.reg.set_f_all(s == 0, false, false, r.1);
-    $self.wb(hl, s)?;
+    let val = $self.rb(hl)?;
+    let carry = val & 0x80 == 0x80;
+    let val = (val << 1) | ($self.reg.f_c() as u8);
+    $self.reg.set_f_all(val == 0, false, false, carry);
+    $self.wb(hl, val)?;
   }
 } pub(crate) use rl_mhl;
 

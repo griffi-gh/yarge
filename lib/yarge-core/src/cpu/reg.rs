@@ -85,10 +85,10 @@ impl Registers {
   #[inline(always)] pub fn pc(&self) -> u16 { self.pc }
 
   // Flag register
-  #[inline(always)] pub fn f_z(&self) -> bool { (self.f() & 0x80) > 0 }
-  #[inline(always)] pub fn f_n(&self) -> bool { (self.f() & 0x40) > 0 }
-  #[inline(always)] pub fn f_h(&self) -> bool { (self.f() & 0x20) > 0 }
-  #[inline(always)] pub fn f_c(&self) -> bool { (self.f() & 0x10) > 0 }
+  #[inline(always)] pub fn f_z(&self) -> bool { (self.f() & 0x80) != 0 }
+  #[inline(always)] pub fn f_n(&self) -> bool { (self.f() & 0x40) != 0 }
+  #[inline(always)] pub fn f_h(&self) -> bool { (self.f() & 0x20) != 0 }
+  #[inline(always)] pub fn f_c(&self) -> bool { (self.f() & 0x10) != 0 }
 
   // Flag register inverse, to simplify conditionals
   #[inline(always)] pub fn f_nz(&self) -> bool { !self.f_z() }
