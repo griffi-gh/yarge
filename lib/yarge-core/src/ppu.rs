@@ -64,10 +64,10 @@ impl PPU {
   }
 
   #[inline] pub fn read_vram(&self, addr: u16) -> u8 {
-    self.vram[(addr & VRAM_MAX) as usize]
+    self.vram[(addr - 0x8000) as usize]
   }
   #[inline] pub fn write_vram(&mut self, addr: u16, value: u8) {
-    self.vram[(addr & VRAM_MAX) as usize] = value;
+    self.vram[(addr - 0x8000) as usize] = value;
   }
   
   fn mode(&mut self, mode: PPUMode) {

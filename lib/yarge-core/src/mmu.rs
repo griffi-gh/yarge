@@ -80,7 +80,7 @@ impl MMU {
     match addr {
       //BOOTROM/ROM
       //nah it's not worth checking for "bios_disabled" here
-      0..=0x7fff => { self.cart.write(addr, value); },
+      0x0000..=0x7fff => { self.cart.write(addr, value); },
       //VRAM
       0x8000..=0x9FFF => { self.ppu.write_vram(addr, value); },
       //ERAM
