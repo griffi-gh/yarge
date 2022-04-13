@@ -72,7 +72,7 @@ impl Fetcher {
     self.cycle ^= true; //toggle self.cycle
     if self.cycle { return; } //if self.cycle *was* false, skip this cycle
     let get_addr = |is_high: u16| {
-      (self.tile << 4) + ((((self.y >> 3) as u16) << 1) | is_high)
+      ((self.tile << 4) + ((((self.y >> 3) as u16) << 1) | is_high)) as usize
     };
     match self.state {
       FetcherState::ReadTileId => {
@@ -80,8 +80,10 @@ impl Fetcher {
           FetcherLayer::Background => lcdc.bg_tilemap_addr(),
           FetcherLayer::Window => lcdc.win_tilemap_addr(),
         };
-        let row = (self.y >> 3) as u16;
-        let col = (((self.x as u16 + self.offset) << 3) & 0xFF) << 3;
+
+        let row = (self.y / 8) as u16;
+        let col = (((self.x as u32 + self.offset as u32 * 8) & 0xff) / 8) as u16;
+
         let addr_in_tilemap = map_address + ((row << 5) + col);
         let tile = vram[(addr_in_tilemap & VRAM_MAX) as usize];
         self.tile = lcdc.transform_tile_index(tile);
@@ -89,11 +91,11 @@ impl Fetcher {
         self.state = FetcherState::ReadTileDataLow;
       },
       FetcherState::ReadTileDataLow => {
-        self.tile_data |= vram[(get_addr(0) & VRAM_MAX) as usize] as u16;
+        self.tile_data |= vram[(get_addr(0) & VRAM_MAX as usize)] as u16;
         self.state = FetcherState::ReadTileDataHigh;
       },
       FetcherState::ReadTileDataHigh => {
-        self.tile_data |= (vram[(get_addr(1) & VRAM_MAX) as usize] as u16) << 8;
+        self.tile_data |= (vram[(get_addr(1) & VRAM_MAX as usize)] as u16) << 8;
         self.state = FetcherState::PushToFifo;
       },
       FetcherState::PushToFifo => {
