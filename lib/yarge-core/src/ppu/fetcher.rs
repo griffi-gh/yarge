@@ -72,6 +72,13 @@ impl Fetcher {
     self.cycle ^= true; //toggle self.cycle
     if self.cycle { return; } //if self.cycle *was* false, skip this cycle
     let get_addr = |is_high: u16| {
+      /*let tile_number = self.tile;
+      let tile_row = (self.y % 8) as usize;
+      // 2x = 2 bytes per line
+      let line_base = tile_row * 2;
+      let line_offset = line_base + is_high as usize;
+      let tile_mask = tile_number << 4;
+      tile_mask as usize + line_offset*/
       ((self.tile << 4) + ((((self.y >> 3) as u16) << 1) | is_high)) as usize
     };
     match self.state {
