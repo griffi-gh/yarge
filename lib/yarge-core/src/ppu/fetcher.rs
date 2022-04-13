@@ -81,7 +81,7 @@ impl Fetcher {
           FetcherLayer::Window => lcdc.win_tilemap_addr(),
         };
         let row = (self.y >> 3) as u16;
-        let col = ((self.x as u16 + self.offset << 3) & 0xFF) << 3;
+        let col = (((self.x as u16 + self.offset) << 3) & 0xFF) << 3;
         let addr_in_tilemap = map_address + ((row << 5) + col);
         let tile = vram[(addr_in_tilemap & VRAM_MAX) as usize];
         self.tile = lcdc.transform_tile_index(tile);
@@ -99,9 +99,16 @@ impl Fetcher {
       FetcherState::PushToFifo => {
         if self.fifo.len() <= 8 {
           for x in (0..TILE_WIDTH).rev() {
-            let high_bit = (self.tile_data & (1 << x) != 0) as u8;
-            let low_bit = ((self.tile_data >> 8) & (1 << x) != 0) as u8;
-            let color = (high_bit) << 1 | low_bit;
+            let mask: u8 = 1 << x;
+            let (h_data, l_data) = (
+              (self.tile_data >> 8) as u8,
+              self.tile_data as u8
+            );
+            let (h_bit, l_bit) = (
+              (h_data & mask != 0) as u8,
+              (l_data & mask != 0) as u8
+            );
+            let color = (h_bit) << 1 | l_bit;
             self.fifo.push_back(
               FifoPixel::from_color(color)
             ).unwrap();
