@@ -40,6 +40,8 @@ pub struct GuiState {
   load_force_mbc_type: u8,
   load_no_reset: bool,
   step_amount: usize,
+  step_millis: f64,
+
   #[cfg(feature = "breakpoints")]
   mmu_breakpoint_addr: u16,
   #[cfg(feature = "breakpoints")]
@@ -55,6 +57,8 @@ impl GuiState {
       load_force_mbc_type: 0,
       load_no_reset: false,
       step_amount: 1,
+      step_millis: 0.,
+
       #[cfg(feature = "breakpoints")]
       mmu_breakpoint_addr: 0,
       #[cfg(feature = "breakpoints")]
@@ -139,9 +143,13 @@ fn u16_edit(ui: &mut egui::Ui, name: &str, value: u16, allow_edit: bool, mul: u1
 
 impl Gui for GuiState {
   fn prepare(&mut self) {
+    use std::time::Instant;
+    let instant = Instant::now();
     if self.gb_result.is_ok() {
       self.gb_result = self.gb.run_for_frame();
     }
+    let elapsed = instant.elapsed();
+    self.step_millis = elapsed.as_secs_f64() * 1000.;
   }
   fn render(&mut self, frame: &mut [u8]) {
     let data = self.gb.get_display_data();
@@ -483,6 +491,8 @@ impl Gui for GuiState {
       egui::CollapsingHeader::new(
         "Application"
       ).show(ui, |ui| {
+        ui.label(format!("gb.run_for_frame() time: {}ms", self.step_millis));
+        ui.label(format!("\t- Estimated FPS (excl. GUI): {}", (1000. / self.step_millis).round() as usize));
         if ui.button("Organize windows").clicked() {
           ui.ctx().memory().stop_text_input();
           ui.ctx().memory().reset_areas();
