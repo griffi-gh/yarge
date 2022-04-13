@@ -1,6 +1,6 @@
 use arraydeque::ArrayDeque;
 use super::ppu_registers::LCDC;
-use crate::consts::{TILE_WIDTH, VRAM_SIZE, VRAM_MAX};
+use crate::{consts::{TILE_WIDTH, VRAM_SIZE, VRAM_MAX}};
 
 #[derive(Default)]
 pub struct FifoPixel {
@@ -118,7 +118,7 @@ impl Fetcher {
               (l_data & mask != 0) as u8
             );
             let color = (h_bit) << 1 | l_bit;
-            self.fifo.push_back(
+            self.push(
               FifoPixel::from_color(color)
             ).unwrap();
           }
@@ -128,10 +128,15 @@ impl Fetcher {
       }
     }
   }
-  #[inline] pub fn len(&self) -> usize {
-    self.fifo.len()
+
+  #[inline] fn push(&mut self, elem: FifoPixel) -> Result<(), arraydeque::CapacityError<FifoPixel>> {
+    self.fifo.push_back(elem)
   }
+
   #[inline] pub fn pop(&mut self) -> Option<FifoPixel> {
     self.fifo.pop_front()
+  }
+  #[inline] pub fn len(&self) -> usize {
+    self.fifo.len()
   }
 }
