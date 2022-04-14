@@ -80,7 +80,7 @@ impl Fetcher {
     if self.cycle { return; } //if self.cycle *was* false, skip this cycle
 
     let fetch_addr = || {
-      (self.tile_idx as usize * 32) + (2 * ((self.ly as usize + self.scy as usize) & 7))
+      (self.tile_idx as usize * 16) + (2 * ((self.ly as usize + self.scy as usize) & 7))
     };
 
     match self.state {
