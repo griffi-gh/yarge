@@ -102,8 +102,6 @@ impl PPU {
       PPUMode::OamSearch => {
         //TODO
         if self.cycles >= 80 {
-          let fetcher_x = self.scx;
-          let fetcher_y = self.ly.wrapping_add(self.scy);
           self.bg_fetcher.start(self.scx, self.scy, self.ly, FetcherLayer::Background);
           self.mode(PPUMode::PxTransfer);
         }
