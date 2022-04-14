@@ -357,6 +357,14 @@ impl Gui for GuiState {
               .clamp_range(1..=usize::MAX)
           );
           self.step_amount = amt;
+
+          ui.separator();
+
+          if ui.button("Run for frame").clicked() {
+            self.gb.resume();
+            self.gb_result = self.gb.run_for_frame();
+            self.gb.pause();
+          }
         });
       });
 

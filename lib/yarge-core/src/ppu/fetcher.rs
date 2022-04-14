@@ -2,7 +2,7 @@ use arraydeque::ArrayDeque;
 use super::ppu_registers::LCDC;
 use crate::{consts::{TILE_WIDTH, VRAM_SIZE, VRAM_MAX}};
 
-#[derive(Default)]
+#[derive(Default, Debug)]
 pub struct FifoPixel {
   pub color: u8,
   //priority: bool,
@@ -17,6 +17,7 @@ impl FifoPixel {
   }
 }
 
+#[derive(Debug)]
 #[repr(u8)]
 enum FetcherState {
   ReadTileId,
@@ -28,19 +29,23 @@ impl Default for FetcherState {
   fn default() -> Self { Self::ReadTileId }
 }
 
+#[derive(PartialEq, Debug)]
 #[repr(u8)]
 pub enum FetcherLayer {
   Background, Window
 }
 
+#[derive(Debug)]
 pub struct Fetcher {
   cycle: bool,
   state: FetcherState,
   fifo: ArrayDeque<[FifoPixel; 16]>,
-  x: u8, y: u8,
+  scx: u8, 
+  scy: u8,
+  ly: u8,
   offset: u16,
-  tile: u16,
-  tile_data: u16,
+  tile_idx: u16,
+  tile_data: (u8, u8),
   layer: FetcherLayer,
 }
 impl Fetcher {
@@ -49,19 +54,22 @@ impl Fetcher {
       cycle: false,
       state: FetcherState::default(),
       fifo: ArrayDeque::default(),
-      x: 0, y: 0,
+      scx: 0, 
+      scy: 0,
+      ly: 0,
       offset: 0,
-      tile: 0,
-      tile_data: 0,
+      tile_idx: 0,
+      tile_data: (0, 0),
       layer: FetcherLayer::Background,
     }
   }
-  pub fn start(&mut self, x: u8, y: u8, layer: FetcherLayer) {
-    self.x = x;
-    self.y = y;
+  pub fn start(&mut self, scx: u8, scy: u8, ly: u8, layer: FetcherLayer) {
+    self.scx = scx;
+    self.scy = scy;
+    self.ly = ly;
     self.layer = layer;
     //
-    self.tile = 0;
+    self.tile_idx = 0;
     self.offset = 0;
     self.cycle = false;
     self.fifo.clear();
@@ -71,15 +79,9 @@ impl Fetcher {
     //run only on every second cycle 
     self.cycle ^= true; //toggle self.cycle
     if self.cycle { return; } //if self.cycle *was* false, skip this cycle
-    let get_addr = |is_high: u16| {
-      /*let tile_number = self.tile;
-      let tile_row = (self.y % 8) as usize;
-      // 2x = 2 bytes per line
-      let line_base = tile_row * 2;
-      let line_offset = line_base + is_high as usize;
-      let tile_mask = tile_number << 4;
-      tile_mask as usize + line_offset*/
-      ((self.tile << 4) + ((((self.y >> 3) as u16) << 1) | is_high)) as usize
+    let get_addr = || {
+      self.tile_idx as usize
+      //((self.tile_idx << 4) + ((self.y & 7) as u16) << 1) as usize
     };
     match self.state {
       FetcherState::ReadTileId => {
@@ -88,34 +90,41 @@ impl Fetcher {
           FetcherLayer::Window => lcdc.win_tilemap_addr(),
         };
 
-        let row = (self.y / 8) as u16;
+        /*let row = (self.y / 8) as u16;
         let col = (((self.x as u32 + self.offset as u32 * 8) & 0xff) / 8) as u16;
 
-        let addr_in_tilemap = map_address + ((row << 5) + col);
-        let tile = vram[(addr_in_tilemap & VRAM_MAX) as usize];
-        self.tile = lcdc.transform_tile_index(tile);
-        self.tile_data = 0;
+        let addr_in_tilemap = map_address + ((row << 5) + col);*/
+
+        let mut addr: u16 = self.offset;
+        if self.layer == FetcherLayer::Background {
+          let scy_ly_sum = (self.scy as u16 + self.ly as u16) & 0xff;
+          addr += (self.scx as u16 / 8) & 0x1f;
+          addr += 32 * (scy_ly_sum / 8);
+        }
+        addr &= 0x3ff;
+        let addr = addr + map_address - 0x8000;
+        let tile_idx_raw = vram[addr as usize];
+        self.tile_idx = lcdc.transform_tile_index(tile_idx_raw);
+        self.tile_data = (0, 0);
         self.state = FetcherState::ReadTileDataLow;
       },
       FetcherState::ReadTileDataLow => {
-        self.tile_data |= vram[(get_addr(0) & VRAM_MAX as usize)] as u16;
+        /*println!("{:?}", &*self);
+        println!("{:#06X}", get_addr());*/
+        self.tile_data.0 = vram[get_addr()];
         self.state = FetcherState::ReadTileDataHigh;
       },
       FetcherState::ReadTileDataHigh => {
-        self.tile_data |= (vram[(get_addr(1) & VRAM_MAX as usize)] as u16) << 8;
+        self.tile_data.1 = vram[get_addr() + 1];
         self.state = FetcherState::PushToFifo;
       },
       FetcherState::PushToFifo => {
         if self.fifo.len() <= 8 {
           for x in (0..TILE_WIDTH).rev() {
             let mask: u8 = 1 << x;
-            let (h_data, l_data) = (
-              (self.tile_data >> 8) as u8,
-              self.tile_data as u8
-            );
-            let (h_bit, l_bit) = (
-              (h_data & mask != 0) as u8,
-              (l_data & mask != 0) as u8
+            let (l_bit, h_bit) = (
+              (self.tile_data.0 & mask != 0) as u8,
+              (self.tile_data.1 & mask != 0) as u8
             );
             let color = (h_bit) << 1 | l_bit;
             self.push(

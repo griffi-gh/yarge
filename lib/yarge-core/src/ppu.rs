@@ -4,7 +4,7 @@ mod fetcher;
 use fetcher::{Fetcher, FetcherLayer, FifoPixel};
 use oam::OAMMemory;
 use ppu_registers::{LCDC, PPUMode};
-use crate::consts::{VRAM_MAX, VRAM_SIZE, WIDTH, FB_SIZE};
+use crate::consts::{VRAM_SIZE, WIDTH, FB_SIZE};
 
 pub struct PPU {
   pub display: Box<[u8; FB_SIZE]>,
@@ -13,7 +13,7 @@ pub struct PPU {
   ly: u8, x: u8, 
   cycles: usize,
   mode: PPUMode,
-  vram: Box<[u8; 0x2000]>,
+  vram: Box<[u8; VRAM_SIZE]>,
   oam: OAMMemory,
   lcdc: LCDC,
   bg_fetcher: Fetcher,
@@ -104,7 +104,7 @@ impl PPU {
         if self.cycles >= 80 {
           let fetcher_x = self.scx;
           let fetcher_y = self.ly.wrapping_add(self.scy);
-          self.bg_fetcher.start(fetcher_x, fetcher_y, FetcherLayer::Background);
+          self.bg_fetcher.start(self.scx, self.scy, self.ly, FetcherLayer::Background);
           self.mode(PPUMode::PxTransfer);
         }
       },
