@@ -80,8 +80,8 @@ impl Fetcher {
     self.cycle ^= true; //toggle self.cycle
     if self.cycle { return; } //if self.cycle *was* false, skip this cycle
 
-    let scy_ly_sum = (self.scy as u16 + self.ly as u16) & 0xff;
-    let fetch_offset = (scy_ly_sum & 7) << 1;
+    let scy_ly_sum = self.scy.wrapping_add(self.ly);
+    let fetch_offset = (scy_ly_sum as u16 & 7) << 1;
 
     match self.state {
       FetcherState::ReadTileId => {
@@ -92,7 +92,7 @@ impl Fetcher {
         let addr: u16 = {
           let mut addr = self.offset;
           if self.layer == FetcherLayer::Background {
-            let scy_ly_sum = (self.scy as u16 + self.ly as u16) & 0xff;
+            let scy_ly_sum = self.scy.wrapping_add(self.ly) as u16;
             addr += (self.scx as u16 / 8) & 0x1f;
             addr += 32 * (scy_ly_sum / 8);
           }
@@ -114,7 +114,7 @@ impl Fetcher {
       },
       FetcherState::PushToFifo => {
         if self.fifo.len() <= 8 {
-          for x in (0..TILE_WIDTH).rev() {
+          for x in (0..8).rev() {
             let mask: u8 = 1 << x;
             let (l_bit, h_bit) = (
               ((self.tile_data.0 & mask) != 0) as u8,
