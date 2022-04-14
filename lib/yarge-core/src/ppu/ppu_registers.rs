@@ -64,7 +64,7 @@ impl LCDC {
     if self.tiledata_addr {
       index as u16
     } else { 
-      (index as i8 as u16).wrapping_add(0x100)
+      ((index as i8) as u16).wrapping_add(0x100)
     }
   }
 }

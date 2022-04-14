@@ -68,11 +68,10 @@ impl Fetcher {
     self.scy = scy;
     self.ly = ly;
     self.layer = layer;
-    //
+    self.fifo.clear();
     self.tile_idx = 0;
     self.offset = 0;
     self.cycle = false;
-    self.fifo.clear();
     self.state = FetcherState::ReadTileId;
   }
   pub fn tick(&mut self, lcdc: &LCDC, vram: &[u8; VRAM_SIZE]) {
@@ -80,11 +79,10 @@ impl Fetcher {
     self.cycle ^= true; //toggle self.cycle
     if self.cycle { return; } //if self.cycle *was* false, skip this cycle
 
-    let scy_ly_sum = self.scy.wrapping_add(self.ly);
-    let fetch_offset = || {
-      (self.tile_idx + (scy_ly_sum as u16 & 7) << 1) as usize
+    let fetch_addr = || {
+      (self.tile_idx as usize * 32) + (2 * ((self.ly as usize + self.scy as usize) & 7))
     };
-    
+
     match self.state {
       FetcherState::ReadTileId => {
         let map_address = match self.layer {
@@ -95,22 +93,21 @@ impl Fetcher {
           let mut addr = self.offset;
           if self.layer == FetcherLayer::Background {
             addr += (self.scx as u16 / 8) & 0x1f;
-            addr += 32 * (scy_ly_sum as u16 / 8);
+            addr &= 0x3ff;
+            addr += 32 * (self.scy.wrapping_add(self.ly) as u16 / 8);
+            addr &= 0x3ff;
           }
-          addr &= 0x3ff;
           addr + map_address
         };
-        let tile_idx_raw = vram[addr as usize];
-        self.tile_idx = lcdc.transform_tile_index(tile_idx_raw);
-        self.tile_data = (0, 0);
+        self.tile_idx = lcdc.transform_tile_index(vram[addr as usize]);
         self.state = FetcherState::ReadTileDataLow;
       },
       FetcherState::ReadTileDataLow => {
-        self.tile_data.0 = vram[fetch_offset() + 0];
+        self.tile_data.0 = vram[fetch_addr()];
         self.state = FetcherState::ReadTileDataHigh;
       },
       FetcherState::ReadTileDataHigh => {
-        self.tile_data.1 = vram[fetch_offset() + 1];
+        self.tile_data.1 = vram[fetch_addr() + 1];
         self.state = FetcherState::PushToFifo;
       },
       FetcherState::PushToFifo => {
