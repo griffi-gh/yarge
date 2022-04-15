@@ -89,7 +89,7 @@ impl Fetcher {
           if self.layer == FetcherLayer::Background {
             addr += (self.scx as u16 / 8) & 0x1f;
             addr &= 0x3ff;
-            addr += 32 * (self.scy.wrapping_add(self.ly) as u16 / 8);
+            addr += 32 * (self.ly.wrapping_add(self.scy) as u16 / 8);
             addr &= 0x3ff;
           }
           addr + match self.layer {
