@@ -10,7 +10,9 @@ pub struct MMU {
   cart_header: RomHeader,
   wram: Box<[u8; 0x2000]>,
   hram: Box<[u8; 0x007F]>,
-  //MAYBE include IE here?
+  //interrupts
+  iie: u8,
+  iif: u8,
 }
 impl MMU {
   pub fn new() -> Self {
@@ -21,6 +23,8 @@ impl MMU {
       cart_header: RomHeader::default(),
       wram: Box::new([0; 0x2000]),
       hram: Box::new([0; 0x007F]),
+      iie: 0x00,
+      iif: 0x00,
     }
   }
 
@@ -35,25 +39,15 @@ impl MMU {
         }
       },
       //ROM
-      0x0100..=0x7fff => { 
-        self.cart.read(addr)
-      },
+      0x0100..=0x7fff => self.cart.read(addr),
       //VRAM
-      0x8000..=0x9FFF => {
-        self.ppu.read_vram(addr)
-      }
+      0x8000..=0x9FFF => self.ppu.read_vram(addr),
       //ERAM
-      0xA000..=0xBFFF => {
-        self.cart.read_eram(addr)
-      }
+      0xA000..=0xBFFF => self.cart.read_eram(addr),
       //WRAM/ECHO
-      0xC000..=0xFDFF => {
-        self.wram[(addr & 0x1FFF) as usize]
-      },
+      0xC000..=0xFDFF => self.wram[(addr & 0x1FFF) as usize],
       //OAM
-      0xFE00..=0xFE9F => {
-        self.ppu.read_oam(addr)
-      },
+      0xFE00..=0xFE9F => self.ppu.read_oam(addr),
       //IO REGISTERS
       0xFF00..=0xFF7F => {
         match addr {
@@ -72,6 +66,7 @@ impl MMU {
       0xFF80..=0xFFFE => {
         self.hram[((addr - 0xFF80) & 0x7F) as usize]
       },
+      0xFFFF => self.iie,
       _ => 0
     }
   }
@@ -90,6 +85,7 @@ impl MMU {
       //OAM
       0xFE00..=0xFE9F => { self.ppu.write_oam(addr, value); },
       //IO REGISTERS
+      0xFF0F => { self.iif = value; },
       0xFF40 => { self.ppu.set_lcdc(value); },
       0xFF41 => { self.ppu.set_stat(value); },
       0xFF42 => { self.ppu.scy = value; },
@@ -99,6 +95,8 @@ impl MMU {
       0xFF80..=0xFFFE => {
         self.hram[((addr - 0xFF80) & 0x7F) as usize] = value;
       },
+      //IE
+      0xFFFF => { self.iie = value; }
       _ => {}
     }
   }

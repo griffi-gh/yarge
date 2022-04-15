@@ -593,10 +593,22 @@ macro_rules! daa {
   };
 } pub(crate) use daa;
 
+macro_rules! ei {
+  ($self: expr) => {
+    $self.ime_pending = true;
+  }
+} pub(crate) use ei;
+
+macro_rules! di {
+  ($self: expr) => {
+    $self.ime_pending = false;
+    $self.ime = false;
+  }
+} pub(crate) use di;
+
 macro_rules! cpu_instructions {
   ($self: expr, $op: expr) => {
     {
-      let mut ret = Ok(());
       match($op) {
         0x00 => { /*IS A NO-OP*/ },               //NOP
         0x01 => { ld_rr_u16!($self, BC); },       //LD BC,u16
@@ -814,22 +826,23 @@ macro_rules! cpu_instructions {
         0xF0 => { ld_a_m_ff00_add_u8!($self); }   //LD A,(FF00+u8)
         0xF1 => { pop_rr!($self, AF); }           //POP AF
         0xF2 => { ld_a_m_ff00_add_c!($self); }    //LD A,(FF00+C)
+        0xF3 => { di!($self); }                   //DI
         0xF5 => { push_rr!($self, AF); }          //PUSH AF
         0xF6 => { or_a_u8!($self); }              //OR A,u8
         0xF7 => { rst!($self, 0x30); }            //RST 30h
         0xFA => { ld_a_mu16!($self); }            //LD A,(u16)
+        0xFB => { ei!($self); }                   //EI
         0xFE => { cp_a_u8!($self); }              //CP A,u8
         0xFF => { rst!($self, 0x38); }            //RST 38h
 
         _ => { 
-          ret = Err(YargeError::InvalidInstruction{
+          Err(YargeError::InvalidInstruction{
             is_cb: false,
             addr: $self.reg.pc.wrapping_sub(1),
             instr: $op
-          })
+          })?;
         }
       }
-      ret
     }
   };
 } pub(crate) use cpu_instructions;
@@ -902,7 +915,6 @@ macro_rules! rl_mhl {
 macro_rules! cpu_instructions_cb {
   ($self: expr, $op: expr) => {
     {
-      let mut ret = Ok(());
       match($op) {
         0x10 => { rl_r!($self, B); }              // RL B
         0x11 => { rl_r!($self, C); }              // RL C
@@ -991,14 +1003,13 @@ macro_rules! cpu_instructions_cb {
         0x7F => { bit_r!($self, 7, A); }          // BIT 7,A
 
         _ => { 
-          ret = Err(YargeError::InvalidInstruction {
+          Err(YargeError::InvalidInstruction {
             is_cb: true,
             addr: $self.reg.pc.wrapping_sub(1),
             instr: $op
-          })
+          })?;
         }
       }
-      ret
     }
   };
 } pub(crate) use cpu_instructions_cb;

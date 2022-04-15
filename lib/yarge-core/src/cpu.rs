@@ -16,6 +16,8 @@ pub struct CPU {
   pub reg: Registers,
   pub mmu: MMU,
   pub state: CPUState,
+  ime_pending: bool,
+  ime: bool,
   t: usize,
 
   #[cfg(feature = "breakpoints")]
@@ -30,6 +32,8 @@ impl CPU {
       reg: Registers::new(),
       mmu: MMU::new(),
       state: CPUState::Running,
+      ime_pending: false,
+      ime: false,
       t: 0,
 
       #[cfg(feature = "breakpoints")]
@@ -120,19 +124,25 @@ impl CPU {
   pub fn step(&mut self) -> Res<usize> {
     self.t = 0;
     if self.state == CPUState::Running {
+      if self.ime_pending {
+        self.ime_pending = false;
+        self.ime = true;
+      }
+
       #[cfg(feature = "breakpoints")]
       let pc_value = self.reg.pc;
 
       let mut op = self.fetch()?;
       if op != 0xCB { 
-        cpu_instructions!(self, op)?;
+        cpu_instructions!(self, op);
       } else {
         op = self.fetch()?;
-        cpu_instructions_cb!(self, op)?;
+        cpu_instructions_cb!(self, op);
       }
-
-      #[cfg(feature = "breakpoints")]
-      self.check_pc_breakpoints(pc_value)?;
+      
+      #[cfg(feature = "breakpoints")] {
+        self.check_pc_breakpoints(pc_value)?;
+      }
     } else {
       self.cycle();
     }
