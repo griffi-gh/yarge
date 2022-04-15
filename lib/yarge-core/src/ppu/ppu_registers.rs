@@ -49,9 +49,10 @@ impl LCDC {
     ((self.enable_display   as u8) << 7)
   }
   #[inline] pub fn bg_tilemap_addr(&self) -> u16 {
-    if !self.bg_tilemap_addr { 0x9800 } else { 0x9C00 }
+    if self.bg_tilemap_addr { 0x9C00 } else { 0x9800 }
   }
   #[inline] pub fn win_tilemap_addr(&self) -> u16 {
+    //Not sure if it's correct?
     if self.win_tilemap_addr { 0x9800 } else { 0x9C00 }
   }
   #[inline] pub fn bg_tiledata_addr(&self) -> u16 {
