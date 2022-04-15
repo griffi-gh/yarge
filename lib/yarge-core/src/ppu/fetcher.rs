@@ -2,7 +2,7 @@ use arraydeque::ArrayDeque;
 use super::ppu_registers::LCDC;
 use crate::{consts::{TILE_WIDTH, VRAM_SIZE, VRAM_MAX}};
 
-#[derive(Default, Debug)]
+#[derive(Default)]
 pub struct FifoPixel {
   pub color: u8,
   //priority: bool,
@@ -29,13 +29,12 @@ impl Default for FetcherState {
   fn default() -> Self { Self::ReadTileId }
 }
 
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq)]
 #[repr(u8)]
 pub enum FetcherLayer {
   Background, Window
 }
 
-#[derive(Debug)]
 pub struct Fetcher {
   cycle: bool,
   state: FetcherState,
@@ -85,10 +84,6 @@ impl Fetcher {
 
     match self.state {
       FetcherState::ReadTileId => {
-        let map_address = match self.layer {
-          FetcherLayer::Background => lcdc.bg_tilemap_addr() - 0x8000,
-          FetcherLayer::Window => lcdc.win_tilemap_addr() - 0x8000,
-        };
         let addr: u16 = {
           let mut addr = self.offset;
           if self.layer == FetcherLayer::Background {
@@ -97,7 +92,10 @@ impl Fetcher {
             addr += 32 * (self.scy.wrapping_add(self.ly) as u16 / 8);
             addr &= 0x3ff;
           }
-          addr + map_address
+          addr + match self.layer {
+            FetcherLayer::Background => lcdc.bg_tilemap_addr() - 0x8000,
+            FetcherLayer::Window => lcdc.win_tilemap_addr() - 0x8000,
+          }
         };
         self.tile_idx = lcdc.transform_tile_index(vram[addr as usize]);
         self.state = FetcherState::ReadTileDataLow;
@@ -112,7 +110,7 @@ impl Fetcher {
       },
       FetcherState::PushToFifo => {
         if self.fifo.len() <= 8 {
-          for x in (0..8).rev() {
+          for x in (0..8_u8).rev() {
             let mask: u8 = 1 << x;
             let (l_bit, h_bit) = (
               ((self.tile_data.0 & mask) != 0) as u8,
