@@ -129,8 +129,12 @@ impl CPU {
     let check = self.mmu.iie & self.mmu.iif;
     if check != 0 {
       if self.ime {
-        //TODO
-        //check.trailing_zeros();
+        const JMP_VEC: [u16; 5] = [0x40, 0x48, 0x50, 0x58, 0x60];
+        let int_type = check.trailing_zeros() as usize;
+        if int_type < JMP_VEC.len() {
+          self.reg.pc = JMP_VEC[int_type];
+          for _ in 0..5 { self.cycle(); } //20 cycles
+        }
       } else if self.state == CPUState::Halt {
         self.state = CPUState::Running;
       }
