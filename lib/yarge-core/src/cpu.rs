@@ -121,13 +121,26 @@ impl CPU {
     self.mmu.ppu.tick();
   }
 
+  pub fn check_interrupts(&mut self) {
+    if self.ime_pending {
+      self.ime_pending = false;
+      self.ime = true;
+    }
+    let check = self.mmu.iie & self.mmu.iif;
+    if check != 0 {
+      if self.ime {
+        //TODO
+        //check.trailing_zeros();
+      } else if self.state == CPUState::Halt {
+        self.state = CPUState::Running;
+      }
+    } 
+  }
+
   pub fn step(&mut self) -> Res<usize> {
     self.t = 0;
     if self.state == CPUState::Running {
-      if self.ime_pending {
-        self.ime_pending = false;
-        self.ime = true;
-      }
+      self.check_interrupts();
 
       #[cfg(feature = "breakpoints")]
       let pc_value = self.reg.pc;
@@ -139,7 +152,7 @@ impl CPU {
         op = self.fetch()?;
         cpu_instructions_cb!(self, op);
       }
-      
+
       #[cfg(feature = "breakpoints")] {
         self.check_pc_breakpoints(pc_value)?;
       }

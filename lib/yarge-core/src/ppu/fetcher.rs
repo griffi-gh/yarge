@@ -131,7 +131,6 @@ impl Fetcher {
   #[inline] fn push(&mut self, elem: FifoPixel) -> Result<(), arraydeque::CapacityError<FifoPixel>> {
     self.fifo.push_back(elem)
   }
-
   #[inline] pub fn pop(&mut self) -> Option<FifoPixel> {
     self.fifo.pop_front()
   }

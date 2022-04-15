@@ -11,8 +11,8 @@ pub struct MMU {
   wram: Box<[u8; 0x2000]>,
   hram: Box<[u8; 0x007F]>,
   //interrupts
-  iie: u8,
-  iif: u8,
+  pub iie: u8,
+  pub iif: u8,
 }
 impl MMU {
   pub fn new() -> Self {
