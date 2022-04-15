@@ -53,7 +53,7 @@ impl PPU {
     self.mode as u8
   }
   pub fn set_stat(&mut self, value: u8) {
-    todo!("{}", value) //TODO set_stat()
+    //TODO set_stat()
   }
 
   #[inline] pub fn read_oam(&self, addr: u16) -> u8 {
