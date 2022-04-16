@@ -46,6 +46,7 @@ pub struct Fetcher {
   tile_idx: u16,
   tile_data: (u8, u8),
   layer: FetcherLayer,
+  sleep: u8,
 }
 impl Fetcher {
   pub fn new() -> Self { 
@@ -60,6 +61,7 @@ impl Fetcher {
       tile_idx: 0,
       tile_data: (0, 0),
       layer: FetcherLayer::Background,
+      sleep: 6,
     }
   }
   pub fn start(&mut self, scx: u8, scy: u8, ly: u8, layer: FetcherLayer) {
@@ -72,8 +74,13 @@ impl Fetcher {
     self.offset = 0;
     self.cycle = false;
     self.state = FetcherState::ReadTileId;
+    self.sleep = 6;
   }
   pub fn tick(&mut self, lcdc: &LCDC, vram: &[u8; VRAM_SIZE]) {
+    if self.sleep > 0 {
+      self.sleep -= 1;
+      return;
+    }
     let fetch_addr = || {
       (self.tile_idx as usize * 16) + (2 * ((self.ly as usize + self.scy as usize) & 7))
     };
