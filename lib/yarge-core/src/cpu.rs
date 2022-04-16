@@ -2,8 +2,7 @@ mod reg;
 mod instructions;
 use instructions::*;
 pub use reg::Registers;
-use super::Mmu;
-use crate::{ Res, YargeError };
+use crate::{ Mmu, Res, YargeError, consts::INT_JMP_VEC };
 
 #[derive(PartialEq)]
 pub enum CpuState {
@@ -118,10 +117,38 @@ impl Cpu {
 
   fn cycle(&mut self) {
     self.t += 4;
-    self.mmu.ppu.tick();
+    self.mmu.ppu.tick(&mut self.mmu.iif);
   }
 
-  pub fn check_interrupts(&mut self) {
+  fn disable_ime(&mut self) {
+    self.ime_pending = false;
+    self.ime = false;
+  }
+
+  fn enable_ime(&mut self) {
+    self.ime_pending = true;
+  }
+
+  fn dispatch_interrupt(&mut self, int: usize) {
+    #[cfg(debug_assertions)] {
+      assert!(int < 5, "Invalid interrupt: {int}");
+    }
+    //Unhalt
+    if self.state == CpuState::Halt {
+      self.state = CpuState::Running;
+    }
+    //Call interrupt handler
+    self.reg.dec_sp(2);
+    self.mmu.ww(self.reg.sp, self.reg.pc);
+    self.reg.pc = INT_JMP_VEC[int];
+    //flip IF bit and disable IME
+    self.mmu.iif &= !(1 << int);
+    self.disable_ime();
+    //Run for 20 cycles
+    for _ in 0..5 { self.cycle(); } 
+  }
+
+  fn check_interrupts(&mut self) {
     if self.ime_pending {
       self.ime_pending = false;
       self.ime = true;
@@ -129,11 +156,9 @@ impl Cpu {
     let check = self.mmu.iie & self.mmu.iif;
     if check != 0 {
       if self.ime {
-        const JMP_VEC: [u16; 5] = [0x40, 0x48, 0x50, 0x58, 0x60];
         let int_type = check.trailing_zeros() as usize;
-        if int_type < JMP_VEC.len() {
-          self.reg.pc = JMP_VEC[int_type];
-          for _ in 0..5 { self.cycle(); } //20 cycles
+        if int_type < 5 {
+          self.dispatch_interrupt(int_type);
         }
       } else if self.state == CpuState::Halt {
         self.state = CpuState::Running;

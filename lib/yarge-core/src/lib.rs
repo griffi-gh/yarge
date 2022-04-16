@@ -2,7 +2,6 @@
 pub(crate) mod mmu;
 pub(crate) mod cpu;
 pub(crate) mod ppu;
-use cpu::CpuState;
 pub(crate) use mmu::Mmu;
 pub(crate) use cpu::Cpu;
 pub(crate) use ppu::Ppu;
@@ -66,13 +65,6 @@ impl Gameboy {
     reg.set_hl(0x014D);
     self.cpu.mmu.bios_disabled = true;
   }
-
-  #[inline] pub fn pause(&mut self) {
-    self.running = false;
-  }
-  #[inline] pub fn resume(&mut self) {
-    self.running = true;
-  }
   
   pub fn reset(&mut self) {
     self.cpu = Cpu::new();
@@ -128,7 +120,7 @@ impl Gameboy {
     if !self.running {
       return Ok(());
     }
-    if self.cpu.state == CpuState::Running {
+    if self.is_rendering() {
       self.reset_frame_ready();
       while !self.get_frame_ready() {
         self.step()?;

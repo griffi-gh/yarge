@@ -2,11 +2,25 @@
 
 use super::{
   Gameboy, Res,
+  cpu::CpuState,
   mmu::cartridge::RomHeader,
   consts::FB_SIZE
 };
 
 impl Gameboy {
+  #[inline] pub fn pause(&mut self) {
+    self.running = false;
+  }
+  #[inline] pub fn resume(&mut self) {
+    self.running = true;
+  }
+
+  #[inline] pub fn is_rendering(&self) -> bool {
+    (self.cpu.mmu.ppu.get_lcdc() & 0x80) != 0 &&
+    self.cpu.state == CpuState::Running &&
+    self.running
+  }
+
   #[inline] pub fn get_display_data(&self) -> &[u8; FB_SIZE] {
     &self.cpu.mmu.ppu.display
   }

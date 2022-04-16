@@ -79,7 +79,7 @@ impl Ppu {
     self.mode = mode;
   }
 
-  pub fn tick_inner(&mut self) {
+  pub fn tick_inner(&mut self, _iif: &mut u8) {
     match self.mode { 
       PpuMode::HBlank => {
         if self.cycles >= self.hblank_len {
@@ -131,15 +131,15 @@ impl Ppu {
     }
   }
 
-  pub fn tick(&mut self) {
+  pub fn tick(&mut self, iif: &mut u8) {
     if self.mode == PpuMode::PxTransfer {
       for _ in 0..4 {
         self.cycles += 1;
-        self.tick_inner();
+        self.tick_inner(iif);
       }
     } else {
       self.cycles += 4;
-      self.tick_inner();
+      self.tick_inner(iif);
     }
   }
 

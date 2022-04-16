@@ -160,6 +160,12 @@ macro_rules! cond_jp_u16 {
   }
 } pub(crate) use cond_jp_u16;
 
+macro_rules! jp_hl {
+  ($self: expr) => {
+    $self.reg.pc = $self.reg.hl();
+  };
+} pub(crate) use jp_hl;
+
 // CALL
 
 macro_rules! call_u16 {
@@ -208,6 +214,14 @@ macro_rules! ret_cond {
     }
   };
 } pub(crate) use ret_cond;
+
+
+macro_rules! reti {
+  ($self: expr) => {
+    ret!($self);
+    $self.enable_ime();
+  } 
+} pub(crate) use reti;
 
 // RST 
 
@@ -593,18 +607,40 @@ macro_rules! daa {
   };
 } pub(crate) use daa;
 
+macro_rules! cpl {
+  ($self: expr) => {
+    $self.reg.set_a(!$self.reg.a());
+    $self.reg.set_f_n(true);
+    $self.reg.set_f_h(true);
+  };
+} pub(crate) use cpl;
+
 macro_rules! ei {
   ($self: expr) => {
-    $self.ime_pending = true;
+    $self.enable_ime();
   }
 } pub(crate) use ei;
 
 macro_rules! di {
   ($self: expr) => {
-    $self.ime_pending = false;
-    $self.ime = false;
+    $self.disable_ime();
   }
 } pub(crate) use di;
+
+macro_rules! add_hl_rr {
+  ($self: expr, $reg: ident) => {
+    paste! {
+      let rr = $self.reg.[<$reg:lower>]();
+    }
+    let hl = $self.reg.hl();
+    $self.reg.set_f_n(false);
+    $self.reg.set_f_h((hl & 0xFFF) + (rr & 0xFFF) > 0xFFF);
+    let hl = hl.overflowing_add(rr);
+    $self.reg.set_f_c(hl.1);
+    $self.reg.set_hl(hl.0);
+    $self.cycle();
+  }
+} pub(crate) use add_hl_rr;
 
 macro_rules! cpu_instructions {
   ($self: expr, $op: expr) => {
@@ -616,7 +652,8 @@ macro_rules! cpu_instructions {
         0x03 => { incdec_rr!($self, BC, add); }   //INC BC
         0x04 => { inc_r!($self, B); }             //INC B
         0x05 => { dec_r!($self, B); }             //DEC B
-        0x06 => { ld_r_u8!($self, B); }           //LD B,u8 
+        0x06 => { ld_r_u8!($self, B); }           //LD B,u8
+        0x09 => { add_hl_rr!($self, BC); }        //ADD HL,BC
         0x0A => { ld_a_mrr!($self, BC); }         //LD A,(BC)
         0x0B => { incdec_rr!($self, BC, sub); }   //DEC BC
         0x0C => { inc_r!($self, C); }             //INC C
@@ -632,6 +669,7 @@ macro_rules! cpu_instructions {
         0x16 => { ld_r_u8!($self, D); }           //LD D,u8
         0x17 => { rla!($self); }                  //RLA
         0x18 => { jr_i8!($self); }                //JR i8
+        0x19 => { add_hl_rr!($self, DE); }        //ADD HL,DE
         0x1A => { ld_a_mrr!($self, DE); }         //LD A,(DE)
         0x1B => { incdec_rr!($self, DE, sub); }   //DEC DE
         0x1C => { inc_r!($self, E); }             //INC E
@@ -647,11 +685,13 @@ macro_rules! cpu_instructions {
         0x26 => { ld_r_u8!($self, H); }           //LD H,u8
         0x27 => { daa!($self); }                  //DAA
         0x28 => { jr_i8_cond!($self, Z); }        //JR Z, i8 
+        0x29 => { add_hl_rr!($self, HL); }        //ADD HL,HL
         0x2A => { ld_a_mhli!($self, add); }       //LD A,(HL+)
         0x2B => { incdec_rr!($self, HL, sub); }   //DEC HL
         0x2C => { inc_r!($self, L); }             //INC L
         0x2D => { dec_r!($self, L); }             //DEC L
         0x2E => { ld_r_u8!($self, L); }           //LD L,u8 
+        0x2F => { cpl!($self); }                  //CPL
 
         0x30 => { jr_i8_cond!($self, NC); }       //JR NZ, i8
         0x31 => { ld_rr_u16!($self, SP); },       //LD SP,u16
@@ -661,6 +701,7 @@ macro_rules! cpu_instructions {
         0x35 => { dec_mhl!($self); }              //DEC (HL)
         0x36 => { ld_mhl_u8!($self); }            //LD (HL), u8
         0x38 => { jr_i8_cond!($self, C); }        //JR C, i8 
+        0x39 => { add_hl_rr!($self, SP); }        //ADD HL,SP
         0x3A => { ld_a_mhli!($self, sub); }       //LD A,(HL-)
         0x3B => { incdec_rr!($self, SP, sub); },  //DEC SP
         0x3C => { inc_r!($self, A); }             //INC A
@@ -809,6 +850,7 @@ macro_rules! cpu_instructions {
         0xD6 => { sub_a_u8!($self); }             //SUB A,u8
         0xD7 => { rst!($self, 0x10); }            //RST 10h
         0xD8 => { ret_cond!($self, C); }          //RET C
+        0xD9 => { reti!($self); }                 //RETI
         0xDA => { cond_jp_u16!($self, C); }       //JP C,u16
         0xDC => { call_u16_cond!($self, C); }     //CALL C,u16
         0xDF => { rst!($self, 0x18); }            //RST 18h
@@ -819,6 +861,7 @@ macro_rules! cpu_instructions {
         0xE5 => { push_rr!($self, HL); }          //PUSH HL
         0xE6 => { and_a_u8!($self); }             //AND A,u8
         0xE7 => { rst!($self, 0x20); }            //RST 20h
+        0xE9 => { jp_hl!($self); }                //JP HL
         0xEA => { ld_mu16_a!($self); }            //LD (u16),A
         0xEE => { xor_a_u8!($self); }             //XOR A,u8
         0xEF => { rst!($self, 0x28); }            //RST 28h
