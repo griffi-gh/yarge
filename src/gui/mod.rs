@@ -363,9 +363,9 @@ impl Gui for GuiState {
           ui.separator();
 
           if ui.button("Run for frame").clicked() {
-            self.gb.resume();
-            self.gb_result = self.gb.run_for_frame();
-            self.gb.pause();
+            self.gb.ignore_running(&mut |gb| {
+              self.gb_result = gb.run_for_frame();
+            });
           }
         });
       });
