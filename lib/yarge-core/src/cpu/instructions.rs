@@ -929,6 +929,23 @@ macro_rules! bit_mhl {
   };
 } pub(crate) use bit_mhl;
 
+macro_rules! res_r {
+  ($self: expr, $bit: expr, $reg: ident) => {
+    paste! {
+      let val = $self.reg.[<$reg:lower>]();
+      $self.reg.[<set_ $reg:lower>](val & !(1 << $bit));
+    }
+  };
+} pub(crate) use res_r;
+
+macro_rules! res_mhl {
+  ($self: expr, $bit: expr) => {
+    let hl = $self.reg.hl();
+    let val = $self.rb(hl)?;
+    $self.wb(hl, val & !(1 << $bit))?;
+  };
+} pub(crate) use res_mhl;
+
 //RL
 macro_rules! rl_r {
   ($self: expr, $r: ident) => {
@@ -1044,6 +1061,74 @@ macro_rules! cpu_instructions_cb {
         0x7D => { bit_r!($self, 7, L); }          // BIT 7,L
         0x7E => { bit_mhl!($self, 7); }           // BIT 7,(HL)
         0x7F => { bit_r!($self, 7, A); }          // BIT 7,A
+
+        0x80 => { res_r!($self, 0, B); }          // RES 0,B
+        0x81 => { res_r!($self, 0, C); }          // RES 0,C
+        0x82 => { res_r!($self, 0, D); }          // RES 0,D
+        0x83 => { res_r!($self, 0, E); }          // RES 0,E
+        0x84 => { res_r!($self, 0, H); }          // RES 0,H
+        0x85 => { res_r!($self, 0, L); }          // RES 0,L
+        0x86 => { res_mhl!($self, 0); }           // RES 0,(HL)
+        0x87 => { res_r!($self, 0, A); }          // RES 0,A
+        0x88 => { res_r!($self, 1, B); }          // RES 1,B
+        0x89 => { res_r!($self, 1, C); }          // RES 1,C
+        0x8A => { res_r!($self, 1, D); }          // RES 1,D
+        0x8B => { res_r!($self, 1, E); }          // RES 1,E
+        0x8C => { res_r!($self, 1, H); }          // RES 1,H
+        0x8D => { res_r!($self, 1, L); }          // RES 1,L
+        0x8E => { res_mhl!($self, 1); }           // RES 1,(HL)
+        0x8F => { res_r!($self, 1, A); }          // RES 1,A
+
+        0x90 => { res_r!($self, 2, B); }          // RES 2,B
+        0x91 => { res_r!($self, 2, C); }          // RES 2,C
+        0x92 => { res_r!($self, 2, D); }          // RES 2,D
+        0x93 => { res_r!($self, 2, E); }          // RES 2,E
+        0x94 => { res_r!($self, 2, H); }          // RES 2,H
+        0x95 => { res_r!($self, 2, L); }          // RES 2,L
+        0x96 => { res_mhl!($self, 2); }           // RES 2,(HL)
+        0x97 => { res_r!($self, 2, A); }          // RES 2,A
+        0x98 => { res_r!($self, 3, B); }          // RES 3,B
+        0x99 => { res_r!($self, 3, C); }          // RES 3,C
+        0x9A => { res_r!($self, 3, D); }          // RES 3,D
+        0x9B => { res_r!($self, 3, E); }          // RES 3,E
+        0x9C => { res_r!($self, 3, H); }          // RES 3,H
+        0x9D => { res_r!($self, 3, L); }          // RES 3,L
+        0x9E => { res_mhl!($self, 3); }           // RES 3,(HL)
+        0x9F => { res_r!($self, 3, A); }          // RES 3,A
+
+        0xA0 => { res_r!($self, 4, B); }          // RES 4,B
+        0xA1 => { res_r!($self, 4, C); }          // RES 4,C
+        0xA2 => { res_r!($self, 4, D); }          // RES 4,D
+        0xA3 => { res_r!($self, 4, E); }          // RES 4,E
+        0xA4 => { res_r!($self, 4, H); }          // RES 4,H
+        0xA5 => { res_r!($self, 4, L); }          // RES 4,L
+        0xA6 => { res_mhl!($self, 4); }           // RES 4,(HL)
+        0xA7 => { res_r!($self, 4, A); }          // RES 4,A
+        0xA8 => { res_r!($self, 5, B); }          // RES 5,B
+        0xA9 => { res_r!($self, 5, C); }          // RES 5,C
+        0xAA => { res_r!($self, 5, D); }          // RES 5,D
+        0xAB => { res_r!($self, 5, E); }          // RES 5,E
+        0xAC => { res_r!($self, 5, H); }          // RES 5,H
+        0xAD => { res_r!($self, 5, L); }          // RES 5,L
+        0xAE => { res_mhl!($self, 5); }           // RES 5,(HL)
+        0xAF => { res_r!($self, 5, A); }          // RES 5,A
+
+        0xB0 => { res_r!($self, 6, B); }          // RES 6,B
+        0xB1 => { res_r!($self, 6, C); }          // RES 6,C
+        0xB2 => { res_r!($self, 6, D); }          // RES 6,D
+        0xB3 => { res_r!($self, 6, E); }          // RES 6,E
+        0xB4 => { res_r!($self, 6, H); }          // RES 6,H
+        0xB5 => { res_r!($self, 6, L); }          // RES 6,L
+        0xB6 => { res_mhl!($self, 6); }           // RES 6,(HL)
+        0xB7 => { res_r!($self, 6, A); }          // RES 6,A
+        0xB8 => { res_r!($self, 7, B); }          // RES 7,B
+        0xB9 => { res_r!($self, 7, C); }          // RES 7,C
+        0xBA => { res_r!($self, 7, D); }          // RES 7,D
+        0xBB => { res_r!($self, 7, E); }          // RES 7,E
+        0xBC => { res_r!($self, 7, H); }          // RES 7,H
+        0xBD => { res_r!($self, 7, L); }          // RES 7,L
+        0xBE => { res_mhl!($self, 7); }           // RES 7,(HL)
+        0xBF => { res_r!($self, 7, A); }          // RES 7,A
 
         _ => { 
           Err(YargeError::InvalidInstruction {
