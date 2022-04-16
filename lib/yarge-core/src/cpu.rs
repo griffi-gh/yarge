@@ -2,20 +2,20 @@ mod reg;
 mod instructions;
 use instructions::*;
 pub use reg::Registers;
-use super::MMU;
+use super::Mmu;
 use crate::{ Res, YargeError };
 
 #[derive(PartialEq)]
-pub enum CPUState {
+pub enum CpuState {
   Running,
   Halt,
   Stop
 }
 
-pub struct CPU {
+pub struct Cpu {
   pub reg: Registers,
-  pub mmu: MMU,
-  pub state: CPUState,
+  pub mmu: Mmu,
+  pub state: CpuState,
   ime_pending: bool,
   ime: bool,
   t: usize,
@@ -26,12 +26,12 @@ pub struct CPU {
   pub pc_breakpoints: Box<[bool; 0x10000]>,
 }
 
-impl CPU {
+impl Cpu {
   pub fn new() -> Self {
     Self {
       reg: Registers::new(),
-      mmu: MMU::new(),
-      state: CPUState::Running,
+      mmu: Mmu::new(),
+      state: CpuState::Running,
       ime_pending: false,
       ime: false,
       t: 0,
@@ -135,15 +135,15 @@ impl CPU {
           self.reg.pc = JMP_VEC[int_type];
           for _ in 0..5 { self.cycle(); } //20 cycles
         }
-      } else if self.state == CPUState::Halt {
-        self.state = CPUState::Running;
+      } else if self.state == CpuState::Halt {
+        self.state = CpuState::Running;
       }
     } 
   }
 
   pub fn step(&mut self) -> Res<usize> {
     self.t = 0;
-    if self.state == CPUState::Running {
+    if self.state == CpuState::Running {
       self.check_interrupts();
 
       #[cfg(feature = "breakpoints")]

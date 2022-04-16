@@ -2,9 +2,10 @@
 pub(crate) mod mmu;
 pub(crate) mod cpu;
 pub(crate) mod ppu;
-pub(crate) use mmu::MMU;
-pub(crate) use cpu::CPU;
-pub(crate) use ppu::PPU;
+use cpu::CpuState;
+pub(crate) use mmu::Mmu;
+pub(crate) use cpu::Cpu;
+pub(crate) use ppu::Ppu;
 pub mod consts;
 mod errors;
 mod api;
@@ -17,7 +18,7 @@ pub(crate) type Res<T> = Result<T, YargeError>;
 ///Gameboy emulator
 pub struct Gameboy {
   pub running: bool,
-  cpu: CPU,
+  cpu: Cpu,
   #[cfg(feature = "logging-file")] 
   log_file: Option<std::fs::File>,
 }
@@ -25,7 +26,7 @@ impl Gameboy {
   pub fn new() -> Self {
     Self {
       running: true,
-      cpu: CPU::new(),
+      cpu: Cpu::new(),
       #[cfg(feature = "logging-file")]
       log_file: None,
     }
@@ -74,7 +75,7 @@ impl Gameboy {
   }
   
   pub fn reset(&mut self) {
-    self.cpu = CPU::new();
+    self.cpu = Cpu::new();
   }
 
   #[cfg(feature = "logging")]
@@ -127,14 +128,20 @@ impl Gameboy {
     if !self.running {
       return Ok(());
     }
-    //TODO fix frametaking 2x longer
-    self.reset_frame_ready();
-    let mut t = 0;
-    while (t <= CYCLES_PER_FRAME) && (!self.get_frame_ready()) {
-      t += self.step()?;
+    if self.cpu.state == CpuState::Running {
+      self.reset_frame_ready();
+      while !self.get_frame_ready() {
+        self.step()?;
+      }
+    } else {
+      let mut t: usize = 0;
+      while t < CYCLES_PER_FRAME {
+        t += self.step()?;
+      }
     }
     Ok(())
   }
+
   pub fn run(&mut self) -> Res<()> {
     loop { self.step()?; }
   }

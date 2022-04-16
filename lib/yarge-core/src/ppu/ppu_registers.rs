@@ -1,13 +1,13 @@
 #[repr(u8)]
 #[derive(Clone, Copy, PartialEq)]
-pub enum PPUMode {
+pub enum PpuMode {
   HBlank     = 0,
   VBlank     = 1,
   OamSearch  = 2,
   PxTransfer = 3,
 }
 
-impl Default for PPUMode {
+impl Default for PpuMode {
   fn default() -> Self { Self::OamSearch }
 }
 

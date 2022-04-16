@@ -1,10 +1,10 @@
 pub mod cartridge;
 use cartridge::{CartridgeImpl as _, RomHeader, Cartridge, get_cartridge};
-use crate::{PPU, Res, consts::BIOS};
+use crate::{Ppu, Res, consts::BIOS};
 use std::fs;
 
-pub struct MMU {
-  pub ppu: PPU,
+pub struct Mmu {
+  pub ppu: Ppu,
   pub bios_disabled: bool,
   cart: Cartridge,
   cart_header: RomHeader,
@@ -14,10 +14,10 @@ pub struct MMU {
   pub iie: u8,
   pub iif: u8,
 }
-impl MMU {
+impl Mmu {
   pub fn new() -> Self {
     Self {
-      ppu: PPU::new(),
+      ppu: Ppu::new(),
       bios_disabled: false,
       cart: get_cartridge(0).unwrap(),
       cart_header: RomHeader::default(),

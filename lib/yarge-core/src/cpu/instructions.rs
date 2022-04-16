@@ -240,14 +240,14 @@ macro_rules! ld_r_mhl {
 
 macro_rules! cpu_halt {
   ($self: expr) => {
-    $self.state = CPUState::Halt;
+    $self.state = CpuState::Halt;
   };
 } pub(crate) use cpu_halt;
 
 macro_rules! cpu_stop {
   ($self: expr) => {
     //TODO realistic STOP
-    $self.state = CPUState::Stop;
+    $self.state = CpuState::Stop;
   };
 } pub(crate) use cpu_stop;
 

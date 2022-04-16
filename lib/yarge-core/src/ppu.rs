@@ -2,11 +2,11 @@ mod oam;
 mod ppu_registers;
 mod fetcher;
 use fetcher::{Fetcher, FetcherLayer, FifoPixel};
-use oam::OAMMemory;
-use ppu_registers::{LCDC, PPUMode};
+use oam::OamMemory;
+use ppu_registers::{LCDC, PpuMode};
 use crate::consts::{VRAM_SIZE, WIDTH, FB_SIZE};
 
-pub struct PPU {
+pub struct Ppu {
   pub display: Box<[u8; FB_SIZE]>,
   pub scy: u8,
   pub scx: u8,
@@ -14,13 +14,13 @@ pub struct PPU {
   ly: u8, x: u8, 
   hblank_len: usize,
   cycles: usize,
-  mode: PPUMode,
+  mode: PpuMode,
   vram: Box<[u8; VRAM_SIZE]>,
-  oam: OAMMemory,
+  oam: OamMemory,
   lcdc: LCDC,
   bg_fetcher: Fetcher,
 }
-impl PPU {
+impl Ppu {
   pub fn new() -> Self {
     Self {
       display: {
@@ -36,9 +36,9 @@ impl PPU {
       ly: 0, x: 0,
       hblank_len: 204,
       cycles: 0,
-      mode: PPUMode::default(),
+      mode: PpuMode::default(),
       vram: Box::new([0; VRAM_SIZE]),
-      oam: OAMMemory::new(),
+      oam: OamMemory::new(),
       lcdc: LCDC::default(),
       bg_fetcher: Fetcher::new(),
     }
@@ -74,42 +74,42 @@ impl PPU {
     self.vram[(addr - 0x8000) as usize] = value;
   }
   
-  fn mode(&mut self, mode: PPUMode) {
+  fn mode(&mut self, mode: PpuMode) {
     self.cycles = 0;
     self.mode = mode;
   }
 
   pub fn tick_inner(&mut self) {
     match self.mode { 
-      PPUMode::HBlank => {
+      PpuMode::HBlank => {
         if self.cycles >= self.hblank_len {
           self.ly += 1;
           if self.ly >= 144 {
             self.frame_ready = true;
-            self.mode(PPUMode::VBlank);
+            self.mode(PpuMode::VBlank);
           } else {
-            self.mode(PPUMode::OamSearch);
+            self.mode(PpuMode::OamSearch);
           }
         }
       },
-      PPUMode::VBlank => {
+      PpuMode::VBlank => {
         if self.cycles >= 456 {
           self.cycles = 0;
           self.ly += 1;
           if self.ly >= 155 {
             self.ly = 0;
-            self.mode(PPUMode::OamSearch);
+            self.mode(PpuMode::OamSearch);
           }
         }
       },
-      PPUMode::OamSearch => {
+      PpuMode::OamSearch => {
         //TODO
         if self.cycles >= 80 {
           self.bg_fetcher.start(self.scx, self.scy, self.ly, FetcherLayer::Background);
-          self.mode(PPUMode::PxTransfer);
+          self.mode(PpuMode::PxTransfer);
         }
       },
-      PPUMode::PxTransfer => {
+      PpuMode::PxTransfer => {
         //TODO check for scx
         self.bg_fetcher.tick(&self.lcdc, &self.vram);
         if self.bg_fetcher.len() > 0 {
@@ -124,7 +124,7 @@ impl PPU {
               assert!(self.cycles <= 289, "PxTransfer took more then 289 cycles: {}", self.cycles);
             }
             self.hblank_len = 376 - self.cycles;
-            self.mode(PPUMode::HBlank);
+            self.mode(PpuMode::HBlank);
           }
         }
       }
@@ -132,7 +132,7 @@ impl PPU {
   }
 
   pub fn tick(&mut self) {
-    if self.mode == PPUMode::PxTransfer {
+    if self.mode == PpuMode::PxTransfer {
       for _ in 0..4 {
         self.cycles += 1;
         self.tick_inner();

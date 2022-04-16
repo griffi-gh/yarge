@@ -1,13 +1,13 @@
 use std::cmp::Ordering;
 
 #[derive(Clone, Copy, Default)]
-pub struct OAMFlags {
+pub struct OamFlags {
   pub priority: bool, //BG/Sprite order
   pub flip_y: bool,
   pub flip_x: bool,
   pub palette: bool, //DMG ONLY
 }
-impl OAMFlags {
+impl OamFlags {
   pub fn into_u8(&self) -> u8 {
     ((self.priority as u8) << 7) |
     ((self.flip_x   as u8) << 6) |
@@ -21,10 +21,10 @@ impl OAMFlags {
     self.palette  = (v & (1 << 4)) != 0;
   }
 }
-impl Into<u8> for OAMFlags {
+impl Into<u8> for OamFlags {
   fn into(self) -> u8 { self.into_u8() }
 }
-impl From<u8> for OAMFlags {
+impl From<u8> for OamFlags {
   fn from(v: u8) -> Self {
     let mut new = Self::default();
     new.from_u8(v);
@@ -33,14 +33,14 @@ impl From<u8> for OAMFlags {
 }
 
 #[derive(Clone, Copy, Default)]
-pub struct OAMObject {
+pub struct OamObject {
   pub y: u8,
   pub x: u8,
   pub tile: u8,
-  pub flags: OAMFlags,
+  pub flags: OamFlags,
   pub id: u8
 }
-impl OAMObject {
+impl OamObject {
   pub fn get_byte(&self, byte: u8) -> u8 {
     match byte & 3 {
       0 => self.y,
@@ -60,41 +60,41 @@ impl OAMObject {
     }
   }
 }
-impl Ord for OAMObject {
+impl Ord for OamObject {
   fn cmp(&self, other: &Self) -> Ordering {
     (self.x, &self.id).cmp(&(other.x, &other.id))
   }
 }
-impl PartialOrd for OAMObject {
+impl PartialOrd for OamObject {
   fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
     Some(self.cmp(other))
   }
 }
-impl PartialEq for OAMObject {
+impl PartialEq for OamObject {
   fn eq(&self, other: &Self) -> bool {
     (self.x, self.id) == (other.x, other.id)
   }
 }
-impl Eq for OAMObject {}
+impl Eq for OamObject {}
 
-pub struct OAMMemory {
-  objects: Box<[OAMObject; 40]>,
+pub struct OamMemory {
+  objects: Box<[OamObject; 40]>,
 }
-impl OAMMemory {
+impl OamMemory {
   pub fn new() -> Self {
-    let mut objects = Box::new([OAMObject::default(); 40]);
+    let mut objects = Box::new([OamObject::default(); 40]);
     for (i, v) in objects.iter_mut().enumerate() {
       v.id = i as u8;
     }
     Self { objects }
   }
-  pub fn get(&self, i: u8) -> OAMObject {
+  pub fn get(&self, i: u8) -> OamObject {
     self.objects[i as usize]
   }
-  pub fn get_ref(&self, i: u8) -> &OAMObject {
+  pub fn get_ref(&self, i: u8) -> &OamObject {
     &self.objects[i as usize]
   }
-  pub fn get_mut(&mut self, i: u8) -> &mut OAMObject {
+  pub fn get_mut(&mut self, i: u8) -> &mut OamObject {
     &mut self.objects[i as usize]
   }
   pub fn write_oam(&mut self, addr: u16, value: u8) {
@@ -104,6 +104,6 @@ impl OAMMemory {
     self.objects[(addr >> 2) as usize].get_byte((addr & 3) as u8)
   }
 }
-impl Default for OAMMemory {
+impl Default for OamMemory {
   fn default() -> Self { Self::new() }
 }
