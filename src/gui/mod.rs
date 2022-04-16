@@ -339,7 +339,9 @@ impl Gui for GuiState {
         ui.add_enabled_ui(!(self.gb.running || self.gb_result.is_err()), |ui| {
           if ui.button(RichText::new("Run for").monospace()).clicked() {
             for _ in 0..self.step_amount {
-              self.gb_result = match self.gb.step_ignore_running() {
+              self.gb_result = match self.gb.ignore_running(&mut |gb| {
+                gb.step()
+              }) {
                 Ok(_) => Ok(()),
                 Err(e) => Err(e)
               };

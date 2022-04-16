@@ -99,11 +99,20 @@ impl Gameboy {
     }
   }
 
+  #[deprecated]
   pub fn step_ignore_running(&mut self) -> Res<usize> {
     let old = self.running;
     self.resume();
     let ret = self.step();
     self.running = old;
+    return ret;
+  }
+
+  pub fn ignore_running<R, F: FnMut(&mut Self) -> R>(&mut self, ctx: &mut F) -> R {
+    let state = self.running;
+    self.resume();
+    let ret: R = ctx(self);
+    self.running = state;
     return ret;
   }
 
