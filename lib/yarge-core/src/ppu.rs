@@ -34,7 +34,7 @@ impl PPU {
       scy: 0, scx: 0,
       frame_ready: false,
       ly: 0, x: 0,
-      hblank_len: 0,
+      hblank_len: 204,
       cycles: 0,
       mode: PPUMode::default(),
       vram: Box::new([0; VRAM_SIZE]),
@@ -112,20 +112,20 @@ impl PPU {
       },
       PPUMode::PxTransfer => {
         self.bg_fetcher.tick(&self.lcdc, &self.vram);
-        if self.bg_fetcher.len() >= 8 {
+        if self.bg_fetcher.len() > 8 {
           let FifoPixel { color, .. } = self.bg_fetcher.pop().unwrap();
           let addr = (self.ly as usize * WIDTH) + self.x as usize;
           self.display[addr] = color;
           self.x += 1;
-          if self.x >= WIDTH as u8 { 
-            self.x = 0;
-            #[cfg(debug_assertions)] {
-              assert!(self.cycles >= 172, "PxTransfer took less then 172 cycles: {}", self.cycles);
-              assert!(self.cycles <= 289, "PxTransfer took more then 289 cycles: {}", self.cycles);
-            }
-            self.hblank_len = 376 - self.cycles;
-            self.mode(PPUMode::HBlank);
+        }
+        if self.x >= WIDTH as u8 { 
+          self.x = 0;
+          #[cfg(debug_assertions)] {
+            assert!(self.cycles >= 172, "PxTransfer took less then 172 cycles: {}", self.cycles);
+            assert!(self.cycles <= 289, "PxTransfer took more then 289 cycles: {}", self.cycles);
           }
+          self.hblank_len = 376 - self.cycles;
+          self.mode(PPUMode::HBlank);
         }
       }
     }
