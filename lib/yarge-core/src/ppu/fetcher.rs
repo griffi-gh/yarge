@@ -17,7 +17,7 @@ impl FifoPixel {
   }
 }
 
-#[derive(Debug)]
+#[derive(PartialEq)]
 #[repr(u8)]
 enum FetcherState {
   ReadTileId,
@@ -77,7 +77,6 @@ impl Fetcher {
     let fetch_addr = || {
       (self.tile_idx as usize * 16) + (2 * ((self.ly as usize + self.scy as usize) & 7))
     };
-    self.cycle = false;
     match self.state {
       FetcherState::ReadTileId if self.cycle => {
         let addr: u16 = {
@@ -104,7 +103,6 @@ impl Fetcher {
       },
       FetcherState::ReadTileDataHigh if self.cycle => {
         self.tile_data.1 = vram[fetch_addr() + 1];
-        self.cycle = false;
         self.state = FetcherState::PushToFifo;
       },
       FetcherState::PushToFifo => {
@@ -121,10 +119,10 @@ impl Fetcher {
             ).unwrap();
           }
           self.offset += 1;
+          self.cycle = false;
           self.state = FetcherState::ReadTileId;
         }
       },
-      //if !self.cycle
       _ => { self.cycle = true; }
     }
   }
