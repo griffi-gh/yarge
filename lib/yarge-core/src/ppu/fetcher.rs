@@ -1,6 +1,6 @@
 use arraydeque::ArrayDeque;
 use super::ppu_registers::LCDC;
-use crate::{consts::{TILE_WIDTH, VRAM_SIZE, VRAM_MAX}};
+use crate::consts::VRAM_SIZE;
 
 #[derive(Default)]
 pub struct FifoPixel {

@@ -1,4 +1,4 @@
-pub const CYCLES_PER_FRAME: usize = 69905;
+pub const CYCLES_PER_FRAME: usize = 70224;
 pub const VRAM_SIZE: usize = 0x2000;
 pub const VRAM_MAX: u16 = (VRAM_SIZE - 1) as u16;
 pub const TILE_WIDTH: u8 = 8;

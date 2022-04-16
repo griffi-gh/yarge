@@ -10,6 +10,7 @@ pub struct PPU {
   pub display: Box<[u8; FB_SIZE]>,
   pub scy: u8,
   pub scx: u8,
+  pub frame_ready: bool,
   ly: u8, x: u8, 
   cycles: usize,
   mode: PPUMode,
@@ -30,6 +31,7 @@ impl PPU {
         display
       },
       scy: 0, scx: 0,
+      frame_ready: false,
       ly: 0, x: 0,
       cycles: 0,
       mode: PPUMode::default(),
@@ -52,7 +54,7 @@ impl PPU {
   pub fn get_stat(&self) -> u8 {
     self.mode as u8
   }
-  pub fn set_stat(&mut self, value: u8) {
+  pub fn set_stat(&mut self, _value: u8) {
     //TODO set_stat()
   }
 
@@ -83,6 +85,7 @@ impl PPU {
           self.cycles = 0;
           self.ly += 1;
           if self.ly >= 144 {
+            self.frame_ready = true;
             self.mode(PPUMode::VBlank);
           } else {
             self.mode(PPUMode::OamSearch);

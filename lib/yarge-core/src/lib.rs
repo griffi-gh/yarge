@@ -118,8 +118,10 @@ impl Gameboy {
     if !self.running {
       return Ok(());
     }
+    //TODO fix frametaking 2x longer
+    self.reset_frame_ready();
     let mut t = 0;
-    while t <= CYCLES_PER_FRAME {
+    while (t <= CYCLES_PER_FRAME) && (!self.get_frame_ready()) {
       t += self.step()?;
     }
     Ok(())

@@ -156,6 +156,13 @@ impl Gameboy {
     self.cpu.mmu_breakpoints[addr as usize]
   }
 
+  #[inline] pub fn reset_frame_ready(&mut self) {
+    self.cpu.mmu.ppu.frame_ready = false;
+  }
+  #[inline] pub fn get_frame_ready(&mut self) -> bool {
+    self.cpu.mmu.ppu.frame_ready
+  }
+
   #[cfg(feature = "breakpoints")]
   #[inline] pub fn set_pc_breakpoint(&mut self, addr: u16, enable: bool) {
     self.cpu.pc_breakpoints[addr as usize] = enable;
