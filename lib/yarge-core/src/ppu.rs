@@ -12,6 +12,7 @@ pub struct PPU {
   pub scx: u8,
   pub frame_ready: bool,
   ly: u8, x: u8, 
+  hblank_len: usize,
   cycles: usize,
   mode: PPUMode,
   vram: Box<[u8; VRAM_SIZE]>,
@@ -33,6 +34,7 @@ impl PPU {
       scy: 0, scx: 0,
       frame_ready: false,
       ly: 0, x: 0,
+      hblank_len: 0,
       cycles: 0,
       mode: PPUMode::default(),
       vram: Box::new([0; VRAM_SIZE]),
@@ -81,8 +83,7 @@ impl PPU {
     self.cycles += 4;
     match self.mode { 
       PPUMode::HBlank => {
-        if self.cycles >= 204 {
-          self.cycles = 0;
+        if self.cycles >= self.hblank_len {
           self.ly += 1;
           if self.ly >= 144 {
             self.frame_ready = true;
@@ -122,6 +123,7 @@ impl PPU {
               assert!(self.cycles >= 172, "PxTransfer took less then 172 cycles: {}", self.cycles);
               assert!(self.cycles <= 289, "PxTransfer took more then 289 cycles: {}", self.cycles);
             }
+            self.hblank_len = 376 - self.cycles;
             self.mode(PPUMode::HBlank);
           }
         }
