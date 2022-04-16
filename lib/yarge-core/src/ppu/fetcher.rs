@@ -38,7 +38,7 @@ pub enum FetcherLayer {
 pub struct Fetcher {
   cycle: bool,
   state: FetcherState,
-  fifo: ArrayDeque<[FifoPixel; 16]>,
+  fifo: ArrayDeque<[FifoPixel; 8]>,
   scx: u8, 
   scy: u8,
   ly: u8,
@@ -74,16 +74,12 @@ impl Fetcher {
     self.state = FetcherState::ReadTileId;
   }
   pub fn tick(&mut self, lcdc: &LCDC, vram: &[u8; VRAM_SIZE]) {
-    //run only on every second cycle 
-    self.cycle ^= true; //toggle self.cycle
-    if self.cycle { return; } //if self.cycle *was* false, skip this cycle
-
     let fetch_addr = || {
       (self.tile_idx as usize * 16) + (2 * ((self.ly as usize + self.scy as usize) & 7))
     };
-
+    self.cycle = false;
     match self.state {
-      FetcherState::ReadTileId => {
+      FetcherState::ReadTileId if self.cycle => {
         let addr: u16 = {
           let mut addr = self.offset;
           if self.layer == FetcherLayer::Background {
@@ -98,18 +94,21 @@ impl Fetcher {
           }
         };
         self.tile_idx = lcdc.transform_tile_index(vram[addr as usize]);
+        self.cycle = false;
         self.state = FetcherState::ReadTileDataLow;
       },
-      FetcherState::ReadTileDataLow => {
+      FetcherState::ReadTileDataLow if self.cycle => {
         self.tile_data.0 = vram[fetch_addr()];
+        self.cycle = false;
         self.state = FetcherState::ReadTileDataHigh;
       },
-      FetcherState::ReadTileDataHigh => {
+      FetcherState::ReadTileDataHigh if self.cycle => {
         self.tile_data.1 = vram[fetch_addr() + 1];
+        self.cycle = false;
         self.state = FetcherState::PushToFifo;
       },
       FetcherState::PushToFifo => {
-        if self.fifo.len() <= 8 {
+        if self.fifo.len() == 0 {
           for x in (0..8_u8).rev() {
             let mask: u8 = 1 << x;
             let (l_bit, h_bit) = (
@@ -124,7 +123,9 @@ impl Fetcher {
           self.offset += 1;
           self.state = FetcherState::ReadTileId;
         }
-      }
+      },
+      //if !self.cycle
+      _ => { self.cycle = true; }
     }
   }
 

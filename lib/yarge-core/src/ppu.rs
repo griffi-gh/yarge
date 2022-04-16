@@ -113,7 +113,7 @@ impl PPU {
       PPUMode::PxTransfer => {
         //TODO check for scx
         self.bg_fetcher.tick(&self.lcdc, &self.vram);
-        if self.bg_fetcher.len() > 8 {
+        if self.bg_fetcher.len() > 0 {
           let FifoPixel { color, .. } = self.bg_fetcher.pop().unwrap();
           let addr = (self.ly as usize * WIDTH) + self.x as usize;
           self.display[addr] = color;
