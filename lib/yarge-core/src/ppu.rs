@@ -118,6 +118,10 @@ impl PPU {
           self.x += 1;
           if self.x >= WIDTH as u8 { 
             self.x = 0;
+            #[cfg(debug_assertions)] {
+              assert!(self.cycles >= 172, "PxTransfer took less then 172 cycles: {}", self.cycles);
+              assert!(self.cycles <= 289, "PxTransfer took more then 289 cycles: {}", self.cycles);
+            }
             self.mode(PPUMode::HBlank);
           }
         }
