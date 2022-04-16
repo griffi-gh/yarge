@@ -1,7 +1,7 @@
 use std::fmt;
 use arrayvec::ArrayString;
 use enum_dispatch::enum_dispatch;
-use crate::{Res, YargeError};
+use crate::{Res, YargeError, consts::DEFAULT_HEADER};
 
 #[allow(unused_variables)]
 #[enum_dispatch]
@@ -17,7 +17,22 @@ pub trait CartridgeImpl {
 
 #[enum_dispatch(CartridgeImpl)]
 pub enum Cartridge {
+  MockCartridge,
   CartridgeNone
+}
+
+pub struct MockCartridge {}
+impl CartridgeImpl for MockCartridge {
+  fn name(&self) -> &str { "NONE" }
+  fn index(&self) -> u8 { 0 }
+  fn load(&mut self, _: &[u8]) -> Res<()> { Ok(()) }
+  fn read(&self, addr: u16) -> u8 {
+    if (0x100..(0x100+80)).contains(&addr) {
+      DEFAULT_HEADER[(addr - 0x100) as usize]
+    } else {
+      0x00
+    }
+  }
 }
 
 pub struct CartridgeNone {
@@ -46,7 +61,7 @@ impl CartridgeImpl for CartridgeNone {
     }
     Ok(())
   }
-  #[inline(always)]
+  #[inline]
   fn read(&self, addr: u16) -> u8 {
     //bitwise and allows the compiler to optimize away the bounds checks
     //...but I want to keep them on debug buils

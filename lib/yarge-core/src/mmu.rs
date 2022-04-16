@@ -1,5 +1,5 @@
 pub mod cartridge;
-use cartridge::{CartridgeImpl as _, RomHeader, Cartridge, get_cartridge};
+use cartridge::{CartridgeImpl as _, RomHeader, Cartridge, MockCartridge};
 use crate::{Ppu, Res, consts::BIOS};
 use std::fs;
 
@@ -19,7 +19,7 @@ impl Mmu {
     Self {
       ppu: Ppu::new(),
       bios_disabled: false,
-      cart: get_cartridge(0).unwrap(),
+      cart: (MockCartridge {}).into(),
       cart_header: RomHeader::default(),
       wram: Box::new([0; 0x2000]),
       hram: Box::new([0; 0x007F]),
