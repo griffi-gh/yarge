@@ -773,6 +773,7 @@ macro_rules! cpu_instructions {
         0x7B => { ld_r_r!($self, A, E); }         //LD A,E
         0x7C => { ld_r_r!($self, A, H); }         //LD A,H
         0x7D => { ld_r_r!($self, A, L); }         //LD A,L
+        0x7E => { ld_r_mhl!($self, A); }          //LD A,(HL)
         0x7F => { /*IS A NO-OP*/ }                //LD A,A
 
         0x80 => { add_a_r!($self, B); }           //ADD A,B
