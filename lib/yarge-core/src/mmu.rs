@@ -103,11 +103,11 @@ impl Mmu {
     }
   }
 
-  #[inline] pub fn rw(&self, addr: u16) -> u16 {
+  pub fn rw(&self, addr: u16) -> u16 {
     self.rb(addr) as u16 | 
     ((self.rb(addr.wrapping_add(1)) as u16) << 8)
   }
-  #[inline] pub fn ww(&mut self, addr: u16, value: u16) {
+  pub fn ww(&mut self, addr: u16, value: u16) {
     self.wb(addr, (value & 0xFF) as u8);
     self.wb(addr.wrapping_add(1), (value >> 8) as u8);
   }
@@ -137,13 +137,13 @@ impl Mmu {
     Ok(())
   }
 
-  #[inline] pub fn mbc_type_name(&self) -> &str {
+  pub fn mbc_type_name(&self) -> &str {
     self.cart.name()
   }
-  #[inline] pub fn mbc_index(&self) -> u8 {
+  pub fn mbc_index(&self) -> u8 {
     self.cart.index()
   }
-  #[inline] pub fn header(&self) -> RomHeader {
+  pub fn header(&self) -> RomHeader {
     self.cart_header
   }
 }

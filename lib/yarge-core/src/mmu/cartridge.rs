@@ -61,7 +61,6 @@ impl CartridgeImpl for CartridgeNone {
     }
     Ok(())
   }
-  #[inline]
   fn read(&self, addr: u16) -> u8 {
     //bitwise and allows the compiler to optimize away the bounds checks
     //...but I want to keep them on debug buils

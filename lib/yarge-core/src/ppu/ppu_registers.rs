@@ -48,17 +48,17 @@ impl LCDC {
     ((self.win_tilemap_addr as u8) << 6) |
     ((self.enable_display   as u8) << 7)
   }
-  #[inline] pub fn bg_tilemap_addr(&self) -> u16 {
+  pub fn bg_tilemap_addr(&self) -> u16 {
     if self.bg_tilemap_addr { 0x9C00 } else { 0x9800 }
   }
-  #[inline] pub fn win_tilemap_addr(&self) -> u16 {
+  pub fn win_tilemap_addr(&self) -> u16 {
     //Not sure if it's correct?
     if self.win_tilemap_addr { 0x9800 } else { 0x9C00 }
   }
-  #[inline] pub fn bg_tiledata_addr(&self) -> u16 {
+  pub fn bg_tiledata_addr(&self) -> u16 {
     if self.tiledata_addr { 0x8800 } else { 0x8000 }
   }
-  #[inline] pub fn obj_size(&self) -> u8 {
+  pub fn obj_size(&self) -> u8 {
     if self.obj_size { 16 } else { 8 }
   }
   pub fn transform_tile_index(&self, index: u8) -> u16 {

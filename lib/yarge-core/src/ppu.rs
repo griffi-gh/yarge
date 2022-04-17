@@ -52,12 +52,12 @@ impl Ppu {
     }
   }
 
-  #[inline] pub fn get_ly(&self) -> u8 { self.ly }
+  pub fn get_ly(&self) -> u8 { self.ly }
 
-  #[inline] pub fn set_lcdc(&mut self, value: u8) {
+  pub fn set_lcdc(&mut self, value: u8) {
     self.lcdc.set_from_u8(value);
   }
-  #[inline] pub fn get_lcdc(&self) -> u8 {
+  pub fn get_lcdc(&self) -> u8 {
     self.lcdc.into_u8()
   }
 
@@ -68,17 +68,17 @@ impl Ppu {
     //TODO set_stat()
   }
 
-  #[inline] pub fn read_oam(&self, addr: u16) -> u8 {
+  pub fn read_oam(&self, addr: u16) -> u8 {
     self.oam.read_oam(addr - 0xFE00)
   }
-  #[inline] pub fn write_oam(&mut self, addr: u16, value: u8) {
+  pub fn write_oam(&mut self, addr: u16, value: u8) {
     self.oam.write_oam(addr - 0xFE00, value);
   }
 
-  #[inline] pub fn read_vram(&self, addr: u16) -> u8 {
+  pub fn read_vram(&self, addr: u16) -> u8 {
     self.vram[(addr - 0x8000) as usize]
   }
-  #[inline] pub fn write_vram(&mut self, addr: u16, value: u8) {
+  pub fn write_vram(&mut self, addr: u16, value: u8) {
     self.vram[(addr - 0x8000) as usize] = value;
   }
   

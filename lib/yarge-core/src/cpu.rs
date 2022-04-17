@@ -76,13 +76,13 @@ impl Cpu {
     }
   }
 
-  #[inline] fn rb(&mut self, addr: u16) -> Res<u8> {
+  fn rb(&mut self, addr: u16) -> Res<u8> {
     #[cfg(feature = "breakpoints")]
     self.check_mmu_breakpoints(0b01, addr, None)?;
     self.cycle();
     Ok(self.mmu.rb(addr))
   }
-  #[inline] fn wb(&mut self, addr: u16, value: u8) -> Res<()> {
+  fn wb(&mut self, addr: u16, value: u8) -> Res<()> {
     #[cfg(feature = "breakpoints")]
     self.check_mmu_breakpoints(0b10, addr, Some(value))?;
     self.cycle();
@@ -90,13 +90,13 @@ impl Cpu {
     Ok(())
   }
 
-  #[inline] fn rw(&mut self, addr: u16) -> Res<u16> {
+  fn rw(&mut self, addr: u16) -> Res<u16> {
     Ok(
       self.rb(addr)? as u16 | 
       ((self.rb(addr.wrapping_add(1))? as u16) << 8)
     )
   }
-  #[inline] fn ww(&mut self, addr: u16, value: u16) -> Res<()> {
+  fn ww(&mut self, addr: u16, value: u16) -> Res<()> {
     self.wb(addr, (value & 0xFF) as u8)?;
     self.wb(addr.wrapping_add(1), (value >> 8) as u8)?;
     Ok(())
@@ -113,12 +113,12 @@ impl Cpu {
     Ok(op)
   }
 
-  #[inline] fn push(&mut self, value: u16) -> Res<()> {
+  fn push(&mut self, value: u16) -> Res<()> {
     self.reg.dec_sp(2);
     self.ww(self.reg.sp, value)?;
     Ok(())
   }
-  #[inline] fn pop(&mut self) -> Res<u16> {
+  fn pop(&mut self) -> Res<u16> {
     let value = self.rw(self.reg.sp)?;
     self.reg.inc_sp(2);
     Ok(value)
