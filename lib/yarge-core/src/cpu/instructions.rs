@@ -545,6 +545,24 @@ macro_rules! jr_i8_cond {
   };
 } pub(crate) use jr_i8_cond;
 
+macro_rules! add_sp_i8 {
+  ($self: expr) => {
+    let sp = $self.reg.sp();
+    let fetch = $self.fetch()? as i8 as i16 as u16;
+    let result = sp.wrapping_add(fetch);
+    let op = sp ^ fetch ^ result;
+    $self.reg.set_sp(result);
+    $self.reg.set_f_all(
+      false, false,
+      op & 0x10 != 0,
+      op & 0x100 != 0
+    );
+    //internal
+    $self.cycle();
+    $self.cycle();
+  };
+} pub(crate) use add_sp_i8;
+
 macro_rules! ld_a_m_ff00_add_c {
   ($self: expr) => {
     let v = $self.rb(0xFF00 | ($self.reg.c() as u16))?;
@@ -862,6 +880,7 @@ macro_rules! cpu_instructions {
         0xE5 => { push_rr!($self, HL); }          //PUSH HL
         0xE6 => { and_a_u8!($self); }             //AND A,u8
         0xE7 => { rst!($self, 0x20); }            //RST 20h
+        0xE8 => { add_sp_i8!($self); }            //ADD SP,i8
         0xE9 => { jp_hl!($self); }                //JP HL
         0xEA => { ld_mu16_a!($self); }            //LD (u16),A
         0xEE => { xor_a_u8!($self); }             //XOR A,u8
@@ -990,10 +1009,46 @@ macro_rules! rl_mhl {
   }
 } pub(crate) use rl_mhl;
 
+//RLC
+macro_rules! rlc_r {
+  ($self: expr, $r: ident) => {
+    paste! {
+      let val = $self.reg.[<$r:lower>]();
+    }
+    let carry = val & 0x80 == 0x80;
+    let val = val.rotate_left(1);
+    $self.reg.set_f_all(val == 0, false, false, carry);
+    paste! {
+      $self.reg.[<set_ $r:lower>](val);
+    }
+  }
+} pub(crate) use rlc_r;
+
+macro_rules! rlc_mhl {
+  ($self: expr) => {
+    let hl = $self.reg.hl();
+    let val = $self.rb(hl)?;
+    let carry = val & 0x80 == 0x80;
+    let val = val.rotate_left(1);
+    $self.reg.set_f_all(val == 0, false, false, carry);
+    $self.wb(hl, val)?;
+  }
+} pub(crate) use rlc_mhl;
+
+
 macro_rules! cpu_instructions_cb {
   ($self: expr, $op: expr) => {
     {
       match($op) {
+        0x00 => { rlc_r!($self, B); }             // RLC B
+        0x01 => { rlc_r!($self, C); }             // RLC C
+        0x02 => { rlc_r!($self, D); }             // RLC D
+        0x03 => { rlc_r!($self, E); }             // RLC E
+        0x04 => { rlc_r!($self, H); }             // RLC H
+        0x05 => { rlc_r!($self, L); }             // RLC L
+        0x06 => { rlc_mhl!($self); }              // RLC (HL)
+        0x07 => { rlc_r!($self, A); }             // RLC A
+        
         0x10 => { rl_r!($self, B); }              // RL B
         0x11 => { rl_r!($self, C); }              // RL C
         0x12 => { rl_r!($self, D); }              // RL D
