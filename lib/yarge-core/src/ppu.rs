@@ -11,10 +11,12 @@ use crate::{
 
 pub struct Ppu {
   pub display: Box<[u8; FB_SIZE]>,
+  pub frame_ready: bool,
+  pub bgp: u8,
   pub scy: u8,
   pub scx: u8,
-  pub frame_ready: bool,
-  ly: u8, x: u8, 
+  ly: u8,
+  lx: u8, 
   hblank_len: usize,
   cycles: usize,
   mode: PpuMode,
@@ -34,9 +36,12 @@ impl Ppu {
         }
         display
       },
-      scy: 0, scx: 0,
       frame_ready: false,
-      ly: 0, x: 0,
+      bgp: 0b11_10_01_00,
+      scy: 0,
+      scx: 0,
+      ly: 0,
+      lx: 0,
       hblank_len: 204,
       cycles: 0,
       mode: PpuMode::default(),
@@ -118,11 +123,11 @@ impl Ppu {
         self.bg_fetcher.tick(&self.lcdc, &self.vram);
         if self.bg_fetcher.len() > 0 {
           let FifoPixel { color, .. } = self.bg_fetcher.pop().unwrap();
-          let addr = (self.ly as usize * WIDTH) + self.x as usize;
-          self.display[addr] = color;
-          self.x += 1;
-          if self.x >= WIDTH as u8 { 
-            self.x = 0;
+          let addr = (self.ly as usize * WIDTH) + self.lx as usize;
+          self.display[addr] = (self.bgp >> (color << 1)) & 0b11;
+          self.lx += 1;
+          if self.lx >= WIDTH as u8 { 
+            self.lx = 0;
             #[cfg(debug_assertions)] {
               assert!(self.cycles >= 172, "PxTransfer took less then 172 cycles: {}", self.cycles);
               assert!(self.cycles <= 289, "PxTransfer took more then 289 cycles: {}", self.cycles);

@@ -51,14 +51,15 @@ impl Mmu {
       //IO REGISTERS
       0xFF00..=0xFF7F => {
         match addr {
-          0xFF40 => { self.ppu.get_lcdc() } //LCDC
-          0xFF41 => { self.ppu.get_stat() } //STAT
-          0xFF42 => { self.ppu.scy },
-          0xFF43 => { self.ppu.scx },
+          0xFF40 => self.ppu.get_lcdc(), //LCDC
+          0xFF41 => self.ppu.get_stat(), //STAT
+          0xFF42 => self.ppu.scy,
+          0xFF43 => self.ppu.scx,
           0xFF44 => { //LY
             #[cfg(feature = "ly-stub")] { 0x90 }
             #[cfg(not(feature = "ly-stub"))] { self.ppu.get_ly() }
           },
+          0xFF47 => self.ppu.bgp,
           _ => 0xff
         }
       },
@@ -90,6 +91,7 @@ impl Mmu {
       0xFF41 => { self.ppu.set_stat(value); },
       0xFF42 => { self.ppu.scy = value; },
       0xFF43 => { self.ppu.scx = value; },
+      0xFF47 => { self.ppu.bgp = value; },
       0xFF50 => { self.bios_disabled = true; },
       //HRAM
       0xFF80..=0xFFFE => {
