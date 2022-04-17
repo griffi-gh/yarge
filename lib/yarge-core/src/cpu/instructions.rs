@@ -947,6 +947,23 @@ macro_rules! res_mhl {
   };
 } pub(crate) use res_mhl;
 
+macro_rules! set_r {
+  ($self: expr, $bit: expr, $reg: ident) => {
+    paste! {
+      let val = $self.reg.[<$reg:lower>]();
+      $self.reg.[<set_ $reg:lower>](val | (1 << $bit));
+    }
+  };
+} pub(crate) use set_r;
+
+macro_rules! set_mhl {
+  ($self: expr, $bit: expr) => {
+    let hl = $self.reg.hl();
+    let val = $self.rb(hl)?;
+    $self.wb(hl, val | (1 << $bit))?;
+  };
+} pub(crate) use set_mhl;
+
 //RL
 macro_rules! rl_r {
   ($self: expr, $r: ident) => {
@@ -1130,6 +1147,74 @@ macro_rules! cpu_instructions_cb {
         0xBD => { res_r!($self, 7, L); }          // RES 7,L
         0xBE => { res_mhl!($self, 7); }           // RES 7,(HL)
         0xBF => { res_r!($self, 7, A); }          // RES 7,A
+
+        0xC0 => { set_r!($self, 0, B); }          // SET 0,B
+        0xC1 => { set_r!($self, 0, C); }          // SET 0,C
+        0xC2 => { set_r!($self, 0, D); }          // SET 0,D
+        0xC3 => { set_r!($self, 0, E); }          // SET 0,E
+        0xC4 => { set_r!($self, 0, H); }          // SET 0,H
+        0xC5 => { set_r!($self, 0, L); }          // SET 0,L
+        0xC6 => { set_mhl!($self, 0); }           // SET 0,(HL)
+        0xC7 => { set_r!($self, 0, A); }          // SET 0,A
+        0xC8 => { set_r!($self, 1, B); }          // SET 1,B
+        0xC9 => { set_r!($self, 1, C); }          // SET 1,C
+        0xCA => { set_r!($self, 1, D); }          // SET 1,D
+        0xCB => { set_r!($self, 1, E); }          // SET 1,E
+        0xCC => { set_r!($self, 1, H); }          // SET 1,H
+        0xCD => { set_r!($self, 1, L); }          // SET 1,L
+        0xCE => { set_mhl!($self, 1); }           // SET 1,(HL)
+        0xCF => { set_r!($self, 1, A); }          // SET 1,A
+
+        0xD0 => { set_r!($self, 2, B); }          // SET 2,B
+        0xD1 => { set_r!($self, 2, C); }          // SET 2,C
+        0xD2 => { set_r!($self, 2, D); }          // SET 2,D
+        0xD3 => { set_r!($self, 2, E); }          // SET 2,E
+        0xD4 => { set_r!($self, 2, H); }          // SET 2,H
+        0xD5 => { set_r!($self, 2, L); }          // SET 2,L
+        0xD6 => { set_mhl!($self, 2); }           // SET 2,(HL)
+        0xD7 => { set_r!($self, 2, A); }          // SET 2,A
+        0xD8 => { set_r!($self, 3, B); }          // SET 3,B
+        0xD9 => { set_r!($self, 3, C); }          // SET 3,C
+        0xDA => { set_r!($self, 3, D); }          // SET 3,D
+        0xDB => { set_r!($self, 3, E); }          // SET 3,E
+        0xDC => { set_r!($self, 3, H); }          // SET 3,H
+        0xDD => { set_r!($self, 3, L); }          // SET 3,L
+        0xDE => { set_mhl!($self, 3); }           // SET 3,(HL)
+        0xDF => { set_r!($self, 3, A); }          // SET 3,A
+
+        0xE0 => { set_r!($self, 4, B); }          // SET 4,B
+        0xE1 => { set_r!($self, 4, C); }          // SET 4,C
+        0xE2 => { set_r!($self, 4, D); }          // SET 4,D
+        0xE3 => { set_r!($self, 4, E); }          // SET 4,E
+        0xE4 => { set_r!($self, 4, H); }          // SET 4,H
+        0xE5 => { set_r!($self, 4, L); }          // SET 4,L
+        0xE6 => { set_mhl!($self, 4); }           // SET 4,(HL)
+        0xE7 => { set_r!($self, 4, A); }          // SET 4,A
+        0xE8 => { set_r!($self, 5, B); }          // SET 5,B
+        0xE9 => { set_r!($self, 5, C); }          // SET 5,C
+        0xEA => { set_r!($self, 5, D); }          // SET 5,D
+        0xEB => { set_r!($self, 5, E); }          // SET 5,E
+        0xEC => { set_r!($self, 5, H); }          // SET 5,H
+        0xED => { set_r!($self, 5, L); }          // SET 5,L
+        0xEE => { set_mhl!($self, 5); }           // SET 5,(HL)
+        0xEF => { set_r!($self, 5, A); }          // SET 5,A
+
+        0xF0 => { set_r!($self, 6, B); }          // SET 6,B
+        0xF1 => { set_r!($self, 6, C); }          // SET 6,C
+        0xF2 => { set_r!($self, 6, D); }          // SET 6,D
+        0xF3 => { set_r!($self, 6, E); }          // SET 6,E
+        0xF4 => { set_r!($self, 6, H); }          // SET 6,H
+        0xF5 => { set_r!($self, 6, L); }          // SET 6,L
+        0xF6 => { set_mhl!($self, 6); }           // SET 6,(HL)
+        0xF7 => { set_r!($self, 6, A); }          // SET 6,A
+        0xF8 => { set_r!($self, 7, B); }          // SET 7,B
+        0xF9 => { set_r!($self, 7, C); }          // SET 7,C
+        0xFA => { set_r!($self, 7, D); }          // SET 7,D
+        0xFB => { set_r!($self, 7, E); }          // SET 7,E
+        0xFC => { set_r!($self, 7, H); }          // SET 7,H
+        0xFD => { set_r!($self, 7, L); }          // SET 7,L
+        0xFE => { set_mhl!($self, 7); }           // SET 7,(HL)
+        0xFF => { set_r!($self, 7, A); }          // SET 7,A
 
         _ => { 
           Err(YargeError::InvalidInstruction {
