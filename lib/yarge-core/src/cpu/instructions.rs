@@ -331,7 +331,7 @@ macro_rules! alu_add_a {
   ($self: expr, $b: expr) => {
     let a = $self.reg.a();
     let r = a.overflowing_add($b);
-    $self.reg.set_f_all( //Z N H C
+    $self.reg.set_f_znhc( //Z N H C
       r.0 == 0,
       false,
       (a & 0xF) + ($b & 0xF) > 0xF,
@@ -370,7 +370,7 @@ macro_rules! alu_sub_a {
   ($self: expr, $b: expr) => {
     let a = $self.reg.a();
     let r = a.overflowing_sub($b);
-    $self.reg.set_f_all( //Z N H C
+    $self.reg.set_f_znhc( //Z N H C
       r.0 == 0,
       true,
       (a & 0x0F) < ($b & 0x0F),
@@ -407,7 +407,7 @@ macro_rules! sub_a_u8 {
 macro_rules! alu_cp_a {
   ($self: expr, $b: expr) => {
     let a = $self.reg.a();
-    $self.reg.set_f_all(
+    $self.reg.set_f_znhc(
       a.wrapping_sub($b) == 0,
       true,
       ($b & 0xF) > (a & 0xF),
@@ -447,7 +447,7 @@ macro_rules! and_a_r {
       let r = $self.reg.a() & $self.reg.[<$reg:lower>]();
     }
     $self.reg.set_a(r);
-    $self.reg.set_f_all(r == 0, false, true, false);
+    $self.reg.set_f_znhc(r == 0, false, true, false);
   };
 } pub(crate) use and_a_r;
 
@@ -455,7 +455,7 @@ macro_rules! and_a_mhl {
   ($self: expr) => {
     let r = $self.reg.a() & $self.rb($self.reg.hl())?;
     $self.reg.set_a(r);
-    $self.reg.set_f_all(r == 0, false, true, false);
+    $self.reg.set_f_znhc(r == 0, false, true, false);
   };
 } pub(crate) use and_a_mhl;
 
@@ -463,7 +463,7 @@ macro_rules! and_a_u8 {
   ($self: expr) => {
     let r = $self.reg.a() & $self.fetch()?;
     $self.reg.set_a(r);
-    $self.reg.set_f_all(r == 0, false, true, false);
+    $self.reg.set_f_znhc(r == 0, false, true, false);
   };
 } pub(crate) use and_a_u8;
 
@@ -473,7 +473,7 @@ macro_rules! or_a_r {
       let r = $self.reg.a() | $self.reg.[<$reg:lower>]();
     }
     $self.reg.set_a(r);
-    $self.reg.set_f_all(r == 0, false, false, false);
+    $self.reg.set_f_znhc(r == 0, false, false, false);
   };
 } pub(crate) use or_a_r;
 
@@ -481,7 +481,7 @@ macro_rules! or_a_mhl {
   ($self: expr) => {
     let r = $self.reg.a() | $self.rb($self.reg.hl())?;
     $self.reg.set_a(r);
-    $self.reg.set_f_all(r == 0, false, false, false);
+    $self.reg.set_f_znhc(r == 0, false, false, false);
   };
 } pub(crate) use or_a_mhl;
 
@@ -489,7 +489,7 @@ macro_rules! or_a_u8 {
   ($self: expr) => {
     let r = $self.reg.a() | $self.fetch()?;
     $self.reg.set_a(r);
-    $self.reg.set_f_all(r == 0, false, false, false);
+    $self.reg.set_f_znhc(r == 0, false, false, false);
   };
 } pub(crate) use or_a_u8;
 
@@ -499,7 +499,7 @@ macro_rules! xor_a_r {
       let r = $self.reg.a() ^ $self.reg.[<$reg:lower>]();
     }
     $self.reg.set_a(r);
-    $self.reg.set_f_all(r == 0, false, false, false);
+    $self.reg.set_f_znhc(r == 0, false, false, false);
   };
 } pub(crate) use xor_a_r;
 
@@ -507,7 +507,7 @@ macro_rules! xor_a_mhl {
   ($self: expr) => {
     let r = $self.reg.a() ^ $self.rb($self.reg.hl())?;
     $self.reg.set_a(r);
-    $self.reg.set_f_all(r == 0, false, false, false);
+    $self.reg.set_f_znhc(r == 0, false, false, false);
   };
 } pub(crate) use xor_a_mhl;
 
@@ -515,7 +515,7 @@ macro_rules! xor_a_u8 {
   ($self: expr) => {
     let r = $self.reg.a() ^ $self.fetch()?;
     $self.reg.set_a(r);
-    $self.reg.set_f_all(r == 0, false, false, false);
+    $self.reg.set_f_znhc(r == 0, false, false, false);
   };
 } pub(crate) use xor_a_u8;
 
@@ -552,7 +552,7 @@ macro_rules! add_sp_i8 {
     let result = sp.wrapping_add(fetch);
     let op = sp ^ fetch ^ result;
     $self.reg.set_sp(result);
-    $self.reg.set_f_all(
+    $self.reg.set_f_znhc(
       false, false,
       op & 0x10 != 0,
       op & 0x100 != 0
@@ -597,7 +597,7 @@ macro_rules! rla {
   ($self: expr) => {
     let val = $self.reg.a();
     $self.reg.set_a((val << 1) | ($self.reg.f_c() as u8));
-    $self.reg.set_f_all(false, false, false, val & 0x80 != 0);
+    $self.reg.set_f_znhc(false, false, false, val & 0x80 != 0);
   }
 } pub(crate) use rla;
 
@@ -620,7 +620,7 @@ macro_rules! daa {
     } else {
       a.wrapping_add(m)
     };
-    $self.reg.set_f_all(r == 0, n, false, m >= 0x60);
+    $self.reg.set_f_znhc(r == 0, n, false, m >= 0x60);
     $self.reg.set_a(r);
   };
 } pub(crate) use daa;
@@ -914,7 +914,7 @@ macro_rules! swap_r {
   ($self: expr, $reg: ident) => {
     paste! {
       let v = $self.reg.[<$reg:lower>]().rotate_left(4);
-      $self.reg.set_f_all(v == 0, false, false, false);
+      $self.reg.set_f_znhc(v == 0, false, false, false);
       $self.reg.[<set_ $reg:lower>](v);
     }
   };
@@ -924,7 +924,7 @@ macro_rules! swap_mhl {
   ($self: expr) => {
     paste! {
       let v = $self.rb($self.reg.hl())?;
-      $self.reg.set_f_all(v == 0, false, false, false);
+      $self.reg.set_f_znhc(v == 0, false, false, false);
       $self.wb($self.reg.hl(), v)?;
     }
   };
@@ -991,7 +991,7 @@ macro_rules! rl_r {
     }
     let carry = val & 0x80 == 0x80;
     let val = (val << 1) | ($self.reg.f_c() as u8);
-    $self.reg.set_f_all(val == 0, false, false, carry);
+    $self.reg.set_f_znhc(val == 0, false, false, carry);
     paste! {
       $self.reg.[<set_ $r:lower>](val);
     }
@@ -1004,7 +1004,7 @@ macro_rules! rl_mhl {
     let val = $self.rb(hl)?;
     let carry = val & 0x80 == 0x80;
     let val = (val << 1) | ($self.reg.f_c() as u8);
-    $self.reg.set_f_all(val == 0, false, false, carry);
+    $self.reg.set_f_znhc(val == 0, false, false, carry);
     $self.wb(hl, val)?;
   }
 } pub(crate) use rl_mhl;
@@ -1017,7 +1017,7 @@ macro_rules! rlc_r {
     }
     let carry = val & 0x80 == 0x80;
     let val = val.rotate_left(1);
-    $self.reg.set_f_all(val == 0, false, false, carry);
+    $self.reg.set_f_znhc(val == 0, false, false, carry);
     paste! {
       $self.reg.[<set_ $r:lower>](val);
     }
@@ -1030,7 +1030,7 @@ macro_rules! rlc_mhl {
     let val = $self.rb(hl)?;
     let carry = val & 0x80 == 0x80;
     let val = val.rotate_left(1);
-    $self.reg.set_f_all(val == 0, false, false, carry);
+    $self.reg.set_f_znhc(val == 0, false, false, carry);
     $self.wb(hl, val)?;
   }
 } pub(crate) use rlc_mhl;

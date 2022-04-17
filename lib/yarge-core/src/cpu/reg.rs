@@ -109,7 +109,7 @@ impl Registers {
   }
 
   #[inline(always)]
-  pub fn set_f_all(&mut self, z: bool, n: bool, h: bool, c: bool) {
+  pub fn set_f_znhc(&mut self, z: bool, n: bool, h: bool, c: bool) {
     self.set_f(((z as u8) << 7) | ((n as u8) << 6) | ((h as u8) << 5) | ((c as u8) << 4));
   }
 }
