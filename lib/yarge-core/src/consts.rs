@@ -1,10 +1,9 @@
-pub const CYCLES_PER_FRAME: usize = 70224;
-pub const VRAM_SIZE: usize = 0x2000;
-pub const VRAM_MAX: u16 = (VRAM_SIZE - 1) as u16;
 pub const TILE_WIDTH: u8 = 8;
 pub const WIDTH: usize = 160;
 pub const HEIGHT: usize = 144;
 pub const FB_SIZE: usize = WIDTH * HEIGHT;
+pub(crate) const CYCLES_PER_FRAME: usize = 70224;
+pub(crate) const VRAM_SIZE: usize = 0x2000;
 pub(crate) const INT_JMP_VEC: [u16; 5] = [0x40, 0x48, 0x50, 0x58, 0x60];
 pub const BIOS: [u8; 0x100] = [
   0x31, 0xFE, 0xFF, 0xAF, 0x21, 0xFF, 0x9F, 0x32, 0xCB, 0x7C, 0x20, 0xFB, 0x21, 0x26, 0xFF, 0x0E,
@@ -31,6 +30,10 @@ pub(crate) const DEFAULT_HEADER: [u8; 80] = [
   0xBB, 0xB9, 0x33, 0x3E, 0x43, 0x50, 0x55, 0x5F, 0x49, 0x4E, 0x53, 0x54, 0x52, 0x53, 0x00, 0x00,
   0x00, 0x00, 0x00, 0x80, 0x00, 0x00, 0x00, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x3B, 0xF5, 0x30,
 ];
+
+#[cfg(feature = "logging-file")]
+pub const LOG_PATH: &str = "./gameboy.log";
+
 pub const MBC_TYPE_LIST: &'static[(u8, &'static str)] = &[
   (0x00, "ROM ONLY"),
   (0x01, "MBC1"),
@@ -61,8 +64,6 @@ pub const MBC_TYPE_LIST: &'static[(u8, &'static str)] = &[
   (0xFE, "HuC3"),
   (0xFF, "HuC1+RAM+BATTERY"),
 ];
-#[cfg(feature = "logging-file")]
-pub const LOG_PATH: &str = "./gameboy.log";
 
 //static
 
