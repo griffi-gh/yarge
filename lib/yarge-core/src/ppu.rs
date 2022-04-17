@@ -132,14 +132,18 @@ impl Ppu {
   }
 
   pub fn tick(&mut self, iif: &mut u8) {
-    if self.mode == PpuMode::PxTransfer {
-      for _ in 0..4 {
-        self.cycles += 1;
+    //TODO optimize waits
+    match self.mode {
+      PpuMode::PxTransfer | PpuMode::HBlank => {
+        for _ in 0..4 {
+          self.cycles += 1;
+          self.tick_inner(iif);
+        }
+      }
+      _ => {
+        self.cycles += 4;
         self.tick_inner(iif);
       }
-    } else {
-      self.cycles += 4;
-      self.tick_inner(iif);
     }
   }
 
