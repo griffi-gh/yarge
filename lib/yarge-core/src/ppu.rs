@@ -148,8 +148,8 @@ impl Ppu {
           self.cycles += 1;
           self.tick_inner(iif);
         }
-      }
-      _ => {
+      },
+      PpuMode::VBlank | PpuMode::OamSearch => {
         self.cycles += 4;
         self.tick_inner(iif);
       }
