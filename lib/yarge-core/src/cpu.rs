@@ -11,6 +11,15 @@ pub enum CpuState {
   Stop
 }
 
+#[repr(u8)]
+pub enum Interrupt {
+  VBlank  = 0,
+  Stat    = 1,
+  Timer   = 2,
+  Serial  = 3,
+  Joypad  = 4,
+}
+
 pub struct Cpu {
   pub reg: Registers,
   pub mmu: Mmu,
@@ -127,6 +136,10 @@ impl Cpu {
 
   fn enable_ime(&mut self) {
     self.ime_pending = true;
+  }
+
+  pub fn set_interrupt(iif: &mut u8, int: Interrupt) {
+    *iif = *iif | (1 << int as u8);
   }
 
   fn dispatch_interrupt(&mut self, int: usize) {

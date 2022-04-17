@@ -58,7 +58,7 @@ impl Mmu {
           0xFF44 => { //LY
             #[cfg(feature = "ly-stub")] { 0x90 }
             #[cfg(not(feature = "ly-stub"))] { self.ppu.get_ly() }
-          }
+          },
           _ => 0xff
         }
       },

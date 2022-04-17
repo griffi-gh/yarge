@@ -4,7 +4,10 @@ mod fetcher;
 use fetcher::{Fetcher, FetcherLayer, FifoPixel};
 use oam::OamMemory;
 use ppu_registers::{LCDC, PpuMode};
-use crate::consts::{VRAM_SIZE, WIDTH, FB_SIZE};
+use crate::{
+  consts::{VRAM_SIZE, WIDTH, FB_SIZE},
+  cpu::{Cpu, Interrupt}
+};
 
 pub struct Ppu {
   pub display: Box<[u8; FB_SIZE]>,
@@ -79,14 +82,15 @@ impl Ppu {
     self.mode = mode;
   }
 
-  pub fn tick_inner(&mut self, _iif: &mut u8) {
+  pub fn tick_inner(&mut self, iif: &mut u8) {
     match self.mode { 
       PpuMode::HBlank => {
         if self.cycles >= self.hblank_len {
           self.ly += 1;
           if self.ly >= 144 {
-            self.frame_ready = true;
             self.mode(PpuMode::VBlank);
+            self.frame_ready = true;
+            Cpu::set_interrupt(iif, Interrupt::VBlank);
           } else {
             self.mode(PpuMode::OamSearch);
           }
