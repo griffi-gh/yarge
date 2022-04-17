@@ -12,9 +12,9 @@ codegen-units = 1
 yarge-core = { path = "lib/yarge-core" }
 yarge-gui-framework = { path = "lib/yarge-gui-framework", optional = true }
 ahash = { version = "0.7.6", optional = true }
-rfd = { version = "0.8.1", optional = true } 
-build-time = "0.1.1"
+rfd = { version = "0.8.1", optional = true }
 clap = { version = "3.1", features = ["derive"] }
+build-time = "0.1.1"
 
 [features]
 default = ["gui", "breakpoints"]
