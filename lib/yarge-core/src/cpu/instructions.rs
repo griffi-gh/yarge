@@ -601,6 +601,15 @@ macro_rules! rla {
   }
 } pub(crate) use rla;
 
+//RRA
+macro_rules! rra {
+  ($self: expr) => {
+    let val = $self.reg.a();
+    $self.reg.set_a((val >> 1) | (($self.reg.f_c() << 7) as u8));
+    $self.reg.set_f_znhc(false, false, false, val & 0x80 != 0);
+  }
+} pub(crate) use rra;
+
 macro_rules! daa {
   ($self: expr) => {
     //TEST does m >=0x60 work? Do i need c|| in the second if?
@@ -678,7 +687,7 @@ macro_rules! cpu_instructions {
         0x0D => { dec_r!($self, C); }             //DEC C
         0x0E => { ld_r_u8!($self, C); }           //LD C,u8 
 
-        0x10 => { cpu_stop!($self); }
+        0x10 => { cpu_stop!($self); }             //STOP
         0x11 => { ld_rr_u16!($self, DE); },       //LD DE,u16
         0x12 => { ld_mrr_a!($self, DE); },        //LD (DE),A
         0x13 => { incdec_rr!($self, DE, add); },  //INC DE
@@ -693,6 +702,7 @@ macro_rules! cpu_instructions {
         0x1C => { inc_r!($self, E); }             //INC E
         0x1D => { dec_r!($self, E); }             //DEC E
         0x1E => { ld_r_u8!($self, E); }           //LD E,u8 
+        0x1F => { rra!($self); }                  //RRA
 
         0x20 => { jr_i8_cond!($self, NZ); }       //JR NZ, i8
         0x21 => { ld_rr_u16!($self, HL); },       //LD HL,u16
@@ -995,9 +1005,11 @@ macro_rules! rl_r {
     paste! {
       let val = $self.reg.[<$r:lower>]();
     }
+
     let carry = val & 0x80 == 0x80;
     let val = (val << 1) | ($self.reg.f_c() as u8);
     $self.reg.set_f_znhc(val == 0, false, false, carry);
+
     paste! {
       $self.reg.[<set_ $r:lower>](val);
     }
@@ -1008,12 +1020,44 @@ macro_rules! rl_mhl {
   ($self: expr) => {
     let hl = $self.reg.hl();
     let val = $self.rb(hl)?;
+
     let carry = val & 0x80 == 0x80;
     let val = (val << 1) | ($self.reg.f_c() as u8);
     $self.reg.set_f_znhc(val == 0, false, false, carry);
+
     $self.wb(hl, val)?;
   }
 } pub(crate) use rl_mhl;
+
+//RR
+macro_rules! rr_r {
+  ($self: expr, $r: ident) => {
+    paste! {
+      let val = $self.reg.[<$r:lower>]();
+    }
+
+    let carry = val & 1 == 0x80;
+    let val = (val >> 1) | (($self.reg.f_c() as u8) << 7);
+    $self.reg.set_f_znhc(val == 0, false, false, carry);
+
+    paste! {
+      $self.reg.[<set_ $r:lower>](val);
+    }
+  }
+} pub(crate) use rr_r;
+
+macro_rules! rr_mhl {
+  ($self: expr) => {
+    let hl = $self.reg.hl();
+    let val = $self.rb(hl)?;
+
+    let carry = val & 1 == 0x80;
+    let val = (val >> 1) | (($self.reg.f_c() as u8) << 7);
+    $self.reg.set_f_znhc(val == 0, false, false, carry);
+
+    $self.wb(hl, val)?;
+  }
+} pub(crate) use rr_mhl;
 
 //RLC
 macro_rules! rlc_r {
@@ -1093,6 +1137,14 @@ macro_rules! cpu_instructions_cb {
         0x15 => { rl_r!($self, L); }              // RL L
         0x16 => { rl_mhl!($self); }               // RL (HL)
         0x17 => { rl_r!($self, A); }              // RL A
+        0x18 => { rr_r!($self, B); }              // RR B
+        0x19 => { rr_r!($self, C); }              // RR C
+        0x1A => { rr_r!($self, D); }              // RR D
+        0x1B => { rr_r!($self, E); }              // RR E
+        0x1C => { rr_r!($self, H); }              // RR H
+        0x1D => { rr_r!($self, L); }              // RR L
+        0x1E => { rr_mhl!($self); }               // RR (HL)
+        0x1F => { rr_r!($self, A); }              // RR A
 
         0x30 => { swap_r!($self, B); }            // SWAP B
         0x31 => { swap_r!($self, C); }            // SWAP C
