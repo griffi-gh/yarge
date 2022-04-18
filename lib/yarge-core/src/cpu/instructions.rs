@@ -1221,6 +1221,36 @@ macro_rules! rlc_mhl {
   }
 } pub(crate) use rlc_mhl;
 
+//RRC
+macro_rules! rrc_r {
+  ($self: expr, $reg: ident) => {
+    paste! {
+      let val = $self.reg.[<$reg:lower>]();
+    }
+
+    let carry = val & 1 != 0;
+    let val = val.rotate_right(1);
+    $self.reg.set_f_znhc(val == 0, false, false, carry);
+
+    paste! {
+      $self.reg.[<set_ $reg:lower>](val);
+    }
+  }
+} pub(crate) use rrc_r;
+
+macro_rules! rrc_mhl {
+  ($self: expr) => {
+    let hl = $self.reg.hl();
+    let val = $self.rb(hl)?;
+
+    let carry = val & 1 != 0;
+    let val = val.rotate_right(1);
+    $self.reg.set_f_znhc(val == 0, false, false, carry);
+
+    $self.wb(hl, val)?;
+  }
+} pub(crate) use rrc_mhl;
+
 //SRL
 
 macro_rules! srl_r {
@@ -1260,6 +1290,14 @@ macro_rules! cpu_instructions_cb {
         0x05 => { rlc_r!($self, L); }             // RLC L
         0x06 => { rlc_mhl!($self); }              // RLC (HL)
         0x07 => { rlc_r!($self, A); }             // RLC A
+        0x08 => { rrc_r!($self, B); }             // RRC B
+        0x09 => { rrc_r!($self, C); }             // RRC C
+        0x0A => { rrc_r!($self, D); }             // RRC D
+        0x0B => { rrc_r!($self, E); }             // RRC E
+        0x0C => { rrc_r!($self, H); }             // RRC H
+        0x0D => { rrc_r!($self, L); }             // RRC L
+        0x0E => { rrc_mhl!($self); }              // RRC (HL)
+        0x0F => { rrc_r!($self, A); }             // RRC A
         
         0x10 => { rl_r!($self, B); }              // RL B
         0x11 => { rl_r!($self, C); }              // RL C
