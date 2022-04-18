@@ -605,7 +605,7 @@ macro_rules! rla {
 macro_rules! rra {
   ($self: expr) => {
     let val = $self.reg.a();
-    $self.reg.set_a((val >> 1) | (($self.reg.f_c() << 7) as u8));
+    $self.reg.set_a((val >> 1) | (($self.reg.f_c() as u8) << 7));
     $self.reg.set_f_znhc(false, false, false, val & 0x80 != 0);
   }
 } pub(crate) use rra;
