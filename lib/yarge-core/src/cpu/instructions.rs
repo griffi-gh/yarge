@@ -1109,6 +1109,67 @@ macro_rules! rr_mhl {
   }
 } pub(crate) use rr_mhl;
 
+
+//SLA
+macro_rules! sla_r {
+  ($self: expr, $r: ident) => {
+    paste! {
+      let val = $self.reg.[<$r:lower>]();
+    }
+
+    let carry = val & 0x80 != 0;
+    let val = val << 1;
+    $self.reg.set_f_znhc(val == 0, false, false, carry);
+
+    paste! {
+      $self.reg.[<set_ $r:lower>](val);
+    }
+  }
+} pub(crate) use sla_r;
+
+macro_rules! sla_mhl {
+  ($self: expr) => {
+    let hl = $self.reg.hl();
+    let val = $self.rb(hl)?;
+
+    let carry = val & 0x80 != 0;
+    let val = val << 1;
+    $self.reg.set_f_znhc(val == 0, false, false, carry);
+
+    $self.wb(hl, val)?;
+  }
+} pub(crate) use sla_mhl;
+
+//SRA
+macro_rules! sra_r {
+  ($self: expr, $r: ident) => {
+    paste! {
+      let val = $self.reg.[<$r:lower>]();
+    }
+
+    let carry = val & 1 != 0;
+    let val = val >> 1;
+    $self.reg.set_f_znhc(val == 0, false, false, carry);
+
+    paste! {
+      $self.reg.[<set_ $r:lower>](val);
+    }
+  }
+} pub(crate) use sra_r;
+
+macro_rules! sra_mhl {
+  ($self: expr) => {
+    let hl = $self.reg.hl();
+    let val = $self.rb(hl)?;
+
+    let carry = val & 1 != 0;
+    let val = val >> 1;
+    $self.reg.set_f_znhc(val == 0, false, false, carry);
+
+    $self.wb(hl, val)?;
+  }
+} pub(crate) use sra_mhl;
+
 //RLC
 macro_rules! rlc_r {
   ($self: expr, $reg: ident) => {
@@ -1195,6 +1256,23 @@ macro_rules! cpu_instructions_cb {
         0x1D => { rr_r!($self, L); }              // RR L
         0x1E => { rr_mhl!($self); }               // RR (HL)
         0x1F => { rr_r!($self, A); }              // RR A
+
+        0x20 => { sla_r!($self, B); }             // SLA B
+        0x21 => { sla_r!($self, C); }             // SLA C
+        0x22 => { sla_r!($self, D); }             // SLA D
+        0x23 => { sla_r!($self, E); }             // SLA E
+        0x24 => { sla_r!($self, H); }             // SLA H
+        0x25 => { sla_r!($self, L); }             // SLA L
+        0x26 => { sla_mhl!($self); }              // SLA (HL)
+        0x27 => { sla_r!($self, A); }             // SLA A
+        0x28 => { sra_r!($self, B); }             // SRA B
+        0x29 => { sra_r!($self, C); }             // SRA C
+        0x2A => { sra_r!($self, D); }             // SRA D
+        0x2B => { sra_r!($self, E); }             // SRA E
+        0x2C => { sra_r!($self, H); }             // SRA H
+        0x2D => { sra_r!($self, L); }             // SRA L
+        0x2E => { sra_mhl!($self); }              // SRA (HL)
+        0x2F => { sra_r!($self, A); }             // SRA A
 
         0x30 => { swap_r!($self, B); }            // SWAP B
         0x31 => { swap_r!($self, C); }            // SWAP C
