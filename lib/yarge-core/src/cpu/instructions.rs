@@ -1150,7 +1150,7 @@ macro_rules! srl_r {
       let val = $self.reg.[<$reg:lower>]();
     }
     let carry = val & 1 != 0;
-    let val = val << 1;
+    let val = val >> 1;
     $self.reg.set_f_znhc(val == 0, false, false, carry);
     paste! {
       $self.reg.[<set_ $reg:lower>](val);
@@ -1163,7 +1163,7 @@ macro_rules! srl_mhl {
     let hl = $self.reg.hl();
     let val = $self.rb(hl)?;
     let carry = val & 1 != 0;
-    let val = val << 1;
+    let val = val >> 1;
     $self.reg.set_f_znhc(val == 0, false, false, carry);
     $self.wb(hl, val)?;
   };
