@@ -330,14 +330,14 @@ macro_rules! dec_mhl {
 macro_rules! alu_add_a {
   ($self: expr, $b: expr) => {
     let a = $self.reg.a();
-    let r = a.overflowing_add($b);
+    let (result, carry) = a.overflowing_add($b);
     $self.reg.set_f_znhc( //Z N H C
-      r.0 == 0,
+      result == 0,
       false,
       (a & 0xF) + ($b & 0xF) > 0xF,
-      r.1
+      carry
     );
-    $self.reg.set_a(r.0);
+    $self.reg.set_a(result);
   };
 } pub(crate) use alu_add_a;
 
@@ -364,19 +364,63 @@ macro_rules! add_a_u8 {
   };
 } pub(crate) use add_a_u8;
 
+//ADC A
+
+macro_rules! alu_adc_a {
+  ($self: expr, $b: expr) => {
+    let c = $self.reg.f_c() as u8;
+    let a = $self.reg.a();
+    let (result, carry) = {
+      let r0 = a.overflowing_add($b);
+      let r1 = r0.0.overflowing_add(c);
+      (r1.0, r0.1 || r1.1)
+    };
+    $self.reg.set_f_znhc(
+      result == 0,
+      false,
+      ((a & 0xF) + ($b & 0xF) + c) > 0xF,
+      carry
+    );
+    $self.reg.set_a(result);
+  }
+} pub(crate) use alu_adc_a;
+
+macro_rules! adc_a_r {
+  ($self: expr, $reg: ident) => {
+    paste! {
+      let b = $self.reg.[<$reg:lower>]();
+    }
+    alu_adc_a!($self, b);
+  };
+} pub(crate) use adc_a_r;
+
+macro_rules! adc_a_mhl {
+  ($self: expr) => {
+    let b = $self.rb($self.reg.hl())?;
+    alu_adc_a!($self, b);
+  };
+} pub(crate) use adc_a_mhl;
+
+macro_rules! adc_a_u8 {
+  ($self: expr) => {
+    let b = $self.fetch()?;
+    alu_adc_a!($self, b);
+  };
+} pub(crate) use adc_a_u8;
+
 //SUB A
 
 macro_rules! alu_sub_a {
   ($self: expr, $b: expr) => {
     let a = $self.reg.a();
-    let r = a.overflowing_sub($b);
+    let (result, carry) = a.overflowing_sub($b);
     $self.reg.set_f_znhc( //Z N H C
-      r.0 == 0,
+      result == 0,
       true,
       (a & 0x0F) < ($b & 0x0F),
-      r.1
+      carry
     );
-    $self.reg.set_a(r.0);
+    $self.reg.set_a(result);
   };
 } pub(crate) use alu_sub_a;
 
@@ -812,6 +856,14 @@ macro_rules! cpu_instructions {
         0x85 => { add_a_r!($self, L); }           //ADD A,L
         0x86 => { add_a_mhl!($self); }            //ADD A,(HL)
         0x87 => { add_a_r!($self, A); }           //ADD A,A
+        0x88 => { adc_a_r!($self, B); }           //ADC A,B
+        0x89 => { adc_a_r!($self, C); }           //ADC A,C
+        0x8A => { adc_a_r!($self, D); }           //ADC A,D
+        0x8B => { adc_a_r!($self, E); }           //ADC A,E
+        0x8C => { adc_a_r!($self, H); }           //ADC A,H
+        0x8D => { adc_a_r!($self, L); }           //ADC A,L
+        0x8E => { adc_a_mhl!($self); }            //ADC A,(HL)
+        0x8F => { adc_a_r!($self, A); }           //ADC A,A
 
         0x90 => { sub_a_r!($self, B); }           //SUB A,B
         0x91 => { sub_a_r!($self, C); }           //SUB A,C
@@ -869,6 +921,7 @@ macro_rules! cpu_instructions {
         0xCA => { cond_jp_u16!($self, Z); }       //JP Z,u16
         0xCC => { call_u16_cond!($self, Z); }     //CALL Z,u16
         0xCD => { call_u16!($self); }             //CALL u16
+        0xCE => { adc_a_u8!($self); }             //ADC A,u8
         0xCF => { rst!($self, 0x08); }            //RST 08h
 
         0xD0 => { ret_cond!($self, NC); }         //RET NC
