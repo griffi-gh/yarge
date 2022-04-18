@@ -207,9 +207,6 @@ macro_rules! ret_cond {
     paste! {
       if $self.reg.[<f_ $cond:lower>]() {
         ret!($self);
-      } else {
-        //TODO simulate pop timing instead
-        $self.pop()?; 
       }
     }
   };
