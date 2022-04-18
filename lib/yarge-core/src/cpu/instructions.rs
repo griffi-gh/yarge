@@ -983,6 +983,12 @@ macro_rules! set_mhl {
   };
 } pub(crate) use set_mhl;
 
+// TODO instead of duplicating either:
+/*
+* add wrapper macros for reg and mhl ops 
+* add macros for operations for example: rl!();
+*/
+
 //RL
 macro_rules! rl_r {
   ($self: expr, $r: ident) => {
@@ -1011,15 +1017,17 @@ macro_rules! rl_mhl {
 
 //RLC
 macro_rules! rlc_r {
-  ($self: expr, $r: ident) => {
+  ($self: expr, $reg: ident) => {
     paste! {
-      let val = $self.reg.[<$r:lower>]();
+      let val = $self.reg.[<$reg:lower>]();
     }
-    let carry = val & 0x80 == 0x80;
+
+    let carry = val & 0x80 != 0;
     let val = val.rotate_left(1);
     $self.reg.set_f_znhc(val == 0, false, false, carry);
+
     paste! {
-      $self.reg.[<set_ $r:lower>](val);
+      $self.reg.[<set_ $reg:lower>](val);
     }
   }
 } pub(crate) use rlc_r;
@@ -1028,13 +1036,41 @@ macro_rules! rlc_mhl {
   ($self: expr) => {
     let hl = $self.reg.hl();
     let val = $self.rb(hl)?;
-    let carry = val & 0x80 == 0x80;
+
+    let carry = val & 0x80 != 0;
     let val = val.rotate_left(1);
     $self.reg.set_f_znhc(val == 0, false, false, carry);
+
     $self.wb(hl, val)?;
   }
 } pub(crate) use rlc_mhl;
 
+//SRL
+
+macro_rules! srl_r {
+  ($self: expr, $reg: ident) => {
+    paste! {
+      let val = $self.reg.[<$reg:lower>]();
+    }
+    let carry = val & 1 != 0;
+    let val = val << 1;
+    $self.reg.set_f_znhc(val == 0, false, false, carry);
+    paste! {
+      $self.reg.[<set_ $reg:lower>](val);
+    }
+  };
+} pub(crate) use srl_r;
+
+macro_rules! srl_mhl {
+  ($self: expr) => {
+    let hl = $self.reg.hl();
+    let val = $self.rb(hl)?;
+    let carry = val & 1 != 0;
+    let val = val << 1;
+    $self.reg.set_f_znhc(val == 0, false, false, carry);
+    $self.wb(hl, val)?;
+  };
+} pub(crate) use srl_mhl;
 
 macro_rules! cpu_instructions_cb {
   ($self: expr, $op: expr) => {
@@ -1066,6 +1102,14 @@ macro_rules! cpu_instructions_cb {
         0x35 => { swap_r!($self, L); }            // SWAP L
         0x36 => { swap_mhl!($self); }             // SWAP (HL)
         0x37 => { swap_r!($self, A); }            // SWAP A
+        0x38 => { srl_r!($self, B); }             // SRL B
+        0x39 => { srl_r!($self, C); }             // SRL C
+        0x3A => { srl_r!($self, D); }             // SRL D
+        0x3B => { srl_r!($self, E); }             // SRL E
+        0x3C => { srl_r!($self, H); }             // SRL H
+        0x3D => { srl_r!($self, L); }             // SRL L
+        0x3E => { srl_mhl!($self); }              // SRL (HL)
+        0x3F => { srl_r!($self, A); }             // SRL A
 
         0x40 => { bit_r!($self, 0, B); }          // BIT 0,B
         0x41 => { bit_r!($self, 0, C); }          // BIT 0,C
