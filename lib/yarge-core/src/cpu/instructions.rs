@@ -651,6 +651,25 @@ macro_rules! rra {
   }
 } pub(crate) use rra;
 
+//RLCA
+macro_rules! rlca {
+  ($self: expr) => {
+    let val = $self.reg.a();
+    $self.reg.set_a(val.rotate_left(1));
+    $self.reg.set_f_znhc(false, false, false, val & 0x80 != 0);
+  }
+} pub(crate) use rlca;
+
+//RRCA
+macro_rules! rrca {
+  ($self: expr) => {
+    let val = $self.reg.a();
+    $self.reg.set_a(val.rotate_right(1));
+    $self.reg.set_f_znhc(false, false, false, val & 1 != 0);
+  }
+} pub(crate) use rrca;
+
+
 macro_rules! daa {
   ($self: expr) => {
     //TEST does m >=0x60 work? Do i need c|| in the second if?
@@ -721,12 +740,14 @@ macro_rules! cpu_instructions {
         0x04 => { inc_r!($self, B); }             //INC B
         0x05 => { dec_r!($self, B); }             //DEC B
         0x06 => { ld_r_u8!($self, B); }           //LD B,u8
+        0x07 => { rlca!($self); }                 //RLCA
         0x09 => { add_hl_rr!($self, BC); }        //ADD HL,BC
         0x0A => { ld_a_mrr!($self, BC); }         //LD A,(BC)
         0x0B => { incdec_rr!($self, BC, sub); }   //DEC BC
         0x0C => { inc_r!($self, C); }             //INC C
         0x0D => { dec_r!($self, C); }             //DEC C
         0x0E => { ld_r_u8!($self, C); }           //LD C,u8 
+        0x0F => { rrca!($self); }                 //RRCA
 
         0x10 => { cpu_stop!($self); }             //STOP
         0x11 => { ld_rr_u16!($self, DE); },       //LD DE,u16
