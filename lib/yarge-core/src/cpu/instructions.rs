@@ -650,7 +650,7 @@ macro_rules! rra {
   ($self: expr) => {
     let val = $self.reg.a();
     $self.reg.set_a((val >> 1) | (($self.reg.f_c() as u8) << 7));
-    $self.reg.set_f_znhc(false, false, false, val & 0x80 != 0);
+    $self.reg.set_f_znhc(false, false, false, val & 1 != 0);
   }
 } pub(crate) use rra;
 
@@ -1074,7 +1074,7 @@ macro_rules! rl_mhl {
     let hl = $self.reg.hl();
     let val = $self.rb(hl)?;
 
-    let carry = val & 0x80 == 0x80;
+    let carry = val & 0x80 != 0;
     let val = (val << 1) | ($self.reg.f_c() as u8);
     $self.reg.set_f_znhc(val == 0, false, false, carry);
 
@@ -1089,7 +1089,7 @@ macro_rules! rr_r {
       let val = $self.reg.[<$r:lower>]();
     }
 
-    let carry = val & 1 == 0x80;
+    let carry = val & 1 != 0;
     let val = (val >> 1) | (($self.reg.f_c() as u8) << 7);
     $self.reg.set_f_znhc(val == 0, false, false, carry);
 
