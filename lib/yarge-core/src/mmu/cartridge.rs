@@ -15,6 +15,7 @@ pub trait CartridgeImpl {
   fn save_eram(&self) -> Option<Vec<u8>> { None }
 }
 
+#[non_exhaustive]
 #[enum_dispatch(CartridgeImpl)]
 pub enum Cartridge {
   MockCartridge,
@@ -35,10 +36,24 @@ impl CartridgeImpl for MockCartridge {
   }
 }
 
-macro_rules! verify_addr {
+fn verify_rom_addr(addr: u16) {
+  assert!((0..=0x7FFF).contains(&addr), "Out of bounds read");
+}
+fn verify_eram_addr(addr: u16) {
+  assert!((0xA000..=0xBFFF).contains(&addr), "Out of bounds read");
+}
+macro_rules! verify_rom_addr_if_debug {
   ($addr: expr) => {
-    #[cfg(debug_assertions)]
-    assert!((0..=0x7FFF).contains(&addr), "Out of bounds read");
+    #[cfg(debug_assertions)] {
+      verify_rom_addr($addr);
+    }
+  };
+}
+macro_rules! verify_eram_addr_if_debug {
+  ($addr: expr) => {
+    #[cfg(debug_assertions)] {
+      verify_eram_addr($addr);
+    }
   };
 }
 
@@ -55,6 +70,7 @@ impl CartridgeNone {
 impl CartridgeImpl for CartridgeNone {
   fn name(&self) -> &str { "MBC0" }
   fn read_rom(&self, addr: u16) -> u8 {
+    verify_rom_addr_if_debug!(addr);
     return self.rom[(addr & 0x7FFF) as usize];
   }
   fn load_rom(&mut self, rom: &[u8]) -> Res<()> {
@@ -75,21 +91,27 @@ enum Mbc1Type {
   None, Ram, RamBattery
 }
 pub struct CartridgeMbc1 {
+  rom: Vec<u8>,
   mbc1_type: Mbc1Type
 }
 impl CartridgeMbc1 {
   fn new(mbc1_type: Mbc1Type) -> Self {
     Self {
+      rom: Vec::with_capacity(0x8000),
       mbc1_type
     }
   }
 }
 impl CartridgeImpl for CartridgeMbc1 {
   fn name(&self) -> &str { "MBC1" }
-  fn load_rom(&mut self, _rom: &[u8]) -> Res<()> {
-    todo!()
+  fn load_rom(&mut self, rom: &[u8]) -> Res<()> {
+    self.rom.clear();
+    self.rom.extend_from_slice(rom);
+    self.rom.shrink_to_fit();
+    Ok(())
   }
-  fn read_rom(&self, _addr: u16) -> u8 {
+  fn read_rom(&self, addr: u16) -> u8 {
+    verify_rom_addr_if_debug!(addr);
     todo!()
   }
 }
