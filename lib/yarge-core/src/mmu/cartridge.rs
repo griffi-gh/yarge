@@ -13,13 +13,12 @@ pub trait CartridgeImpl {
   fn name(&self) -> &str;
   fn load_rom(&mut self, data: &[u8]) -> Res<()> { Ok(()) }
   fn read_rom(&self, addr: u16) -> u8;
-  fn write_rom(&self, addr: u16, value: u8) {}
+  fn write_rom(&self, addr: u16, value: u8) { }
   fn read_eram(&self, addr: u16) -> u8 { 0xff }
   fn write_eram(&self, addr: u16, value: u8) {}
   fn save_eram(&self) -> Option<Vec<u8>> { None }
 }
 
-#[repr(u8)]
 #[non_exhaustive]
 #[enum_dispatch(CartridgeImpl)]
 pub enum Cartridge {

@@ -7,12 +7,18 @@ pub enum Mbc1Type {
 }
 pub struct CartridgeMbc1 {
   rom: Vec<u8>,
-  mbc1_type: Mbc1Type
+  eram: Option<Vec<u8>>,
+  rom_bank: u8,
+  ram_bank: u8,
+  mbc1_type: Mbc1Type,
 }
 impl CartridgeMbc1 {
   pub fn new(mbc1_type: Mbc1Type) -> Self {
     Self {
       rom: Vec::with_capacity(0x8000),
+      eram: None,
+      rom_bank: 1,
+      ram_bank: 0,
       mbc1_type
     }
   }
