@@ -1,6 +1,7 @@
 pub use egui;
 pub use pixels;
 pub use winit;
+pub use winit_input_helper;
 use winit::{
   window::WindowBuilder,
   event_loop::{ControlFlow, EventLoop},
@@ -25,8 +26,8 @@ pub trait Gui {
   fn handle_input(&mut self, input: &WinitInputHelper) {}
 }
 
-struct Framework {
-  pub(crate) state: Box<dyn Gui>,
+struct Framework<T: Gui> {
+  pub(crate) state: T,
   egui_ctx: EguiCtx,
   egui_state: egui_winit::State,
   screen_descriptor: ScreenDescriptor,
@@ -34,11 +35,11 @@ struct Framework {
   paint_jobs: Vec<ClippedMesh>,
   texture_delta: Option<TexturesDelta>,
 }
-impl Framework {
+impl<T: Gui> Framework<T> {
   fn new(
     width: u32, height: u32, 
     scale_factor: f32, pixels: &pixels::Pixels,
-    gui_state: Box<dyn Gui>
+    gui_state: T
   ) -> Self {
     let egui_ctx = EguiCtx::default();
     let egui_state = egui_winit::State::from_pixels_per_point(
@@ -140,7 +141,7 @@ pub struct InitProperties<'a> {
   pub title: &'a str,
 }
 
-pub fn init(state: Box<dyn Gui>, prop: InitProperties) {
+pub fn init<T: 'static + Gui>(state: T, prop: InitProperties) {
   let event_loop = EventLoop::new();
   let mut input = WinitInputHelper::new();
   let window = {

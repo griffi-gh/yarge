@@ -67,7 +67,7 @@ impl GuiState {
   }
   ///Warning: consumes self!
   pub fn init(self) {
-    framework::init(Box::new(self), InitProperties {
+    framework::init(self, InitProperties {
       title: NAME.unwrap_or("open source gameboy emulator"),
       pixels_resoltion: (WIDTH, HEIGHT),
       min_size: (WIDTH, HEIGHT),
