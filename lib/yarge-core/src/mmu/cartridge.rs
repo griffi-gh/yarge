@@ -6,27 +6,26 @@ use crate::{Res, YargeError, consts::DEFAULT_HEADER};
 #[allow(unused_variables)]
 #[enum_dispatch]
 pub trait CartridgeImpl {
-  fn index(&self) -> u8;
   fn name(&self) -> &str;
-  fn read(&self, addr: u16) -> u8;
-  fn write(&self, addr: u16, value: u8) {}
+  fn load_rom(&mut self, data: &[u8]) -> Res<()>;
+  fn read_rom(&self, addr: u16) -> u8;
+  fn write_rom(&self, addr: u16, value: u8) {}
   fn read_eram(&self, addr: u16) -> u8 { 0xff }
   fn write_eram(&self, addr: u16, value: u8) {}
-  fn load(&mut self, data: &[u8]) -> Res<()>;
 }
 
 #[enum_dispatch(CartridgeImpl)]
 pub enum Cartridge {
   MockCartridge,
-  CartridgeNone
+  CartridgeNone,
+  CartridgeMbc1,
 }
 
-pub struct MockCartridge {}
+pub struct MockCartridge;
 impl CartridgeImpl for MockCartridge {
   fn name(&self) -> &str { "NONE" }
-  fn index(&self) -> u8 { 0 }
-  fn load(&mut self, _: &[u8]) -> Res<()> { Ok(()) }
-  fn read(&self, addr: u16) -> u8 {
+  fn load_rom(&mut self, _: &[u8]) -> Res<()> { Ok(()) }
+  fn read_rom(&self, addr: u16) -> u8 {
     if (0x100..(0x100+80)).contains(&addr) {
       DEFAULT_HEADER[(addr - 0x100) as usize]
     } else {
@@ -35,22 +34,29 @@ impl CartridgeImpl for MockCartridge {
   }
 }
 
+macro_rules! verify_addr {
+  ($addr: expr) => {
+    #[cfg(debug_assertions)]
+    assert!((0..=0x7FFF).contains(&addr), "Out of bounds read");
+  };
+}
+
 pub struct CartridgeNone {
-  index: u8,
   rom: Box<[u8; 0x8000]>,
 }
 impl CartridgeNone {
-  pub fn new(index: u8) -> Self {
+  pub fn new() -> Self {
     Self {
-      index,
       rom: Box::new([0xFF; 0x8000]),
     }
   }
 }
 impl CartridgeImpl for CartridgeNone {
   fn name(&self) -> &str { "MBC0" }
-  fn index(&self) -> u8 { self.index }
-  fn load(&mut self, rom: &[u8]) -> Res<()> {
+  fn read_rom(&self, addr: u16) -> u8 {
+    return self.rom[(addr & 0x7FFF) as usize];
+  }
+  fn load_rom(&mut self, rom: &[u8]) -> Res<()> {
     if rom.len() != 0x8000 {
       return Err(
         YargeError::InvalidRomSize(rom.len())
@@ -61,19 +67,36 @@ impl CartridgeImpl for CartridgeNone {
     }
     Ok(())
   }
-  fn read(&self, addr: u16) -> u8 {
-    //bitwise and allows the compiler to optimize away the bounds checks
-    //...but I want to keep them on debug buils
-    #[cfg(debug_assertions)]
-    return self.rom[addr as usize];
-    #[cfg(not(debug_assertions))]
-    return self.rom[(addr & 0x7FFF) as usize];
+}
+
+#[repr(u8)]
+enum Mbc1Type {
+  None, Ram, RamBattery
+}
+pub struct CartridgeMbc1 {
+  mbc1_type: Mbc1Type
+}
+impl CartridgeMbc1 {
+  fn new(mbc1_type: Mbc1Type) -> Self {
+    Self {
+      mbc1_type
+    }
+  }
+}
+impl CartridgeImpl for CartridgeMbc1 {
+  fn name(&self) -> &str { "MBC1" }
+  fn load_rom(&mut self, _rom: &[u8]) -> Res<()> {
+    todo!()
+  }
+  fn read_rom(&self, _addr: u16) -> u8 {
+    todo!()
   }
 }
 
 pub fn get_cartridge(cart_type: u8) -> Res<Cartridge> {
   match cart_type {
-    0x00 => Ok(CartridgeNone::new(cart_type).into()),
+    0x00 => Ok(CartridgeNone::new().into()),
+    0x01 => Ok(CartridgeMbc1::new(Mbc1Type::None).into()),
     _ => Err(YargeError::InvalidMbcType(cart_type))
   }
 }

@@ -33,13 +33,13 @@ impl Mmu {
       //BOOTROM/ROM
       0x0000..=0x00ff => { 
         if self.bios_disabled {
-          self.cart.read(addr)
+          self.cart.read_rom(addr)
         } else {
           BIOS[addr as usize]
         }
       },
       //ROM
-      0x0100..=0x7fff => self.cart.read(addr),
+      0x0100..=0x7fff => self.cart.read_rom(addr),
       //VRAM
       0x8000..=0x9FFF => self.ppu.read_vram(addr),
       //ERAM
@@ -76,7 +76,12 @@ impl Mmu {
     match addr {
       //BOOTROM/ROM
       //nah it's not worth checking for "bios_disabled" here
-      0x0000..=0x7fff => { self.cart.write(addr, value); },
+      0x0000..=0x00ff => { 
+        if self.bios_disabled {
+          self.cart.write_rom(addr, value);
+        }
+      }
+      0x0100..=0x7fff => { self.cart.write_rom(addr, value); },
       //VRAM
       0x8000..=0x9FFF => { self.ppu.write_vram(addr, value); },
       //ERAM
@@ -117,13 +122,13 @@ impl Mmu {
     let mbc_type = header.mbc_type;
     self.cart_header = header;
     self.cart = cartridge::get_cartridge(mbc_type)?;
-    self.cart.load(data)?;
+    self.cart.load_rom(data)?;
     Ok(())
   }
   pub fn load_rom_force_mbc(&mut self, data: &[u8], mbc_type: u8) -> Res<()> {
     self.cart_header = RomHeader::parse(data);
     self.cart = cartridge::get_cartridge(mbc_type).unwrap();
-    self.cart.load(data)?;
+    self.cart.load_rom(data)?;
     Ok(())
   }
   pub fn load_file(&mut self, path: &str) -> Res<()> {
@@ -139,9 +144,6 @@ impl Mmu {
 
   pub fn mbc_type_name(&self) -> &str {
     self.cart.name()
-  }
-  pub fn mbc_index(&self) -> u8 {
-    self.cart.index()
   }
   pub fn header(&self) -> RomHeader {
     self.cart_header

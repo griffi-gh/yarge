@@ -59,10 +59,10 @@ impl Gameboy {
   #[inline] pub fn get_mbc_name(&self) -> &str {
     self.cpu.mmu.mbc_type_name()
   }
+  #[deprecated = "use gb.get_rom_header().mbc_type instead"]
   #[inline] pub fn get_mbc_type(&self) -> u8 {
-    self.cpu.mmu.mbc_index()
+    self.cpu.mmu.header().mbc_type
   }
-
   #[inline] pub fn get_rom_header(&self) -> RomHeader {
     self.cpu.mmu.header()
   }
