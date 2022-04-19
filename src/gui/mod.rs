@@ -1,5 +1,7 @@
 use yarge_gui_framework as framework;
 use framework::{
+  VirtualKeyCode,
+  WinitInputHelper,
   egui, InitProperties,
   Gui, Dimensions as Dim
 };
@@ -156,6 +158,16 @@ impl Gui for GuiState {
     for (i, pixel) in frame.chunks_exact_mut(4).enumerate() {
       pixel.copy_from_slice(&GB_PALETTE[(data[i] & 3) as usize]);
     }
+  }
+  fn handle_input(&mut self, input: &WinitInputHelper) {
+    if let Some(file) = input.dropped_file() {
+      if let Ok(data) = fs::read(file) {
+        let _ = self.gb.load_rom(&data[..]);
+      }
+    }
+    /*if input.key_pressed(VirtualKeyCode::A) {
+      println!("A pressed");
+    }*/
   }
   fn gui(&mut self, ui: &Context, _dim: Dim<f32>) -> bool {
     let mut exit = false;

@@ -1,15 +1,15 @@
 pub use egui;
 pub use pixels;
 pub use winit;
-pub use winit_input_helper;
 use winit::{
   window::WindowBuilder,
   event_loop::{ControlFlow, EventLoop},
   dpi::LogicalSize,
-  event::{Event, VirtualKeyCode},
+  event::Event,
   window::Window
 };
-use winit_input_helper::WinitInputHelper;
+pub use winit_input_helper::WinitInputHelper;
+pub use winit::event::VirtualKeyCode;
 use pixels::{PixelsContext, Pixels, SurfaceTexture, wgpu};
 use egui::{ClippedMesh, Context as EguiCtx, TexturesDelta};
 use egui_wgpu_backend::{RenderPass, ScreenDescriptor, BackendError};
