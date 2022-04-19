@@ -1,6 +1,6 @@
 use yarge_gui_framework as framework;
 use framework::{
-  VirtualKeyCode,
+  //VirtualKeyCode,
   WinitInputHelper,
   egui, InitProperties,
   Gui, Dimensions as Dim
@@ -10,6 +10,7 @@ use std::{
   fs,
   error::Error,
   hash::Hasher as _,
+  time::Instant,
 };
 use crate::{
   gb,
@@ -43,6 +44,8 @@ pub struct GuiState {
   load_no_reset: bool,
   step_amount: usize,
   step_millis: f64,
+  last_render: Instant,
+  frame_time: f64,
 
   #[cfg(feature = "breakpoints")]
   mmu_breakpoint_addr: u16,
@@ -60,6 +63,8 @@ impl GuiState {
       load_no_reset: false,
       step_amount: 1,
       step_millis: 0.,
+      last_render: Instant::now(),
+      frame_time: 0.,
 
       #[cfg(feature = "breakpoints")]
       mmu_breakpoint_addr: 0,
@@ -145,7 +150,6 @@ fn u16_edit(ui: &mut egui::Ui, name: &str, value: u16, allow_edit: bool, mul: u1
 
 impl Gui for GuiState {
   fn prepare(&mut self) {
-    use std::time::Instant;
     let instant = Instant::now();
     if self.gb_result.is_ok() {
       self.gb_result = self.gb.run_for_frame();
@@ -154,6 +158,8 @@ impl Gui for GuiState {
     self.step_millis = elapsed.as_secs_f64() * 1000.;
   }
   fn render(&mut self, frame: &mut [u8]) {
+    self.frame_time = self.last_render.elapsed().as_secs_f64();
+    self.last_render = Instant::now();
     let data = self.gb.get_display_data();
     for (i, pixel) in frame.chunks_exact_mut(4).enumerate() {
       pixel.copy_from_slice(&GB_PALETTE[(data[i] & 3) as usize]);
@@ -512,6 +518,8 @@ impl Gui for GuiState {
       egui::CollapsingHeader::new(
         "Application"
       ).show(ui, |ui| {
+        ui.label(format!("Frame time: {}ms", self.frame_time));
+        ui.label(format!("\t- Estimated FPS: {}", (1. / self.frame_time).round() as usize));
         ui.label(format!("gb.run_for_frame() time: {}ms", self.step_millis));
         ui.label(format!("\t- Estimated FPS (excl. GUI): {}", (1000. / self.step_millis).round() as usize));
         if ui.button("Organize windows").clicked() {
