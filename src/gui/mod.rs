@@ -162,6 +162,7 @@ impl Gui for GuiState {
   fn handle_input(&mut self, input: &WinitInputHelper) {
     if let Some(file) = input.dropped_file() {
       if let Ok(data) = fs::read(file) {
+        self.gb.reset();
         let _ = self.gb.load_rom(&data[..]);
       }
     }
