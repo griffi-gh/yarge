@@ -25,7 +25,10 @@ impl CartridgeImpl for CartridgeMbc1 {
     self.rom.shrink_to_fit();
     Ok(())
   }
-  fn read_rom(&self, _addr: u16) -> u8 {
+  fn read_rom(&self, addr: u16) -> u8 {
+    if addr < 0x4000 {
+      return self.rom[addr as usize];
+    }
     todo!()
   }
 }
