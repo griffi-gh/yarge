@@ -23,6 +23,7 @@ pub struct Ppu {
   vram: Box<[u8; VRAM_SIZE]>,
   oam: OamMemory,
   lcdc: LCDC,
+  display_cleared: bool,
   bg_fetcher: Fetcher,
   to_discard: u8,
 }
@@ -49,6 +50,7 @@ impl Ppu {
       vram: Box::new([0; VRAM_SIZE]),
       oam: OamMemory::new(),
       lcdc: LCDC::default(),
+      display_cleared: false,
       bg_fetcher: Fetcher::new(),
       to_discard: 0,
     }
@@ -90,6 +92,19 @@ impl Ppu {
   }
 
   pub fn tick_inner(&mut self, iif: &mut u8) {
+    if !self.lcdc.enable_display {
+      if !self.display_cleared {
+        //TODO find out exact values
+        *self.display = [0; FB_SIZE];
+        self.ly = 0;
+        self.lx = 0;
+        self.mode(PpuMode::OamSearch); //resets cycles too
+        self.display_cleared = true;
+      }
+      return;
+    } else {
+      self.display_cleared = false;
+    }
     match self.mode { 
       PpuMode::HBlank => {
         if self.cycles >= self.hblank_len {
