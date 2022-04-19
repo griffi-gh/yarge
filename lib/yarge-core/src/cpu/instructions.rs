@@ -73,6 +73,13 @@ macro_rules! ld_mu16_a {
   };
 } pub(crate) use ld_mu16_a;
 
+macro_rules! ld_mu16_sp {
+  ($self: expr) => {
+    let a = $self.fetch_word()?;
+    $self.ww(a, $self.reg.sp)?;
+  };
+} pub(crate) use ld_mu16_sp;
+
 macro_rules! ld_mhli_a {
   ($self: expr, $inc: ident) => {
     let v = $self.reg.hl();
@@ -741,6 +748,7 @@ macro_rules! cpu_instructions {
         0x05 => { dec_r!($self, B); }             //DEC B
         0x06 => { ld_r_u8!($self, B); }           //LD B,u8
         0x07 => { rlca!($self); }                 //RLCA
+        0x08 => { ld_mu16_sp!($self); }           //LD (u16),SP
         0x09 => { add_hl_rr!($self, BC); }        //ADD HL,BC
         0x0A => { ld_a_mrr!($self, BC); }         //LD A,(BC)
         0x0B => { incdec_rr!($self, BC, sub); }   //DEC BC

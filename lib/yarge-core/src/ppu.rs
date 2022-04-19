@@ -24,6 +24,7 @@ pub struct Ppu {
   oam: OamMemory,
   lcdc: LCDC,
   bg_fetcher: Fetcher,
+  to_discard: u8,
 }
 impl Ppu {
   pub fn new() -> Self {
@@ -49,6 +50,7 @@ impl Ppu {
       oam: OamMemory::new(),
       lcdc: LCDC::default(),
       bg_fetcher: Fetcher::new(),
+      to_discard: 0,
     }
   }
 
@@ -115,6 +117,7 @@ impl Ppu {
         //TODO
         if self.cycles >= 80 {
           self.bg_fetcher.start(self.scx, self.scy, self.ly, FetcherLayer::Background);
+          self.to_discard = self.scx & 7;
           self.mode(PpuMode::PxTransfer);
         }
       },
@@ -123,17 +126,22 @@ impl Ppu {
         self.bg_fetcher.tick(&self.lcdc, &self.vram);
         if self.bg_fetcher.len() > 0 {
           let FifoPixel { color, .. } = self.bg_fetcher.pop().unwrap();
-          let addr = (self.ly as usize * WIDTH) + self.lx as usize;
-          self.display[addr] = (self.bgp >> (color << 1)) & 0b11;
-          self.lx += 1;
-          if self.lx >= WIDTH as u8 { 
-            self.lx = 0;
-            #[cfg(debug_assertions)] {
-              assert!(self.cycles >= 172, "PxTransfer took less then 172 cycles: {}", self.cycles);
-              assert!(self.cycles <= 289, "PxTransfer took more then 289 cycles: {}", self.cycles);
+          if self.to_discard > 0 {
+            self.to_discard -= 1;
+          }
+          if self.to_discard == 0 {
+            let addr = (self.ly as usize * WIDTH) + self.lx as usize;
+            self.display[addr] = (self.bgp >> (color << 1)) & 0b11;
+            self.lx += 1;
+            if self.lx >= WIDTH as u8 { 
+              self.lx = 0;
+              #[cfg(debug_assertions)] {
+                assert!(self.cycles >= 172, "PxTransfer took less then 172 cycles: {}", self.cycles);
+                assert!(self.cycles <= 289, "PxTransfer took more then 289 cycles: {}", self.cycles);
+              }
+              self.hblank_len = 376 - self.cycles;
+              self.mode(PpuMode::HBlank);
             }
-            self.hblank_len = 376 - self.cycles;
-            self.mode(PpuMode::HBlank);
           }
         }
       }
