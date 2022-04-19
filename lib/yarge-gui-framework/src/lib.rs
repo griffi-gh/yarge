@@ -17,10 +17,12 @@ pub const PKG_NAME: Option<&str> = option_env!("CARGO_PKG_NAME");
 
 pub type Dimensions<T> = (T, T);
 
+#[allow(unused_variables)]
 pub trait Gui {
   fn prepare(&mut self);
   fn render(&mut self, frame: &mut [u8]);
   fn gui(&mut self, ctx: &EguiCtx, size: Dimensions<f32>) -> bool;
+  fn handle_input(&mut self, input: &WinitInputHelper) {}
 }
 
 struct Framework {
@@ -125,6 +127,10 @@ impl Framework {
     self.rpass.remove_textures(delta)?;
     Ok(())
   }
+
+  pub fn handle_input(&mut self, input: &WinitInputHelper) {
+    self.state.handle_input(input);
+  }
 }
 
 pub struct InitProperties<'a> {
@@ -188,6 +194,7 @@ pub fn init(state: Box<dyn Gui>, prop: InitProperties) {
         pixels.resize_surface(size.width, size.height);
       }
 
+      framework.handle_input(&input);
       window.request_redraw();
     }
     match event {
