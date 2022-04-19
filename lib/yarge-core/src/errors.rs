@@ -3,9 +3,8 @@ use crate::consts::MBC_TYPE_NAMES;
 
 #[derive(Error, Debug)]
 pub enum YargeError {
-  #[error("Invalid or unimplemented CPU instruction: 0x{}{instr:02X} at {addr:#06X}", if *is_cb { "CB" } else { "" })]
+  #[error("Invalid or unimplemented CPU instruction: 0x{instr:02X} at {addr:#06X}")]
   InvalidInstruction {
-    is_cb: bool,
     instr: u8,
     addr: u16,
   },

@@ -997,7 +997,6 @@ macro_rules! cpu_instructions {
 
         _ => { 
           Err(YargeError::InvalidInstruction{
-            is_cb: false,
             addr: $self.reg.pc.wrapping_sub(1),
             instr: $op
           })?;
@@ -1569,14 +1568,6 @@ macro_rules! cpu_instructions_cb {
         0xFD => { set_r!($self, 7, L); }          // SET 7,L
         0xFE => { set_mhl!($self, 7); }           // SET 7,(HL)
         0xFF => { set_r!($self, 7, A); }          // SET 7,A
-
-        _ => { 
-          Err(YargeError::InvalidInstruction {
-            is_cb: true,
-            addr: $self.reg.pc.wrapping_sub(1),
-            instr: $op
-          })?;
-        }
       }
     }
   };
