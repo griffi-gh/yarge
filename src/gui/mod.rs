@@ -519,9 +519,9 @@ impl Gui for GuiState {
         "Application"
       ).show(ui, |ui| {
         ui.label(format!("Frame time: {}ms", self.frame_time));
-        ui.label(format!("\t- Estimated FPS: {}", (1. / self.frame_time).round() as usize));
+        ui.label(format!("\t- Estimated real FPS: {}", (1. / self.frame_time).round() as usize));
         ui.label(format!("gb.run_for_frame() time: {}ms", self.step_millis));
-        ui.label(format!("\t- Estimated FPS (excl. GUI): {}", (1000. / self.step_millis).round() as usize));
+        ui.label(format!("\t- Estimated potential FPS (excl. GUI): {}", (1000. / self.step_millis).round() as usize));
         if ui.button("Organize windows").clicked() {
           ui.ctx().memory().stop_text_input();
           ui.ctx().memory().reset_areas();
