@@ -12,7 +12,7 @@ impl CartridgeNone {
   }
 }
 impl CartridgeImpl for CartridgeNone {
-  fn name(&self) -> &str { "MBC0" }
+  fn name(&self) -> &str { "ROM ONLY" }
   fn read_rom(&self, addr: u16) -> u8 {
     return self.rom[(addr & 0x7FFF) as usize];
   }
