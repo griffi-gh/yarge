@@ -410,9 +410,7 @@ impl Gui for GuiState {
         ui.horizontal(|ui| {
           ui.add_space(H_SPACING);
           ui.label(format!(
-            "{} (with index: {:#04X})",
-            self.gb.get_mbc_name(),
-            self.gb.get_mbc_type()
+            "{}", self.gb.get_mbc_name()
           ));
         });
         ui.add_space(V_SPACING);

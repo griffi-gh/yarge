@@ -12,6 +12,7 @@ pub trait CartridgeImpl {
   fn write_rom(&self, addr: u16, value: u8) {}
   fn read_eram(&self, addr: u16) -> u8 { 0xff }
   fn write_eram(&self, addr: u16, value: u8) {}
+  fn save_eram(&self) -> Option<Vec<u8>> { None }
 }
 
 #[enum_dispatch(CartridgeImpl)]
@@ -97,6 +98,8 @@ pub fn get_cartridge(cart_type: u8) -> Res<Cartridge> {
   match cart_type {
     0x00 => Ok(CartridgeNone::new().into()),
     0x01 => Ok(CartridgeMbc1::new(Mbc1Type::None).into()),
+    0x02 => Ok(CartridgeMbc1::new(Mbc1Type::Ram).into()),
+    0x03 => Ok(CartridgeMbc1::new(Mbc1Type::RamBattery).into()),
     _ => Err(YargeError::InvalidMbcType(cart_type))
   }
 }
