@@ -40,6 +40,13 @@ macro_rules! ld_rr_u16 {
   };
 } pub(crate) use ld_rr_u16;
 
+macro_rules! ld_sp_hl {
+  ($self: expr) => { 
+    $self.reg.sp = $self.reg.hl();
+    $self.cycle();
+  };
+} pub(crate) use ld_sp_hl;
+
 macro_rules! ld_mrr_a {
   ($self: expr, $reg: ident) => {
     paste! {
@@ -982,6 +989,7 @@ macro_rules! cpu_instructions {
         0xF5 => { push_rr!($self, AF); }          //PUSH AF
         0xF6 => { or_a_u8!($self); }              //OR A,u8
         0xF7 => { rst!($self, 0x30); }            //RST 30h
+        0xF9 => { ld_sp_hl!($self); }              //LD SP,HL
         0xFA => { ld_a_mu16!($self); }            //LD A,(u16)
         0xFB => { ei!($self); }                   //EI
         0xFE => { cp_a_u8!($self); }              //CP A,u8
