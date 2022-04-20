@@ -1180,7 +1180,7 @@ macro_rules! rl_r {
       let val = $self.reg.[<$r:lower>]();
     }
 
-    let carry = val & 0x80 == 0x80;
+    let carry = val & 0x80 != 0;
     let val = (val << 1) | ($self.reg.f_c() as u8);
     $self.reg.set_f_znhc(val == 0, false, false, carry);
 
@@ -1225,7 +1225,7 @@ macro_rules! rr_mhl {
     let hl = $self.reg.hl();
     let val = $self.rb(hl)?;
 
-    let carry = val & 1 == 0x80;
+    let carry = val & 1 != 0;
     let val = (val >> 1) | (($self.reg.f_c() as u8) << 7);
     $self.reg.set_f_znhc(val == 0, false, false, carry);
 
@@ -1268,11 +1268,14 @@ macro_rules! sla_mhl {
 macro_rules! sra_r {
   ($self: expr, $r: ident) => {
     paste! {
-      let val = $self.reg.[<$r:lower>]();
+      let mut val = $self.reg.[<$r:lower>]();
     }
 
     let carry = val & 1 != 0;
-    let val = val >> 1;
+    val >>= 1;
+    if val & 0x40 != 0 {
+      val |= 0x80;
+    }
     $self.reg.set_f_znhc(val == 0, false, false, carry);
 
     paste! {
@@ -1284,10 +1287,13 @@ macro_rules! sra_r {
 macro_rules! sra_mhl {
   ($self: expr) => {
     let hl = $self.reg.hl();
-    let val = $self.rb(hl)?;
+    let mut val = $self.rb(hl)?;
 
     let carry = val & 1 != 0;
-    let val = val >> 1;
+    val >>= 1;
+    if val & 0x40 != 0 {
+      val |= 0x80;
+    }
     $self.reg.set_f_znhc(val == 0, false, false, carry);
 
     $self.wb(hl, val)?;
