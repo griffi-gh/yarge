@@ -1,22 +1,41 @@
 pub use egui;
 pub use pixels;
 pub use winit;
+
 use winit::{
   window::WindowBuilder,
   event_loop::{ControlFlow, EventLoop},
   dpi::LogicalSize,
   event::Event,
   window::Window,
-  platform::windows::WindowExtWindows
 };
-pub use winit_input_helper::WinitInputHelper;
 pub use winit::{
   event::VirtualKeyCode,
   window::Icon
 };
-use pixels::{PixelsContext, Pixels, SurfaceTexture, wgpu};
-use egui::{ClippedMesh, Context as EguiCtx, TexturesDelta};
-use egui_wgpu_backend::{RenderPass, ScreenDescriptor, BackendError};
+#[cfg(target_os = "windows")]
+use winit::platform::windows::WindowExtWindows;
+
+pub use winit_input_helper::WinitInputHelper;
+
+use pixels::{
+  PixelsContext,
+  Pixels, 
+  SurfaceTexture,
+};
+pub use pixels::wgpu;
+
+use egui::{
+  ClippedMesh,
+  Context as EguiCtx,
+  TexturesDelta
+};
+
+use egui_wgpu_backend::{
+  RenderPass,
+  ScreenDescriptor,
+  BackendError
+};
 
 pub const PKG_NAME: Option<&str> = option_env!("CARGO_PKG_NAME");
 
@@ -138,6 +157,7 @@ impl<T: Gui> Framework<T> {
   }
 }
 
+#[allow(unused)]
 pub struct InitProperties<'a> {
   pub size: (u32, u32),
   pub min_size: (u32, u32),
@@ -167,7 +187,9 @@ pub fn init<T: 'static + Gui>(state: T, prop: InitProperties) {
       .unwrap()
   };
   window.set_window_icon(prop.window_icon);
-  window.set_taskbar_icon(prop.taskbar_icon);
+  #[cfg(target_os = "windows")] {
+    window.set_taskbar_icon(prop.taskbar_icon);
+  }
   let (mut pixels, mut framework) = {
     let window_size = window.inner_size();
     let scale_factor = window.scale_factor() as f32;
