@@ -1020,6 +1020,7 @@ macro_rules! cpu_instructions {
         0xD9 => { reti!($self); }                 //RETI
         0xDA => { cond_jp_u16!($self, C); }       //JP C,u16
         0xDC => { call_u16_cond!($self, C); }     //CALL C,u16
+        0xDE => { sbc_a_u8!($self); }             //SBC A,u8
         0xDF => { rst!($self, 0x18); }            //RST 18h
 
         0xE0 => { ld_m_ff00_add_u8_a!($self); }   //LD (FFOO+u8),A
