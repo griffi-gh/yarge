@@ -60,7 +60,7 @@ fn main() {
       ).expect("Failed to load the ROM file");
       gb.resume();
     }
-   #[cfg(feature = "gui")] {
+    #[cfg(feature = "gui")] {
       gui::GuiState::new(gb).init();
     }
   }
