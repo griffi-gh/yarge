@@ -2,7 +2,7 @@ use arrayvec::ArrayString;
 use parse_display_derive::Display;
 
 #[derive(Clone, Copy, Default, Debug, Display)]
-#[display("Name: {name}\nMBC type: {mbc_type}\nROM size: {rom_size}\nRAM size: {ram_size}")]
+#[display("Name: {name}\nMBC type: {mbc_type}\nROM size: {rom_size} kb\nRAM size: {ram_size} bytes")]
 pub struct RomHeader {
   pub name: ArrayString<16>,
   pub mbc_type: u8,
