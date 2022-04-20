@@ -2,11 +2,12 @@ pub use egui;
 pub use pixels;
 pub use winit;
 use winit::{
-  window::WindowBuilder,
+  window::{WindowBuilder, Icon},
   event_loop::{ControlFlow, EventLoop},
   dpi::LogicalSize,
   event::Event,
-  window::Window
+  window::Window,
+  platform::windows::WindowExtWindows
 };
 pub use winit_input_helper::WinitInputHelper;
 pub use winit::event::VirtualKeyCode;
@@ -139,6 +140,8 @@ pub struct InitProperties<'a> {
   pub min_size: (u32, u32),
   pub pixels_resoltion: (u32, u32),
   pub title: &'a str,
+  pub window_icon: Option<Icon>,
+  pub taskbar_icon: Option<Icon>
 }
 
 pub fn init<T: 'static + Gui>(state: T, prop: InitProperties) {
@@ -160,6 +163,8 @@ pub fn init<T: 'static + Gui>(state: T, prop: InitProperties) {
       .build(&event_loop)
       .unwrap()
   };
+  window.set_window_icon(prop.window_icon);
+  window.set_taskbar_icon(prop.taskbar_icon);
   let (mut pixels, mut framework) = {
     let window_size = window.inner_size();
     let scale_factor = window.scale_factor() as f32;

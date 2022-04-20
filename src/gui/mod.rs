@@ -79,6 +79,8 @@ impl GuiState {
       pixels_resoltion: (WIDTH, HEIGHT),
       min_size: (WIDTH, HEIGHT),
       size: (WIDTH * SCALE, HEIGHT * SCALE),
+      window_icon: None,
+      taskbar_icon: None,
     });
   }
 }
