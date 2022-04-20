@@ -1,6 +1,8 @@
 use enum_dispatch::enum_dispatch;
 use crate::{Res, YargeError};
 
+mod common;
+
 mod types;
 pub use types::*;
 
@@ -27,12 +29,13 @@ pub enum Cartridge {
   CartridgeMbc1,
 }
 
-pub fn get_cartridge(cart_type: u8) -> Res<Cartridge> {
-  match cart_type {
+pub fn get_cartridge(header: RomHeader) -> Res<Cartridge> {
+  let mbc_type = header.mbc_type;
+  match mbc_type {
     0x00 => Ok(CartridgeNone::new().into()),
-    0x01 => Ok(CartridgeMbc1::new(Mbc1Type::None).into()),
-    0x02 => Ok(CartridgeMbc1::new(Mbc1Type::Ram).into()),
-    0x03 => Ok(CartridgeMbc1::new(Mbc1Type::RamBattery).into()),
-    _ => Err(YargeError::InvalidMbcType(cart_type))
+    0x01 => Ok(CartridgeMbc1::new(Mbc1Type::None, &header).into()),
+    0x02 => Ok(CartridgeMbc1::new(Mbc1Type::Ram, &header).into()),
+    0x03 => Ok(CartridgeMbc1::new(Mbc1Type::RamBattery, &header).into()),
+    _ => Err(YargeError::InvalidMbcType(mbc_type))
   }
 }

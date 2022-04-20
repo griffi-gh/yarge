@@ -119,15 +119,15 @@ impl Mmu {
   
   pub fn load_rom(&mut self, data: &[u8]) -> Res<()> {
     let header = RomHeader::parse(data);
-    let mbc_type = header.mbc_type;
     self.cart_header = header;
-    self.cart = cartridge::get_cartridge(mbc_type)?;
+    self.cart = cartridge::get_cartridge(header)?;
     self.cart.load_rom(data)?;
     Ok(())
   }
   pub fn load_rom_force_mbc(&mut self, data: &[u8], mbc_type: u8) -> Res<()> {
-    self.cart_header = RomHeader::parse(data);
-    self.cart = cartridge::get_cartridge(mbc_type).unwrap();
+    let header = RomHeader::parse(data);
+    self.cart_header = header;
+    self.cart = cartridge::get_cartridge(header).unwrap();
     self.cart.load_rom(data)?;
     Ok(())
   }
