@@ -152,7 +152,7 @@ impl Cpu {
     self.mmu.ww(self.reg.sp, self.reg.pc);
     self.reg.pc = INT_JMP_VEC[int];
     //flip IF bit and disable IME
-    self.mmu.iif ^= 1 << int;
+    self.mmu.iif &= !(1 << int);
     self.disable_ime();
     //Run for 20 cycles
     for _ in 0..5 { self.cycle(); } 
