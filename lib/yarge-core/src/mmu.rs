@@ -1,7 +1,7 @@
+use crate::{Timers, Ppu, Res, consts::BIOS};
+use std::fs;
 pub mod cartridge;
 use cartridge::{CartridgeImpl as _, RomHeader, Cartridge, MockCartridge};
-use crate::{Ppu, Res, consts::BIOS, timers::Timers};
-use std::fs;
 
 pub struct Mmu {
   pub ppu: Ppu,
