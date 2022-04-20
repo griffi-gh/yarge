@@ -2,9 +2,11 @@
 pub(crate) mod mmu;
 pub(crate) mod cpu;
 pub(crate) mod ppu;
+pub(crate) mod timers;
 pub(crate) use mmu::Mmu;
 pub(crate) use cpu::Cpu;
 pub(crate) use ppu::Ppu;
+pub(crate) use timers::Timers;
 pub mod consts;
 mod errors;
 mod api;

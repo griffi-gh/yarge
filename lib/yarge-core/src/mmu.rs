@@ -1,10 +1,11 @@
 pub mod cartridge;
 use cartridge::{CartridgeImpl as _, RomHeader, Cartridge, MockCartridge};
-use crate::{Ppu, Res, consts::BIOS};
+use crate::{Ppu, Res, consts::BIOS, timers::Timers};
 use std::fs;
 
 pub struct Mmu {
   pub ppu: Ppu,
+  pub timers: Timers,
   pub bios_disabled: bool,
   cart: Cartridge,
   cart_header: RomHeader,
@@ -18,6 +19,7 @@ impl Mmu {
   pub fn new() -> Self {
     Self {
       ppu: Ppu::new(),
+      timers: Timers::new(),
       bios_disabled: false,
       cart: (MockCartridge {}).into(),
       cart_header: RomHeader::default(),
@@ -51,6 +53,11 @@ impl Mmu {
       //IO REGISTERS
       0xFF00..=0xFF7F => {
         match addr {
+          0xFF04 => self.timers.get_div(),
+          0xFF05 => self.timers.get_tima(),
+          0xFF06 => self.timers.tma,
+          0xFF07 => self.timers.get_tac(),
+          0xFF0F => self.iif,
           0xFF40 => self.ppu.get_lcdc(), //LCDC
           0xFF41 => self.ppu.get_stat(), //STAT
           0xFF42 => self.ppu.scy,
@@ -91,6 +98,10 @@ impl Mmu {
       //OAM
       0xFE00..=0xFE9F => { self.ppu.write_oam(addr, value); },
       //IO REGISTERS
+      0xFF04 => { self.timers.reset_div(); },
+      0xFF05 => { self.timers.set_tima(value); },
+      0xFF06 => { self.timers.tma = value; },
+      0xFF07 => { self.timers.set_tac(value); },
       0xFF0F => { self.iif = value; },
       0xFF40 => { self.ppu.set_lcdc(value); },
       0xFF41 => { self.ppu.set_stat(value); },
@@ -103,7 +114,7 @@ impl Mmu {
         self.hram[((addr - 0xFF80) & 0x7F) as usize] = value;
       },
       //IE
-      0xFFFF => { self.iie = value; }
+      0xFFFF => { self.iie = value; },
       _ => {}
     }
   }

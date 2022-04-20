@@ -127,6 +127,7 @@ impl Cpu {
   fn cycle(&mut self) {
     self.t += 4;
     self.mmu.ppu.tick(&mut self.mmu.iif);
+    self.mmu.timers.tick(&mut self.mmu.iif);
   }
 
   fn disable_ime(&mut self) {
@@ -165,6 +166,7 @@ impl Cpu {
     if self.ime_pending {
       self.ime_pending = false;
       self.ime = true;
+      return;
     }
     let check = self.mmu.iie & self.mmu.iif;
     if check != 0 {
@@ -174,6 +176,8 @@ impl Cpu {
           self.dispatch_interrupt(int_type);
         }
       } else if self.state == CpuState::Halt {
+        //if halted and ime is off, resume but 
+        //since ime is off don't handle the interupt
         self.state = CpuState::Running;
       }
     } 
