@@ -1107,7 +1107,7 @@ macro_rules! swap_r {
 macro_rules! swap_mhl {
   ($self: expr) => {
     paste! {
-      let v = $self.rb($self.reg.hl())?;
+      let v = $self.rb($self.reg.hl())?.rotate_left(4);
       $self.reg.set_f_znhc(v == 0, false, false, false);
       $self.wb($self.reg.hl(), v)?;
     }
