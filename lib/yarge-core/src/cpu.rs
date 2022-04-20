@@ -180,9 +180,8 @@ impl Cpu {
 
   pub fn step(&mut self) -> Res<usize> {
     self.t = 0;
+    self.check_interrupts();
     if self.state == CpuState::Running {
-      self.check_interrupts();
-
       #[cfg(feature = "breakpoints")]
       let pc_value = self.reg.pc;
 
