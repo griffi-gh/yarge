@@ -3,7 +3,8 @@ use framework::{
   //VirtualKeyCode,
   WinitInputHelper,
   egui, InitProperties,
-  Gui, Dimensions as Dim
+  Gui, Dimensions as Dim,
+  Icon
 };
 use egui::{Context, RichText, TextStyle, Color32};
 use std::{
@@ -22,6 +23,7 @@ use crate::{
 }; 
 mod error_words;
 use error_words::WORDS as ERROR_WORDS;
+mod icons;
 use ahash::AHasher;
 use rfd::FileDialog;
 
@@ -79,8 +81,8 @@ impl GuiState {
       pixels_resoltion: (WIDTH, HEIGHT),
       min_size: (WIDTH, HEIGHT),
       size: (WIDTH * SCALE, HEIGHT * SCALE),
-      window_icon: None,
-      taskbar_icon: None,
+      window_icon: Some(Icon::from_rgba(Vec::from(&icons::ICON_WINDOW[..]), 64, 64).unwrap()),
+      taskbar_icon: Some(Icon::from_rgba(Vec::from(&icons::ICON_TASKBAR[..]), 256, 256).unwrap()),
     });
   }
 }

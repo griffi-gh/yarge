@@ -2,7 +2,7 @@ pub use egui;
 pub use pixels;
 pub use winit;
 use winit::{
-  window::{WindowBuilder, Icon},
+  window::WindowBuilder,
   event_loop::{ControlFlow, EventLoop},
   dpi::LogicalSize,
   event::Event,
@@ -10,7 +10,10 @@ use winit::{
   platform::windows::WindowExtWindows
 };
 pub use winit_input_helper::WinitInputHelper;
-pub use winit::event::VirtualKeyCode;
+pub use winit::{
+  event::VirtualKeyCode,
+  window::Icon
+};
 use pixels::{PixelsContext, Pixels, SurfaceTexture, wgpu};
 use egui::{ClippedMesh, Context as EguiCtx, TexturesDelta};
 use egui_wgpu_backend::{RenderPass, ScreenDescriptor, BackendError};
