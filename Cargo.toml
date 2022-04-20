@@ -22,6 +22,7 @@ gui = ["yarge-gui-framework", "rfd", "ahash"]
 ly-stub = ["yarge-core/ly-stub"]
 logging-file = ["yarge-core/logging-file"]
 logging-stdout = ["yarge-core/logging-stdout"]
+logging-file-ly = ["logging-file", "ly-stub"]
 breakpoints = ["yarge-core/breakpoints"]
 
 #[dev-dependencies]
