@@ -752,6 +752,14 @@ macro_rules! daa {
   };
 } pub(crate) use daa;
 
+macro_rules! scf {
+  ($self: expr) => {
+    $self.reg.set_f_c(true);
+    $self.reg.set_f_n(false);
+    $self.reg.set_f_h(false);
+  };
+} pub(crate) use scf;
+
 macro_rules! cpl {
   ($self: expr) => {
     $self.reg.set_a(!$self.reg.a());
@@ -849,6 +857,7 @@ macro_rules! cpu_instructions {
         0x34 => { inc_mhl!($self); }              //INC (HL)
         0x35 => { dec_mhl!($self); }              //DEC (HL)
         0x36 => { ld_mhl_u8!($self); }            //LD (HL), u8
+        0x37 => { scf!($self); }                  //SCF
         0x38 => { jr_i8_cond!($self, C); }        //JR C, i8 
         0x39 => { add_hl_rr!($self, SP); }        //ADD HL,SP
         0x3A => { ld_a_mhli!($self, sub); }       //LD A,(HL-)
