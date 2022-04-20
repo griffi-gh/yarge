@@ -433,7 +433,7 @@ macro_rules! alu_sbc_a {
     $self.reg.set_f_znhc(
       result == 0,
       false,
-      (a & 0xf).wrapping_sub(value & 0xf).wrapping_sub(c) & 0x10 != 0,
+      (a & 0xf).wrapping_sub($b & 0xf).wrapping_sub(c) & 0x10 != 0,
       carry
     );
     $self.reg.set_a(result);
