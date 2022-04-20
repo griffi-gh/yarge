@@ -776,6 +776,14 @@ macro_rules! scf {
   };
 } pub(crate) use scf;
 
+macro_rules! ccf {
+  ($self: expr) => {
+    $self.reg.set_f_c(!$self.reg.f_c());
+    $self.reg.set_f_n(false);
+    $self.reg.set_f_h(false);
+  };
+} pub(crate) use ccf;
+
 macro_rules! cpl {
   ($self: expr) => {
     $self.reg.set_a(!$self.reg.a());
@@ -881,6 +889,7 @@ macro_rules! cpu_instructions {
         0x3C => { inc_r!($self, A); }             //INC A
         0x3D => { dec_r!($self, A); }             //DEC A
         0x3E => { ld_r_u8!($self, A); }           //LD A,u8 
+        0x3F => { ccf!($self); }                  //CCF
 
         0x40 => { /*TODO Breakpoint */ }          //LD B,B
         0x41 => { ld_r_r!($self, B, C); }         //LD B,C
