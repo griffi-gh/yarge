@@ -31,6 +31,7 @@ impl Timers {
   pub fn reset_div(&mut self) {
     self.div = 0;
   }
+
   pub fn get_tima(&self) -> u8 {
     self.tima
   }
@@ -38,6 +39,7 @@ impl Timers {
     self.tima = value;
     self.tima_reset_pending = true;
   }
+  
   pub fn get_tac(&self) -> u8 {
     ((self.enable as u8) << 2) | self.rate
   }

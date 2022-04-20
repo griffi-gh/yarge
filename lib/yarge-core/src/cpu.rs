@@ -147,16 +147,12 @@ impl Cpu {
     #[cfg(debug_assertions)] {
       assert!(int < 5, "Invalid interrupt: {int}");
     }
-    //Unhalt
-    if self.state == CpuState::Halt {
-      self.state = CpuState::Running;
-    }
     //Call interrupt handler
     self.reg.dec_sp(2);
     self.mmu.ww(self.reg.sp, self.reg.pc);
     self.reg.pc = INT_JMP_VEC[int];
     //flip IF bit and disable IME
-    self.mmu.iif &= !(1 << int);
+    self.mmu.iif ^= 1 << int;
     self.disable_ime();
     //Run for 20 cycles
     for _ in 0..5 { self.cycle(); } 
@@ -170,15 +166,14 @@ impl Cpu {
     }
     let check = self.mmu.iie & self.mmu.iif;
     if check != 0 {
+      if self.state == CpuState::Halt {
+        self.state = CpuState::Running;
+      }
       if self.ime {
         let int_type = check.trailing_zeros() as usize;
         if int_type < 5 {
           self.dispatch_interrupt(int_type);
         }
-      } else if self.state == CpuState::Halt {
-        //if halted and ime is off, resume but 
-        //since ime is off don't handle the interupt
-        self.state = CpuState::Running;
       }
     } 
   }
