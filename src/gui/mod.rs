@@ -82,7 +82,10 @@ impl GuiState {
       min_size: (WIDTH, HEIGHT),
       size: (WIDTH * SCALE, HEIGHT * SCALE),
       window_icon: Some(Icon::from_rgba(Vec::from(&icons::ICON_WINDOW[..]), 64, 64).unwrap()),
+      #[cfg(target_os = "windows")]
       taskbar_icon: Some(Icon::from_rgba(Vec::from(&icons::ICON_TASKBAR[..]), 256, 256).unwrap()),
+      #[cfg(not(target_os = "windows"))]
+      taskbar_icon: None,
     });
   }
 }
