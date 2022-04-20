@@ -39,7 +39,7 @@ impl Timers {
     self.tima = value;
     self.tima_reset_pending = true;
   }
-  
+
   pub fn get_tac(&self) -> u8 {
     ((self.enable as u8) << 2) | self.rate
   }
@@ -59,11 +59,11 @@ impl Timers {
     let div_bit = (self.div & (1 << shift)) != 0;
     let tima_inc = self.enable & div_bit;
     if self.tima_inc && !tima_inc {
-      let carry;
-      (self.tima, carry) = self.tima.overflowing_add(1);
+      let (tima, carry) = self.tima.overflowing_add(1);
       if carry {
         self.tima_reset_pending = true;
       }
+      self.tima = tima;
     }
     self.tima_inc = tima_inc;
   }
