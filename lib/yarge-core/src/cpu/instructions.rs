@@ -644,23 +644,39 @@ macro_rules! jr_i8_cond {
   };
 } pub(crate) use jr_i8_cond;
 
-macro_rules! add_sp_i8 {
-  ($self: expr) => {
+macro_rules! sp_i8 {
+  ($self: expr) => {{
     let sp = $self.reg.sp();
     let fetch = $self.fetch()? as i8 as i16 as u16;
     let result = sp.wrapping_add(fetch);
     let op = sp ^ fetch ^ result;
-    $self.reg.set_sp(result);
     $self.reg.set_f_znhc(
       false, false,
       op & 0x10 != 0,
       op & 0x100 != 0
     );
+    result
+  }}
+} pub(crate) use sp_i8;
+
+macro_rules! add_sp_i8 {
+  ($self: expr) => {
+    let v = sp_i8!($self);
+    $self.reg.set_sp(v);
     //internal
     $self.cycle();
     $self.cycle();
   };
 } pub(crate) use add_sp_i8;
+
+macro_rules! ld_hl_sp_i8 {
+  ($self: expr) => {
+    let v = sp_i8!($self);
+    $self.reg.set_hl(v);
+    //internal
+    $self.cycle();
+  };
+} pub(crate) use ld_hl_sp_i8;
 
 macro_rules! ld_a_m_ff00_add_c {
   ($self: expr) => {
@@ -1051,7 +1067,8 @@ macro_rules! cpu_instructions {
         0xF5 => { push_rr!($self, AF); }          //PUSH AF
         0xF6 => { or_a_u8!($self); }              //OR A,u8
         0xF7 => { rst!($self, 0x30); }            //RST 30h
-        0xF9 => { ld_sp_hl!($self); }              //LD SP,HL
+        0xF8 => { ld_hl_sp_i8!($self); }          //LD HL,SP+i8
+        0xF9 => { ld_sp_hl!($self); }             //LD SP,HL
         0xFA => { ld_a_mu16!($self); }            //LD A,(u16)
         0xFB => { ei!($self); }                   //EI
         0xFE => { cp_a_u8!($self); }              //CP A,u8
