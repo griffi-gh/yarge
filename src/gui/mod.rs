@@ -171,7 +171,9 @@ impl Gui for GuiState {
     if let Some(file) = input.dropped_file() {
       if let Ok(data) = fs::read(file) {
         self.gb.reset();
-        let _ = self.gb.load_rom(&data[..]);
+        if self.gb.load_rom(&data[..]).is_ok() {
+          self.gb.resume();
+        }
       }
     }
     /*if input.key_pressed(VirtualKeyCode::A) {
