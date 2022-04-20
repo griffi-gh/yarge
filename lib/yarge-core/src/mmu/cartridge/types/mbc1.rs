@@ -25,7 +25,7 @@ impl CartridgeMbc1 {
   pub fn new(mbc1_type: Mbc1Type, header: &RomHeader) -> Self {
     Self {
       rom: Vec::with_capacity(0x8000),
-      eram: (mbc1_type != Type::None).then(|| vec![0; header.ram_size]),
+      eram: (mbc1_type != Type::None).then(|| vec![0; header.ram_size.max(8192)]),
       rom_mask: ((header.rom_size >> 4) - 1) as u8,
       ram_mask: ((header.ram_size as f32 / 8192.).ceil() as usize).checked_sub(1).unwrap_or(0) as u8,
       rom_bank: 1,
