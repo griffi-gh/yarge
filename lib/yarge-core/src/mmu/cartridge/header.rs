@@ -1,7 +1,8 @@
-use std::fmt;
 use arrayvec::ArrayString;
+use parse_display_derive::Display;
 
-#[derive(Clone, Copy, Default, Debug)]
+#[derive(Clone, Copy, Default, Debug, Display)]
+#[display("Name: {name}\nMBC type: {mbc_type}\nROM size: {rom_size}\nRAM size: {ram_size}")]
 pub struct RomHeader {
   pub name: ArrayString<16>,
   pub mbc_type: u8,
@@ -26,20 +27,14 @@ impl RomHeader {
       },
       rom_size: 32 << rom[0x148],
       ram_size: match rom[0x149] {
-        _ => 0,
         0 => 0,
-        1 => 2,
-        2 => 8,
-        3 => 32,
-        4 => 128,
-        5 => 64,
+        1 => 2 * 1024,
+        2 => 8 * 1024,
+        3 => 32 * 1024,
+        4 => 128 * 1024,
+        5 => 64 * 1024,
+        _ => 0,
       }
     }
-  }
-}
-impl fmt::Display for RomHeader {
-  fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-    let Self {mbc_type, name, rom_size, ram_size} = *self;
-    write!(formatter, "Name: {name}\nMBC Type: {mbc_type:#04X}")
   }
 }

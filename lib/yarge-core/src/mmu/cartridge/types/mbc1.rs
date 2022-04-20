@@ -25,9 +25,9 @@ impl CartridgeMbc1 {
   pub fn new(mbc1_type: Mbc1Type, header: &RomHeader) -> Self {
     Self {
       rom: Vec::with_capacity(0x8000),
-      eram: (mbc1_type != Type::None).then(|| vec![0; 1024]),
-      rom_mask: 1,
-      ram_mask: 0,
+      eram: (mbc1_type != Type::None).then(|| vec![0; header.ram_size]),
+      rom_mask: ((header.rom_size >> 4) - 1) as u8,
+      ram_mask: ((header.ram_size as f32 / 8192.).ceil() as usize - 1) as u8,
       rom_bank: 1,
       ram_bank: 0,
       ram_enable: false,
@@ -51,8 +51,9 @@ impl CartridgeImpl for CartridgeMbc1 {
     }
     let mut bank = self.rom_bank;
     if self.mode {
-      bank += self.ram_bank << 5
+      bank += self.ram_bank << 5;
     }
+    bank &= self.rom_mask;
     self.rom[rom_addr(addr, bank)]
   }
   fn write_rom(&mut self, addr: u16, value: u8) {
@@ -91,5 +92,16 @@ impl CartridgeImpl for CartridgeMbc1 {
       0x00
     };
     self.eram.as_mut().unwrap()[eram_addr(addr, bank)] = value;
+  }
+
+  fn save_data(&self) -> Option<Vec<u8>> {
+    match self.mbc1_type {
+      Type::RamBattery => Some(self.eram.as_ref().unwrap().clone()),
+      _ => None
+    }
+  }
+  fn load_data(&mut self, data: Vec<u8>) {
+    //TODO add checks
+    self.eram = Some(data);
   }
 }

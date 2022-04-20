@@ -125,7 +125,8 @@ impl Mmu {
     Ok(())
   }
   pub fn load_rom_force_mbc(&mut self, data: &[u8], mbc_type: u8) -> Res<()> {
-    let header = RomHeader::parse(data);
+    let mut header = RomHeader::parse(data);
+    header.mbc_type = mbc_type;
     self.cart_header = header;
     self.cart = cartridge::get_cartridge(header).unwrap();
     self.cart.load_rom(data)?;
