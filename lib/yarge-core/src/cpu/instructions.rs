@@ -419,6 +419,50 @@ macro_rules! adc_a_u8 {
   };
 } pub(crate) use adc_a_u8;
 
+//ADC A
+
+macro_rules! alu_sbc_a {
+  ($self: expr, $b: expr) => {
+    let c = $self.reg.f_c() as u8;
+    let a = $self.reg.a();
+    let (result, carry) = {
+      let r0 = a.overflowing_sub($b);
+      let r1 = r0.0.overflowing_sub(c);
+      (r1.0, r0.1 || r1.1)
+    };
+    $self.reg.set_f_znhc(
+      result == 0,
+      false,
+      (a & 0xf).wrapping_sub(value & 0xf).wrapping_sub(c) & 0x10 != 0,
+      carry
+    );
+    $self.reg.set_a(result);
+  }
+} pub(crate) use alu_sbc_a;
+
+macro_rules! sbc_a_r {
+  ($self: expr, $reg: ident) => {
+    paste! {
+      let b = $self.reg.[<$reg:lower>]();
+    }
+    alu_sbc_a!($self, b);
+  };
+} pub(crate) use sbc_a_r;
+
+macro_rules! sbc_a_mhl {
+  ($self: expr) => {
+    let b = $self.rb($self.reg.hl())?;
+    alu_sbc_a!($self, b);
+  };
+} pub(crate) use sbc_a_mhl;
+
+macro_rules! sbc_a_u8 {
+  ($self: expr) => {
+    let b = $self.fetch()?;
+    alu_sbc_a!($self, b);
+  };
+} pub(crate) use sbc_a_u8;
+
 //SUB A
 
 macro_rules! alu_sub_a {
@@ -906,6 +950,14 @@ macro_rules! cpu_instructions {
         0x95 => { sub_a_r!($self, L); }           //SUB A,L
         0x96 => { sub_a_mhl!($self); }            //SUB A,(HL)
         0x97 => { sub_a_r!($self, A); }           //SUB A,A
+        0x98 => { sbc_a_r!($self, B); }           //SBC A,B
+        0x99 => { sbc_a_r!($self, C); }           //SBC A,C
+        0x9A => { sbc_a_r!($self, D); }           //SBC A,D
+        0x9B => { sbc_a_r!($self, E); }           //SBC A,E
+        0x9C => { sbc_a_r!($self, H); }           //SBC A,H
+        0x9D => { sbc_a_r!($self, L); }           //SBC A,L
+        0x9E => { sbc_a_mhl!($self); }            //SBC A,(HL)
+        0x9F => { sbc_a_r!($self, A); }           //SBC A,A
         
         0xA0 => { and_a_r!($self, B); }           //AND A,B
         0xA1 => { and_a_r!($self, C); }           //AND A,C
