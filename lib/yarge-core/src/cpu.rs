@@ -4,7 +4,7 @@ use instructions::*;
 pub use reg::Registers;
 use crate::{ Mmu, Res, YargeError, consts::INT_JMP_VEC };
 
-#[derive(PartialEq)]
+#[derive(Clone, Copy, PartialEq)]
 pub enum CpuState {
   Running,
   Halt,

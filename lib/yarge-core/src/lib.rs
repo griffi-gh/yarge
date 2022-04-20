@@ -10,6 +10,7 @@ pub(crate) use timers::Timers;
 pub mod consts;
 mod errors;
 mod api;
+pub use cpu::CpuState;
 pub use errors::YargeError;
 pub use api::*;
 use consts::CYCLES_PER_FRAME;

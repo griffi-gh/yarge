@@ -13,10 +13,10 @@ use std::{
   hash::Hasher as _,
   time::Instant,
 };
+use crate::gb;
 use crate::{
-  gb,
   gb::consts::{MBC_TYPE_LIST, MBC_TYPE_NAMES},
-  gb::Gameboy,
+  gb::{CpuState, Gameboy},
   NAME,
   VERSION,
   GITHUB_REPO,
@@ -448,6 +448,23 @@ impl Gui for GuiState {
           ui.label(format!(
             "{}", self.gb.get_rom_header()
           ));
+        });
+      });
+
+      //MAYBE add cpu collapsing header
+      egui::CollapsingHeader::new("CPU").default_open(true).show(ui, |ui| {
+        ui.horizontal(|ui| {
+          let state = self.gb.get_cpu_state();
+          ui.label("State:");
+          ui.label(RichText::new(match state {
+            CpuState::Running => "Running",
+            CpuState::Halt => "Halted",
+            CpuState::Stop => "Stopped",
+          }).color(match state {
+            CpuState::Running => Color32::GREEN,
+            CpuState::Halt => Color32::YELLOW,
+            CpuState::Stop => Color32::LIGHT_RED, 
+          }));
         });
       });
 

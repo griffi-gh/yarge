@@ -21,6 +21,10 @@ impl Gameboy {
     self.running
   }
 
+  #[inline] pub fn get_cpu_state(&self) -> CpuState {
+    self.cpu.state
+  }
+
   #[inline] pub fn get_display_data(&self) -> &[u8; FB_SIZE] {
     &self.cpu.mmu.ppu.display
   }
