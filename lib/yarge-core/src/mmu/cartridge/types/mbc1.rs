@@ -1,6 +1,12 @@
 use crate::Res;
 use super::{
-  common::{eram_addr, rom_addr, rom_bank_mask, eram_bank_mask},
+  common::{
+    eram_addr,
+    rom_addr,
+    rom_bank_mask,
+    eram_bank_mask,
+    load_rom_vec,
+  },
   header::RomHeader,
   CartridgeImpl,
 };
@@ -39,12 +45,9 @@ impl CartridgeMbc1 {
 }
 impl CartridgeImpl for CartridgeMbc1 {
   fn name(&self) -> &'static str { "MBC1" }
-  
+
   fn load_rom(&mut self, rom: &[u8]) -> Res<()> {
-    self.rom.clear();
-    self.rom.extend_from_slice(rom);
-    self.rom.shrink_to_fit();
-    Ok(())
+    load_rom_vec(&mut self.rom, rom)
   }
 
   fn read_rom(&self, addr: u16) -> u8 {
