@@ -12,7 +12,7 @@ pub use header::RomHeader;
 #[enum_dispatch]
 #[allow(unused_variables)]
 pub trait CartridgeImpl {
-  fn name(&self) -> &str;
+  fn name(&self) -> &'static str;
   
   fn load_rom(&mut self, data: &[u8]) -> Res<()> { Ok(()) }
 

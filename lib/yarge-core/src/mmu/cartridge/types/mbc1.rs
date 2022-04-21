@@ -1,14 +1,15 @@
 use crate::Res;
-use super::CartridgeImpl;
-use super::common::{eram_addr, rom_addr};
-use super::header::RomHeader;
+use super::{
+  common::{eram_addr, rom_addr, rom_bank_mask, eram_bank_mask},
+  header::RomHeader,
+  CartridgeImpl,
+};
 
 #[repr(u8)]
 #[derive(PartialEq)]
-pub enum Mbc1Type {
+pub enum Type {
   None, Ram, RamBattery
 }
-use Mbc1Type as Type;
 
 pub struct CartridgeMbc1 {
   rom: Vec<u8>,
@@ -22,12 +23,12 @@ pub struct CartridgeMbc1 {
   mbc1_type: Type,
 }
 impl CartridgeMbc1 {
-  pub fn new(mbc1_type: Mbc1Type, header: &RomHeader) -> Self {
+  pub fn new(mbc1_type: Type, header: &RomHeader) -> Self {
     Self {
       rom: Vec::with_capacity(0x8000),
       eram: (mbc1_type != Type::None).then(|| vec![0; header.ram_size.max(8192)]),
-      rom_mask: ((header.rom_size >> 4) - 1) as u8,
-      ram_mask: ((header.ram_size as f32 / 8192.).ceil() as usize).checked_sub(1).unwrap_or(0) as u8,
+      rom_mask: rom_bank_mask(header),
+      ram_mask: eram_bank_mask(header),
       rom_bank: 1,
       ram_bank: 0,
       ram_enable: false,
@@ -37,7 +38,8 @@ impl CartridgeMbc1 {
   }
 }
 impl CartridgeImpl for CartridgeMbc1 {
-  fn name(&self) -> &str { "MBC1" }
+  fn name(&self) -> &'static str { "MBC1" }
+  
   fn load_rom(&mut self, rom: &[u8]) -> Res<()> {
     self.rom.clear();
     self.rom.extend_from_slice(rom);

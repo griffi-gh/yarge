@@ -12,10 +12,8 @@ impl CartridgeNone {
   }
 }
 impl CartridgeImpl for CartridgeNone {
-  fn name(&self) -> &str { "ROM ONLY" }
-  fn read_rom(&self, addr: u16) -> u8 {
-    return self.rom[(addr & 0x7FFF) as usize];
-  }
+  fn name(&self) -> &'static str { "ROM ONLY" }
+
   fn load_rom(&mut self, rom: &[u8]) -> Res<()> {
     if rom.len() != 0x8000 {
       return Err(
@@ -26,5 +24,9 @@ impl CartridgeImpl for CartridgeNone {
       *place = *data;
     }
     Ok(())
+  }
+
+  fn read_rom(&self, addr: u16) -> u8 {
+    return self.rom[(addr & 0x7FFF) as usize];
   }
 }
