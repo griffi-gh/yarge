@@ -12,12 +12,13 @@ use super::{
 };
 
 #[repr(u8)]
-#[derive(PartialEq)]
+#[derive(Clone, Copy, PartialEq)]
 pub enum Type {
   None, Ram, RamBattery
 }
 
 pub struct CartridgeMbc1 {
+  mbc1_type: Type,
   rom: Vec<u8>,
   eram: Option<Vec<u8>>,
   rom_mask: u8,
@@ -26,11 +27,11 @@ pub struct CartridgeMbc1 {
   ram_bank: u8,
   ram_enable: bool,
   mode: bool,
-  mbc1_type: Type,
 }
 impl CartridgeMbc1 {
   pub fn new(mbc1_type: Type, header: &RomHeader) -> Self {
     Self {
+      mbc1_type,
       rom: Vec::with_capacity(0x8000),
       eram: (mbc1_type != Type::None).then(|| vec![0; header.ram_size.max(8192)]),
       rom_mask: rom_bank_mask(header),
@@ -39,7 +40,6 @@ impl CartridgeMbc1 {
       ram_bank: 0,
       ram_enable: false,
       mode: false,
-      mbc1_type
     }
   }
 }

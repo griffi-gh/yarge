@@ -21,6 +21,7 @@ pub fn load_rom_static<const SIZE: usize>(arr: &mut [u8; SIZE], source: &[u8]) -
   Ok(())
 }
 pub fn load_rom_vec(vec: &mut Vec<u8>, source: &[u8]) -> Res<()> {
+  //TODO check if souce len is valid (size >= 0x8000 && size is multiple of 0x8000)
   vec.clear();
   vec.extend_from_slice(source);
   vec.shrink_to_fit();
