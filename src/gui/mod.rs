@@ -571,9 +571,10 @@ impl Gui for GuiState {
       //FOOTER
       ui.separator();
       ui.horizontal(|ui| {
-        ui.label(format!("{} v.{} ({} build)",
+        ui.label(format!("{} v.{} (core: v.{}; {} build)",
           NAME.unwrap_or("<name?>"),
           VERSION.unwrap_or("<version?>"),
+          gb::VERSION.unwrap_or("<version?>"),
           {
             #[cfg(not(debug_assertions))] { "release" }
             #[cfg(debug_assertions)]      { "debug" }

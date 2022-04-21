@@ -15,6 +15,8 @@ pub use errors::YargeError;
 pub use api::*;
 use consts::CYCLES_PER_FRAME;
 
+pub const VERSION: Option<&'static str> = option_env!("CARGO_PKG_VERSION");
+
 pub(crate) type Res<T> = Result<T, YargeError>;
 
 ///Gameboy emulator
