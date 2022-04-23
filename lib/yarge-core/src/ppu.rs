@@ -3,7 +3,7 @@ mod ppu_registers;
 mod fetcher;
 use fetcher::{Fetcher, FetcherLayer, FifoPixel};
 use oam::OamMemory;
-use ppu_registers::{LCDC, PpuMode};
+use ppu_registers::{Lcdc, PpuMode};
 use crate::{
   consts::{VRAM_SIZE, WIDTH, FB_SIZE},
   cpu::{Cpu, Interrupt}
@@ -22,7 +22,7 @@ pub struct Ppu {
   mode: PpuMode,
   vram: Box<[u8; VRAM_SIZE]>,
   oam: OamMemory,
-  lcdc: LCDC,
+  lcdc: Lcdc,
   display_cleared: bool,
   bg_fetcher: Fetcher,
   to_discard: u8,
@@ -49,7 +49,7 @@ impl Ppu {
       mode: PpuMode::default(),
       vram: Box::new([0; VRAM_SIZE]),
       oam: OamMemory::new(),
-      lcdc: LCDC::default(),
+      lcdc: Lcdc::default(),
       display_cleared: false,
       bg_fetcher: Fetcher::new(),
       to_discard: 0,
@@ -72,6 +72,7 @@ impl Ppu {
     //TODO set_stat()
   }
 
+  //TODO check for mode 2 and 3
   pub fn read_oam(&self, addr: u16) -> u8 {
     self.oam.read_oam(addr - 0xFE00)
   }
@@ -79,6 +80,7 @@ impl Ppu {
     self.oam.write_oam(addr - 0xFE00, value);
   }
 
+  //TODO check for mode 3
   pub fn read_vram(&self, addr: u16) -> u8 {
     self.vram[(addr - 0x8000) as usize]
   }

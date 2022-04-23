@@ -1,5 +1,5 @@
 use arraydeque::ArrayDeque;
-use super::ppu_registers::LCDC;
+use super::ppu_registers::Lcdc;
 use crate::consts::VRAM_SIZE;
 
 #[derive(Default)]
@@ -76,7 +76,7 @@ impl Fetcher {
     self.state = FetcherState::ReadTileId;
     self.sleep = 6;
   }
-  pub fn tick(&mut self, lcdc: &LCDC, vram: &[u8; VRAM_SIZE]) {
+  pub fn tick(&mut self, lcdc: &Lcdc, vram: &[u8; VRAM_SIZE]) {
     if self.sleep > 0 {
       self.sleep -= 1;
       return;

@@ -1,4 +1,4 @@
-use crate::{Res, YargeError};
+use crate::Res;
 use super::{CartridgeImpl, common::load_rom_static};
 
 pub struct CartridgeNone {

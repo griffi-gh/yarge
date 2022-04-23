@@ -12,7 +12,7 @@ impl Default for PpuMode {
 }
 
 #[derive(Default, Clone, Copy)]
-pub struct LCDC {
+pub struct Lcdc {
   pub enable_bg: bool,
   pub enable_obj: bool,      
   pub obj_size: bool,         // 0: 8x8, 1: 8x16
@@ -22,7 +22,7 @@ pub struct LCDC {
   pub win_tilemap_addr: bool, // 0: 0x9800-0x9BFF, 1: 0x9C00-0x9FFF
   pub enable_display: bool,
 }
-impl LCDC {
+impl Lcdc {
   pub fn from_u8(val: u8) -> Self {
     let mut new = Self::default();
     new.set_from_u8(val);
@@ -69,9 +69,42 @@ impl LCDC {
     }
   }
 }
-impl Into<u8> for LCDC {
+impl Into<u8> for Lcdc {
   fn into(self) -> u8 { self.into_u8() }
 }
-impl From<u8> for LCDC {
+impl From<u8> for Lcdc {
+  fn from(v: u8) -> Self { Self::from_u8(v) }
+}
+
+#[derive(Default, Clone, Copy)]
+pub struct StatInterrupts {
+  pub lyc_eq: bool,
+  pub mode_2: bool,
+  pub mode_1: bool,
+  pub mode_0: bool,
+}
+impl StatInterrupts {
+  pub fn from_u8(val: u8) -> Self {
+    let mut new = Self::default();
+    new.set_from_u8(val);
+    return new;
+  }
+  pub fn set_from_u8(&mut self, val: u8) {
+    self.mode_0 = (val & 0x01) != 0;
+    self.mode_1 = (val & 0x02) != 0;
+    self.mode_2 = (val & 0x04) != 0;
+    self.lyc_eq = (val & 0x08) != 0;
+  }
+  pub fn into_u8(&self) -> u8 {
+    (self.mode_0 as u8)        |
+    ((self.mode_1 as u8) << 1) |
+    ((self.mode_2 as u8) << 2) |
+    ((self.lyc_eq as u8) << 3) 
+  }
+}
+impl Into<u8> for StatInterrupts {
+  fn into(self) -> u8 { self.into_u8() }
+}
+impl From<u8> for StatInterrupts {
   fn from(v: u8) -> Self { Self::from_u8(v) }
 }

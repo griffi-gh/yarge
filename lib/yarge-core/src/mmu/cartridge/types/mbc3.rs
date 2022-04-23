@@ -49,7 +49,7 @@ impl CartridgeImpl for CartridgeMbc3 {
     return self.rom[rom_addr(addr, self.rom_bank)];
   } 
 
-  fn write_rom(&mut self, addr: u16, value: u8) {
-
+  fn write_rom(&mut self, _addr: u16, _value: u8) {
+    todo!()
   }
 }
