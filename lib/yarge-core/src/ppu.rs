@@ -3,7 +3,7 @@ mod ppu_registers;
 mod fetcher;
 use fetcher::{Fetcher, FetcherLayer, FifoPixel};
 use oam::OamMemory;
-use ppu_registers::{Lcdc, PpuMode};
+use ppu_registers::{Lcdc, PpuMode, StatInterrupts};
 use crate::{
   consts::{VRAM_SIZE, WIDTH, FB_SIZE},
   cpu::{Cpu, Interrupt}
@@ -26,6 +26,7 @@ pub struct Ppu {
   display_cleared: bool,
   bg_fetcher: Fetcher,
   to_discard: u8,
+  stat_intr: StatInterrupts, 
 }
 impl Ppu {
   pub fn new() -> Self {
@@ -53,6 +54,7 @@ impl Ppu {
       display_cleared: false,
       bg_fetcher: Fetcher::new(),
       to_discard: 0,
+      stat_intr: StatInterrupts::default(),
     }
   }
 
@@ -68,8 +70,8 @@ impl Ppu {
   pub fn get_stat(&self) -> u8 {
     self.mode as u8
   }
-  pub fn set_stat(&mut self, _value: u8) {
-    //TODO set_stat()
+  pub fn set_stat(&mut self, value: u8) {
+    self.stat_intr.set_from_u8(value >> 4);
   }
 
   //TODO check for mode 2 and 3

@@ -14,11 +14,11 @@ impl OamFlags {
     ((self.flip_y   as u8) << 5) |
     ((self.palette  as u8) << 4) 
   }
-  pub fn from_u8(&mut self, v: u8) {
-    self.priority = (v & (1 << 7)) != 0;
-    self.flip_y   = (v & (1 << 6)) != 0;
-    self.flip_x   = (v & (1 << 5)) != 0;
-    self.palette  = (v & (1 << 4)) != 0;
+  pub fn from_u8(&mut self, value: u8) {
+    self.priority = (value & (1 << 7)) != 0;
+    self.flip_y   = (value & (1 << 6)) != 0;
+    self.flip_x   = (value & (1 << 5)) != 0;
+    self.palette  = (value & (1 << 4)) != 0;
   }
 }
 impl Into<u8> for OamFlags {

@@ -23,20 +23,20 @@ pub struct Lcdc {
   pub enable_display: bool,
 }
 impl Lcdc {
-  pub fn from_u8(val: u8) -> Self {
+  pub fn from_u8(value: u8) -> Self {
     let mut new = Self::default();
-    new.set_from_u8(val);
+    new.set_from_u8(value);
     return new;
   }
-  pub fn set_from_u8(&mut self, val: u8) {
-    self.enable_bg        = (val & 0x01) != 0;
-    self.enable_obj       = (val & 0x02) != 0;
-    self.obj_size         = (val & 0x04) != 0;
-    self.bg_tilemap_addr  = (val & 0x08) != 0;
-    self.tiledata_addr    = (val & 0x10) != 0;
-    self.enable_win       = (val & 0x20) != 0;
-    self.win_tilemap_addr = (val & 0x40) != 0;
-    self.enable_display   = (val & 0x80) != 0;
+  pub fn set_from_u8(&mut self, value: u8) {
+    self.enable_bg        = (value & 0x01) != 0;
+    self.enable_obj       = (value & 0x02) != 0;
+    self.obj_size         = (value & 0x04) != 0;
+    self.bg_tilemap_addr  = (value & 0x08) != 0;
+    self.tiledata_addr    = (value & 0x10) != 0;
+    self.enable_win       = (value & 0x20) != 0;
+    self.win_tilemap_addr = (value & 0x40) != 0;
+    self.enable_display   = (value & 0x80) != 0;
   }
   pub fn into_u8(&self) -> u8 {
     (self.enable_bg         as u8)       | 
@@ -84,16 +84,16 @@ pub struct StatInterrupts {
   pub mode_0: bool,
 }
 impl StatInterrupts {
-  pub fn from_u8(val: u8) -> Self {
+  pub fn from_u8(value: u8) -> Self {
     let mut new = Self::default();
-    new.set_from_u8(val);
+    new.set_from_u8(value);
     return new;
   }
-  pub fn set_from_u8(&mut self, val: u8) {
-    self.mode_0 = (val & 0x01) != 0;
-    self.mode_1 = (val & 0x02) != 0;
-    self.mode_2 = (val & 0x04) != 0;
-    self.lyc_eq = (val & 0x08) != 0;
+  pub fn set_from_u8(&mut self, value: u8) {
+    self.mode_0 = (value & 0x01) != 0;
+    self.mode_1 = (value & 0x02) != 0;
+    self.mode_2 = (value & 0x04) != 0;
+    self.lyc_eq = (value & 0x08) != 0;
   }
   pub fn into_u8(&self) -> u8 {
     (self.mode_0 as u8)        |

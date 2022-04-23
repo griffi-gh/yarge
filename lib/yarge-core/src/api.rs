@@ -32,15 +32,15 @@ impl Gameboy {
   #[inline] pub fn read_mem(&self, addr: u16) -> u8 {
     self.cpu.mmu.rb(addr)
   }
-  #[inline] pub fn write_mem(&mut self, addr: u16, val: u8) {
-    self.cpu.mmu.wb(addr, val);
+  #[inline] pub fn write_mem(&mut self, addr: u16, value: u8) {
+    self.cpu.mmu.wb(addr, value);
   }
 
   #[inline] pub fn read_mem_word(&self, addr: u16) -> u16 {
     self.cpu.mmu.rw(addr)
   }
-  #[inline] pub fn write_mem_word(&mut self, addr: u16, val: u16) {
-    self.cpu.mmu.ww(addr, val);
+  #[inline] pub fn write_mem_word(&mut self, addr: u16, value: u16) {
+    self.cpu.mmu.ww(addr, value);
   }
 
   #[inline] pub fn render_tileset(&self) {
@@ -96,29 +96,29 @@ impl Gameboy {
     self.cpu.reg.l()
   }
 
-  #[inline] pub fn set_reg_a(&mut self, val: u8) {
-    self.cpu.reg.set_a(val);
+  #[inline] pub fn set_reg_a(&mut self, value: u8) {
+    self.cpu.reg.set_a(value);
   }
-  #[inline] pub fn set_reg_f(&mut self, val: u8) {
-    self.cpu.reg.set_f(val);
+  #[inline] pub fn set_reg_f(&mut self, value: u8) {
+    self.cpu.reg.set_f(value);
   }
-  #[inline] pub fn set_reg_b(&mut self, val: u8) {
-    self.cpu.reg.set_b(val);
+  #[inline] pub fn set_reg_b(&mut self, value: u8) {
+    self.cpu.reg.set_b(value);
   }
-  #[inline] pub fn set_reg_c(&mut self, val: u8) {
-    self.cpu.reg.set_c(val);
+  #[inline] pub fn set_reg_c(&mut self, value: u8) {
+    self.cpu.reg.set_c(value);
   }
-  #[inline] pub fn set_reg_d(&mut self, val: u8) {
-    self.cpu.reg.set_d(val);
+  #[inline] pub fn set_reg_d(&mut self, value: u8) {
+    self.cpu.reg.set_d(value);
   }
-  #[inline] pub fn set_reg_e(&mut self, val: u8) {
-    self.cpu.reg.set_e(val);
+  #[inline] pub fn set_reg_e(&mut self, value: u8) {
+    self.cpu.reg.set_e(value);
   }
-  #[inline] pub fn set_reg_h(&mut self, val: u8) {
-    self.cpu.reg.set_h(val);
+  #[inline] pub fn set_reg_h(&mut self, value: u8) {
+    self.cpu.reg.set_h(value);
   }
-  #[inline] pub fn set_reg_l(&mut self, val: u8) {
-    self.cpu.reg.set_l(val);
+  #[inline] pub fn set_reg_l(&mut self, value: u8) {
+    self.cpu.reg.set_l(value);
   }
 
   #[inline] pub fn get_reg_af(&self) -> u16 {
@@ -134,17 +134,17 @@ impl Gameboy {
     self.cpu.reg.hl()
   }
 
-  #[inline] pub fn set_reg_af(&mut self, val: u16) {
-    self.cpu.reg.set_af(val);
+  #[inline] pub fn set_reg_af(&mut self, value: u16) {
+    self.cpu.reg.set_af(value);
   }
-  #[inline] pub fn set_reg_bc(&mut self, val: u16) {
-    self.cpu.reg.set_bc(val);
+  #[inline] pub fn set_reg_bc(&mut self, value: u16) {
+    self.cpu.reg.set_bc(value);
   }
-  #[inline] pub fn set_reg_de(&mut self, val: u16) {
-    self.cpu.reg.set_de(val);
+  #[inline] pub fn set_reg_de(&mut self, value: u16) {
+    self.cpu.reg.set_de(value);
   }
-  #[inline] pub fn set_reg_hl(&mut self, val: u16) {
-    self.cpu.reg.set_hl(val);
+  #[inline] pub fn set_reg_hl(&mut self, value: u16) {
+    self.cpu.reg.set_hl(value);
   }
 
   #[inline] pub fn get_reg_pc(&self) -> u16 {
@@ -154,11 +154,11 @@ impl Gameboy {
     self.cpu.reg.sp
   }
 
-  #[inline] pub fn set_reg_pc(&mut self, val: u16) {
-    self.cpu.reg.pc = val;
+  #[inline] pub fn set_reg_pc(&mut self, value: u16) {
+    self.cpu.reg.pc = value;
   }
-  #[inline] pub fn set_reg_sp(&mut self, val: u16) {
-    self.cpu.reg.sp = val;
+  #[inline] pub fn set_reg_sp(&mut self, value: u16) {
+    self.cpu.reg.sp = value;
   }
 
   #[inline] pub fn get_bios_disabled(&self) -> bool {
