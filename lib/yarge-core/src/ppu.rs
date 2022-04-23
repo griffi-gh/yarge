@@ -67,11 +67,13 @@ impl Ppu {
     self.lcdc.into_u8()
   }
 
+  //TODO LY=LYC
   pub fn get_stat(&self) -> u8 {
-    self.mode as u8
+    (self.mode as u8) | 
+    (self.stat_intr.into_u8() << 3)
   }
   pub fn set_stat(&mut self, value: u8) {
-    self.stat_intr.set_from_u8(value >> 4);
+    self.stat_intr.set_from_u8(value >> 3);
   }
 
   //TODO check for mode 2 and 3
