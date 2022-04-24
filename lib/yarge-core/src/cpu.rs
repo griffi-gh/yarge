@@ -58,7 +58,7 @@ impl Cpu {
     if trip != 0 {
       Err(YargeError::MmuBreakpoint {
         is_write: access_type & 0b10 != 0,
-        value: value.unwrap_or(self.mmu.rb(addr)),
+        value: value.unwrap_or(self.mmu.rb(addr, true)),
         addr,
       })
     } else {
@@ -69,7 +69,7 @@ impl Cpu {
   #[cfg(feature = "breakpoints")]
   fn check_pc_breakpoints(&mut self, addr: u16) -> Res<()> {
     if self.pc_breakpoints[addr as usize] {
-      let instr = self.mmu.rb(addr);
+      let instr = self.mmu.rb(addr, true);
       Err(YargeError::PcBreakpoint { instr, addr })
     } else {
       Ok(())
@@ -80,13 +80,13 @@ impl Cpu {
     #[cfg(feature = "breakpoints")]
     self.check_mmu_breakpoints(0b01, addr, None)?;
     self.cycle();
-    Ok(self.mmu.rb(addr))
+    Ok(self.mmu.rb(addr, true))
   }
   fn wb(&mut self, addr: u16, value: u8) -> Res<()> {
     #[cfg(feature = "breakpoints")]
     self.check_mmu_breakpoints(0b10, addr, Some(value))?;
     self.cycle();
-    self.mmu.wb(addr, value);
+    self.mmu.wb(addr, value, true);
     Ok(())
   }
 
@@ -149,7 +149,7 @@ impl Cpu {
     }
     //Call interrupt handler
     self.reg.dec_sp(2);
-    self.mmu.ww(self.reg.sp, self.reg.pc);
+    self.mmu.ww(self.reg.sp, self.reg.pc, true);
     self.reg.pc = INT_JMP_VEC[int];
     //flip IF bit and disable IME
     self.mmu.iif &= !(1 << int);

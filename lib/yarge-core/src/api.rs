@@ -30,17 +30,17 @@ impl Gameboy {
   }
 
   #[inline] pub fn read_mem(&self, addr: u16) -> u8 {
-    self.cpu.mmu.rb(addr)
+    self.cpu.mmu.rb(addr, false)
   }
   #[inline] pub fn write_mem(&mut self, addr: u16, value: u8) {
-    self.cpu.mmu.wb(addr, value);
+    self.cpu.mmu.wb(addr, value, false);
   }
 
   #[inline] pub fn read_mem_word(&self, addr: u16) -> u16 {
-    self.cpu.mmu.rw(addr)
+    self.cpu.mmu.rw(addr, false)
   }
   #[inline] pub fn write_mem_word(&mut self, addr: u16, value: u16) {
-    self.cpu.mmu.ww(addr, value);
+    self.cpu.mmu.ww(addr, value, false);
   }
 
   #[inline] pub fn render_tileset(&self) {

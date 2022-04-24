@@ -19,8 +19,8 @@ pub trait CartridgeImpl {
   fn read_rom(&self, addr: u16) -> u8;
   fn write_rom(&mut self, addr: u16, value: u8) { }
 
-  fn read_eram(&self, addr: u16) -> u8 { 0xff }
-  fn write_eram(&mut self, addr: u16, value: u8) {}
+  fn read_eram(&self, addr: u16, blocking: bool) -> u8 { 0xff }
+  fn write_eram(&mut self, addr: u16, value: u8, blocking: bool) {}
 
   fn save_data(&self) -> Option<Vec<u8>> { None }
   fn load_data(&mut self, data: Vec<u8>) {}

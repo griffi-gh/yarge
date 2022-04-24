@@ -13,6 +13,7 @@ pub struct Ppu {
   pub display: Box<[u8; FB_SIZE]>,
   pub frame_ready: bool,
   pub bgp: u8,
+  pub lyc: u8,
   pub scy: u8,
   pub scx: u8,
   ly: u8,
@@ -41,6 +42,7 @@ impl Ppu {
       },
       frame_ready: false,
       bgp: 0b11_10_01_00,
+      lyc: 0,
       scy: 0,
       scx: 0,
       ly: 0,
@@ -67,9 +69,9 @@ impl Ppu {
     self.lcdc.into_u8()
   }
 
-  //TODO LY=LYC
   pub fn get_stat(&self) -> u8 {
     (self.mode as u8) | 
+    ((self.ly == self.lyc) as u8) << 2 |
     (self.stat_intr.into_u8() << 3)
   }
   pub fn set_stat(&mut self, value: u8) {
@@ -77,18 +79,18 @@ impl Ppu {
   }
 
   //TODO check for mode 2 and 3
-  pub fn read_oam(&self, addr: u16) -> u8 {
+  pub fn read_oam(&self, addr: u16, blocking: bool) -> u8 {
     self.oam.read_oam(addr - 0xFE00)
   }
-  pub fn write_oam(&mut self, addr: u16, value: u8) {
+  pub fn write_oam(&mut self, addr: u16, value: u8, blocking: bool) {
     self.oam.write_oam(addr - 0xFE00, value);
   }
 
   //TODO check for mode 3
-  pub fn read_vram(&self, addr: u16) -> u8 {
+  pub fn read_vram(&self, addr: u16, blocking: bool) -> u8 {
     self.vram[(addr - 0x8000) as usize]
   }
-  pub fn write_vram(&mut self, addr: u16, value: u8) {
+  pub fn write_vram(&mut self, addr: u16, value: u8, blocking: bool) {
     self.vram[(addr - 0x8000) as usize] = value;
   }
   
@@ -97,7 +99,11 @@ impl Ppu {
     self.mode = mode;
   }
 
-  pub fn tick_inner(&mut self, iif: &mut u8) {
+  fn check_stat(&self) {
+
+  }
+
+  fn tick_inner(&mut self, iif: &mut u8) {
     if !self.lcdc.enable_display {
       if !self.display_cleared {
         //TODO find out exact values

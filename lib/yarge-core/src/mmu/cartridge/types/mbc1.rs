@@ -78,9 +78,9 @@ impl CartridgeImpl for CartridgeMbc1 {
     }
   }
 
-  fn read_eram(&self, addr: u16) -> u8 {
+  fn read_eram(&self, addr: u16, blocking: bool) -> u8 {
     if self.mbc1_type == Type::None { return 0xFF; }
-    if !self.ram_enable { return 0xFF; }
+    if blocking && !self.ram_enable { return 0xFF; }
     let bank = if self.mode {
       self.ram_bank & self.ram_mask
     } else {
@@ -88,9 +88,9 @@ impl CartridgeImpl for CartridgeMbc1 {
     };
     self.eram.as_ref().unwrap()[eram_addr(addr, bank)]
   }
-  fn write_eram(&mut self, addr: u16, value: u8) {
+  fn write_eram(&mut self, addr: u16, value: u8, blocking: bool) {
     if self.mbc1_type == Type::None { return; }
-    if !self.ram_enable { return; }
+    if blocking && !self.ram_enable { return; }
     let bank = if self.mode {
       self.ram_bank & self.ram_mask
     } else {

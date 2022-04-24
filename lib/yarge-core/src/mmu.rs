@@ -30,7 +30,7 @@ impl Mmu {
     }
   }
 
-  pub fn rb(&self, addr: u16) -> u8 {
+  pub fn rb(&self, addr: u16, blocking: bool) -> u8 {
     match addr {
       //BOOTROM/ROM
       0x0000..=0x00ff => { 
@@ -43,13 +43,13 @@ impl Mmu {
       //ROM
       0x0100..=0x7fff => self.cart.read_rom(addr),
       //VRAM
-      0x8000..=0x9FFF => self.ppu.read_vram(addr),
+      0x8000..=0x9FFF => self.ppu.read_vram(addr, blocking),
       //ERAM
-      0xA000..=0xBFFF => self.cart.read_eram(addr),
+      0xA000..=0xBFFF => self.cart.read_eram(addr, blocking),
       //WRAM/ECHO
       0xC000..=0xFDFF => self.wram[(addr & 0x1FFF) as usize],
       //OAM
-      0xFE00..=0xFE9F => self.ppu.read_oam(addr),
+      0xFE00..=0xFE9F => self.ppu.read_oam(addr, blocking),
       //IO REGISTERS
       0xFF00..=0xFF7F => {
         match addr {
@@ -79,7 +79,7 @@ impl Mmu {
     }
   }
   
-  pub fn wb(&mut self, addr: u16, value: u8) {
+  pub fn wb(&mut self, addr: u16, value: u8, blocking: bool) {
     match addr {
       //BOOTROM/ROM
       //nah it's not worth checking for "bios_disabled" here
@@ -90,13 +90,13 @@ impl Mmu {
       }
       0x0100..=0x7fff => { self.cart.write_rom(addr, value); },
       //VRAM
-      0x8000..=0x9FFF => { self.ppu.write_vram(addr, value); },
+      0x8000..=0x9FFF => { self.ppu.write_vram(addr, value, blocking); },
       //ERAM
-      0xA000..=0xBFFF => { self.cart.write_eram(addr, value); },
+      0xA000..=0xBFFF => { self.cart.write_eram(addr, value, blocking); },
       //WRAM/ECHO
       0xC000..=0xFDFF => { self.wram[(addr & 0x1FFF) as usize] = value; },
       //OAM
-      0xFE00..=0xFE9F => { self.ppu.write_oam(addr, value); },
+      0xFE00..=0xFE9F => { self.ppu.write_oam(addr, value, blocking); },
       //IO REGISTERS
       0xFF04 => { self.timers.reset_div(); },
       0xFF05 => { self.timers.set_tima(value); },
@@ -119,13 +119,13 @@ impl Mmu {
     }
   }
 
-  pub fn rw(&self, addr: u16) -> u16 {
-    self.rb(addr) as u16 | 
-    ((self.rb(addr.wrapping_add(1)) as u16) << 8)
+  pub fn rw(&self, addr: u16, blocking: bool) -> u16 {
+    self.rb(addr, blocking) as u16 | 
+    ((self.rb(addr.wrapping_add(1), blocking) as u16) << 8)
   }
-  pub fn ww(&mut self, addr: u16, value: u16) {
-    self.wb(addr, (value & 0xFF) as u8);
-    self.wb(addr.wrapping_add(1), (value >> 8) as u8);
+  pub fn ww(&mut self, addr: u16, value: u16, blocking: bool) {
+    self.wb(addr, (value & 0xFF) as u8, blocking);
+    self.wb(addr.wrapping_add(1), (value >> 8) as u8, blocking);
   }
   
   pub fn load_rom(&mut self, data: &[u8]) -> Res<()> {
