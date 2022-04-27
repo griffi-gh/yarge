@@ -19,15 +19,9 @@ build-time = "0.1.1"
 
 [features]
 default = ["gui", "breakpoints"]
-gui = ["yarge-gui-framework", "rfd", "ahash"]
+gui = ["dep:yarge-gui-framework", "dep:rfd", "dep:ahash"]
+# Pass through to yarge-core
 ly-stub = ["yarge-core/ly-stub"]
 logging-file = ["yarge-core/logging-file"]
 logging-stdout = ["yarge-core/logging-stdout"]
-logging-file-ly = ["logging-file", "ly-stub"]
 breakpoints = ["yarge-core/breakpoints"]
-
-#[dev-dependencies]
-#bencher = "0.1.5"
-#[[bench]]
-#name = "bench"
-#harness = false
