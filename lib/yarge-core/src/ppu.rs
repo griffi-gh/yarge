@@ -176,11 +176,11 @@ impl Ppu {
             self.display[addr] = (self.bgp >> (color << 1)) & 0b11;
             self.lx += 1;
             if self.lx >= WIDTH as u8 { 
-              self.lx = 0;
               #[cfg(debug_assertions)] {
                 assert!(self.cycles >= 172, "PxTransfer took less then 172 cycles: {}", self.cycles);
                 assert!(self.cycles <= 289, "PxTransfer took more then 289 cycles: {}", self.cycles);
               }
+              self.lx = 0;
               self.hblank_len = 376 - self.cycles;
               self.mode(PpuMode::HBlank);
               self.check_stat(iif);
