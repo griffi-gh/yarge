@@ -109,23 +109,23 @@ impl Ppu {
       (self.stat_intr.mode_2 && (self.mode as u8 == 2))
     };
     if stat && !self.stat_prev {
-      Cpu::set_interrupt(iif, Interrupt::Stat);
+      //Cpu::set_interrupt(iif, Interrupt::Stat);
     }
     self.stat_prev = stat;
   }
 
   fn tick_inner(&mut self, iif: &mut u8) {
     if !self.lcdc.enable_display {
-      if !self.display_cleared {
-        //TODO find out exact values
-        *self.display = [0; FB_SIZE];
-        self.ly = 0;
-        self.lx = 0;
-        self.stat_prev = false;
-        self.mode(PpuMode::OamSearch); //resets cycles too
-        self.display_cleared = true;
+      if self.display_cleared {
+        return;
       }
-      return;
+      //TODO find out exact values
+      *self.display = [0; FB_SIZE];
+      self.ly = 0;
+      self.lx = 0;
+      self.stat_prev = false;
+      self.mode(PpuMode::OamSearch); //resets cycles too
+      self.display_cleared = true;
     } else {
       self.display_cleared = false;
     }
