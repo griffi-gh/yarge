@@ -28,6 +28,7 @@ pub struct Ppu {
   bg_fetcher: Fetcher,
   to_discard: u8,
   stat_intr: StatInterrupts, 
+  stat_prev: bool,
 }
 impl Ppu {
   pub fn new() -> Self {
@@ -57,6 +58,7 @@ impl Ppu {
       bg_fetcher: Fetcher::new(),
       to_discard: 0,
       stat_intr: StatInterrupts::default(),
+      stat_prev: false,
     }
   }
 
@@ -99,8 +101,17 @@ impl Ppu {
     self.mode = mode;
   }
 
-  fn check_stat(&self) {
-
+  fn check_stat(&mut self, iif: &mut u8) {
+    let stat = {
+      (self.stat_intr.lyc_eq && (self.ly == self.lyc)) ||
+      (self.stat_intr.mode_0 && (self.mode as u8 == 0)) ||
+      (self.stat_intr.mode_1 && (self.mode as u8 == 1)) ||
+      (self.stat_intr.mode_2 && (self.mode as u8 == 2))
+    };
+    if stat && !self.stat_prev {
+      Cpu::set_interrupt(iif, Interrupt::Stat);
+    }
+    self.stat_prev = stat;
   }
 
   fn tick_inner(&mut self, iif: &mut u8) {
@@ -110,6 +121,7 @@ impl Ppu {
         *self.display = [0; FB_SIZE];
         self.ly = 0;
         self.lx = 0;
+        self.stat_prev = false;
         self.mode(PpuMode::OamSearch); //resets cycles too
         self.display_cleared = true;
       }
@@ -128,6 +140,7 @@ impl Ppu {
           } else {
             self.mode(PpuMode::OamSearch);
           }
+          self.check_stat(iif);
         }
       },
       PpuMode::VBlank => {
@@ -138,6 +151,7 @@ impl Ppu {
             self.ly = 0;
             self.mode(PpuMode::OamSearch);
           }
+          self.check_stat(iif);
         }
       },
       PpuMode::OamSearch => {
@@ -146,6 +160,7 @@ impl Ppu {
           self.bg_fetcher.start(self.scx, self.scy, self.ly, FetcherLayer::Background);
           self.to_discard = self.scx & 7;
           self.mode(PpuMode::PxTransfer);
+          self.check_stat(iif);
         }
       },
       PpuMode::PxTransfer => {
@@ -168,6 +183,7 @@ impl Ppu {
               }
               self.hblank_len = 376 - self.cycles;
               self.mode(PpuMode::HBlank);
+              self.check_stat(iif);
             }
           }
         }
