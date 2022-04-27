@@ -81,18 +81,18 @@ impl Ppu {
   }
 
   //TODO check for mode 2 and 3
-  pub fn read_oam(&self, addr: u16, blocking: bool) -> u8 {
+  pub fn read_oam(&self, addr: u16, _blocking: bool) -> u8 {
     self.oam.read_oam(addr - 0xFE00)
   }
-  pub fn write_oam(&mut self, addr: u16, value: u8, blocking: bool) {
+  pub fn write_oam(&mut self, addr: u16, value: u8, _blocking: bool) {
     self.oam.write_oam(addr - 0xFE00, value);
   }
 
   //TODO check for mode 3
-  pub fn read_vram(&self, addr: u16, blocking: bool) -> u8 {
+  pub fn read_vram(&self, addr: u16, _blocking: bool) -> u8 {
     self.vram[(addr - 0x8000) as usize]
   }
-  pub fn write_vram(&mut self, addr: u16, value: u8, blocking: bool) {
+  pub fn write_vram(&mut self, addr: u16, value: u8, _blocking: bool) {
     self.vram[(addr - 0x8000) as usize] = value;
   }
   
