@@ -104,12 +104,12 @@ impl Ppu {
   fn check_stat(&mut self, iif: &mut u8) {
     let stat = {
       (self.stat_intr.lyc_eq && (self.ly == self.lyc)) ||
-      (self.stat_intr.mode_0 && (self.mode as u8 == 0)) ||
-      (self.stat_intr.mode_1 && (self.mode as u8 == 1)) ||
-      (self.stat_intr.mode_2 && (self.mode as u8 == 2))
+      (self.stat_intr.mode_0 && (self.mode == PpuMode::HBlank)) ||
+      (self.stat_intr.mode_1 && (self.mode == PpuMode::VBlank)) ||
+      (self.stat_intr.mode_2 && (self.mode == PpuMode::OamSearch))
     };
     if stat && !self.stat_prev {
-      //Cpu::set_interrupt(iif, Interrupt::Stat);
+      Cpu::set_interrupt(iif, Interrupt::Stat);
     }
     self.stat_prev = stat;
   }
