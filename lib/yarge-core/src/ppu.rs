@@ -165,6 +165,7 @@ impl Ppu {
       },
       PpuMode::PxTransfer => {
         //TODO check for bg enable
+        self.bg_fetcher.update(self.scx, self.scy);
         self.bg_fetcher.tick(&self.lcdc, &self.vram);
         if self.bg_fetcher.len() > 0 {
           let FifoPixel { color, .. } = self.bg_fetcher.pop().unwrap();

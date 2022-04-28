@@ -76,6 +76,10 @@ impl Fetcher {
     self.state = FetcherState::ReadTileId;
     self.sleep = 6;
   }
+  pub fn update(&mut self, scx: u8, scy: u8) {
+    self.scx = scx;
+    self.scy = scy;
+  }
   pub fn tick(&mut self, lcdc: &Lcdc, vram: &[u8; VRAM_SIZE]) {
     if self.sleep > 0 {
       self.sleep -= 1;
