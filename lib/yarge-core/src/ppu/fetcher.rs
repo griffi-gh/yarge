@@ -93,9 +93,9 @@ impl Fetcher {
         let addr: u16 = {
           let mut addr = self.offset;
           if self.layer == FetcherLayer::Background {
-            addr += (self.scx as u16 / 8) & 0x1f;
+            addr += (self.scx as u16 >> 3) & 0x1f;
             addr &= 0x3ff;
-            addr += 32 * (self.ly.wrapping_add(self.scy) as u16 / 8);
+            addr += 32 * (self.ly.wrapping_add(self.scy) as u16 >> 3);
             addr &= 0x3ff;
           }
           addr + match self.layer {
