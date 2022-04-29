@@ -1,11 +1,9 @@
-use crate::{Timers, Ppu, Res, consts::BIOS};
+use crate::{Input, Timers, Ppu, Res, consts::BIOS};
 use std::fs;
 pub mod cartridge;
 use cartridge::{CartridgeImpl as _, RomHeader, Cartridge, MockCartridge};
 
 pub struct Mmu {
-  pub ppu: Ppu,
-  pub timers: Timers,
   pub bios_disabled: bool,
   cart: Cartridge,
   cart_header: RomHeader,
@@ -14,19 +12,26 @@ pub struct Mmu {
   //interrupts
   pub iie: u8,
   pub iif: u8,
+  //components
+  pub ppu: Ppu,
+  pub timers: Timers,
+  pub input: Input,
 }
 impl Mmu {
   pub fn new() -> Self {
     Self {
-      ppu: Ppu::new(),
-      timers: Timers::new(),
       bios_disabled: false,
       cart: (MockCartridge {}).into(),
       cart_header: RomHeader::default(),
       wram: Box::new([0; 0x2000]),
       hram: Box::new([0; 0x007F]),
+      //interrupts
       iie: 0x00,
       iif: 0x00,
+      //components
+      ppu: Ppu::new(),
+      timers: Timers::new(),
+      input: Input::new(),
     }
   }
 

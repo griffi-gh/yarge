@@ -4,7 +4,7 @@ pub enum Key {
   Start, Select, A, B
 }
 
-#[derive(Default, Clone, Copy)]
+#[derive(Default)]
 struct KeyState {
   up: bool,
   down: bool,
