@@ -80,19 +80,34 @@ impl Ppu {
     self.stat_intr.set_from_u8(value >> 3);
   }
 
+  fn oam_blocked(&self) -> bool {
+    match self.mode {
+      PpuMode::OamSearch  => true,
+      PpuMode::PxTransfer => true,
+      _ => false,
+    }
+  }
+  fn vram_blocked(&self) -> bool {
+    self.mode == PpuMode::PxTransfer
+  }
+
   //TODO check for mode 2 and 3
-  pub fn read_oam(&self, addr: u16, _blocking: bool) -> u8 {
+  pub fn read_oam(&self, addr: u16, blocking: bool) -> u8 {
+    if blocking && self.oam_blocked() { return 0xff; }
     self.oam.read_oam(addr - 0xFE00)
   }
-  pub fn write_oam(&mut self, addr: u16, value: u8, _blocking: bool) {
+  pub fn write_oam(&mut self, addr: u16, value: u8, blocking: bool) {
+    if blocking && self.oam_blocked() { return; }
     self.oam.write_oam(addr - 0xFE00, value);
   }
 
   //TODO check for mode 3
-  pub fn read_vram(&self, addr: u16, _blocking: bool) -> u8 {
+  pub fn read_vram(&self, addr: u16, blocking: bool) -> u8 {
+    if blocking && self.vram_blocked() { return 0xFF; }
     self.vram[(addr - 0x8000) as usize]
   }
-  pub fn write_vram(&mut self, addr: u16, value: u8, _blocking: bool) {
+  pub fn write_vram(&mut self, addr: u16, value: u8, blocking: bool) {
+    if blocking && self.vram_blocked() { return; }
     self.vram[(addr - 0x8000) as usize] = value;
   }
   
