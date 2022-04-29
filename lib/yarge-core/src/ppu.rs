@@ -164,28 +164,30 @@ impl Ppu {
         }
       },
       PpuMode::PxTransfer => {
-        //TODO check for bg enable
+        //TODO optimize if bg/win is off
         self.bg_fetcher.update(self.scx, self.scy);
         self.bg_fetcher.tick(&self.lcdc, &self.vram);
         if self.bg_fetcher.len() > 0 {
-          let FifoPixel { color, .. } = self.bg_fetcher.pop().unwrap();
+          let FifoPixel { mut color, .. } = self.bg_fetcher.pop().unwrap();
           if self.to_discard > 0 {
             self.to_discard -= 1;
+            return;
           }
-          if self.to_discard == 0 {
-            let addr = (self.ly as usize * WIDTH) + self.lx as usize;
-            self.display[addr] = (self.bgp >> (color << 1)) & 0b11;
-            self.lx += 1;
-            if self.lx >= WIDTH as u8 { 
-              #[cfg(debug_assertions)] {
-                assert!(self.cycles >= 172, "PxTransfer took less then 172 cycles: {}", self.cycles);
-                assert!(self.cycles <= 289, "PxTransfer took more then 289 cycles: {}", self.cycles);
-              }
-              self.lx = 0;
-              self.hblank_len = 376 - self.cycles;
-              self.mode(PpuMode::HBlank);
-              self.check_stat(iif);
+          if !self.lcdc.enable_bg {
+            color = 0;
+          }
+          let addr = (self.ly as usize * WIDTH) + self.lx as usize;
+          self.display[addr] = (self.bgp >> (color << 1)) & 0b11;
+          self.lx += 1;
+          if self.lx >= WIDTH as u8 { 
+            #[cfg(debug_assertions)] {
+              assert!(self.cycles >= 172, "PxTransfer took less then 172 cycles: {}", self.cycles);
+              assert!(self.cycles <= 289, "PxTransfer took more then 289 cycles: {}", self.cycles);
             }
+            self.lx = 0;
+            self.hblank_len = 376 - self.cycles;
+            self.mode(PpuMode::HBlank);
+            self.check_stat(iif);
           }
         }
       }
