@@ -1,4 +1,6 @@
 #![forbid(unsafe_code)]
+
+//Components
 pub(crate) mod mmu;
 pub(crate) mod cpu;
 pub(crate) mod ppu;
@@ -7,16 +9,19 @@ pub(crate) use mmu::Mmu;
 pub(crate) use cpu::Cpu;
 pub(crate) use ppu::Ppu;
 pub(crate) use timers::Timers;
+
+//Modules
 pub mod consts;
 mod errors;
 mod api;
+
+//Re-exports
 pub use cpu::CpuState;
 pub use errors::YargeError;
 pub use api::*;
-use consts::CYCLES_PER_FRAME;
+pub use consts::VERSION;
 
-pub const VERSION: Option<&'static str> = option_env!("CARGO_PKG_VERSION");
-
+//Types
 pub(crate) type Res<T> = Result<T, YargeError>;
 
 ///Gameboy emulator
@@ -113,6 +118,7 @@ impl Gameboy {
   }
 
   pub fn run_for_frame(&mut self) -> Res<()> {
+    use consts::CYCLES_PER_FRAME;
     if !self.running {
       return Ok(());
     }

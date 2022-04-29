@@ -1,3 +1,4 @@
+pub const VERSION: Option<&'static str> = option_env!("CARGO_PKG_VERSION");
 pub const TILE_WIDTH: u8 = 8;
 pub const WIDTH: usize = 160;
 pub const HEIGHT: usize = 144;

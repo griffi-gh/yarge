@@ -1,10 +1,10 @@
 #[repr(u8)]
-enum Key {
+pub enum Key {
   Up, Down, Left, Right,
   Start, Select, A, B
 }
 
-#[derive(Clone, Copy)]
+#[derive(Default, Clone, Copy)]
 struct KeyState {
   up: bool,
   down: bool,
@@ -16,40 +16,48 @@ struct KeyState {
   b: bool
 }
 impl KeyState {
-  fn get_key_mut(&mut self, key: Key) -> &mut bool {
-    match key {
-      Key::Up     => &mut self.up,
-      Key::Down   => &mut self.down,
-      Key::Left   => &mut self.left,
-      Key::Right  => &mut self.right,
-      Key::Start  => &mut self.start,
-      Key::Select => &mut self.select,
-      Key::A      => &mut self.a,
-      Key::B      => &mut self.b,
-    }
-  }
   fn filter(&self) -> Self {
     Self {
       up:    self.up    && !self.down,
       down:  self.down  && !self.up,
       left:  self.left  && !self.right,
       right: self.right && !self.left,
-      ..self
+      ..*self
     }
   }
-
   pub fn get_key(&self, key: Key) -> bool {
-    *self.get_key_mut(key)
+    match key {
+      Key::Up     => self.up,
+      Key::Down   => self.down,
+      Key::Left   => self.left,
+      Key::Right  => self.right,
+      Key::Start  => self.start,
+      Key::Select => self.select,
+      Key::A      => self.a,
+      Key::B      => self.b,
+    }
   }
-  pub fn get_key_filtered(&self, key: Key) -> bool {
-    *self.filter().get_key_mut(key)
-  }
-
   pub fn set_key(&mut self, key: Key, state: bool) {
-    *self.get_key_mut(key) = state;
+    match key {
+      Key::Up     => { self.up     = state },
+      Key::Down   => { self.down   = state },
+      Key::Left   => { self.left   = state },
+      Key::Right  => { self.right  = state },
+      Key::Start  => { self.start  = state },
+      Key::Select => { self.select = state },
+      Key::A      => { self.a      = state },
+      Key::B      => { self.b      = state },
+    }
   }
 }
 
-struct Input {
+pub struct Input {
   key_state: KeyState
+}
+impl Input {
+  pub fn new() -> Self {
+    Self {
+      key_state: KeyState::default()
+    }
+  }
 }
