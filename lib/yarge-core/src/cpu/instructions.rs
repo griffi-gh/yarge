@@ -1,6 +1,6 @@
 mod macros;
-pub(crate) use macros::*;
 mod macros_cb;
+pub(crate) use macros::*;
 pub(crate) use macros_cb::*;
 
 macro_rules! cpu_instructions {
@@ -276,7 +276,8 @@ macro_rules! cpu_instructions {
       }
     }
   };
-} pub(crate) use cpu_instructions;
+}
+pub(crate) use cpu_instructions;
 
 macro_rules! cpu_instructions_cb {
   ($self: expr, $op: expr) => {
@@ -556,4 +557,5 @@ macro_rules! cpu_instructions_cb {
       }
     }
   };
-} pub(crate) use cpu_instructions_cb;
+}
+pub(crate) use cpu_instructions_cb;
