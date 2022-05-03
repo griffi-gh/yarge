@@ -126,8 +126,7 @@ impl Cpu {
 
   fn cycle(&mut self) {
     self.t += 4;
-    self.mmu.ppu.tick(&mut self.mmu.iif);
-    self.mmu.timers.tick(&mut self.mmu.iif);
+    self.mmu.tick_components();
   }
 
   fn disable_ime(&mut self) {

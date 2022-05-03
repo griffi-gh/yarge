@@ -58,6 +58,7 @@ impl Mmu {
       //IO REGISTERS
       0xFF00..=0xFF7F => {
         match addr {
+          0xFF00 => self.input.get_joyp(),
           0xFF04 => self.timers.get_div(),
           0xFF05 => self.timers.get_tima(),
           0xFF06 => self.timers.tma,
@@ -104,6 +105,7 @@ impl Mmu {
       //OAM
       0xFE00..=0xFE9F => { self.ppu.write_oam(addr, value, blocking); },
       //IO REGISTERS
+      0xFF00 => { self.input.set_joyp(value); },
       0xFF04 => { self.timers.reset_div(); },
       0xFF05 => { self.timers.set_tima(value); },
       0xFF06 => { self.timers.tma = value; },
@@ -166,5 +168,11 @@ impl Mmu {
   }
   pub fn header(&self) -> RomHeader {
     self.cart_header
+  }
+
+  pub fn tick_components(&mut self) {
+    self.ppu.tick(&mut self.iif);
+    self.timers.tick(&mut self.iif);
+    self.input.tick(&mut self.iif) 
   }
 }

@@ -1,63 +1,92 @@
+use enumflags2::{bitflags, BitFlags, make_bitflags};
+use crate::cpu::{Cpu, Interrupt};
+
+#[bitflags]
 #[repr(u8)]
-pub enum Key {
-  Up, Down, Left, Right,
-  Start, Select, A, B
+#[derive(Clone, Copy, PartialEq)]
+pub enum JoypSelect {
+  Direction = 1 << 0,
+  Action    = 1 << 1,
 }
 
-#[derive(Default)]
-struct KeyState {
-  up: bool,
-  down: bool,
-  left: bool,
-  right: bool,
-  start: bool,
-  select: bool,
-  a: bool,
-  b: bool
+#[bitflags]
+#[repr(u8)]
+#[derive(Clone, Copy, PartialEq)]
+pub enum Key {
+  Right  = 1 << 0,
+  Left   = 1 << 1,
+  Up     = 1 << 2,
+  Down   = 1 << 3,
+  A      = 1 << 4,
+  B      = 1 << 5,
+  Select = 1 << 6,
+  Start  = 1 << 7,
 }
-impl KeyState {
-  fn filter(&self) -> Self {
-    Self {
-      up:    self.up    && !self.down,
-      down:  self.down  && !self.up,
-      left:  self.left  && !self.right,
-      right: self.right && !self.left,
-      ..*self
-    }
+
+fn filter(state: BitFlags<Key>) -> BitFlags<Key> {
+  const UP_DOWN: BitFlags<Key>    = make_bitflags!(Key::{Up | Down });
+  const LEFT_RIGHT: BitFlags<Key> = make_bitflags!(Key::{Left | Right});
+  let mut state = state;
+  if state.contains(UP_DOWN) {
+    state ^= UP_DOWN;
   }
-  pub fn get_key(&self, key: Key) -> bool {
-    match key {
-      Key::Up     => self.up,
-      Key::Down   => self.down,
-      Key::Left   => self.left,
-      Key::Right  => self.right,
-      Key::Start  => self.start,
-      Key::Select => self.select,
-      Key::A      => self.a,
-      Key::B      => self.b,
-    }
+  if state.contains(LEFT_RIGHT) {
+    state ^= LEFT_RIGHT;
   }
-  pub fn set_key(&mut self, key: Key, state: bool) {
-    match key {
-      Key::Up     => { self.up     = state },
-      Key::Down   => { self.down   = state },
-      Key::Left   => { self.left   = state },
-      Key::Right  => { self.right  = state },
-      Key::Start  => { self.start  = state },
-      Key::Select => { self.select = state },
-      Key::A      => { self.a      = state },
-      Key::B      => { self.b      = state },
-    }
-  }
+  state
 }
 
 pub struct Input {
-  key_state: KeyState
+  select: BitFlags<JoypSelect>,
+  key_state: BitFlags<Key>,
+  interrupt_flag: bool,
 }
 impl Input {
   pub fn new() -> Self {
     Self {
-      key_state: KeyState::default()
+      select: BitFlags::default(),
+      key_state: BitFlags::default(),
+      interrupt_flag: false,
+    }
+  }
+
+  pub fn set_key_state(&mut self, key: Key, state: bool) {
+    if state && !self.key_state.contains(key) {
+      let input_group = if key as u8 >= (1 << 4) {
+        JoypSelect::Action
+      } else {
+        JoypSelect::Direction
+      };
+      if self.select.contains(input_group) {
+        self.interrupt_flag = true;
+      }
+    }
+    //TODO get rid of this
+    if state {
+      self.key_state.insert(key);
+    } else {
+      self.key_state.remove(key);
+    }
+  }
+
+  pub fn get_joyp(&self) -> u8 {
+    let mut output = 0;
+    if self.select.contains(JoypSelect::Direction) {
+      output = filter(self.key_state).bits();
+    }
+    if self.select.contains(JoypSelect::Action) {
+      output |= self.key_state.bits() >> 4;
+    }
+    (self.select.bits() << 4) | !(output & 0xF)
+  }
+  pub fn set_joyp(&mut self, value: u8) {
+    self.select = BitFlags::from_bits_truncate(value >> 4);
+  }
+
+  pub fn tick(&mut self, iif: &mut u8) {
+    if self.interrupt_flag {
+      self.interrupt_flag = false;
+      Cpu::set_interrupt(iif, Interrupt::Joypad);
     }
   }
 }
