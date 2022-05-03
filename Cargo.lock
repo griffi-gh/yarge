@@ -2782,6 +2782,7 @@ dependencies = [
  "arraydeque",
  "arrayvec",
  "enum_dispatch",
+ "enumflags2",
  "lazy_static",
  "parse-display-derive",
  "paste",
