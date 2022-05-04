@@ -76,6 +76,7 @@ impl Input {
   }
 
   pub fn get_joyp(&self) -> u8 {
+    if self.select.bits() == 0 { return 0xFF; }
     let mut output = 0;
     if self.select.contains(JoypSelect::Direction) {
       output |= filter(self.key_state).bits();
@@ -83,7 +84,7 @@ impl Input {
     if self.select.contains(JoypSelect::Action) {
       output |= self.key_state.bits() >> 4;
     }
-    ((!self.select.bits() & 0b11) << 4) | (!output & 0xFF) | 0xC0
+    ((!self.select.bits() & 0b11) << 4) | ((!output) & 0xF) | 0xC0
   }
   pub fn set_joyp(&mut self, value: u8) {
     self.select = BitFlags::from_bits_truncate(!(value >> 4));
