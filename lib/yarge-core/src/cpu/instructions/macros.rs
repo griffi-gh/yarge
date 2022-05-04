@@ -735,21 +735,21 @@ macro_rules! daa {
     let h = $self.reg.f_h();
     let c = $self.reg.f_c();
     let a = $self.reg.a();
-
+    //get the m thing
     let mut m: u8 = 0;
-    if h | (!n && (a & 0xF) > 9) {
+    if h || (!n && (a & 0xF) > 9) {
       m |= 0x06;
     }
     if c || (!n && a > 0x99) {
       m |= 0x60;
     };
-
+    //apply it to a
     let r = if n {
       a.wrapping_sub(m)
     } else {
       a.wrapping_add(m)
     };
-    
+    //set things
     $self.reg.set_f_znhc(r == 0, n, false, m >= 0x60);
     $self.reg.set_a(r);
   };
