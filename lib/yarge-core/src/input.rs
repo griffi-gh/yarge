@@ -83,7 +83,7 @@ impl Input {
     if self.select.contains(JoypSelect::Action) {
       output |= self.key_state.bits() >> 4;
     }
-    (self.select.bits() << 4) | !(output & 0xF)
+    (self.select.bits() << 4) | (!output & 0xF) | 0xC0
   }
   pub fn set_joyp(&mut self, value: u8) {
     self.select = BitFlags::from_bits_truncate(value >> 4);
