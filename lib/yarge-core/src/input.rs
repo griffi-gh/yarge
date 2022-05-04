@@ -5,8 +5,8 @@ use crate::cpu::{Cpu, Interrupt};
 #[repr(u8)]
 #[derive(Clone, Copy, PartialEq)]
 pub enum JoypSelect {
-  Direction = 1 << 0,
-  Action    = 1 << 1,
+  Direction = 0b01,
+  Action    = 0b10,
 }
 
 #[bitflags]
