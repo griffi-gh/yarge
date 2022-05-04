@@ -54,8 +54,11 @@ impl Input {
   }
 
   pub fn set_key_state_all(&mut self, state: u8) {
-    //TODO check for interrupts
+    let prev_state = self.key_state;
     self.key_state = BitFlags::from_bits_truncate(state);
+    if !((prev_state ^ self.key_state) & self.key_state).is_empty() {
+      self.interrupt_flag = true;
+    }
   }
   pub fn set_key_state(&mut self, key: Key, state: bool) {
     if state && !self.key_state.contains(key) {
