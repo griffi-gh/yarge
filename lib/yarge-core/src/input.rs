@@ -78,7 +78,7 @@ impl Input {
   pub fn get_joyp(&self) -> u8 {
     let mut output = 0;
     if self.select.contains(JoypSelect::Direction) {
-      output = filter(self.key_state).bits();
+      output |= filter(self.key_state).bits();
     }
     if self.select.contains(JoypSelect::Action) {
       output |= self.key_state.bits() >> 4;
