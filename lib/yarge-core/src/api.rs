@@ -21,6 +21,9 @@ impl Gameboy {
     self.running
   }
 
+  #[inline] pub fn set_key_state_all(&mut self, key_state: u8) {
+    self.cpu.mmu.input.set_key_state_all(key_state);
+  }
   #[inline] pub fn set_key_state(&mut self, key: crate::Key, state: bool) {
     self.cpu.mmu.input.set_key_state(key, state);
   }

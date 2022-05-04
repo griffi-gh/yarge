@@ -11,7 +11,7 @@ pub enum JoypSelect {
 
 #[bitflags]
 #[repr(u8)]
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Key {
   Right  = 1 << 0,
   Left   = 1 << 1,
@@ -21,6 +21,9 @@ pub enum Key {
   B      = 1 << 5,
   Select = 1 << 6,
   Start  = 1 << 7,
+}
+impl Default for Key {
+  fn default() -> Self { Self::Right } //0
 }
 
 fn filter(state: BitFlags<Key>) -> BitFlags<Key> {
@@ -50,6 +53,10 @@ impl Input {
     }
   }
 
+  pub fn set_key_state_all(&mut self, state: u8) {
+    //TODO check for interrupts
+    self.key_state = BitFlags::from_bits_truncate(state);
+  }
   pub fn set_key_state(&mut self, key: Key, state: bool) {
     if state && !self.key_state.contains(key) {
       let input_group = if key as u8 >= (1 << 4) {
@@ -62,10 +69,9 @@ impl Input {
       }
     }
     //TODO get rid of this
+    self.key_state.remove(key);
     if state {
       self.key_state.insert(key);
-    } else {
-      self.key_state.remove(key);
     }
   }
 
