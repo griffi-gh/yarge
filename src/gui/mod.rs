@@ -186,28 +186,29 @@ impl Gui for GuiState {
     {
       use VirtualKeyCode as KbKey;
       use gb::Key as GbKey;
-      const KEY_MAP: [(KbKey, GbKey); 18] = [
+      const KEY_MAP: [(KbKey, GbKey); 19] = [
         //Action keys
-        (KbKey::Q,      GbKey::A),
-        (KbKey::Z,      GbKey::A),
-        (KbKey::J,      GbKey::A),
-        (KbKey::E,      GbKey::B),
-        (KbKey::X,      GbKey::B),
-        (KbKey::K,      GbKey::B),
+        (KbKey::Q,       GbKey::A),
+        (KbKey::Z,       GbKey::A),
+        (KbKey::J,       GbKey::A),
+        (KbKey::E,       GbKey::B),
+        (KbKey::X,       GbKey::B),
+        (KbKey::K,       GbKey::B),
         //Select/start
-        (KbKey::LShift, GbKey::Select),
-        (KbKey::RShift, GbKey::Select),
-        (KbKey::Space,  GbKey::Start),
-        (KbKey::Return, GbKey::Start),
+        (KbKey::LShift,  GbKey::Select),
+        (KbKey::RShift,  GbKey::Select),
+        (KbKey::Space,   GbKey::Select),
+        (KbKey::LControl,GbKey::Start),
+        (KbKey::Return,  GbKey::Start),
         //Direction keys
-        (KbKey::W,      GbKey::Up),
-        (KbKey::A,      GbKey::Left),
-        (KbKey::S,      GbKey::Down),
-        (KbKey::D,      GbKey::Right),      
-        (KbKey::Up,     GbKey::Up),
-        (KbKey::Left,   GbKey::Left),
-        (KbKey::Down,   GbKey::Down),
-        (KbKey::Right,  GbKey::Right),
+        (KbKey::W,       GbKey::Up),
+        (KbKey::A,       GbKey::Left),
+        (KbKey::S,       GbKey::Down),
+        (KbKey::D,       GbKey::Right),      
+        (KbKey::Up,      GbKey::Up),
+        (KbKey::Left,    GbKey::Left),
+        (KbKey::Down,    GbKey::Down),
+        (KbKey::Right,   GbKey::Right),
       ];
       let mut state: u8 = 0;
       for (kb_key, gb_key) in KEY_MAP {
