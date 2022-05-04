@@ -21,6 +21,10 @@ impl Gameboy {
     self.running
   }
 
+  #[inline] pub fn set_key_state(&mut self, key: crate::Key, state: bool) {
+    self.cpu.mmu.input.set_key_state(key, state);
+  }
+
   #[inline] pub fn get_cpu_state(&self) -> CpuState {
     self.cpu.state
   }

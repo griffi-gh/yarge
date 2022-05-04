@@ -1,6 +1,6 @@
 use yarge_gui_framework as framework;
 use framework::{
-  //VirtualKeyCode,
+  VirtualKeyCode,
   WinitInputHelper,
   egui, InitProperties,
   Gui, Dimensions as Dim,
@@ -181,6 +181,44 @@ impl Gui for GuiState {
         }
       }
     }
+    use VirtualKeyCode as KbKey;
+    use gb::Key as GbKey;
+
+    const KEY_MAP: [(KbKey, GbKey); 18] = [
+      //Action keys
+      (KbKey::Q,      GbKey::A),
+      (KbKey::Z,      GbKey::A),
+      (KbKey::J,      GbKey::A),
+      (KbKey::E,      GbKey::B),
+      (KbKey::X,      GbKey::B),
+      (KbKey::K,      GbKey::B),
+      //Select/start
+      (KbKey::LShift, GbKey::Select),
+      (KbKey::RShift, GbKey::Select),
+      (KbKey::Space,  GbKey::Start),
+      (KbKey::Return, GbKey::Start),
+      //Direction keys
+      (KbKey::W,      GbKey::Up),
+      (KbKey::A,      GbKey::Left),
+      (KbKey::S,      GbKey::Down),
+      (KbKey::D,      GbKey::Right),      
+      (KbKey::Up,     GbKey::Up),
+      (KbKey::Left,   GbKey::Left),
+      (KbKey::Down,   GbKey::Down),
+      (KbKey::Right,  GbKey::Right),
+    ];
+
+    for (kb_key, gb_key) in KEY_MAP {
+      self.gb.set_key_state(
+        gb_key,
+        input.key_pressed(kb_key)
+      );
+    }
+    
+    self.gb.set_key_state(
+      GbKey::B,
+      input.key_pressed(KbKey::X)
+    );
     /*if input.key_pressed(VirtualKeyCode::A) {
       println!("A pressed");
     }*/
