@@ -731,7 +731,6 @@ macro_rules! rrca {
 
 macro_rules! daa {
   ($self: expr) => {
-    //TEST does m >=0x60 work? Do i need c|| in the second if?
     let n = $self.reg.f_n();
     let h = $self.reg.f_h();
     let c = $self.reg.f_c();
