@@ -1,6 +1,6 @@
 mod reg;
 mod instructions;
-use instructions::*;
+use instructions::{cpu_instructions, cpu_instructions_cb};
 pub use reg::Registers;
 use crate::{ Mmu, Res, YargeError, consts::INT_JMP_VEC };
 
@@ -186,10 +186,10 @@ impl Cpu {
 
       let mut op = self.fetch()?;
       if op != 0xCB { 
-        cpu_instructions!(self, op);
+        cpu_instructions(self, op);
       } else {
         op = self.fetch()?;
-        cpu_instructions_cb!(self, op);
+        cpu_instructions_cb(self, op);
       }
 
       #[cfg(feature = "breakpoints")] {

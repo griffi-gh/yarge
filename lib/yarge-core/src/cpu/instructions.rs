@@ -1,9 +1,12 @@
+use crate::{ Res, YargeError };
+use super::{ Cpu, CpuState };
+
 mod macros;
 mod macros_cb;
-pub(crate) use macros::*;
-pub(crate) use macros_cb::*;
+use macros::*;
+use macros_cb::*;
 
-macro_rules! cpu_instructions {
+macro_rules! cpu_instructions_macro {
   ($self: expr, $op: expr) => {
     {
       match($op) {
@@ -277,9 +280,8 @@ macro_rules! cpu_instructions {
     }
   };
 }
-pub(crate) use cpu_instructions;
 
-macro_rules! cpu_instructions_cb {
+macro_rules! cpu_instructions_cb_macro {
   ($self: expr, $op: expr) => {
     {
       match($op) {
@@ -558,4 +560,13 @@ macro_rules! cpu_instructions_cb {
     }
   };
 }
-pub(crate) use cpu_instructions_cb;
+
+pub fn cpu_instructions(cpu: &mut Cpu, op: u8) -> Res<()> {
+  cpu_instructions_macro!(cpu, op);
+  Ok(())
+}
+
+pub fn cpu_instructions_cb(cpu: &mut Cpu, op: u8) -> Res<()> {
+  cpu_instructions_cb_macro!(cpu, op);
+  Ok(())
+}
