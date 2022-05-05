@@ -90,7 +90,7 @@ impl Gameboy {
     let string = format!(
       "A: {:02X} F: {:02X} B: {:02X} C: {:02X} D: {:02X} E: {:02X} H: {:02X} L: {:02X} SP: {:04X} PC: 00:{:04X} ({:02X} {:02X} {:02X} {:02X})", 
       r.a(), r.f(), r.b(), r.c(), r.d(), r.e(), r.h(), r.l(), r.sp, r.pc,
-      m.rb(r.pc), m.rb(r.pc + 1), m.rb(r.pc + 2), m.rb(r.pc + 3)
+      m.rb(r.pc, true), m.rb(r.pc + 1, true), m.rb(r.pc + 2, true), m.rb(r.pc + 3, true)
     );
     #[cfg(feature = "logging-file")] {
       if self.log_file.is_none() {
