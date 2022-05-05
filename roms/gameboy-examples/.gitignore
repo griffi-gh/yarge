@@ -1,0 +1,17 @@
+*.rel
+*.asm
+*.sym
+*.lst
+*.map
+*.noi
+*.ihx
+*.lk
+*.gb
+
+# old GBDK
+gbdk
+*.o
+
+# misc
+00-*
+bak
