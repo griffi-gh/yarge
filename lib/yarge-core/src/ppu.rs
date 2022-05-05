@@ -16,6 +16,9 @@ pub struct Ppu {
   pub lyc: u8,
   pub scy: u8,
   pub scx: u8,
+  pub wy: u8,
+  pub wx: u8,
+  wly: u8,
   ly: u8,
   lx: u8, 
   hblank_len: usize,
@@ -46,6 +49,9 @@ impl Ppu {
       lyc: 0,
       scy: 0,
       scx: 0,
+      wy: 0,
+      wx: 0,
+      wly: 0,
       ly: 0,
       lx: 0,
       hblank_len: 204,
@@ -176,7 +182,13 @@ impl Ppu {
       PpuMode::OamSearch => {
         //TODO
         if self.cycles >= 80 {
-          self.bg_fetcher.start(self.scx, self.scy, self.ly, FetcherLayer::Background);
+          self.bg_fetcher.start(
+            self.scx,
+            self.scy,
+            self.ly, 
+            self.wly,
+            FetcherLayer::Background
+          );
           self.to_discard = self.scx & 7;
           self.mode(PpuMode::PxTransfer);
           self.check_stat(iif);

@@ -74,6 +74,8 @@ impl Mmu {
           },
           0xFF45 => self.ppu.lyc,
           0xFF47 => self.ppu.bgp,
+          0xFF4A => self.ppu.wy,
+          0xFF4B => self.ppu.wx,
           _ => 0xff
         }
       },
@@ -117,6 +119,8 @@ impl Mmu {
       0xFF43 => { self.ppu.scx = value; },
       0xFF45 => { self.ppu.lyc = value; },
       0xFF47 => { self.ppu.bgp = value; },
+      0xFF4A => { self.ppu.wy  = value; },
+      0xFF4B => { self.ppu.wx  = value; },
       0xFF50 => { self.bios_disabled = true; },
       //HRAM
       0xFF80..=0xFFFE => {

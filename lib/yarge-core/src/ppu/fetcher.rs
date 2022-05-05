@@ -1,4 +1,5 @@
 use arraydeque::ArrayDeque;
+use super::Ppu;
 use super::ppu_registers::Lcdc;
 use crate::consts::VRAM_SIZE;
 
@@ -41,6 +42,7 @@ pub struct Fetcher {
   fifo: ArrayDeque<[FifoPixel; 8]>,
   scx: u8, 
   scy: u8,
+  wly: u8,
   ly: u8,
   offset: u16,
   tile_idx: u16,
@@ -56,6 +58,7 @@ impl Fetcher {
       fifo: ArrayDeque::default(),
       scx: 0, 
       scy: 0,
+      wly: 0,
       ly: 0,
       offset: 0,
       tile_idx: 0,
@@ -64,10 +67,11 @@ impl Fetcher {
       sleep: 6,
     }
   }
-  pub fn start(&mut self, scx: u8, scy: u8, ly: u8, layer: FetcherLayer) {
+  pub fn start(&mut self, scx: u8, scy: u8, ly: u8, wly: u8, layer: FetcherLayer) {
     self.scx = scx;
     self.scy = scy;
     self.ly = ly;
+    self.wly = wly;
     self.layer = layer;
     self.fifo.clear();
     self.tile_idx = 0;
@@ -92,11 +96,17 @@ impl Fetcher {
       FetcherState::ReadTileId if self.cycle => {
         let addr: u16 = {
           let mut addr = self.offset;
-          if self.layer == FetcherLayer::Background {
-            addr += self.scx as u16 >> 3;
-            addr &= 0x1f;
-            addr += 32 * (self.ly.wrapping_add(self.scy) as u16 >> 3);
-            addr &= 0x3ff;
+          match self.layer {
+            FetcherLayer::Background => {
+              addr += self.scx as u16 >> 3;
+              addr &= 0x1f;
+              addr += 32 * (self.ly.wrapping_add(self.scy) as u16 >> 3);
+              //addr &= 0x3ff;
+            }
+            FetcherLayer::Window => {
+              //TODO verify
+              addr += ((self.wly >> 3) << 5) as u16;
+            }
           }
           addr + match self.layer {
             FetcherLayer::Background => lcdc.bg_tilemap_addr() - 0x8000,
