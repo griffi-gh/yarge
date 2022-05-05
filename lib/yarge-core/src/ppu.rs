@@ -72,15 +72,19 @@ impl Ppu {
   }
 
   pub fn get_stat(&self) -> u8 {
-    (self.mode as u8) | 
+    (self.lcdc.enable_display as u8 * self.mode as u8) | 
     (((self.ly == self.lyc) as u8) << 2) |
-    (self.stat_intr.into_u8() << 3)
+    (self.stat_intr.into_u8() << 3) |
+    0x80
   }
   pub fn set_stat(&mut self, value: u8) {
     self.stat_intr.set_from_u8(value >> 3);
   }
 
   fn oam_blocked(&self) -> bool {
+    if !self.lcdc.enable_display {
+      return false;
+    }
     match self.mode {
       PpuMode::OamSearch  => true,
       PpuMode::PxTransfer => true,
