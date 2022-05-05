@@ -73,7 +73,7 @@ impl Ppu {
 
   pub fn get_stat(&self) -> u8 {
     (self.mode as u8) | 
-    ((self.ly == self.lyc) as u8) << 2 |
+    (((self.ly == self.lyc) as u8) << 2) |
     (self.stat_intr.into_u8() << 3)
   }
   pub fn set_stat(&mut self, value: u8) {
