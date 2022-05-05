@@ -30,7 +30,7 @@ fn main() {
   } = args;
 
   println!(
-    "[ {} v.{} ({}; core v. {}; built on {}) ]",
+    "[ {} v.{} ({}; core v. {}; built on {}) ]\n{}/",
     NAME.unwrap_or("<name?>"),
     VERSION.unwrap_or("<version?>"),
     {
@@ -38,7 +38,8 @@ fn main() {
       #[cfg(not(debug_assertions))] { "debug" }
     },
     gb::VERSION.unwrap_or("<version?>"),
-    BUILD_TIME
+    BUILD_TIME,
+    GITHUB_REPO
   );
 
   #[cfg(not(feature = "gui"))]
