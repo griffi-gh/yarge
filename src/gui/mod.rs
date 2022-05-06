@@ -21,11 +21,14 @@ use crate::{
   VERSION,
   GITHUB_REPO,
 }; 
-mod error_words;
-use error_words::WORDS as ERROR_WORDS;
-mod icons;
 use ahash::AHasher;
 use rfd::FileDialog;
+
+mod error_words;
+mod icons;
+mod u16edit;
+use u16edit::u16_edit;
+use error_words::WORDS as ERROR_WORDS;
 
 const WIDTH: u32 = 160;
 const HEIGHT: u32 = 144;
@@ -48,6 +51,7 @@ pub struct GuiState {
   step_millis: f64,
   last_render: Instant,
   frame_time: f64,
+  enable_gui: bool,
 
   #[cfg(feature = "breakpoints")]
   mmu_breakpoint_addr: u16,
@@ -67,6 +71,7 @@ impl GuiState {
       step_millis: 0.,
       last_render: Instant::now(),
       frame_time: 0.,
+      enable_gui: true,
 
       #[cfg(feature = "breakpoints")]
       mmu_breakpoint_addr: 0,
@@ -90,71 +95,6 @@ impl GuiState {
   }
 }
 
-fn u16_edit(ui: &mut egui::Ui, name: &str, value: u16, allow_edit: bool, mul: u16) -> Option<u16> {
-  let mut ret = None;
-  ui.horizontal(|ui| {
-    ui.add_enabled_ui(allow_edit, |ui| {
-      if ui.button(
-        RichText::new("-").monospace()
-      ).on_hover_text(format!("-{:#X}", mul)).clicked() {
-        ret = Some(value.wrapping_sub(mul));
-      }
-    });
-    ui.monospace(name.to_uppercase());
-    let details = format!(
-      "Bin: {:#010b}_{:08b}\nDec: {}",
-      ((value & 0xFF00) >> 8) as u8,
-      (value & 0xFF) as u8,
-      value
-    );
-    if allow_edit {
-      let text_style = TextStyle::Monospace;
-      let w = egui::WidgetText::from("0000").into_galley(
-          ui, 
-          Some(false), 
-          f32::INFINITY, 
-          text_style.clone()
-        ).galley().size().x;
-      let mut value_str = format!("{:X}", value).to_string();
-      let was_zero = value == 0;
-      let res = ui.add(
-        egui::TextEdit::singleline(&mut value_str)
-          .font(text_style)
-          .cursor_at_end(true)
-          .desired_width(w)
-          .id_source("regview_".to_string() + name)
-          .hint_text("0")
-          .margin(egui::Vec2::from((0.,0.)))
-      ).on_hover_text(
-        details
-      );
-      if res.changed() {
-        if was_zero {
-          value_str = value_str.replace("0", "");
-        }
-        let x = u16::from_str_radix(
-          ("0".to_string() + value_str.trim()).as_str(), 
-          16
-        );
-        if x.is_ok() {
-          ret = Some(x.unwrap());
-        }
-      }
-    } else {
-      ui.monospace(format!("{:04X}", value))
-        .on_hover_text(format!("{}\nPause emulation to change", details));
-    }
-    ui.add_enabled_ui(allow_edit, |ui| {
-      if ui.button(
-        RichText::new("+").monospace()
-      ).on_hover_text(format!("+{:#X}", mul)).clicked() {
-        ret = Some(value.wrapping_add(mul));
-      }
-    });
-  });
-  ret
-}
-
 impl Gui for GuiState {
   fn prepare(&mut self) {
     let instant = Instant::now();
@@ -173,6 +113,7 @@ impl Gui for GuiState {
     }
   }
   fn handle_input(&mut self, input: &WinitInputHelper) {
+    
     if let Some(file) = input.dropped_file() {
       if let Ok(data) = fs::read(file) {
         self.gb.reset();
@@ -185,6 +126,14 @@ impl Gui for GuiState {
     //TODO make configurable
     {
       use VirtualKeyCode as KbKey;
+
+      //Hide ui
+      if input.key_released(KbKey::G) && input.held_control() {
+        self.enable_gui ^= true;
+      }
+
+      //Update gb keys
+
       use gb::Key as GbKey;
       const KEY_MAP: [(KbKey, GbKey); 19] = [
         //Action keys
@@ -220,6 +169,8 @@ impl Gui for GuiState {
     }
   }
   fn gui(&mut self, ui: &Context, _dim: Dim<f32>) -> bool {
+    if !self.enable_gui { return false; }
+
     let mut exit = false;
 
     //TODO fix this ugly shit
@@ -603,6 +554,7 @@ impl Gui for GuiState {
       });
 
       //FOOTER
+      ui.label("Press CTRL+G to hide this window");
       ui.separator();
       ui.horizontal(|ui| {
         ui.label(format!("{} v.{} (core: v.{}; {} build)",
