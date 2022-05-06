@@ -121,20 +121,12 @@ impl Gameboy {
   }
 
   pub fn run_for_frame(&mut self) -> Res<()> {
+    if !self.running { return Ok(()); }
     use consts::CYCLES_PER_FRAME;
-    if !self.running {
-      return Ok(());
-    }
-    if self.is_rendering() {
-      self.reset_frame_ready();
-      while !self.get_frame_ready() {
-        self.step()?;
-      }
-    } else {
-      let mut t: usize = 0;
-      while t < CYCLES_PER_FRAME {
-        t += self.step()?;
-      }
+    self.reset_frame_ready();
+    let mut cycles: usize = 0;
+    while !(self.get_frame_ready() || cycles >= CYCLES_PER_FRAME) {
+      cycles += self.step()?;
     }
     Ok(())
   }
