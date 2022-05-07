@@ -105,9 +105,9 @@ impl Fetcher {
     }
     let fetch_addr = || {
       let tile = self.tile_idx as usize * 16;
-      match self.layer  { 
-        FetcherLayer::Background => tile + (2 * ((self.ly as usize + self.scy as usize) & 7)),
-        FetcherLayer::Window     => tile + (2 * ((self.wly as usize) & 7)),
+      match self.layer { 
+        FetcherLayer::Background => tile + (2 * (self.ly.wrapping_add(self.scy) & 7)) as usize,
+        FetcherLayer::Window     => tile + (2 * (self.wly & 7) as usize),
       }
     };
     match self.state {
