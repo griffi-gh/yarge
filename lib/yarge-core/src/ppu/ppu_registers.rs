@@ -55,7 +55,7 @@ impl Lcdc {
   }
   pub fn win_tilemap_addr(&self) -> u16 {
     //Not sure if it's correct?
-    if self.win_tilemap_addr { 0x9800 } else { 0x9C00 }
+    if self.win_tilemap_addr { 0x9C00 } else { 0x9800 }
   }
   pub fn bg_tiledata_addr(&self) -> u16 {
     if self.tiledata_addr { 0x8800 } else { 0x8000 }
