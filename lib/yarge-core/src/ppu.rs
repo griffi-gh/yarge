@@ -1,7 +1,7 @@
 mod oam;
 mod ppu_registers;
 mod fetcher;
-use fetcher::{Fetcher, FetcherLayer, FifoPixel};
+use fetcher::{Fetcher, FifoPixel};
 use oam::OamMemory;
 use ppu_registers::{Lcdc, PpuMode, StatInterrupts};
 use crate::{
