@@ -139,6 +139,12 @@ impl Ppu {
     self.stat_prev = stat;
   }
 
+  fn window_in_ly(&self) -> bool {
+    self.lcdc.enable_win && 
+    (self.ly > self.wy) && 
+    (self.wx < (WIDTH + 7) as u8)
+  }
+
   fn tick_inner(&mut self, iif: &mut u8) {
     if !self.lcdc.enable_display {
       if self.display_cleared {
@@ -158,6 +164,9 @@ impl Ppu {
       PpuMode::HBlank => {
         if self.cycles >= self.hblank_len {
           self.ly += 1;
+          if self.window_in_ly() {
+            self.wly += 1;
+          }
           if self.ly >= 144 {
             self.mode(PpuMode::VBlank);
             self.frame_ready = true;
@@ -173,6 +182,7 @@ impl Ppu {
           self.cycles = 0;
           self.ly += 1;
           if self.ly >= 155 {
+            self.wly = 0;
             self.ly = 0;
             self.mode(PpuMode::OamSearch);
           }
@@ -183,11 +193,8 @@ impl Ppu {
         //TODO
         if self.cycles >= 80 {
           self.bg_fetcher.start(
-            self.scx,
-            self.scy,
-            self.ly, 
-            self.wly,
-            FetcherLayer::Background
+            self.scx, self.scy,
+            self.ly, self.wly
           );
           self.to_discard = self.scx & 7;
           self.mode(PpuMode::PxTransfer);
@@ -210,6 +217,9 @@ impl Ppu {
           let addr = (self.ly as usize * WIDTH) + self.lx as usize;
           self.display[addr] = (self.bgp >> (color << 1)) & 0b11;
           self.lx += 1;
+          if self.window_in_ly() && (self.lx >= self.wx) {
+            self.bg_fetcher.switch_to_window();
+          }
           if self.lx >= WIDTH as u8 { 
             #[cfg(debug_assertions)] {
               assert!(self.cycles >= 172, "PxTransfer took less then 172 cycles: {}", self.cycles);

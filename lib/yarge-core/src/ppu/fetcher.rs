@@ -67,18 +67,30 @@ impl Fetcher {
       sleep: 6,
     }
   }
-  pub fn start(&mut self, scx: u8, scy: u8, ly: u8, wly: u8, layer: FetcherLayer) {
+  pub fn start(&mut self, scx: u8, scy: u8, ly: u8, wly: u8) {
     self.scx = scx;
     self.scy = scy;
     self.ly = ly;
     self.wly = wly;
-    self.layer = layer;
-    self.fifo.clear();
+    self.layer = FetcherLayer::Background;
     self.tile_idx = 0;
     self.offset = 0;
     self.cycle = false;
     self.state = FetcherState::ReadTileId;
     self.sleep = 6;
+    self.fifo.clear();
+  }
+  pub fn switch_to_window(&mut self) -> bool {
+    if self.layer == FetcherLayer::Window {
+      return false;
+    }
+    self.layer = FetcherLayer::Window;
+    self.cycle = false;
+    self.tile_idx = 0;
+    self.offset = 0;
+    self.state = FetcherState::ReadTileId;
+    self.fifo.clear();
+    true
   }
   pub fn update(&mut self, scx: u8, scy: u8) {
     self.scx = scx;
@@ -102,7 +114,7 @@ impl Fetcher {
               addr &= 0x1f;
               addr += 32 * (self.ly.wrapping_add(self.scy) as u16 >> 3);
               //addr &= 0x3ff;
-            }
+            },
             FetcherLayer::Window => {
               //TODO verify
               addr += ((self.wly >> 3) << 5) as u16;
