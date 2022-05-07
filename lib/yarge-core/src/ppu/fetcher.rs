@@ -11,6 +11,8 @@ pub struct FifoPixel {
 }
 impl FifoPixel {
   pub fn from_color(color: u8) -> Self {
+    #[cfg(debug_assertions)]
+    assert!(color < 4, "Invalid color");
     Self {
       color, 
       ..Default::default()
@@ -164,6 +166,9 @@ impl Fetcher {
     self.fifo.push_back(elem)
   }
   pub fn pop(&mut self) -> Option<FifoPixel> {
+    if self.layer == FetcherLayer::Window {
+      return Some(FifoPixel::from_color(2));
+    }
     self.fifo.pop_front()
   }
   pub fn len(&self) -> usize {

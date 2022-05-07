@@ -141,7 +141,7 @@ impl Ppu {
 
   fn window_in_ly(&self) -> bool {
     self.lcdc.enable_win && 
-    (self.ly > self.wy) && 
+    (self.ly >= self.wy) && 
     (self.wx < (WIDTH + 7) as u8)
   }
 
@@ -217,7 +217,7 @@ impl Ppu {
           let addr = (self.ly as usize * WIDTH) + self.lx as usize;
           self.display[addr] = (self.bgp >> (color << 1)) & 0b11;
           self.lx += 1;
-          if self.window_in_ly() && (self.lx >= self.wx) {
+          if self.window_in_ly() && ((self.lx + 7) >= self.wx) {
             self.bg_fetcher.switch_to_window();
           }
           if self.lx >= WIDTH as u8 { 
