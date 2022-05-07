@@ -88,9 +88,8 @@ impl Ppu {
   }
 
   fn oam_blocked(&self) -> bool {
-    if !self.lcdc.enable_display {
-      return false;
-    }
+    #[cfg(feature = "ly-stub")]  { return false; }
+    if !self.lcdc.enable_display { return false; }
     match self.mode {
       PpuMode::OamSearch  => true,
       PpuMode::PxTransfer => true,
@@ -98,6 +97,7 @@ impl Ppu {
     }
   }
   fn vram_blocked(&self) -> bool {
+    #[cfg(feature = "ly-stub")] { return false; }
     self.mode == PpuMode::PxTransfer
   }
 
