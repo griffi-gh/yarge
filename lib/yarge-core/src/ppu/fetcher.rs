@@ -104,7 +104,11 @@ impl Fetcher {
       return;
     }
     let fetch_addr = || {
-      (self.tile_idx as usize * 16) + (2 * ((self.ly as usize + self.scy as usize) & 7))
+      let tile = self.tile_idx as usize * 16;
+      match self.layer  { 
+        FetcherLayer::Background => tile + (2 * ((self.ly as usize + self.scy as usize) & 7)),
+        FetcherLayer::Window     => tile + (2 * ((self.wly as usize) & 7)),
+      }
     };
     match self.state {
       FetcherState::ReadTileId if self.cycle => {
