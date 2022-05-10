@@ -154,6 +154,7 @@ impl Ppu {
       *self.display = [0; FB_SIZE];
       self.ly = 0;
       self.lx = 0;
+      self.wly = 0;
       self.stat_prev = false;
       self.mode(PpuMode::OamSearch); //resets cycles too
       self.display_cleared = true;
@@ -166,6 +167,10 @@ impl Ppu {
           self.ly += 1;
           if self.window_in_ly() {
             self.wly += 1;
+            #[cfg(debug_assertions)] {
+              //wly shouldn't outrun ly
+              assert!(self.wly <= self.ly);
+            }
           }
           if self.ly >= 144 {
             self.mode(PpuMode::VBlank);
@@ -192,11 +197,14 @@ impl Ppu {
       PpuMode::OamSearch => {
         //TODO
         if self.cycles >= 80 {
+          self.to_discard = self.scx & 7;
           self.bg_fetcher.start(
             self.scx, self.scy,
             self.ly, self.wly
           );
-          self.to_discard = self.scx & 7;
+          if self.window_in_ly() && (self.wx <= 7) {
+            self.bg_fetcher.switch_to_window();
+          }
           self.mode(PpuMode::PxTransfer);
           self.check_stat(iif);
         }
@@ -207,7 +215,7 @@ impl Ppu {
         self.bg_fetcher.tick(&self.lcdc, &self.vram);
         if self.bg_fetcher.len() > 0 {
           let FifoPixel { mut color, .. } = self.bg_fetcher.pop().unwrap();
-          if self.to_discard > 0 {
+          if !self.bg_fetcher.is_window() && self.to_discard > 0 {
             self.to_discard -= 1;
             return;
           }

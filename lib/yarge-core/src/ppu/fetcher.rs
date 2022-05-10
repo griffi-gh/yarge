@@ -39,8 +39,8 @@ pub enum FetcherLayer {
 }
 
 pub struct Fetcher {
-  cycle: bool,
   state: FetcherState,
+  cycle: bool,
   fifo: ArrayDeque<[FifoPixel; 8]>,
   scx: u8, 
   scy: u8,
@@ -83,7 +83,7 @@ impl Fetcher {
     self.fifo.clear();
   }
   pub fn switch_to_window(&mut self) -> bool {
-    if self.layer == FetcherLayer::Window {
+    if self.is_window() {
       return false;
     }
     self.layer = FetcherLayer::Window;
@@ -93,6 +93,9 @@ impl Fetcher {
     self.state = FetcherState::ReadTileId;
     self.fifo.clear();
     true
+  }
+  pub fn is_window(&self) -> bool {
+    self.layer == FetcherLayer::Window
   }
   pub fn update(&mut self, scx: u8, scy: u8) {
     self.scx = scx;
