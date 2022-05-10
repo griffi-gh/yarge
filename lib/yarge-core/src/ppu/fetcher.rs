@@ -81,6 +81,9 @@ impl Fetcher {
     self.state = FetcherState::ReadTileId;
     self.sleep = 6;
     self.fifo.clear();
+
+    //TODO get rid of this
+    self.wly = self.wly.wrapping_sub(1);
   }
   pub fn switch_to_window(&mut self) -> bool {
     if self.is_window() {

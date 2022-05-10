@@ -165,15 +165,15 @@ impl Ppu {
       PpuMode::HBlank => {
         if self.cycles >= self.hblank_len {
           self.ly += 1;
-          if self.window_in_ly() {
-            self.wly += 1;
-          }
-          if self.ly >= 144 {
+          if self.ly < 144 {
+            if self.window_in_ly() {
+              self.wly += 1;
+            }
+            self.mode(PpuMode::OamSearch);
+          } else {
             self.mode(PpuMode::VBlank);
             self.frame_ready = true;
             Cpu::set_interrupt(iif, Interrupt::VBlank);
-          } else {
-            self.mode(PpuMode::OamSearch);
           }
           self.check_stat(iif);
         }
