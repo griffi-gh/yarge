@@ -167,10 +167,6 @@ impl Ppu {
           self.ly += 1;
           if self.window_in_ly() {
             self.wly += 1;
-            #[cfg(debug_assertions)] {
-              //wly shouldn't outrun ly
-              assert!(self.wly <= self.ly);
-            }
           }
           if self.ly >= 144 {
             self.mode(PpuMode::VBlank);
