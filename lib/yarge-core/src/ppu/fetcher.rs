@@ -1,5 +1,4 @@
 use arraydeque::ArrayDeque;
-use super::Ppu;
 use super::ppu_registers::Lcdc;
 use crate::consts::VRAM_SIZE;
 
@@ -38,7 +37,12 @@ pub enum FetcherLayer {
   Background, Window
 }
 
-pub struct Fetcher {
+pub mod fetcher_type {
+  //pub const SPRITE: bool = true;
+  pub const BACKGROUND: bool = false;
+}
+
+pub struct Fetcher<const IS_SPRITE: bool> {
   state: FetcherState,
   cycle: bool,
   fifo: ArrayDeque<[FifoPixel; 8]>,
@@ -52,7 +56,7 @@ pub struct Fetcher {
   layer: FetcherLayer,
   sleep: u8,
 }
-impl Fetcher {
+impl<const IS_SPRITE: bool> Fetcher<IS_SPRITE> {
   pub fn new() -> Self { 
     Self {
       cycle: false,

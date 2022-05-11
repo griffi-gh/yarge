@@ -1,7 +1,7 @@
 mod oam;
 mod ppu_registers;
 mod fetcher;
-use fetcher::{Fetcher, FifoPixel};
+use fetcher::{Fetcher, FifoPixel, fetcher_type::{BACKGROUND}};
 use oam::OamMemory;
 use ppu_registers::{Lcdc, PpuMode, StatInterrupts};
 use crate::{
@@ -28,7 +28,7 @@ pub struct Ppu {
   oam: OamMemory,
   lcdc: Lcdc,
   display_cleared: bool,
-  bg_fetcher: Fetcher,
+  bg_fetcher: Fetcher<BACKGROUND>,
   to_discard: u8,
   stat_intr: StatInterrupts, 
   stat_prev: bool,
