@@ -166,9 +166,6 @@ impl Ppu {
         if self.cycles >= self.hblank_len {
           self.ly += 1;
           if self.ly < 144 {
-            if self.window_in_ly() {
-              self.wly += 1;
-            }
             self.mode(PpuMode::OamSearch);
           } else {
             self.mode(PpuMode::VBlank);
@@ -231,6 +228,10 @@ impl Ppu {
             }
             self.lx = 0;
             self.hblank_len = 376 - self.cycles;
+            //why do i need to increment it HERE?
+            if self.window_in_ly() {
+              self.wly += 1;
+            }
             self.mode(PpuMode::HBlank);
             self.check_stat(iif);
           }
