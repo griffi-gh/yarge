@@ -81,9 +81,6 @@ impl Fetcher {
     self.state = FetcherState::ReadTileId;
     self.sleep = 6;
     self.fifo.clear();
-
-    //TODO get rid of this
-    self.wly = self.wly.wrapping_sub(1);
   }
   pub fn switch_to_window(&mut self) -> bool {
     if self.is_window() {
@@ -113,7 +110,7 @@ impl Fetcher {
       let tile = self.tile_idx as usize * 16;
       match self.layer { 
         FetcherLayer::Background => tile + (2 * (self.ly.wrapping_add(self.scy) & 7)) as usize,
-        FetcherLayer::Window     => tile + (2 * (self.wly & 7) as usize),
+        FetcherLayer::Window     => tile + (2 * ((self.wly as usize) & 7)),
       }
     };
     match self.state {
@@ -125,11 +122,10 @@ impl Fetcher {
               addr += self.scx as u16 >> 3;
               addr &= 0x1f;
               addr += 32 * (self.ly.wrapping_add(self.scy) as u16 >> 3);
-              //addr &= 0x3ff;
             },
             FetcherLayer::Window => {
               //TODO verify
-              addr += ((self.wly >> 3) << 5) as u16;
+              addr += (self.wly as u16 >> 3) << 5;
             }
           }
           addr + match self.layer {
