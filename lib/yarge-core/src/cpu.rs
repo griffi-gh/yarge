@@ -181,7 +181,6 @@ impl Cpu {
     } 
     if self.ime_pending {
       self.ime_pending = false;
-      return;
     }
   }
 
@@ -207,7 +206,6 @@ impl Cpu {
     } else {
       self.cycle();
     }
-    //self.check_interrupts();
     #[cfg(debug_assertions)]
     assert!(self.t >= 4);
     Ok(self.t)
