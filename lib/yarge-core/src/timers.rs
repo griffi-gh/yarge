@@ -57,7 +57,7 @@ impl Timers {
     self.div = self.div.wrapping_add(4);
     let shift = TIMER_CLOCKS[(self.rate & 3) as usize];
     let div_bit = (self.div & (1 << shift)) != 0;
-    let tima_inc = self.enable & div_bit;
+    let tima_inc = self.enable && div_bit;
     if self.tima_inc && !tima_inc {
       let (tima, carry) = self.tima.overflowing_add(1);
       if carry {
