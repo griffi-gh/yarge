@@ -139,7 +139,7 @@ impl Cpu {
   }
 
   pub fn set_interrupt(iif: &mut u8, int: Interrupt) {
-    *iif = *iif | (1 << int as u8);
+    *iif |= 1 << int as u8;
   }
 
   fn dispatch_interrupt(&mut self, int: usize) {
@@ -157,10 +157,14 @@ impl Cpu {
     for _ in 0..5 { self.cycle(); } 
   }
 
+  fn check_ime(&mut self) {
+    if self.ime_pending {
+      self.ime = true;
+    }
+  }
   fn check_interrupts(&mut self) {
     if self.ime_pending {
       self.ime_pending = false;
-      self.ime = true;
       return;
     }
     let check = self.mmu.iie & self.mmu.iif;
@@ -179,7 +183,7 @@ impl Cpu {
 
   pub fn step(&mut self) -> Res<usize> {
     self.t = 0;
-    self.check_interrupts();
+    self.check_ime();
     if self.state == CpuState::Running {
       #[cfg(feature = "breakpoints")]
       let pc_value = self.reg.pc;
@@ -198,6 +202,7 @@ impl Cpu {
     } else {
       self.cycle();
     }
+    self.check_interrupts();
     #[cfg(debug_assertions)]
     assert!(self.t >= 4);
     Ok(self.t)
