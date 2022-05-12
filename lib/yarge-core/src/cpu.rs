@@ -159,31 +159,36 @@ impl Cpu {
 
   fn check_ime(&mut self) {
     if self.ime_pending {
-      self.ime = true;
+      if self.ime {
+        self.ime_pending = false;
+      } else {
+        self.ime = true;
+      }
     }
   }
   fn check_interrupts(&mut self) {
-    if self.ime_pending {
-      self.ime_pending = false;
-      return;
-    }
     let check = self.mmu.iie & self.mmu.iif;
     if check != 0 {
       if self.state == CpuState::Halt {
         self.state = CpuState::Running;
       }
-      if self.ime {
+      if self.ime && !self.ime_pending {
         let int_type = check.trailing_zeros() as usize;
         if int_type < 5 {
           self.dispatch_interrupt(int_type);
         }
       }
     } 
+    if self.ime_pending {
+      self.ime_pending = false;
+      return;
+    }
   }
 
   pub fn step(&mut self) -> Res<usize> {
     self.t = 0;
     self.check_ime();
+    self.check_interrupts();
     if self.state == CpuState::Running {
       #[cfg(feature = "breakpoints")]
       let pc_value = self.reg.pc;
@@ -202,7 +207,7 @@ impl Cpu {
     } else {
       self.cycle();
     }
-    self.check_interrupts();
+    //self.check_interrupts();
     #[cfg(debug_assertions)]
     assert!(self.t >= 4);
     Ok(self.t)
