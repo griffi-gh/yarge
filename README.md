@@ -7,7 +7,7 @@
 <!--BADGES-->
 <div align="center">
   <a href="https://github.com/griffi-gh/yarge/blob/master/LICENSE">
-    <img alt="license" src="https://shields.io/github/license/griffi-gh/yarge " border="0">
+    <img alt="license" src="https://shields.io/github/license/griffi-gh/yarge/ " border="0">
   </a>
   <a href="https://github.com/rust-secure-code/safety-dance/">
     <img alt="unsafe forbidden" src="https://img.shields.io/badge/unsafe-forbidden-success.svg" border="0">
