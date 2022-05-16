@@ -38,7 +38,7 @@ pub enum FetcherLayer {
 }
 
 pub mod fetcher_type {
-  //pub const SPRITE: bool = true;
+  pub const SPRITE: bool = true;
   pub const BACKGROUND: bool = false;
 }
 
