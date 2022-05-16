@@ -45,7 +45,7 @@ pub mod fetcher_type {
 pub struct Fetcher<const TYPE: bool> {
   state: FetcherState,
   cycle: bool,
-  fifo: ArrayDeque<[FifoPixel; 8]>,
+  fifo: Box<ArrayDeque<[FifoPixel; 8]>>,
   scx: u8, 
   scy: u8,
   wly: u8,
@@ -61,7 +61,7 @@ impl<const TYPE: bool> Fetcher<TYPE> {
     Self {
       cycle: false,
       state: FetcherState::default(),
-      fifo: ArrayDeque::default(),
+      fifo: Box::new(ArrayDeque::default()),
       scx: 0, 
       scy: 0,
       wly: 0,
