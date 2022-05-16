@@ -42,7 +42,7 @@ pub mod fetcher_type {
   pub const BACKGROUND: bool = false;
 }
 
-pub struct Fetcher<const IS_SPRITE: bool> {
+pub struct Fetcher<const TYPE: bool> {
   state: FetcherState,
   cycle: bool,
   fifo: ArrayDeque<[FifoPixel; 8]>,
@@ -56,7 +56,7 @@ pub struct Fetcher<const IS_SPRITE: bool> {
   layer: FetcherLayer,
   sleep: u8,
 }
-impl<const IS_SPRITE: bool> Fetcher<IS_SPRITE> {
+impl<const TYPE: bool> Fetcher<TYPE> {
   pub fn new() -> Self { 
     Self {
       cycle: false,
