@@ -1,7 +1,5 @@
-pub use egui;
-pub use pixels;
+//winit
 pub use winit;
-
 use winit::{
   window::WindowBuilder,
   event_loop::{ControlFlow, EventLoop},
@@ -16,8 +14,11 @@ pub use winit::{
 #[cfg(target_os = "windows")]
 use winit::platform::windows::WindowExtWindows;
 
+//winit_input_helper
 pub use winit_input_helper::WinitInputHelper;
 
+//pixels
+pub use pixels;
 use pixels::{
   PixelsContext,
   Pixels, 
@@ -25,18 +26,19 @@ use pixels::{
 };
 pub use pixels::wgpu;
 
+//egui
+pub use egui;
 use egui::{
   ClippedPrimitive,
   Context as EguiCtx,
   TexturesDelta
 };
 
-use egui_wgpu::{
-  renderer::{RenderPass, ScreenDescriptor}
-};
+//egui_wgpu
+use egui_wgpu::renderer::{RenderPass, ScreenDescriptor};
 
+//Constants and types
 pub const PKG_NAME: Option<&str> = option_env!("CARGO_PKG_NAME");
-
 pub type Dimensions<T> = (T, T);
 
 #[allow(unused_variables)]
@@ -208,6 +210,7 @@ pub fn init<T: 'static + Gui>(state: T, prop: InitProperties) {
     (pixels, framework)
   };
 
+  //Main event loop
   event_loop.run(move |event, _, control_flow| {
     // Handle input events
     if input.update(&event) {
@@ -217,6 +220,7 @@ pub fn init<T: 'static + Gui>(state: T, prop: InitProperties) {
         return;
       }
 
+      //Set Scale factor
       if let Some(scale_factor) = input.scale_factor() {
         framework.scale_factor(scale_factor);
       }
@@ -227,7 +231,10 @@ pub fn init<T: 'static + Gui>(state: T, prop: InitProperties) {
         pixels.resize_surface(size.width, size.height);
       }
 
+      //Handle input
       framework.handle_input(&input);
+
+      //Redraw
       window.request_redraw();
     }
     match event {
@@ -236,23 +243,21 @@ pub fn init<T: 'static + Gui>(state: T, prop: InitProperties) {
       }
       // Draw the current frame
       Event::RedrawRequested(_) => {
+        // Call prepare callback
         framework.state.prepare();
         // Render
         framework.state.render(pixels.get_frame());
-        // Prepare egui
+        // Prepare framework and check for exit status
         let exit_requested = framework.prepare(&window);
         if exit_requested {
           *control_flow = ControlFlow::Exit; 
         }
-        let render_result = pixels.render_with(|encoder, render_target, context| {
+        // Render
+        pixels.render_with(|encoder, render_target, context| {
           context.scaling_renderer.render(encoder, render_target);
           framework.render(encoder, render_target, context);
           Ok(())
-        });
-        if render_result.is_err() {
-          *control_flow = ControlFlow::Exit;
-        }
-        render_result.unwrap();
+        }).unwrap();
       }
       _ => (),
     }
