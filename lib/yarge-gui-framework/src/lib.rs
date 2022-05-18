@@ -140,6 +140,7 @@ impl<T: Gui> Framework<T> {
       &self.paint_jobs,
       &self.screen_descriptor,
     );
+    //Execute the render pass
     self.rpass.execute(
       encoder,
       render_target,
@@ -147,8 +148,9 @@ impl<T: Gui> Framework<T> {
       &self.screen_descriptor,
       None,
     );
+    //free the textures
     for ref id in delta.free {
-      self.rpass.free_texture(id)
+      self.rpass.free_texture(id);
     }
   }
 
