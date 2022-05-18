@@ -7,9 +7,9 @@ edition = "2021"
 rust-version = "1.60"
 
 [dependencies]
-egui = "0.17"
-egui_wgpu_backend = "0.17"
-egui-winit = "0.17"
+egui = "0.18"
+egui-wgpu = "0.18"
+egui-winit = "0.18"
 winit = "0.26"
 winit_input_helper = "0.12"
 pixels = "0.9"

@@ -26,15 +26,13 @@ use pixels::{
 pub use pixels::wgpu;
 
 use egui::{
-  ClippedMesh,
+  ClippedPrimitive,
   Context as EguiCtx,
   TexturesDelta
 };
 
-use egui_wgpu_backend::{
-  RenderPass,
-  ScreenDescriptor,
-  BackendError
+use egui_wgpu::{
+  renderer::{RenderPass, ScreenDescriptor}
 };
 
 pub const PKG_NAME: Option<&str> = option_env!("CARGO_PKG_NAME");
@@ -55,7 +53,7 @@ struct Framework<T: Gui> {
   egui_state: egui_winit::State,
   screen_descriptor: ScreenDescriptor,
   rpass: RenderPass,
-  paint_jobs: Vec<ClippedMesh>,
+  paint_jobs: Vec<ClippedPrimitive>,
   texture_delta: Option<TexturesDelta>,
 }
 impl<T: Gui> Framework<T> {
@@ -70,9 +68,8 @@ impl<T: Gui> Framework<T> {
       scale_factor
     );
     let screen_descriptor = ScreenDescriptor {
-      physical_width: width,
-      physical_height: height,
-      scale_factor
+      size_in_pixels: [width, height],
+      pixels_per_point: scale_factor
     };
     let rpass = RenderPass::new(
       pixels.device(), 
@@ -85,7 +82,7 @@ impl<T: Gui> Framework<T> {
       egui_state,
       screen_descriptor,
       rpass,
-      paint_jobs: Vec::<ClippedMesh>::new(),
+      paint_jobs: Vec::<ClippedPrimitive>::new(),
       texture_delta: None
     }
   }
@@ -95,12 +92,11 @@ impl<T: Gui> Framework<T> {
   }
   pub fn resize(&mut self, width: u32, height: u32) {
     if width > 0 && height > 0 {
-      self.screen_descriptor.physical_width = width;
-      self.screen_descriptor.physical_height = height;
+      self.screen_descriptor.size_in_pixels = [width, height];
     }
   }
   pub fn scale_factor(&mut self, scale_factor: f64) {
-    self.screen_descriptor.scale_factor = scale_factor as f32;
+    self.screen_descriptor.pixels_per_point = scale_factor as f32;
   }
   pub fn prepare(&mut self, window: &Window) -> bool {
     // Run the egui frame and create all paint jobs to prepare for rendering.
@@ -127,14 +123,17 @@ impl<T: Gui> Framework<T> {
     encoder: &mut wgpu::CommandEncoder,
     render_target: &wgpu::TextureView,
     context: &PixelsContext,
-  ) -> Result<(), BackendError> {
+  ) {
     // Upload all resources to the GPU.
     let delta = self.texture_delta.take().unwrap();
-    self.rpass.add_textures(
-      &context.device,
-      &context.queue, 
-      &delta
-    )?;
+    for (texture_id, ref image_delta) in delta.set {
+      self.rpass.update_texture(
+        &context.device,
+        &context.queue,
+        texture_id, 
+        image_delta
+      );
+    }
     self.rpass.update_buffers(
       &context.device,
       &context.queue,
@@ -147,9 +146,10 @@ impl<T: Gui> Framework<T> {
       &self.paint_jobs,
       &self.screen_descriptor,
       None,
-    )?;
-    self.rpass.remove_textures(delta)?;
-    Ok(())
+    );
+    for ref id in delta.free {
+      self.rpass.free_texture(id)
+    }
   }
 
   pub fn handle_input(&mut self, input: &WinitInputHelper) {
@@ -244,7 +244,7 @@ pub fn init<T: 'static + Gui>(state: T, prop: InitProperties) {
         }
         let render_result = pixels.render_with(|encoder, render_target, context| {
           context.scaling_renderer.render(encoder, render_target);
-          framework.render(encoder, render_target, context)?;
+          framework.render(encoder, render_target, context);
           Ok(())
         });
         if render_result.is_err() {
