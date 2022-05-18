@@ -35,6 +35,16 @@ impl Into<u16> for U16Union {
 impl From<u16> for U16Union {
   fn from(val: u16) -> Self { Self::new(val) }
 }
+impl Into<(u8, u8)> for U16Union {
+  fn into(self) -> (u8, u8) {
+    (self.get_a(), self.get_b())
+  }
+}
+impl From<(u8, u8)> for U16Union {
+  fn from(val: (u8, u8)) -> Self {
+    u16::from_be_bytes([val.0, val.1]).into()
+  }
+}
 impl Default for U16Union {
   fn default() -> Self { Self::new(0) }
 }
