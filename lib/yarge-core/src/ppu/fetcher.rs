@@ -1,5 +1,5 @@
 use arraydeque::ArrayDeque;
-use super::ppu_registers::Lcdc;
+use super::{ppu_registers::Lcdc, oam::OamBuffer};
 use crate::consts::VRAM_SIZE;
 
 #[derive(Default)]
@@ -42,7 +42,7 @@ pub mod fetcher_type {
   pub const BACKGROUND: bool = false;
 }
 
-pub struct Fetcher<const TYPE: bool> {
+pub struct Fetcher<const IS_SPRITE: bool> {
   state: FetcherState,
   cycle: bool,
   fifo: Box<ArrayDeque<[FifoPixel; 8]>>,
@@ -56,7 +56,7 @@ pub struct Fetcher<const TYPE: bool> {
   layer: FetcherLayer,
   sleep: u8,
 }
-impl<const TYPE: bool> Fetcher<TYPE> {
+impl<const IS_SPRITE: bool> Fetcher<IS_SPRITE> {
   pub fn new() -> Self { 
     Self {
       cycle: false,
@@ -119,25 +119,30 @@ impl<const TYPE: bool> Fetcher<TYPE> {
     };
     match self.state {
       FetcherState::ReadTileId if self.cycle => {
-        let addr: u16 = {
-          let mut addr = self.offset;
-          match self.layer {
-            FetcherLayer::Background => {
-              addr += self.scx as u16 >> 3;
-              addr &= 0x1f;
-              addr += 32 * (self.ly.wrapping_add(self.scy) as u16 >> 3);
-            },
-            FetcherLayer::Window => {
-              //TODO verify
-              addr += (self.wly as u16 >> 3) << 5;
+        if IS_SPRITE {
+          let addr: u16 = {
+            let mut addr = self.offset;
+            match self.layer {
+              FetcherLayer::Background => {
+                addr += self.scx as u16 >> 3;
+                addr &= 0x1f;
+                addr += 32 * (self.ly.wrapping_add(self.scy) as u16 >> 3);
+              },
+              FetcherLayer::Window => {
+                //TODO verify
+                addr += (self.wly as u16 >> 3) << 5;
+              }
             }
-          }
-          addr + match self.layer {
-            FetcherLayer::Background => lcdc.bg_tilemap_addr() - 0x8000,
-            FetcherLayer::Window => lcdc.win_tilemap_addr() - 0x8000,
-          }
-        };
-        self.tile_idx = lcdc.transform_tile_index(vram[addr as usize]);
+            addr + match self.layer {
+              FetcherLayer::Background => lcdc.bg_tilemap_addr() - 0x8000,
+              FetcherLayer::Window => lcdc.win_tilemap_addr() - 0x8000,
+            }
+          };
+          self.tile_idx = lcdc.transform_tile_index(vram[addr as usize]);
+        } else {
+          //self.tile_idx = ;
+          todo!();
+        }
         self.cycle = false;
         self.state = FetcherState::ReadTileDataLow;
       },
