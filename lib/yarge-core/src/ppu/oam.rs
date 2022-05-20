@@ -1,5 +1,7 @@
 use std::{cmp::Ordering, ops::Index};
 
+use super::ppu_registers::Lcdc;
+
 #[derive(Clone, Copy, Default)]
 pub struct OamFlags {
   pub priority: bool, //BG/Sprite order
@@ -88,9 +90,22 @@ impl OamMemory {
     }
     Self { objects }
   }
-  pub fn get_buffer() -> OamBuffer {
+  pub fn get_buffer(&self, ly: u8, lcdc: &Lcdc) -> OamBuffer {
     let mut buffer = OamBuffer::new();
-    //buffer.objects.push();
+    for object in self.objects.iter() {
+      let push_cond = {
+        (object.x > 0) &&
+        ((ly + 16) >= object.y) &&
+        ((ly + 16) < (object.y + lcdc.obj_size()))
+      };
+      if push_cond {
+        buffer.push(*object);
+        if buffer.len() >= 10 {
+          break;
+        }
+      }
+    }
+    buffer.sort();
     buffer
   }
   pub fn write_oam(&mut self, addr: u16, value: u8) {
@@ -114,10 +129,10 @@ impl OamBuffer {
     }
   }
   
-  pub fn push(&mut self, obj: OamObject) {
+  pub fn push(&mut self, object: OamObject) {
     #[cfg(debug_assertions)]
     assert!(self.len() < 10);
-    self.objects.push(obj);
+    self.objects.push(object);
   }
   pub fn sort(&mut self) {
     self.objects.sort_by(|a, b| {

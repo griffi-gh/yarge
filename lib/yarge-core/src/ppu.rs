@@ -2,7 +2,7 @@ mod oam;
 mod ppu_registers;
 mod fetcher;
 use fetcher::{Fetcher, FifoPixel, fetcher_type};
-use oam::OamMemory;
+use oam::{OamMemory, OamBuffer};
 use ppu_registers::{Lcdc, PpuMode, StatInterrupts};
 use crate::{
   consts::{VRAM_SIZE, WIDTH, FB_SIZE},
@@ -33,6 +33,7 @@ pub struct Ppu {
   to_discard: u8,
   stat_intr: StatInterrupts, 
   stat_prev: bool,
+  oam_buffer: OamBuffer,
 }
 impl Ppu {
   pub fn new() -> Self {
@@ -67,6 +68,7 @@ impl Ppu {
       to_discard: 0,
       stat_intr: StatInterrupts::default(),
       stat_prev: false,
+      oam_buffer: OamBuffer::default(),
     }
   }
 
@@ -190,8 +192,11 @@ impl Ppu {
         }
       },
       PpuMode::OamSearch => {
-        //TODO
         if self.cycles >= 80 {
+          //TODO verify if doing it all at once is ok
+          if self.lcdc.enable_obj {
+            self.oam_buffer = self.oam.get_buffer(self.ly, &self.lcdc);
+          }
           self.to_discard = self.scx & 7;
           self.bg_fetcher.start(
             self.scx, self.scy,
