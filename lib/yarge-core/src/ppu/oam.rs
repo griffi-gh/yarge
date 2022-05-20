@@ -1,4 +1,4 @@
-use std::cmp::Ordering;
+use std::{cmp::Ordering, ops::Index};
 
 #[derive(Clone, Copy, Default)]
 pub struct OamFlags {
@@ -78,7 +78,7 @@ impl PartialEq for OamObject {
 impl Eq for OamObject {}
 
 pub struct OamMemory {
-  objects: Box<[OamObject; 40]>,
+  pub objects: Box<[OamObject; 40]>,
 }
 impl OamMemory {
   pub fn new() -> Self {
@@ -88,14 +88,10 @@ impl OamMemory {
     }
     Self { objects }
   }
-  pub fn get(&self, i: u8) -> OamObject {
-    self.objects[i as usize]
-  }
-  pub fn get_ref(&self, i: u8) -> &OamObject {
-    &self.objects[i as usize]
-  }
-  pub fn get_mut(&mut self, i: u8) -> &mut OamObject {
-    &mut self.objects[i as usize]
+  pub fn get_buffer() -> OamBuffer {
+    let mut buffer = OamBuffer::new();
+    //buffer.objects.push();
+    buffer
   }
   pub fn write_oam(&mut self, addr: u16, value: u8) {
     self.objects[(addr >> 2) as usize].set_byte((addr & 3) as u8, value);
@@ -105,5 +101,37 @@ impl OamMemory {
   }
 }
 impl Default for OamMemory {
+  fn default() -> Self { Self::new() }
+}
+
+pub struct OamBuffer {
+  pub objects: Vec<OamObject>,
+}
+impl OamBuffer {
+  pub fn new() -> Self {
+    Self {
+      objects: Vec::with_capacity(10)
+    }
+  }
+  
+  pub fn push(&mut self, obj: OamObject) {
+    #[cfg(debug_assertions)]
+    assert!(self.len() < 10);
+    self.objects.push(obj);
+  }
+  pub fn sort(&mut self) {
+    self.objects.sort_by(|a, b| {
+      a.x.partial_cmp(&b.x).unwrap()
+    });
+  }
+
+  pub fn len(&self) -> usize {
+    self.objects.len()
+  }
+  pub fn get(&self, index: usize) -> Option<&OamObject> {
+    self.objects.get(index)
+  }
+}
+impl Default for OamBuffer {
   fn default() -> Self { Self::new() }
 }
