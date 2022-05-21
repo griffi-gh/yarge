@@ -561,6 +561,8 @@ macro_rules! cpu_instructions_cb_macro {
   };
 }
 
+//TODO remove these functions
+
 pub fn cpu_instructions(cpu: &mut Cpu, op: u8) -> Res<()> {
   cpu_instructions_macro!(cpu, op);
   Ok(())

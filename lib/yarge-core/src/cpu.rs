@@ -191,7 +191,6 @@ impl Cpu {
     if self.state == CpuState::Running {
       #[cfg(feature = "breakpoints")]
       let pc_value = self.reg.pc;
-
       let mut op = self.fetch()?;
       if op != 0xCB { 
         cpu_instructions(self, op)?;
@@ -199,15 +198,15 @@ impl Cpu {
         op = self.fetch()?;
         cpu_instructions_cb(self, op)?;
       }
-
       #[cfg(feature = "breakpoints")] {
         self.check_pc_breakpoints(pc_value)?;
       }
     } else {
       self.cycle();
     }
-    #[cfg(debug_assertions)]
-    assert!(self.t >= 4);
+    #[cfg(debug_assertions)] {
+      assert!(self.t >= 4);
+    }
     Ok(self.t)
   }
 }
