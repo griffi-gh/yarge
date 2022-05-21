@@ -1,7 +1,7 @@
 mod oam;
 mod ppu_registers;
-mod fetcher;
-use fetcher::{Fetcher, FifoPixel, fetcher_type};
+mod fifo;
+use fifo::{Fetcher, BackgroundFetcher, SpriteFetcher, FifoPixel};
 use oam::{OamMemory, OamBuffer};
 use ppu_registers::{Lcdc, PpuMode, StatInterrupts};
 use crate::{
@@ -28,8 +28,8 @@ pub struct Ppu {
   oam: OamMemory,
   lcdc: Lcdc,
   display_cleared: bool,
-  bg_fetcher: Fetcher<{fetcher_type::BACKGROUND}>,
-  spr_fetcher: Fetcher<{fetcher_type::SPRITE}>,
+  bg_fetcher: BackgroundFetcher,
+  spr_fetcher: SpriteFetcher,
   to_discard: u8,
   stat_intr: StatInterrupts, 
   stat_prev: bool,
@@ -63,8 +63,8 @@ impl Ppu {
       oam: OamMemory::new(),
       lcdc: Lcdc::default(),
       display_cleared: false,
-      bg_fetcher: Fetcher::new(),
-      spr_fetcher: Fetcher::new(),
+      bg_fetcher: BackgroundFetcher::new(),
+      spr_fetcher: SpriteFetcher::new(),
       to_discard: 0,
       stat_intr: StatInterrupts::default(),
       stat_prev: false,

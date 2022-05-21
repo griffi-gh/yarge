@@ -1,6 +1,5 @@
-use std::{cmp::Ordering, ops::Index};
-
 use super::ppu_registers::Lcdc;
+use arrayvec::ArrayVec;
 
 #[derive(Clone, Copy, Default)]
 pub struct OamFlags {
@@ -62,22 +61,6 @@ impl OamObject {
     }
   }
 }
-impl Ord for OamObject {
-  fn cmp(&self, other: &Self) -> Ordering {
-    (self.x, &self.id).cmp(&(other.x, &other.id))
-  }
-}
-impl PartialOrd for OamObject {
-  fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-    Some(self.cmp(other))
-  }
-}
-impl PartialEq for OamObject {
-  fn eq(&self, other: &Self) -> bool {
-    (self.x, self.id) == (other.x, other.id)
-  }
-}
-impl Eq for OamObject {}
 
 pub struct OamMemory {
   pub objects: Box<[OamObject; 40]>,
@@ -120,15 +103,14 @@ impl Default for OamMemory {
 }
 
 pub struct OamBuffer {
-  pub objects: Vec<OamObject>,
+  objects: ArrayVec<OamObject, 10>
 }
 impl OamBuffer {
   pub fn new() -> Self {
     Self {
-      objects: Vec::with_capacity(10)
+      objects: ArrayVec::new()
     }
   }
-  
   pub fn push(&mut self, object: OamObject) {
     #[cfg(debug_assertions)]
     assert!(self.len() < 10);
@@ -139,7 +121,6 @@ impl OamBuffer {
       a.x.partial_cmp(&b.x).unwrap()
     });
   }
-
   pub fn len(&self) -> usize {
     self.objects.len()
   }
