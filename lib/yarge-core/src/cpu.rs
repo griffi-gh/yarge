@@ -214,6 +214,5 @@ impl Cpu {
       assert!(self.t >= 4);
     }
     Ok(self.t)
-
   }
 }
