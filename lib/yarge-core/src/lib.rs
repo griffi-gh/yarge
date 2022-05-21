@@ -88,17 +88,24 @@ impl Gameboy {
     let r = &self.cpu.reg;
     let m = &self.cpu.mmu;
     let string = format!(
-      "A: {:02X} F: {:02X} B: {:02X} C: {:02X} D: {:02X} E: {:02X} H: {:02X} L: {:02X} SP: {:04X} PC: 00:{:04X} ({:02X} {:02X} {:02X} {:02X})", 
-      r.a(), r.f(), r.b(), r.c(), r.d(), r.e(), r.h(), r.l(), r.sp, r.pc,
-      m.rb(r.pc, true), m.rb(r.pc + 1, true), m.rb(r.pc + 2, true), m.rb(r.pc + 3, true)
+      "A: {a:02X} F: {f:02X} B: {b:02X} C: {c:02X} \
+      D: {d:02X} E: {e:02X} H: {h:02X} L: {l:02X} \
+      SP: {sp:04X} PC: 00:{pc:04X} \
+      ({rb0:02X} {rb1:02X} {rb2:02X} {rb3:02X})", 
+      a = r.a(), f = r.f(), 
+      b = r.b(), c = r.c(), 
+      d = r.d(), e = r.e(), 
+      h = r.h(), l = r.l(), 
+      sp = r.sp, pc = r.pc,
+      rb0 = m.rb(r.pc + 0, true),
+      rb1 = m.rb(r.pc + 1, true), 
+      rb2 = m.rb(r.pc + 2, true),
+      rb3 = m.rb(r.pc + 3, true)
     );
     #[cfg(feature = "logging-file")] {
-      if self.log_file.is_none() {
-        panic!("File not inited! Call <Gameboy>.init() or <GameboyBuilder>.init()");
-      } else {
-        use std::io::Write;
-        write!(self.log_file.as_mut().unwrap(), "{}\n", string).unwrap();
-      }
+      use std::io::Write;
+      assert!(self.log_file.is_some(), "File not inited! Call <Gameboy>.init() or <GameboyBuilder>.init()");
+      write!(self.log_file.as_mut().unwrap(), "{}\n", string).unwrap();
     }
     #[cfg(feature = "logging-stdout")] {
       println!("{}", string);
