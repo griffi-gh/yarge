@@ -186,27 +186,34 @@ impl Cpu {
 
   pub fn step(&mut self) -> Res<usize> {
     self.t = 0;
+    //Check for interrupts
     self.check_ime();
     self.check_interrupts();
-    if self.state == CpuState::Running {
-      #[cfg(feature = "breakpoints")]
-      let pc_value = self.reg.pc;
-      let mut op = self.fetch()?;
-      if op != 0xCB { 
-        cpu_instructions(self, op)?;
-      } else {
-        op = self.fetch()?;
-        cpu_instructions_cb(self, op)?;
-      }
-      #[cfg(feature = "breakpoints")] {
-        self.check_pc_breakpoints(pc_value)?;
-      }
-    } else {
+    //If isn't running, run for 4 cycles and exit
+    if self.state != CpuState::Running {
       self.cycle();
+      return Ok(self.t);
     }
+    //Remember the PC value for breakpoints
+    #[cfg(feature = "breakpoints")]
+    let pc_value = self.reg.pc;
+    //Fetch and execute
+    let mut op = self.fetch()?;
+    if op != 0xCB { 
+      cpu_instructions(self, op)?;
+    } else {
+      op = self.fetch()?;
+      cpu_instructions_cb(self, op)?;
+    }
+    //Check for breakpoints
+    #[cfg(feature = "breakpoints")] {
+      self.check_pc_breakpoints(pc_value)?;
+    }
+    //Panic if instruction took less then 4 cycles
     #[cfg(debug_assertions)] {
       assert!(self.t >= 4);
     }
     Ok(self.t)
+
   }
 }
