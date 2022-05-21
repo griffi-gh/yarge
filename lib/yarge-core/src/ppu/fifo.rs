@@ -32,7 +32,7 @@ impl Default for FetcherState {
   fn default() -> Self { Self::ReadTileId }
 }
 
-pub trait Fetcher {
+pub trait Fifo {
   fn pop(&mut self) -> Option<FifoPixel>;
   fn len(&self) -> usize;
 }

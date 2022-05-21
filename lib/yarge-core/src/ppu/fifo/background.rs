@@ -1,7 +1,7 @@
 use arraydeque::ArrayDeque;
 use crate::consts::VRAM_SIZE;
 use crate::ppu::ppu_registers::Lcdc;
-use super::{Fetcher, FetcherState, FifoPixel};
+use super::{Fifo, FetcherState, FifoPixel};
 
 #[derive(PartialEq)]
 #[repr(u8)]
@@ -143,7 +143,7 @@ impl BackgroundFetcher {
     self.fifo.push_back(elem)
   }
 }
-impl Fetcher for BackgroundFetcher {
+impl Fifo for BackgroundFetcher {
   fn pop(&mut self) -> Option<FifoPixel> {
     self.fifo.pop_front()
   }

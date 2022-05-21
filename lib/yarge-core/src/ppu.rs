@@ -1,7 +1,7 @@
 mod oam;
 mod ppu_registers;
 mod fifo;
-use fifo::{Fetcher, BackgroundFetcher, SpriteFetcher, FifoPixel};
+use fifo::{Fifo, BackgroundFetcher, SpriteFetcher, FifoPixel};
 use oam::{OamMemory, OamBuffer};
 use ppu_registers::{Lcdc, PpuMode, StatInterrupts};
 use crate::{

@@ -1,5 +1,5 @@
 use arraydeque::ArrayDeque;
-use super::{Fetcher, FifoPixel, FetcherState};
+use super::{Fifo, FifoPixel, FetcherState};
 
 pub struct SpriteFetcher {
   fifo: Box<ArrayDeque<[FifoPixel; 8]>>,
@@ -15,7 +15,7 @@ impl SpriteFetcher {
     }
   }
 }
-impl Fetcher for SpriteFetcher {
+impl Fifo for SpriteFetcher {
   fn pop(&mut self) -> Option<FifoPixel> {
     self.fifo.pop_front()
   }
