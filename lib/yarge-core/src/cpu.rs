@@ -143,6 +143,7 @@ impl Cpu {
   }
 
   fn dispatch_interrupt(&mut self, int: usize) {
+    //Check if interrupt is valid
     #[cfg(debug_assertions)] {
       assert!(int < 5, "Invalid interrupt: {int}");
     }
@@ -159,11 +160,8 @@ impl Cpu {
 
   fn check_ime(&mut self) {
     if self.ime_pending {
-      if self.ime {
-        self.ime_pending = false;
-      } else {
-        self.ime = true;
-      }
+      self.ime = true;
+      self.ime_pending = false;
     }
   }
   fn check_interrupts(&mut self) {
@@ -172,15 +170,12 @@ impl Cpu {
       if self.state == CpuState::Halt {
         self.state = CpuState::Running;
       }
-      if self.ime && !self.ime_pending {
+      if self.ime {
         let int_type = check.trailing_zeros() as usize;
         if int_type < 5 {
           self.dispatch_interrupt(int_type);
         }
       }
-    } 
-    if self.ime_pending {
-      self.ime_pending = false;
     }
   }
 
