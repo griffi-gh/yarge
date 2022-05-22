@@ -117,9 +117,7 @@ impl OamBuffer {
     self.objects.push(object);
   }
   pub fn sort(&mut self) {
-    self.objects.sort_by(|a, b| {
-      a.x.partial_cmp(&b.x).unwrap()
-    });
+    self.objects.sort_unstable_by_key(|o| (o.x, o.id));
   }
   pub fn len(&self) -> usize {
     self.objects.len()
