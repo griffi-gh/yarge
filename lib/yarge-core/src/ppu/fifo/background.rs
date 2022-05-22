@@ -126,7 +126,7 @@ impl BackgroundFetcher {
               ((self.tile_data.1 & mask) != 0) as u8
             );
             let color = ((h_bit) << 1) | l_bit;
-            self.push(
+            self.fifo.push_back(
               FifoPixel::from_color(color)
             ).unwrap();
           }
@@ -137,10 +137,6 @@ impl BackgroundFetcher {
       },
       _ => { self.cycle = true; }
     }
-  }
-
-  fn push(&mut self, elem: FifoPixel) -> Result<(), arraydeque::CapacityError<FifoPixel>> {
-    self.fifo.push_back(elem)
   }
 }
 impl Fifo for BackgroundFetcher {

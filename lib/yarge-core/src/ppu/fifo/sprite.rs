@@ -1,5 +1,6 @@
 use arraydeque::ArrayDeque;
 use super::{Fifo, FifoPixel, FetcherState};
+//use crate::ppu::oam::OamBuffer;
 
 pub struct SpriteFetcher {
   fifo: Box<ArrayDeque<[FifoPixel; 8]>>,
@@ -13,6 +14,11 @@ impl SpriteFetcher {
       state: FetcherState::default(),
       cycle: false,
     }
+  }
+  pub fn start(&mut self) {
+    //self.buffer = buffer.clone();
+    self.cycle = false;
+    self.state = FetcherState::ReadTileId;
   }
 }
 impl Fifo for SpriteFetcher {
