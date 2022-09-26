@@ -36,9 +36,9 @@ jobs:
     # Build and test
 
     - name: Build
-      run: cargo build --release
+      run: cargo build -p yarge-frontend-desktop --release
     - name: Run tests
-      run: cargo test --release
+      run: cargo test -p yarge-frontend-desktop --release
     
     # Create deb
 
