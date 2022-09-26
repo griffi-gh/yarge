@@ -1,12 +1,10 @@
 [package]
 name = "yarge-core"
+description = "Gameboy emulator"
 authors = ["griffi-gh <prasol258@gmail.com>"]
 version = "0.0.0"
 edition = "2021"
 rust-version = "1.60"
-
-[profile.release]
-codegen-units = 1
 
 [dependencies]
 paste = "1.0"

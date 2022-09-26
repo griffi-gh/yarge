@@ -8,6 +8,10 @@ rust-version = "1.60"
 
 [profile.release]
 codegen-units = 1
+lto = true
+
+[profile.dev.package."*"]
+opt-level = 3
 
 [dependencies]
 yarge-core = { path = "lib/yarge-core" }
