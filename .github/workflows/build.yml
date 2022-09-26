@@ -44,7 +44,7 @@ jobs:
 
     - name: Create a binary .deb package (Linux only)
       if: runner.os == 'Linux'
-      run: cargo install cargo-deb; cargo deb --strip --no-build --output "./yarge.deb"
+      run: cargo install cargo-deb; cargo deb -p yarge-frontend-desktop --strip --no-build --output "./yarge.deb"
 
     # Upload build artifacts
 
