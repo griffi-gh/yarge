@@ -1,31 +1,13 @@
-[package]
-name = "yarge"
-authors = ["griffi-gh <prasol258@gmail.com>"]
-version = "0.0.0"
-publish = false
-edition = "2021"
-rust-version = "1.60"
-
-[profile.release]
-codegen-units = 1
-lto = true
+[workspace]
+members = [
+  "yarge-core",
+  "yarge-frontend-desktop"
+]
+resolver = "2"
 
 [profile.dev.package."*"]
 opt-level = 3
 
-[dependencies]
-yarge-core = { path = "lib/yarge-core" }
-yarge-gui-framework = { path = "lib/yarge-gui-framework", optional = true }
-ahash = { version = "0.7.6", optional = true }
-rfd = { version = "0.8.1", optional = true }
-clap = { version = "3.1", features = ["derive"] }
-build-time = "0.1.1"
-
-[features]
-default = ["gui", "breakpoints"]
-gui = ["dep:yarge-gui-framework", "dep:rfd", "dep:ahash"]
-# Pass through to yarge-core
-ly-stub = ["yarge-core/ly-stub"]
-logging-file = ["yarge-core/logging-file"]
-logging-stdout = ["yarge-core/logging-stdout"]
-breakpoints = ["yarge-core/breakpoints"]
+[profile.release]
+codegen-units = 1
+lto = true
