@@ -35,7 +35,7 @@ fn main() {
     VERSION.unwrap_or("<version?>"),
     {
       #[cfg(debug_assertions)] { "debug" }
-      #[cfg(not(debug_assertions))] { "debug" }
+      #[cfg(not(debug_assertions))] { "release" }
     },
     gb::VERSION.unwrap_or("<version?>"),
     BUILD_TIME,

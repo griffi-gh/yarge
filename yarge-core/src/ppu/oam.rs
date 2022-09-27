@@ -106,8 +106,7 @@ impl OamBuffer {
     }
   }
   pub fn push(&mut self, object: OamObject) {
-    #[cfg(debug_assertions)]
-    assert!(self.len() < 10);
+    debug_assert!(self.len() < 10);
     self.objects.push(object);
   }
   pub fn sort(&mut self) {

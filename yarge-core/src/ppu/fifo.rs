@@ -11,8 +11,7 @@ pub struct FifoPixel {
 }
 impl FifoPixel {
   pub fn from_color(color: u8) -> Self {
-    #[cfg(debug_assertions)]
-    assert!(color < 4, "Invalid color");
+    debug_assert!(color < 4, "Invalid color");
     Self {
       color, 
       //..Default::default()

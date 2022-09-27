@@ -144,9 +144,7 @@ impl Cpu {
 
   fn dispatch_interrupt(&mut self, int: usize) {
     //Check if interrupt is valid
-    #[cfg(debug_assertions)] {
-      assert!(int < 5, "Invalid interrupt: {int}");
-    }
+    debug_assert!(int < 5, "Invalid interrupt: {int}");
     //Call interrupt handler
     self.reg.dec_sp(2);
     self.mmu.ww(self.reg.sp, self.reg.pc, true);
@@ -205,9 +203,7 @@ impl Cpu {
       self.check_pc_breakpoints(pc_value)?;
     }
     //Panic if instruction took less then 4 cycles
-    #[cfg(debug_assertions)] {
-      assert!(self.t >= 4);
-    }
+    debug_assert!(self.t >= 4);
     Ok(self.t)
   }
 }

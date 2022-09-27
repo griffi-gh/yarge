@@ -560,8 +560,8 @@ impl Gui for GuiState {
           VERSION.unwrap_or("<version?>"),
           gb::VERSION.unwrap_or("<version?>"),
           {
-            #[cfg(not(debug_assertions))] { "release" }
             #[cfg(debug_assertions)]      { "debug" }
+            #[cfg(not(debug_assertions))] { "release" }
           }
         ));
         const TEXT: &str = "GitHub";

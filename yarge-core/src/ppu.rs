@@ -223,10 +223,8 @@ impl Ppu {
             self.bg_fetcher.switch_to_window();
           }
           if self.lx >= WIDTH as u8 { 
-            #[cfg(debug_assertions)] {
-              assert!(self.cycles >= 172, "PxTransfer took less then 172 cycles: {}", self.cycles);
-              assert!(self.cycles <= 289, "PxTransfer took more then 289 cycles: {}", self.cycles);
-            }
+            debug_assert!(self.cycles >= 172, "PxTransfer took less then 172 cycles: {}", self.cycles);
+            debug_assert!(self.cycles <= 289, "PxTransfer took more then 289 cycles: {}", self.cycles);
             self.lx = 0;
             self.hblank_len = 376 - self.cycles;
             //why do i need to increment it HERE?
