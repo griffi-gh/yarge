@@ -23,7 +23,7 @@ impl RomHeader {
         }
         string
       },
-      rom_size: 32 << rom[0x148],
+      rom_size: 32_usize.checked_shl(rom[0x148] as u32).unwrap_or(32), // 32 << rom[0x148]
       ram_size: match rom[0x149] {
         0 => 0,
         1 => 2 * 1024,
