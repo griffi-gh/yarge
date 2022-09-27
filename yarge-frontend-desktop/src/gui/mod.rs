@@ -189,7 +189,7 @@ impl Gui for GuiState {
       ).resizable(false).show(ui, |ui| {
         let error_code = {
           let mut error_code = String::new();
-          let mut hasher = AHasher::new_with_keys(0, 0);
+          let mut hasher = AHasher::default();
           hasher.write(details.as_bytes());
           hasher.write(id.as_bytes());
           let hash = hasher.finish();
