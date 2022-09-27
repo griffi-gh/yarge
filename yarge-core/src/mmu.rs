@@ -21,7 +21,7 @@ impl Mmu {
   pub fn new() -> Self {
     Self {
       bios_disabled: false,
-      cart: (MockCartridge {}).into(),
+      cart: MockCartridge.into(),
       cart_header: RomHeader::default(),
       wram: Box::new([0; 0x2000]),
       hram: Box::new([0; 0x007F]),

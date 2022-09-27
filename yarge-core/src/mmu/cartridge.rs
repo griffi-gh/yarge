@@ -27,6 +27,7 @@ pub trait CartridgeImpl {
 }
 
 #[non_exhaustive]
+#[allow(clippy::enum_variant_names)]
 #[enum_dispatch(CartridgeImpl)]
 pub enum Cartridge {
   MockCartridge,

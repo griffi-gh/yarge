@@ -12,7 +12,7 @@ use super::{
 };
 
 #[repr(u8)]
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Clone, Copy, PartialEq, Eq)]
 pub enum Type {
   None, Ram, RamBattery
 }

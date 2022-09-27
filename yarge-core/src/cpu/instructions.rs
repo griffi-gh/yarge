@@ -271,7 +271,7 @@ pub fn cpu_instructions(cpu: &mut Cpu, instr: u8) -> Res<()> {
     _ => { 
       Err(YargeError::InvalidInstruction{
         addr: cpu.reg.pc.wrapping_sub(1),
-        instr: instr
+        instr
       })?;
     }
   }

@@ -15,7 +15,7 @@ impl FifoPixel {
     assert!(color < 4, "Invalid color");
     Self {
       color, 
-      ..Default::default()
+      //..Default::default()
     }
   }
 }

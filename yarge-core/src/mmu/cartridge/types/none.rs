@@ -17,6 +17,6 @@ impl CartridgeImpl for CartridgeNone {
     load_rom_static(&mut self.rom, rom)
   }
   fn read_rom(&self, addr: u16) -> u8 {
-    return self.rom[(addr & 0x7FFF) as usize];
+    self.rom[(addr & 0x7FFF) as usize]
   }
 }

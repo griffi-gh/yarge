@@ -8,28 +8,22 @@ pub struct OamFlags {
   pub flip_x: bool,
   pub palette: bool, //DMG ONLY
 }
-impl OamFlags {
-  pub fn into_u8(&self) -> u8 {
-    ((self.priority as u8) << 7) |
-    ((self.flip_x   as u8) << 6) |
-    ((self.flip_y   as u8) << 5) |
-    ((self.palette  as u8) << 4) 
+impl From<OamFlags> for u8 {
+  fn from(flags: OamFlags) -> u8 { 
+    ((flags.priority as u8) << 7) |
+    ((flags.flip_x   as u8) << 6) |
+    ((flags.flip_y   as u8) << 5) |
+    ((flags.palette  as u8) << 4) 
   }
-  pub fn from_u8(&mut self, value: u8) {
-    self.priority = (value & (1 << 7)) != 0;
-    self.flip_y   = (value & (1 << 6)) != 0;
-    self.flip_x   = (value & (1 << 5)) != 0;
-    self.palette  = (value & (1 << 4)) != 0;
-  }
-}
-impl Into<u8> for OamFlags {
-  fn into(self) -> u8 { self.into_u8() }
 }
 impl From<u8> for OamFlags {
-  fn from(v: u8) -> Self {
-    let mut new = Self::default();
-    new.from_u8(v);
-    return new;
+  fn from(value: u8) -> Self {
+    Self {
+      priority: (value & (1 << 7)) != 0,
+      flip_y:   (value & (1 << 6)) != 0,
+      flip_x:   (value & (1 << 5)) != 0,
+      palette:  (value & (1 << 4)) != 0,
+    }
   }
 }
 
@@ -47,7 +41,7 @@ impl OamObject {
       0 => self.y,
       1 => self.x,
       2 => self.tile,
-      3 => self.flags.into_u8(),
+      3 => self.flags.into(),
       _ => unreachable!()
     }
   }
@@ -56,7 +50,7 @@ impl OamObject {
       0 => { self.y = value; },
       1 => { self.x = value; },
       2 => { self.tile = value; },
-      3 => { self.flags.from_u8(value); },
+      3 => { self.flags = value.into(); },
       _ => unreachable!()
     }
   }

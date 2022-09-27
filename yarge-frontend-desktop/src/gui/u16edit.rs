@@ -26,7 +26,7 @@ pub fn u16_edit(ui: &mut egui::Ui, name: &str, value: u16, allow_edit: bool, mul
           f32::INFINITY, 
           text_style.clone()
         ).galley().size().x;
-      let mut value_str = format!("{:X}", value).to_string();
+      let mut value_str = format!("{:X}", value);
       let was_zero = value == 0;
       let res = ui.add(
         egui::TextEdit::singleline(&mut value_str)
@@ -41,14 +41,14 @@ pub fn u16_edit(ui: &mut egui::Ui, name: &str, value: u16, allow_edit: bool, mul
       );
       if res.changed() {
         if was_zero {
-          value_str = value_str.replace("0", "");
+          value_str = value_str.replace('0', "");
         }
         let x = u16::from_str_radix(
           ("0".to_string() + value_str.trim()).as_str(), 
           16
         );
-        if x.is_ok() {
-          ret = Some(x.unwrap());
+        if let Ok(x) = x {
+          ret = Some(x);
         }
       }
     } else {

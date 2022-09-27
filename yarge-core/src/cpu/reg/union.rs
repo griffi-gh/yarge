@@ -29,15 +29,15 @@ impl U16Union {
     (self.value & 0xFF) as u8
   }
 }
-impl Into<u16> for U16Union {
-  fn into(self) -> u16 { self.get() }
+impl From<U16Union> for u16 {
+  fn from(union: U16Union) -> Self { union.get() }
 }
 impl From<u16> for U16Union {
   fn from(val: u16) -> Self { Self::new(val) }
 }
-impl Into<(u8, u8)> for U16Union {
-  fn into(self) -> (u8, u8) {
-    (self.get_a(), self.get_b())
+impl From<U16Union> for (u8, u8) {
+  fn from(union: U16Union) -> Self {
+    (union.get_a(), union.get_b())
   }
 }
 impl From<(u8, u8)> for U16Union {

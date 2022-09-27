@@ -3,7 +3,7 @@ use crate::cpu::{Cpu, Interrupt};
 
 #[bitflags]
 #[repr(u8)]
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Clone, Copy, PartialEq, Eq)]
 pub enum JoypSelect {
   Direction = 0b01,
   Action    = 0b10,
@@ -11,7 +11,7 @@ pub enum JoypSelect {
 
 #[bitflags]
 #[repr(u8)]
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Key {
   Right  = 1 << 0,
   Left   = 1 << 1,

@@ -105,7 +105,7 @@ impl Gameboy {
     #[cfg(feature = "logging-file")] {
       use std::io::Write;
       assert!(self.log_file.is_some(), "File not inited! Call <Gameboy>.init() or <GameboyBuilder>.init()");
-      write!(self.log_file.as_mut().unwrap(), "{}\n", string).unwrap();
+      writeln!(self.log_file.as_mut().unwrap(), "{}", string).unwrap();
     }
     #[cfg(feature = "logging-stdout")] {
       println!("{}", string);
@@ -117,7 +117,7 @@ impl Gameboy {
     self.resume();
     let ret: R = ctx(self);
     self.running = state;
-    return ret;
+    ret
   }
 
   pub fn step(&mut self) -> Res<usize> {
@@ -142,5 +142,11 @@ impl Gameboy {
 
   #[inline] pub fn run(&mut self) -> Res<()> {
     loop { self.step()?; }
+  }
+}
+
+impl Default for Gameboy {
+  #[inline] fn default() -> Self {
+    Self::new()
   }
 }

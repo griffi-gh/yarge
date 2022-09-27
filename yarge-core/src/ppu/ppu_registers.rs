@@ -1,7 +1,7 @@
 //TODO migrate to `bitflags` or `enumflags2`  
 
 #[repr(u8)]
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Clone, Copy, PartialEq, Eq)]
 pub enum PpuMode {
   HBlank     = 0,
   VBlank     = 1,
@@ -28,7 +28,7 @@ impl Lcdc {
   pub fn from_u8(value: u8) -> Self {
     let mut new = Self::default();
     new.set_from_u8(value);
-    return new;
+    new
   }
   pub fn set_from_u8(&mut self, value: u8) {
     self.enable_bg        = (value & 0x01) != 0;
@@ -40,7 +40,7 @@ impl Lcdc {
     self.win_tilemap_addr = (value & 0x40) != 0;
     self.enable_display   = (value & 0x80) != 0;
   }
-  pub fn into_u8(&self) -> u8 {
+  pub fn into_u8(self) -> u8 {
     (self.enable_bg         as u8)       | 
     ((self.enable_obj       as u8) << 1) |
     ((self.obj_size         as u8) << 2) |
@@ -71,11 +71,15 @@ impl Lcdc {
     }
   }
 }
-impl Into<u8> for Lcdc {
-  fn into(self) -> u8 { self.into_u8() }
+impl From<Lcdc> for u8 {
+  fn from(lcdc: Lcdc) -> u8 {
+    lcdc.into_u8()
+  }
 }
 impl From<u8> for Lcdc {
-  fn from(v: u8) -> Self { Self::from_u8(v) }
+  fn from(v: u8) -> Self {
+    Self::from_u8(v)
+  }
 }
 
 #[derive(Default, Clone, Copy)]
@@ -89,7 +93,7 @@ impl StatInterrupts {
   pub fn from_u8(value: u8) -> Self {
     let mut new = Self::default();
     new.set_from_u8(value);
-    return new;
+    new
   }
   pub fn set_from_u8(&mut self, value: u8) {
     self.mode_0 = (value & 0x01) != 0;
@@ -97,16 +101,20 @@ impl StatInterrupts {
     self.mode_2 = (value & 0x04) != 0;
     self.lyc_eq = (value & 0x08) != 0;
   }
-  pub fn into_u8(&self) -> u8 {
+  pub fn into_u8(self) -> u8 {
     (self.mode_0 as u8)        |
     ((self.mode_1 as u8) << 1) |
     ((self.mode_2 as u8) << 2) |
     ((self.lyc_eq as u8) << 3) 
   }
 }
-impl Into<u8> for StatInterrupts {
-  fn into(self) -> u8 { self.into_u8() }
+impl From<StatInterrupts> for u8 {
+  fn from(intr: StatInterrupts) -> u8 {
+    intr.into_u8()
+  }
 }
 impl From<u8> for StatInterrupts {
-  fn from(v: u8) -> Self { Self::from_u8(v) }
+  fn from(v: u8) -> Self {
+    Self::from_u8(v)
+  }
 }

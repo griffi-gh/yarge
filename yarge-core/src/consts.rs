@@ -36,7 +36,7 @@ pub(crate) const DEFAULT_HEADER: [u8; 80] = [
 #[cfg(feature = "logging-file")]
 pub const LOG_PATH: &str = "./gameboy.log";
 
-pub const MBC_TYPE_LIST: &'static[(u8, &'static str)] = &[
+pub const MBC_TYPE_LIST: &[(u8, &str)] = &[
   (0x00, "ROM ONLY"),
   (0x01, "MBC1"),
   (0x02, "MBC1+RAM"),

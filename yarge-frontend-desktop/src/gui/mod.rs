@@ -422,9 +422,7 @@ impl Gui for GuiState {
         ui.label("MBC Type");
         ui.horizontal(|ui| {
           ui.add_space(H_SPACING);
-          ui.label(format!(
-            "{}", self.gb.get_mbc_name()
-          ));
+          ui.label(self.gb.get_mbc_name());
         });
         ui.add_space(V_SPACING);
         ui.label("ROM Header");
@@ -639,6 +637,6 @@ impl Gui for GuiState {
       self.gb.pause();
     }
     
-    return exit;
+    exit
   }
 }

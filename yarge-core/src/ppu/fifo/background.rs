@@ -3,7 +3,7 @@ use crate::consts::VRAM_SIZE;
 use crate::ppu::ppu_registers::Lcdc;
 use super::{Fifo, FetcherState, FifoPixel};
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Eq)]
 #[repr(u8)]
 pub enum FetcherLayer {
   Background, Window

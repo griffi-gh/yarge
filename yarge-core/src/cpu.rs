@@ -4,7 +4,7 @@ use instructions::{cpu_instructions, cpu_instructions_cb};
 pub use reg::Registers;
 use crate::{ Mmu, Res, YargeError, consts::INT_JMP_VEC };
 
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Clone, Copy, PartialEq, Eq)]
 pub enum CpuState {
   Running,
   Halt,
@@ -58,7 +58,7 @@ impl Cpu {
     if trip != 0 {
       Err(YargeError::MmuBreakpoint {
         is_write: access_type & 0b10 != 0,
-        value: value.unwrap_or(self.mmu.rb(addr, true)),
+        value: value.unwrap_or_else(|| self.mmu.rb(addr, true)),
         addr,
       })
     } else {

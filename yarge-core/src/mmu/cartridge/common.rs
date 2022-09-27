@@ -11,7 +11,8 @@ pub fn rom_bank_mask(header: &RomHeader) -> u8 {
   ((header.rom_size >> 4) - 1) as u8
 }
 pub fn eram_bank_mask(header: &RomHeader) -> u8 {
-  ((header.ram_size as f32 / 8192.).ceil() as usize).checked_sub(1).unwrap_or(0) as u8
+  //TODO remove floating point stuff
+  ((header.ram_size as f32 / 8192.).ceil() as usize).saturating_sub(1) as u8
 }
 pub fn load_rom_static<const SIZE: usize>(arr: &mut [u8; SIZE], source: &[u8]) -> Res<()> {
   if source.len() != SIZE {
