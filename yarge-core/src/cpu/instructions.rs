@@ -6,6 +6,8 @@ mod macros_cb;
 use macros::*;
 use macros_cb::*;
 
+// TODO turn these into functions
+
 pub fn cpu_instructions(cpu: &mut Cpu, instr: u8) -> Res<()> {
   match instr {
     0x00 => { /*IS A NO-OP*/ },             //NOP

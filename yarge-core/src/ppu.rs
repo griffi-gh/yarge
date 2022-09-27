@@ -101,7 +101,6 @@ impl Ppu {
     self.mode == PpuMode::PxTransfer
   }
 
-  //TODO check for mode 2 and 3
   pub fn read_oam(&self, addr: u16, blocking: bool) -> u8 {
     if blocking && self.oam_blocked() { return 0xff; }
     self.oam.read_oam(addr - 0xFE00)
@@ -111,7 +110,6 @@ impl Ppu {
     self.oam.write_oam(addr - 0xFE00, value);
   }
 
-  //TODO check for mode 3
   pub fn read_vram(&self, addr: u16, blocking: bool) -> u8 {
     if blocking && self.vram_blocked() { return 0xFF; }
     self.vram[(addr - 0x8000) as usize]
