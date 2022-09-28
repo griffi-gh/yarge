@@ -99,7 +99,7 @@ impl Mmu {
     }
     match addr {
       //BOOTROM/ROM
-      0x0000..=0x00ff if self.bios_disabled => {},
+      0x0000..=0x00ff if !self.bios_disabled => {},
       0x0000..=0x7fff => { self.cart.write_rom(addr, value) },
       //VRAM
       0x8000..=0x9FFF => { self.ppu.write_vram(addr, value, blocking) },
