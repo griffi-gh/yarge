@@ -146,16 +146,16 @@ impl Mmu {
   }
   
   fn check_oam_dma_block(&self, addr: u16) -> bool {
-    //TODO FIX oam dma block
-    false
-    //(self.oam_transfer > 0) && !((0xFF80..=0xFFFE).contains(&addr) || (addr == 0xFF46))
+    //TODO THIS MAY CAUSE CRASHES
+    (self.oam_transfer > 0) && !((0xFF80..=0xFFFE).contains(&addr) || (addr == 0xFF46))
   }
   fn start_oam_dma(&mut self, value: u8) {
+    self.oam_transfer = 160;
     self.oam_value = value;
     let src_start = (value as u16) << 8;
     for i in 0..0xA0 {
       let mut src_addr = src_start + i;
-      if src_addr > 0xC000 { //TODO check this: Maybe should use >= ?????
+      if src_addr > 0xC000 {
         src_addr = 0xC000 + (src_addr & 0x1FFF);
       }
       let src_value = self.rb(src_addr, true);
