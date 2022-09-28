@@ -195,7 +195,7 @@ pub fn cpu_instructions(cpu: &mut Cpu, instr: u8) -> Res<()> {
     0xAC => { xor_a_r!(cpu, H); }           //XOR A,H
     0xAD => { xor_a_r!(cpu, L); }           //XOR A,L
     0xAE => { xor_a_mhl!(cpu); }            //XOR A,(HL)
-    0xAF => { xor_a_r!(cpu, A); }           //XOR A,A
+    0xAF => { xor_a_a!(cpu); }              //XOR A,A
 
     0xB0 => { or_a_r!(cpu, B); }            //OR A,B
     0xB1 => { or_a_r!(cpu, C); }            //OR A,C

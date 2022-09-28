@@ -587,6 +587,13 @@ macro_rules! xor_a_r {
   };
 } pub(crate) use xor_a_r;
 
+macro_rules! xor_a_a {
+  ($self: expr) => {
+    $self.reg.set_a(0);
+    $self.reg.set_f_znhc(true, false, false, false);
+  };
+} pub(crate) use xor_a_a;
+
 macro_rules! xor_a_mhl {
   ($self: expr) => {
     let r = $self.reg.a() ^ $self.rb($self.reg.hl())?;
