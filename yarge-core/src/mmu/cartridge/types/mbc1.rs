@@ -79,8 +79,8 @@ impl CartridgeImpl for CartridgeMbc1 {
   }
 
   fn read_eram(&self, addr: u16, blocking: bool) -> u8 {
-    if self.mbc1_type == Type::None { return 0xFF; }
-    if blocking && !self.ram_enable { return 0xFF; }
+    if self.mbc1_type == Type::None { return 0xFF }
+    if blocking && !self.ram_enable { return 0xFF }
     let bank = if self.mode {
       self.ram_bank & self.ram_mask
     } else {
