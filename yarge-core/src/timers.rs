@@ -37,7 +37,7 @@ impl Timers {
   }
   pub fn set_tima(&mut self, value: u8) {
     self.tima = value;
-    self.tima_reset_pending = true;
+    self.tima_reset_pending = false;
   }
 
   pub fn get_tac(&self) -> u8 {
