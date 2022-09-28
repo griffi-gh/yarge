@@ -17,7 +17,6 @@ impl RomHeader {
         let mut string = ArrayString::new();
         for byte in rom.iter().skip(0x134).take(15) {
           if *byte == 0 { break }
-          println!("{}", string.len());
           string.push(char::from_u32(*byte as u32).unwrap());
         }
         string
