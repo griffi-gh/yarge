@@ -153,15 +153,17 @@ impl Cpu {
     self.mmu.iif &= !(1 << int);
     self.disable_ime();
     //Run for 20 cycles
+    //TODO spread out cycles???
     for _ in 0..5 { self.cycle(); } 
   }
 
-  fn check_ime(&mut self) {
+  fn update_ime(&mut self) {
     if self.ime_pending {
       self.ime = true;
       self.ime_pending = false;
     }
   }
+  
   fn check_interrupts(&mut self) {
     let check = self.mmu.iie & self.mmu.iif;
     if check != 0 {
@@ -180,7 +182,7 @@ impl Cpu {
   pub fn step(&mut self) -> Res<usize> {
     self.t = 0;
     //Check for interrupts
-    self.check_ime();
+    self.update_ime();
     self.check_interrupts();
     //If isn't running, run for 4 cycles and exit
     if self.state != CpuState::Running {
