@@ -156,8 +156,9 @@ impl Mmu {
       if src_addr > 0xC000 { //TODO check this: Maybe should use >= ?????
         src_addr = 0xC000 + (src_addr & 0x1FFF);
       }
-      let src_val = self.rb(src_addr, true);
-      self.ppu.write_oam(i, src_val, false);
+      let src_value = self.rb(src_addr, true);
+      let dest_addr = 0xFE00 | i;
+      self.ppu.write_oam(dest_addr, src_value, false);
     }
   }
   fn tick_oam_dma(&mut self) {
