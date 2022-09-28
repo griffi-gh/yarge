@@ -152,14 +152,12 @@ impl Mmu {
     self.oam_value = value;
     let src_start = (value as u16) << 8;
     for i in 0..0xA0 {
-      let dest = 0xFE00 | i;
       let mut src_addr = src_start + i;
-      //TODO check this: Maybe should use >= ?????
-      if src_addr > 0xC000 { 
+      if src_addr > 0xC000 { //TODO check this: Maybe should use >= ?????
         src_addr = 0xC000 + (src_addr & 0x1FFF);
       }
       let src_val = self.rb(src_addr, true);
-      self.wb(dest, src_val, false);
+      self.ppu.write_oam(i, src_val, false);
     }
   }
   fn tick_oam_dma(&mut self) {
