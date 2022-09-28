@@ -14,11 +14,10 @@ impl RomHeader {
     Self {
       mbc_type: rom[0x147],
       name: {
-        let mut string = ArrayString::<16>::new();
-        for byte in rom.iter().take(0x143_usize + 1).skip(0x134) {
-          if *byte == 0 {
-            break;
-          }
+        let mut string = ArrayString::new();
+        for byte in rom.iter().skip(0x134).take(15) {
+          if *byte == 0 { break }
+          println!("{}", string.len());
           string.push(char::from_u32(*byte as u32).unwrap());
         }
         string
