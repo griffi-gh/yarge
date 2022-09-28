@@ -9,6 +9,9 @@ pub struct Mmu {
   cart_header: RomHeader,
   wram: Box<[u8; 0x2000]>,
   hram: Box<[u8; 0x007F]>,
+  //oam dma
+  oam_value: u8,
+  oam_transfer: u8,
   //interrupts
   pub iie: u8,
   pub iif: u8,
@@ -25,6 +28,9 @@ impl Mmu {
       cart_header: RomHeader::default(),
       wram: Box::new([0; 0x2000]),
       hram: Box::new([0; 0x007F]),
+      //oam dma
+      oam_value: 0,
+      oam_transfer: 0,
       //interrupts
       iie: 0x00,
       iif: 0x00,
@@ -36,6 +42,9 @@ impl Mmu {
   }
 
   pub fn rb(&self, addr: u16, blocking: bool) -> u8 {
+    if blocking && self.check_oam_dma_block(addr) {
+      return 0xFF
+    }
     match addr {
       //BOOTROM/ROM
       0x0000..=0x00ff if !self.bios_disabled => BIOS[addr as usize],
@@ -67,6 +76,7 @@ impl Mmu {
             #[cfg(not(feature = "ly-stub"))] { self.ppu.get_ly() }
           },
           0xFF45 => self.ppu.lyc,
+          0xFF46 => self.oam_value,
           0xFF47 => self.ppu.bgp,
           0xFF50 => 0xFE | (self.bios_disabled as u8),
           0xFF4A => self.ppu.wy,
@@ -84,34 +94,38 @@ impl Mmu {
   }
   
   pub fn wb(&mut self, addr: u16, value: u8, blocking: bool) {
+    if blocking && self.check_oam_dma_block(addr) {
+      return
+    }
     match addr {
       //BOOTROM/ROM
       0x0000..=0x00ff if self.bios_disabled => {},
-      0x0000..=0x7fff => { self.cart.write_rom(addr, value); },
+      0x0000..=0x7fff => { self.cart.write_rom(addr, value) },
       //VRAM
-      0x8000..=0x9FFF => { self.ppu.write_vram(addr, value, blocking); },
+      0x8000..=0x9FFF => { self.ppu.write_vram(addr, value, blocking) },
       //ERAM
-      0xA000..=0xBFFF => { self.cart.write_eram(addr, value, blocking); },
+      0xA000..=0xBFFF => { self.cart.write_eram(addr, value, blocking) },
       //WRAM/ECHO
-      0xC000..=0xFDFF => { self.wram[(addr & 0x1FFF) as usize] = value; },
+      0xC000..=0xFDFF => { self.wram[(addr & 0x1FFF) as usize] = value },
       //OAM
-      0xFE00..=0xFE9F => { self.ppu.write_oam(addr, value, blocking); },
+      0xFE00..=0xFE9F => { self.ppu.write_oam(addr, value, blocking) },
       //IO REGISTERS
-      0xFF00 => { self.input.set_joyp(value); },
-      0xFF04 => { self.timers.reset_div(); },
-      0xFF05 => { self.timers.set_tima(value); },
-      0xFF06 => { self.timers.tma = value; },
-      0xFF07 => { self.timers.set_tac(value); },
-      0xFF0F => { self.iif = value; },
-      0xFF40 => { self.ppu.set_lcdc(value); },
-      0xFF41 => { self.ppu.set_stat(value); },
-      0xFF42 => { self.ppu.scy = value; },
-      0xFF43 => { self.ppu.scx = value; },
-      0xFF45 => { self.ppu.lyc = value; },
-      0xFF47 => { self.ppu.bgp = value; },
-      0xFF4A => { self.ppu.wy  = value; },
-      0xFF4B => { self.ppu.wx  = value; },
-      0xFF50 => { self.bios_disabled = true; },
+      0xFF00 => { self.input.set_joyp(value) },
+      0xFF04 => { self.timers.reset_div() },
+      0xFF05 => { self.timers.set_tima(value) },
+      0xFF06 => { self.timers.tma = value },
+      0xFF07 => { self.timers.set_tac(value) },
+      0xFF0F => { self.iif = value },
+      0xFF40 => { self.ppu.set_lcdc(value) },
+      0xFF41 => { self.ppu.set_stat(value) },
+      0xFF42 => { self.ppu.scy = value },
+      0xFF43 => { self.ppu.scx = value },
+      0xFF45 => { self.ppu.lyc = value },
+      0xFF46 => { self.start_oam_dma(value) }
+      0xFF47 => { self.ppu.bgp = value },
+      0xFF4A => { self.ppu.wy  = value },
+      0xFF4B => { self.ppu.wx  = value },
+      0xFF50 => { self.bios_disabled = true },
       //HRAM
       0xFF80..=0xFFFE => {
         self.hram[((addr - 0xFF80) & 0x7F) as usize] = value;
@@ -131,6 +145,29 @@ impl Mmu {
     self.wb(addr.wrapping_add(1), (value >> 8) as u8, blocking);
   }
   
+  fn check_oam_dma_block(&self, addr: u16) -> bool {
+    (self.oam_transfer > 0) && !((0xFF80..=0xFFFE).contains(&addr) || (addr == 0xFF46))
+  }
+  fn start_oam_dma(&mut self, value: u8) {
+    self.oam_value = value;
+    let src_start = (value as u16) << 8;
+    for i in 0..0xA0 {
+      let dest = 0xFE00 | i;
+      let mut src_addr = src_start + i;
+      //TODO check this: Maybe should use >= ?????
+      if src_addr > 0xC000 { 
+        src_addr = 0xC000 + (src_addr & 0x1FFF);
+      }
+      let src_val = self.rb(src_addr, true);
+      self.wb(dest, src_val, false);
+    }
+  }
+  fn tick_oam_dma(&mut self) {
+    if self.oam_transfer > 0 {
+      self.oam_transfer = self.oam_transfer.saturating_sub(4);
+    }
+  }
+
   pub fn load_rom(&mut self, data: &[u8]) -> Res<()> {
     let header = RomHeader::parse(data);
     self.cart_header = header;
@@ -165,6 +202,7 @@ impl Mmu {
   }
 
   pub fn tick_components(&mut self) {
+    self.tick_oam_dma();
     self.ppu.tick(&mut self.iif);
     self.timers.tick(&mut self.iif);
     self.input.tick(&mut self.iif) 

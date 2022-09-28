@@ -196,7 +196,7 @@ impl Ppu {
             self.scx, self.scy,
             self.ly, self.wly
           );
-          if !self.bg_fetcher.is_window() && self.window_in_ly() && (self.wx <= 7) {
+          if !self.bg_fetcher.is_window() && self.window_in_ly() && self.wx <= 7 {
             self.bg_fetcher.switch_to_window();
           }
           self.mode(PpuMode::PxTransfer);
@@ -219,7 +219,7 @@ impl Ppu {
           let addr = (self.ly as usize * WIDTH) + self.lx as usize;
           self.display[addr] = (self.bgp >> (color << 1)) & 0b11;
           self.lx += 1;
-          if self.window_in_ly() && ((self.lx + 7) >= self.wx) {
+          if !self.bg_fetcher.is_window() && self.window_in_ly() && ((self.lx + 7) >= self.wx) {
             self.bg_fetcher.switch_to_window();
           }
           if self.lx >= WIDTH as u8 { 
