@@ -3,6 +3,7 @@ name = "yarge-core"
 description = "Gameboy emulator"
 authors = ["griffi-gh <prasol258@gmail.com>"]
 license = "LGPL-3.0"
+readme = "../README.md"
 version = "0.0.1"
 edition = "2021"
 rust-version = "1.64"
@@ -15,7 +16,7 @@ lazy_static = "1.4"
 thiserror = "1.0"
 enum_dispatch = "0.3"
 enumflags2 = "0.7" 
-parse-display-derive = "0.6"
+parse-display = "0.6"
 # TODO enumflags2 is only used in input.rs, consider removing it
 
 [features]

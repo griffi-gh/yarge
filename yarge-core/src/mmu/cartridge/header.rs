@@ -1,5 +1,5 @@
 use arrayvec::ArrayString;
-use parse_display_derive::Display;
+use parse_display::Display;
 
 #[derive(Clone, Copy, Default, Debug, Display)]
 #[display("Name: {name}\nMBC type: {mbc_type}\nROM size: {rom_size} kb\nRAM size: {ram_size} bytes")]

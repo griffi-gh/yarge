@@ -1385,6 +1385,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "parse-display"
+version = "0.6.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3b25af4ef94a8528b41fb49a696e361dc6ef975c782417268072d987ac327964"
+dependencies = [
+ "once_cell",
+ "parse-display-derive",
+ "regex",
+]
+
+[[package]]
 name = "parse-display-derive"
 version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2402,7 +2413,7 @@ dependencies = [
  "enum_dispatch",
  "enumflags2",
  "lazy_static",
- "parse-display-derive",
+ "parse-display",
  "paste",
  "thiserror",
 ]
