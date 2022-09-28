@@ -53,17 +53,14 @@ impl BackgroundFetcher {
     self.sleep = 6;
     self.fifo.clear();
   }
-  pub fn switch_to_window(&mut self) -> bool {
-    if self.is_window() {
-      return false;
-    }
+  pub fn switch_to_window(&mut self) {
+    debug_assert!(!self.is_window());
     self.layer = FetcherLayer::Window;
     self.cycle = false;
     self.tile_idx = 0;
     self.offset = 0;
     self.state = FetcherState::ReadTileId;
     self.fifo.clear();
-    true
   }
   pub fn is_window(&self) -> bool {
     self.layer == FetcherLayer::Window

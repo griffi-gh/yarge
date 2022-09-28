@@ -196,7 +196,7 @@ impl Ppu {
             self.scx, self.scy,
             self.ly, self.wly
           );
-          if self.window_in_ly() && (self.wx <= 7) {
+          if !self.bg_fetcher.is_window() && self.window_in_ly() && (self.wx <= 7) {
             self.bg_fetcher.switch_to_window();
           }
           self.mode(PpuMode::PxTransfer);
