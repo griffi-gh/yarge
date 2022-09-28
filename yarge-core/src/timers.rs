@@ -60,10 +60,10 @@ impl Timers {
     let cur_tima_inc = self.enable && div_bit;
     if self.tima_inc && !cur_tima_inc {
       let (tima, carry) = self.tima.overflowing_add(1);
+      self.tima = tima;
       if carry {
         self.tima_reset_pending = true;
       }
-      self.tima = tima;
     }
     self.tima_inc = cur_tima_inc;
   }
