@@ -57,11 +57,11 @@ impl OamObject {
 }
 
 pub struct OamMemory {
-  pub objects: Box<[OamObject; 40]>,
+  pub objects: [OamObject; 40],
 }
 impl OamMemory {
   pub fn new() -> Self {
-    let mut objects = Box::new([OamObject::default(); 40]);
+    let mut objects = [OamObject::default(); 40];
     for (i, v) in objects.iter_mut().enumerate() {
       v.id = i as u8;
     }
