@@ -12,6 +12,8 @@ target/
 #Log files
 *.log
 log_*.txt
+log(*).txt
+log.txt
 
 #Roms
 roms

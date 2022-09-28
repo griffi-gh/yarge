@@ -4,42 +4,42 @@
   // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
   "version": "0.2.0",
   "configurations": [
-      {
-          "type": "lldb",
-          "request": "launch",
-          "name": "Debug executable 'yarge'",
-          "cargo": {
-              "args": [
-                  "build",
-                  "--bin=yarge",
-                  "--package=yarge"
-              ],
-              "filter": {
-                  "name": "yarge",
-                  "kind": "bin"
-              }
-          },
-          "args": [],
-          "cwd": "${workspaceFolder}"
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug executable",
+      "cargo": {
+        "args": [
+          "build",
+          "--bin=yarge-frontend-desktop",
+          "--package=yarge-frontend-desktop"
+        ],
+        "filter": {
+          "name": "yarge-frontend-desktop",
+          "kind": "bin"
+        }
       },
-      {
-          "type": "lldb",
-          "request": "launch",
-          "name": "Debug unit tests in executable 'yarge'",
-          "cargo": {
-              "args": [
-                  "test",
-                  "--no-run",
-                  "--bin=yarge",
-                  "--package=yarge"
-              ],
-              "filter": {
-                  "name": "yarge",
-                  "kind": "bin"
-              }
-          },
-          "args": [],
-          "cwd": "${workspaceFolder}"
-      }
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug unit tests",
+      "cargo": {
+        "args": [
+          "test",
+          "--no-run",
+          "--bin=yarge-frontend-desktop",
+          "--package=yarge-frontend-desktop"
+        ],
+        "filter": {
+          "name": "yarge-frontend-desktop",
+          "kind": "bin"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    }
   ]
 }

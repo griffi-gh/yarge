@@ -9,4 +9,9 @@
     "GBC", "[ ]", "[x]"
   ],
   "editor.tabSize": 2,
+  "typescript.tsc.autoDetect": "off",
+  "grunt.autoDetect": "off",
+  "jake.autoDetect": "off",
+  "gulp.autoDetect": "off",
+  "npm.autoDetect": "off"
 }
