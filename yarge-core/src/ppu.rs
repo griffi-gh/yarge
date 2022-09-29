@@ -253,7 +253,7 @@ impl Ppu {
           }
         }
 
-        //TODO REMOVE: MAKE PIXEL BLACK IF IT HAS A SPRITE
+        //TODO REMOVE: CHANGE PIXEL COLOR IF IT HAS A SPRITE
         if push_color.is_some() {
           for sprite_idx in 0..self.oam_buffer.len() {
             let sprite = self.oam_buffer.get(sprite_idx).unwrap();
