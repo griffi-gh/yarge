@@ -8,7 +8,7 @@ pub struct Mmu {
   cart: Cartridge,
   cart_header: RomHeader,
   wram: Box<[u8; 0x2000]>,
-  hram: Box<[u8; 0x007F]>,
+  hram: [u8; 0x007F],
   //oam dma
   oam_value: u8,
   oam_transfer: u8,
@@ -27,7 +27,7 @@ impl Mmu {
       cart: MockCartridge.into(),
       cart_header: RomHeader::default(),
       wram: Box::new([0; 0x2000]),
-      hram: Box::new([0; 0x007F]),
+      hram: [0; 0x7F],
       //oam dma
       oam_value: 0,
       oam_transfer: 0,
