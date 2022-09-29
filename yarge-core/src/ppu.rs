@@ -34,7 +34,7 @@ pub struct Ppu {
   stat_intr: StatInterrupts, 
   stat_prev: bool,
   oam_buffer: OamBuffer,
-  is_sprite_fetch: bool,
+  suspend_bg_fetcher: bool,
 }
 impl Ppu {
   pub fn new() -> Self {
@@ -70,7 +70,7 @@ impl Ppu {
       stat_intr: StatInterrupts::default(),
       stat_prev: false,
       oam_buffer: OamBuffer::default(),
-      is_sprite_fetch: false,
+      suspend_bg_fetcher: false,
     }
   }
 
@@ -215,13 +215,14 @@ impl Ppu {
         self.bg_fetcher.update_values(self.scx, self.scy);
 
         //Check for sprite fetch
-        if !self.is_sprite_fetch {
+        if false { //TODO re-enable
+          //need to check if the spr fetcher is running???
           for sprite_idx in 0..self.oam_buffer.len() {
             let sprite = self.oam_buffer.get(sprite_idx).unwrap();
             if sprite.x <= (self.lx + 8) {
               //Initiate sprite fetch
               self.bg_fetcher.spr_reset();
-              self.is_sprite_fetch = true;
+              self.suspend_bg_fetcher = true;
               break;
             }
           }
@@ -229,7 +230,7 @@ impl Ppu {
 
         //Update bg fetcher if not fetching sprites
         //Otherwise its sus pended
-        if !self.is_sprite_fetch {
+        if !self.suspend_bg_fetcher {
           self.bg_fetcher.tick(&self.lcdc, &self.vram);
           //If bg fetcher has something
           if self.bg_fetcher.len() > 0 {
