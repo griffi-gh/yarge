@@ -142,7 +142,7 @@ impl Ppu {
   fn window_in_ly(&self) -> bool {
     self.lcdc.enable_win && 
     (self.ly >= self.wy) && 
-    (self.wx < (WIDTH + 7) as u8)
+    (self.wx < (WIDTH + 7) as u8) || (self.wx == 166)
   }
 
   fn tick_inner(&mut self, iif: &mut u8) {
@@ -231,7 +231,7 @@ impl Ppu {
         //Otherwise its sus pended
         if !self.suspend_bg_fetcher {
           //Switch to window if the pixel is in window
-          if !self.bg_fetcher.is_window() && self.window_in_ly() && ((self.lx + 7) >= self.wx) {
+          if !self.bg_fetcher.is_window() && self.window_in_ly() && (((self.lx + 7) >= self.wx) || (self.wx == 166)) {
             self.bg_fetcher.switch_to_window();
           }
           self.bg_fetcher.tick(&self.lcdc, &self.vram);
