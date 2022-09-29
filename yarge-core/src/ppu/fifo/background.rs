@@ -10,7 +10,7 @@ pub enum FetcherLayer {
 }
 
 pub struct BackgroundFetcher {
-  fifo: Box<ArrayDeque<[FifoPixel; 8]>>,
+  fifo: ArrayDeque<[FifoPixel; 8]>,
   state: FetcherState,
   cycle: bool,
   scx: u8, 
@@ -28,7 +28,7 @@ impl BackgroundFetcher {
     Self {
       cycle: false,
       state: FetcherState::default(),
-      fifo: Box::new(ArrayDeque::default()),
+      fifo: ArrayDeque::default(),
       scx: 0, 
       scy: 0,
       wly: 0,
@@ -65,7 +65,7 @@ impl BackgroundFetcher {
   pub fn is_window(&self) -> bool {
     self.layer == FetcherLayer::Window
   }
-  pub fn update(&mut self, scx: u8, scy: u8) {
+  pub fn update_values(&mut self, scx: u8, scy: u8) {
     self.scx = scx;
     self.scy = scy;
   }

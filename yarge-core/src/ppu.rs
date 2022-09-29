@@ -205,7 +205,7 @@ impl Ppu {
       },
       PpuMode::PxTransfer => {
         //TODO optimize if bg/win is off
-        self.bg_fetcher.update(self.scx, self.scy);
+        self.bg_fetcher.update_values(self.scx, self.scy);
         self.bg_fetcher.tick(&self.lcdc, &self.vram);
         if self.bg_fetcher.len() > 0 {
           let FifoPixel { mut color, .. } = self.bg_fetcher.pop().unwrap();
