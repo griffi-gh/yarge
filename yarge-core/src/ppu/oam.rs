@@ -122,3 +122,10 @@ impl OamBuffer {
 impl Default for OamBuffer {
   fn default() -> Self { Self::new() }
 }
+// impl<'a> IntoIterator for &'a OamBuffer {
+//   type Item = &'a OamObject;
+//   type IntoIter = arrayvec::IntoIter<Self::Item, 10>;
+//   fn into_iter(self) -> Self::IntoIter {
+//     self.objects.into()
+//   }
+// }

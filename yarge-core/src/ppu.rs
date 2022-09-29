@@ -34,6 +34,7 @@ pub struct Ppu {
   stat_intr: StatInterrupts, 
   stat_prev: bool,
   oam_buffer: OamBuffer,
+  is_sprite_fetch: bool,
 }
 impl Ppu {
   pub fn new() -> Self {
@@ -69,6 +70,7 @@ impl Ppu {
       stat_intr: StatInterrupts::default(),
       stat_prev: false,
       oam_buffer: OamBuffer::default(),
+      is_sprite_fetch: false,
     }
   }
 
@@ -203,31 +205,67 @@ impl Ppu {
           self.check_stat(iif);
         }
       },
-      PpuMode::PxTransfer => {
+      PpuMode::PxTransfer => { 
+        //This is probably inaccurate!
         //TODO optimize if bg/win is off
+
+        let mut push_color: Option<u8> = None;
+
+        //Update values
         self.bg_fetcher.update_values(self.scx, self.scy);
-        self.bg_fetcher.tick(&self.lcdc, &self.vram);
-        if self.bg_fetcher.len() > 0 {
-          let FifoPixel { mut color, .. } = self.bg_fetcher.pop().unwrap();
-          if !self.bg_fetcher.is_window() && self.to_discard > 0 {
-            self.to_discard -= 1;
-            return;
+
+        //Check for sprite fetch
+        if !self.is_sprite_fetch {
+          for sprite_idx in 0..self.oam_buffer.len() {
+            let sprite = self.oam_buffer.get(sprite_idx).unwrap();
+            if sprite.x <= (self.lx + 8) {
+              //Initiate sprite fetch
+              self.bg_fetcher.spr_reset();
+              self.is_sprite_fetch = true;
+              break;
+            }
           }
-          if !self.lcdc.enable_bg {
-            color = 0;
+        }
+
+        //Update bg fetcher if not fetching sprites
+        //Otherwise its sus pended
+        if !self.is_sprite_fetch {
+          self.bg_fetcher.tick(&self.lcdc, &self.vram);
+          //If bg fetcher has something
+          if self.bg_fetcher.len() > 0 {
+            //Shift out background pixel
+            let FifoPixel { color, .. } = self.bg_fetcher.pop().unwrap();
+            //Discard bg pixel if needed
+            if !self.bg_fetcher.is_window() && self.to_discard > 0 {
+              self.to_discard -= 1;
+            } else {
+              //Set color to 0 if bg is disabled
+              if !self.lcdc.enable_bg {
+                push_color = Some(0);
+              } else {
+                push_color = Some(color);
+              }
+              //Switch to window if the pixel is in window
+              if !self.bg_fetcher.is_window() && self.window_in_ly() && ((self.lx + 7) >= self.wx) {
+                self.bg_fetcher.switch_to_window();
+              }
+            }
           }
+        }
+
+        //Push pixel to the display
+        if let Some(color) = push_color {
+          //Get display addr and set pixel color
           let addr = (self.ly as usize * WIDTH) + self.lx as usize;
           self.display[addr] = (self.bgp >> (color << 1)) & 0b11;
+          //Move to the next pixel
           self.lx += 1;
-          if !self.bg_fetcher.is_window() && self.window_in_ly() && ((self.lx + 7) >= self.wx) {
-            self.bg_fetcher.switch_to_window();
-          }
+          //End PxTransfer if lx > WIDTH
           if self.lx >= WIDTH as u8 { 
             debug_assert!(self.cycles >= 172, "PxTransfer took less then 172 cycles: {}", self.cycles);
             debug_assert!(self.cycles <= 289, "PxTransfer took more then 289 cycles: {}", self.cycles);
             self.lx = 0;
             self.hblank_len = 376 - self.cycles;
-            //why do i need to increment it HERE?
             if self.window_in_ly() {
               self.wly += 1;
             }
@@ -235,6 +273,7 @@ impl Ppu {
             self.check_stat(iif);
           }
         }
+
       }
     }
   }

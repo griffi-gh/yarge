@@ -69,6 +69,10 @@ impl BackgroundFetcher {
     self.scx = scx;
     self.scy = scy;
   }
+  pub fn spr_reset(&mut self) {
+    self.cycle = false;
+    self.state = FetcherState::default();
+  }
   pub fn tick(&mut self, lcdc: &Lcdc, vram: &[u8; VRAM_SIZE]) {
     if self.sleep > 0 {
       self.sleep -= 1;
@@ -115,7 +119,7 @@ impl BackgroundFetcher {
         self.state = FetcherState::PushToFifo;
       },
       FetcherState::PushToFifo => {
-        if self.fifo.len() == 0 {
+        if self.fifo.is_empty() {
           for x in (0..8_u8).rev() {
             let mask: u8 = 1 << x;
             let (l_bit, h_bit) = (
