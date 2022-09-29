@@ -150,7 +150,6 @@ impl Mmu {
     (self.oam_transfer > 0) && !((0xFF80..=0xFFFE).contains(&addr) || (addr == 0xFF46))
   }
   fn start_oam_dma(&mut self, value: u8) {
-    self.oam_transfer = 160;
     self.oam_value = value;
     let src_start = (value as u16) << 8;
     for i in 0..0xA0 {
@@ -162,6 +161,7 @@ impl Mmu {
       let dest_addr = 0xFE00 | i;
       self.ppu.write_oam(dest_addr, src_value, false);
     }
+    self.oam_transfer = 160;
   }
   fn tick_oam_dma(&mut self) {
     if self.oam_transfer > 0 {
