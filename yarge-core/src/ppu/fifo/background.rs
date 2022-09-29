@@ -1,6 +1,7 @@
 use arraydeque::ArrayDeque;
 use crate::consts::VRAM_SIZE;
 use crate::ppu::ppu_registers::Lcdc;
+use crate::ppu::util;
 use super::{Fifo, FetcherState, FifoPixel};
 
 #[derive(PartialEq, Eq)]
@@ -116,27 +117,21 @@ impl BackgroundFetcher {
       },
       FetcherState::ReadTileDataHigh if self.cycle => {
         self.tile_data.1 = vram[fetch_addr() + 1];
+        self.cycle = false;
         self.state = FetcherState::PushToFifo;
       },
       FetcherState::PushToFifo => {
         if self.fifo.is_empty() {
-          for x in (0..8_u8).rev() {
-            let mask: u8 = 1 << x;
-            let (l_bit, h_bit) = (
-              ((self.tile_data.0 & mask) != 0) as u8,
-              ((self.tile_data.1 & mask) != 0) as u8
-            );
-            let color = ((h_bit) << 1) | l_bit;
+          for color in util::spr_line(self.tile_data) {
             self.fifo.push_back(
               FifoPixel::from_color(color)
             ).unwrap();
           }
           self.offset += 1;
-          self.cycle = false;
           self.state = FetcherState::ReadTileId;
         }
       },
-      _ => { self.cycle = true; }
+      _ => { self.cycle = true }
     }
   }
 }
