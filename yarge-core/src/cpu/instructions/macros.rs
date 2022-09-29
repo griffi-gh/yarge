@@ -258,6 +258,7 @@ macro_rules! cpu_stop {
   ($self: expr) => {
     //TODO realistic STOP
     $self.state = CpuState::Stop;
+    $self.reg.inc_pc(1);
   };
 } pub(crate) use cpu_stop;
 
