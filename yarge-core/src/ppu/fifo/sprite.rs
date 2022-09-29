@@ -1,7 +1,7 @@
 use arraydeque::ArrayDeque;
 use crate::consts::VRAM_SIZE;
 use super::{Fifo, FifoPixel, FetcherState};
-use crate::ppu::oam::{OamBuffer, OamObject};
+use crate::ppu::{util, oam::{OamBuffer, OamObject}};
 
 pub struct SpriteFetcher {
   fifo: ArrayDeque<[FifoPixel; 8]>,
@@ -51,6 +51,13 @@ impl SpriteFetcher {
         self.state = FetcherState::PushToFifo;
       },
       FetcherState::PushToFifo => {
+        self.state = FetcherState::ReadTileId;
+        //TODO find a way to write directly to buffer
+        for color in util::spr_line(self.tile_data) {
+          self.fifo.push_back(
+            FifoPixel::from_color(color)
+          ).unwrap();
+        }
         self.state = FetcherState::ReadTileId;
       },
       _ => { self.cycle = true }

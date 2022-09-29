@@ -1,4 +1,5 @@
 use arraydeque::ArrayDeque;
+use crunchy::unroll;
 use crate::consts::VRAM_SIZE;
 use crate::ppu::ppu_registers::Lcdc;
 use crate::ppu::util;

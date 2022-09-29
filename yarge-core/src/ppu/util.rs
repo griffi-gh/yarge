@@ -9,8 +9,7 @@ pub fn spr_line(tile_data: (u8, u8)) -> [u8; 8] {
         ((tile_data.0 & mask) != 0) as u8,
         ((tile_data.1 & mask) != 0) as u8
       );
-      let color = ((h_bit) << 1) | l_bit;
-      colors[i] = color;
+      colors[i] = ((h_bit) << 1) | l_bit;
     }
   }
   colors
