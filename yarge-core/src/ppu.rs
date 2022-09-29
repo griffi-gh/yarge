@@ -231,6 +231,10 @@ impl Ppu {
         //Update bg fetcher if not fetching sprites
         //Otherwise its sus pended
         if !self.suspend_bg_fetcher {
+          //Switch to window if the pixel is in window
+          if !self.bg_fetcher.is_window() && self.window_in_ly() && ((self.lx + 7) >= self.wx) {
+            self.bg_fetcher.switch_to_window();
+          }
           self.bg_fetcher.tick(&self.lcdc, &self.vram);
           //If bg fetcher has something
           if self.bg_fetcher.len() > 0 {
@@ -245,10 +249,6 @@ impl Ppu {
                 push_color = Some(0);
               } else {
                 push_color = Some(color);
-              }
-              //Switch to window if the pixel is in window
-              if !self.bg_fetcher.is_window() && self.window_in_ly() && ((self.lx + 7) >= self.wx) {
-                self.bg_fetcher.switch_to_window();
               }
             }
           }
