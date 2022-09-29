@@ -214,19 +214,18 @@ impl Ppu {
         //Update values
         self.bg_fetcher.update_values(self.scx, self.scy);
 
-        //Check for sprite fetch
-        if false { //TODO re-enable
-          //need to check if the spr fetcher is running???
-          for sprite_idx in 0..self.oam_buffer.len() {
-            let sprite = self.oam_buffer.get(sprite_idx).unwrap();
-            if sprite.x <= (self.lx + 8) {
-              //Initiate sprite fetch
-              self.bg_fetcher.spr_reset();
-              self.suspend_bg_fetcher = true;
-              break;
-            }
-          }
-        }
+        // TODO re-enable
+        // //Check for sprite fetch
+        // //need to check if the spr fetcher is running???
+        // for sprite_idx in 0..self.oam_buffer.len() {
+        //   let sprite = self.oam_buffer.get(sprite_idx).unwrap();
+        //   if sprite.x <= (self.lx + 8) {
+        //     //Initiate sprite fetch
+        //     self.bg_fetcher.spr_reset();
+        //     self.suspend_bg_fetcher = true;
+        //     break;
+        //   }
+        // }
 
         //Update bg fetcher if not fetching sprites
         //Otherwise its sus pended
@@ -251,6 +250,15 @@ impl Ppu {
                 push_color = Some(color);
               }
             }
+          }
+        }
+
+        //TODO REMOVE: MAKE PIXEL BLACK IF IT HAS A SPRITE
+        for sprite_idx in 0..self.oam_buffer.len() {
+          let sprite = self.oam_buffer.get(sprite_idx).unwrap();
+          if (sprite.x <= (self.lx + 8)) && (sprite.x >= self.lx) {
+            push_color = Some(3);
+            break
           }
         }
 
