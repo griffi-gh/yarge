@@ -80,7 +80,6 @@ impl SpriteFetcher {
         //TODO this code is... not very good (tm)
         //Make sure that fifo is filled up
         while !self.fifo.is_full() {
-          //TODO FIGURE OUT IF PUSH_BACK OR PUSH_FRONT IS CORRECT
           self.fifo.push_back(FifoPixel::from_color(0)).unwrap();
         }
         //Reverse tile data if flip_x flag is set
