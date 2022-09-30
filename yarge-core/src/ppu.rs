@@ -15,6 +15,7 @@ pub struct Ppu {
   pub display: Box<[u8; FB_SIZE]>,
   pub frame_ready: bool,
   pub bgp: u8,
+  pub obp: (u8, u8),
   pub lyc: u8,
   pub scy: u8,
   pub scx: u8,
@@ -52,6 +53,7 @@ impl Ppu {
       },
       frame_ready: false,
       bgp: 0b11_10_01_00,
+      obp: (0b11_10_01_00, 0b11_10_01_00),
       lyc: 0,
       scy: 0,
       scx: 0,
@@ -196,6 +198,8 @@ impl Ppu {
           //TODO verify if doing it all at once is ok
           if self.lcdc.enable_obj {
             self.oam_buffer = self.oam.get_buffer(self.ly, &self.lcdc);
+          } else {
+            self.oam_buffer = OamBuffer::default();
           }
           self.to_discard = self.scx & 7;
           self.bg_fetcher.start(
@@ -266,30 +270,33 @@ impl Ppu {
         }
 
         //Pixel mixing
-        if (self.spr_fetcher.len() > 0) && push_color.is_some() {
+        let spr_pixel = if (self.spr_fetcher.len() > 0) && push_color.is_some() {
           let spr_pixel = self.spr_fetcher.pop().unwrap();
-          //TODO bg/obj priority
-          if spr_pixel.color > 0 {
+          if
+            (spr_pixel.color > 0) && 
+            (!spr_pixel.priority || (push_color.unwrap() == 0))
+          {
             push_color = Some(spr_pixel.color);
-          }
-        }
+            Some(spr_pixel)
+          } else { None }
+        } else { None };
 
-        // DEBUG: CHANGE BG PIXEL COLOR IF IT HAS A SPRITE
-        // if push_color.is_some() {
-        //   for sprite_idx in 0..self.oam_buffer.len() {
-        //     let sprite = self.oam_buffer.get(sprite_idx).unwrap();
-        //     if (sprite.x <= (self.lx + 8)) && (sprite.x > self.lx) {
-        //       push_color = Some((push_color.unwrap() + 1) % 4);
-        //       break
-        //     }
-        //   }
-        // }
+        //Map to pal
+        push_color = if let Some(color) = push_color {
+          let pal = if let Some(pixel) = spr_pixel {
+            let pal = if !pixel.pal { self.obp.0 } else { self.obp.1 };
+            pal & 0b11111100 //Index 0 is always transparent
+          } else {
+            self.bgp
+          };
+          Some((pal >> (color << 1)) & 0b11)
+        } else { None };
 
         //Push pixel to the display
         if let Some(color) = push_color {
           //Get display addr and set pixel color
           let addr = (self.ly as usize * WIDTH) + self.lx as usize;
-          self.display[addr] = (self.bgp >> (color << 1)) & 0b11;
+          self.display[addr] = color;
           //Move to the next pixel
           self.lx += 1;
           //End PxTransfer if lx > WIDTH

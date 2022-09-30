@@ -6,14 +6,17 @@ pub use sprite::SpriteFetcher;
 #[derive(Default)]
 pub struct FifoPixel {
   pub color: u8,
-  //priority: bool,
-  //pal: u8,
+  pub priority: bool,
+  pub pal: bool,
+  //pal: u8, (CGB ONLY)
 }
 impl FifoPixel {
   pub fn from_color(color: u8) -> Self {
     debug_assert!(color < 4, "Invalid color");
     Self {
       color, 
+      priority: false,
+      pal: false
       //..Default::default()
     }
   }

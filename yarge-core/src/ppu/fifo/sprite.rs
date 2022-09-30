@@ -45,11 +45,12 @@ impl SpriteFetcher {
     let fetch_addr = {
       let base_addr = self.tile_idx * 16;
       let mut y_offset = (self.ly as usize + 16) - self.object.y as usize; //can be > 7 for double height
+      debug_assert!(y_offset <= 15, "y_offset larger then max sprite height");
       //TODO handle dual-size objs here
-      // if self.object.flags.flip_y { 
-      //   let base = if y_offset > 7 { 15 } else { 7 };
-      //   y_offset = base - y_offset;
-      // }
+      if self.object.flags.flip_y { 
+        let base = if y_offset > 7 { 15 } else { 7 };
+        y_offset = base - y_offset;
+      }
       base_addr + (y_offset * 2)
     };
     match self.state {
@@ -81,9 +82,13 @@ impl SpriteFetcher {
         }
         let colors = util::spr_line(self.tile_data);
         unroll!(for i in 0..8 {
-          //Only paint on top if it's transparent
+          //Only paint on top if the bg is transparent
           if self.fifo[i].color == 0 {
-            self.fifo[i] = FifoPixel::from_color(colors[i])
+            self.fifo[i] = FifoPixel {
+              color: colors[i],
+              priority: self.object.flags.priority,
+              pal: self.object.flags.palette
+            };
           }
         });
         self.state = FetcherState::ReadTileId;

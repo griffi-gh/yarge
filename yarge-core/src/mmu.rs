@@ -78,9 +78,11 @@ impl Mmu {
           0xFF45 => self.ppu.lyc,
           0xFF46 => self.oam_value,
           0xFF47 => self.ppu.bgp,
-          0xFF50 => 0xFE | (self.bios_disabled as u8),
+          0xFF48 => self.ppu.obp.0,
+          0xFF49 => self.ppu.obp.1,
           0xFF4A => self.ppu.wy,
           0xFF4B => self.ppu.wx,
+          0xFF50 => 0xFE | (self.bios_disabled as u8),
           _ => 0xff
         }
       },
@@ -123,6 +125,8 @@ impl Mmu {
       0xFF45 => { self.ppu.lyc = value },
       0xFF46 => { self.start_oam_dma(value) }
       0xFF47 => { self.ppu.bgp = value },
+      0xFF48 => { self.ppu.obp.0 = value },
+      0xFF49 => { self.ppu.obp.1 = value },
       0xFF4A => { self.ppu.wy  = value },
       0xFF4B => { self.ppu.wx  = value },
       0xFF50 => { self.bios_disabled = true },
