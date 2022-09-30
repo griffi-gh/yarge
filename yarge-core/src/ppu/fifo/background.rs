@@ -23,7 +23,7 @@ pub struct BackgroundFetcher {
   tile_idx: u16,
   tile_data: (u8, u8),
   layer: FetcherLayer,
-  sleep: u8,
+  penalty: u8, //sleep
 }
 impl BackgroundFetcher {
   pub fn new() -> Self { 
@@ -39,7 +39,7 @@ impl BackgroundFetcher {
       tile_idx: 0,
       tile_data: (0, 0),
       layer: FetcherLayer::Background,
-      sleep: 6,
+      penalty: 6,
     }
   }
   pub fn start(&mut self, scx: u8, scy: u8, ly: u8, wly: u8) {
@@ -52,7 +52,7 @@ impl BackgroundFetcher {
     self.offset = 0;
     self.cycle = false;
     self.state = FetcherState::ReadTileId;
-    self.sleep = 6;
+    self.penalty = 6;
     self.fifo.clear();
   }
   pub fn switch_to_window(&mut self) {
@@ -76,8 +76,8 @@ impl BackgroundFetcher {
     self.state = FetcherState::default();
   }
   pub fn tick(&mut self, lcdc: &Lcdc, vram: &[u8; VRAM_SIZE]) {
-    if self.sleep > 0 {
-      self.sleep -= 1;
+    if self.penalty > 0 {
+      self.penalty -= 1;
       return;
     }
     let fetch_addr = || {

@@ -3,15 +3,17 @@ use crunchy::unroll;
 use crate::consts::VRAM_SIZE;
 use super::{Fifo, FifoPixel, FetcherState};
 use crate::ppu::{util, oam::{OamBuffer, OamObject}};
+use bit_reverse::LookupReverse;
 
 pub struct SpriteFetcher {
   fifo: ArrayDeque<[FifoPixel; 8]>,
   state: FetcherState,
   cycle: bool,
-  oam_id: usize,
-  object: OamObject, //consider using Option here
-  tile_idx: u16,
-  tile_data: (u8, u8)
+  object: OamObject,
+  tile_idx: usize,
+  tile_data: (u8, u8),
+  ly: u8,
+  pub fetching: bool
 }
 impl SpriteFetcher {
   pub fn new() -> Self {
@@ -19,26 +21,41 @@ impl SpriteFetcher {
       fifo: ArrayDeque::new(),
       state: FetcherState::default(),
       cycle: false,
-      oam_id: 0,
       object: OamObject::default(),
       tile_idx: 0,
-      tile_data: (0, 0)
+      tile_data: (0, 0),
+      ly: 0,
+      fetching: false
     }
   }
-  pub fn start(&mut self, oam_id: usize) {
-    //self.buffer = buffer.clone();
-    debug_assert!(oam_id < 40);
-    self.oam_id = oam_id;
+  pub fn eol(&mut self) {
+    self.fetching = false;
     self.cycle = false;
     self.state = FetcherState::ReadTileId;
+    self.fifo.clear();
+  }
+  pub fn start(&mut self, object: OamObject, ly: u8) {
+    self.object = object;
+    self.ly = ly;
+    self.cycle = false;
+    self.state = FetcherState::ReadTileId;
+    self.fetching = true;
   }
   pub fn tick(&mut self, buffer: &OamBuffer, vram: &[u8; VRAM_SIZE]) {
-    let fetch_addr = self.tile_idx as usize * 16;
+    let fetch_addr = {
+      let base_addr = self.tile_idx * 16;
+      let mut y_offset = (self.ly as usize + 16) - self.object.y as usize; //can be > 7 for double height
+      //TODO handle dual-size objs here
+      // if self.object.flags.flip_y { 
+      //   let base = if y_offset > 7 { 15 } else { 7 };
+      //   y_offset = base - y_offset;
+      // }
+      base_addr + (y_offset * 2)
+    };
     match self.state {
       FetcherState::ReadTileId if self.cycle => {
         self.cycle = false;
-        self.object = *buffer.get(self.oam_id).unwrap();
-        self.cycle = false;
+        self.tile_idx = self.object.tile as usize;
         self.state = FetcherState::ReadTileDataLow;
       },
       FetcherState::ReadTileDataLow if self.cycle => {
@@ -58,6 +75,10 @@ impl SpriteFetcher {
         while !self.fifo.is_full() {
           self.fifo.push_back(FifoPixel::from_color(0)).unwrap();
         }
+        if self.object.flags.flip_x {
+          self.tile_data.0 = LookupReverse::swap_bits(self.tile_data.0);
+          self.tile_data.1 = LookupReverse::swap_bits(self.tile_data.1);
+        }
         let colors = util::spr_line(self.tile_data);
         unroll!(for i in 0..8 {
           //Only paint on top if it's transparent
@@ -66,6 +87,7 @@ impl SpriteFetcher {
           }
         });
         self.state = FetcherState::ReadTileId;
+        self.fetching = false;
       },
       _ => { self.cycle = true }
     }

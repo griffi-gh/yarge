@@ -1,3 +1,4 @@
+use crate::consts::{WIDTH, HEIGHT};
 use super::ppu_registers::Lcdc;
 use arrayvec::ArrayVec;
 
@@ -73,7 +74,8 @@ impl OamMemory {
       let push_cond = {
         (object.x > 0) &&
         ((ly + 16) >= object.y) &&
-        ((ly + 16) < (object.y + lcdc.obj_size()))
+        ((ly + 16) < (object.y + lcdc.obj_size())) &&
+        (object.x <= (WIDTH - 7) as u8)
       };
       if push_cond {
         buffer.push(*object);
