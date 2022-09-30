@@ -1,4 +1,5 @@
 use arraydeque::ArrayDeque;
+use crunchy::unroll;
 use crate::consts::VRAM_SIZE;
 use super::{Fifo, FifoPixel, FetcherState};
 use crate::ppu::{util, oam::{OamBuffer, OamObject}};
@@ -52,12 +53,18 @@ impl SpriteFetcher {
       },
       FetcherState::PushToFifo => {
         self.state = FetcherState::ReadTileId;
-        //TODO find a way to write directly to buffer
-        for color in util::spr_line(self.tile_data) {
-          self.fifo.push_back(
-            FifoPixel::from_color(color)
-          ).unwrap();
+        //TODO this code is... not very good (tm)
+        //Make sure that fifo is fully filled up
+        while !self.fifo.is_full() {
+          self.fifo.push_back(FifoPixel::from_color(0)).unwrap();
         }
+        let colors = util::spr_line(self.tile_data);
+        unroll!(for i in 0..8 {
+          //Only paint on top if it's transparent
+          if self.fifo[i].color == 0 {
+            self.fifo[i] = FifoPixel::from_color(colors[i])
+          }
+        });
         self.state = FetcherState::ReadTileId;
       },
       _ => { self.cycle = true }

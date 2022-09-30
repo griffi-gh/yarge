@@ -123,11 +123,10 @@ impl BackgroundFetcher {
       },
       FetcherState::PushToFifo => {
         if self.fifo.is_empty() {
-          for color in util::spr_line(self.tile_data) {
-            self.fifo.push_back(
-              FifoPixel::from_color(color)
-            ).unwrap();
-          }
+          let colors = util::spr_line(self.tile_data);
+          unroll!(for i in 0..8 {
+            self.fifo.push_back(FifoPixel::from_color(colors[i])).unwrap();
+          });
           self.offset += 1;
           self.state = FetcherState::ReadTileId;
         }
