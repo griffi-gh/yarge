@@ -75,7 +75,7 @@ impl OamMemory {
         (object.x > 0) &&
         ((ly + 16) >= object.y) &&
         ((ly + 16) < (object.y + lcdc.obj_size())) &&
-        (object.x <= (WIDTH - 7) as u8)
+        (object.x <= (WIDTH + 7) as u8)
       };
       if push_cond {
         buffer.push(*object);
