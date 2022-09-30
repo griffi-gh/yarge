@@ -240,8 +240,6 @@ impl Ppu {
           self.suspend_bg_fetcher = false;
         }
 
-        //MAYBE Check sprite here again ???
-
         //Update bg fetcher if not suspended
         if !self.suspend_bg_fetcher {
           //Switch to window if the pixel is in window
