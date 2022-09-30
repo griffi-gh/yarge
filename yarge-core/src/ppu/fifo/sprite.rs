@@ -1,5 +1,4 @@
 use arraydeque::ArrayDeque;
-use crunchy::unroll;
 use crate::consts::VRAM_SIZE;
 use super::{Fifo, FifoPixel, FetcherState};
 use crate::ppu::{util, oam::{OamBuffer, OamObject}};

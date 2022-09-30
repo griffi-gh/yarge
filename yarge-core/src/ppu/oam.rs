@@ -1,4 +1,4 @@
-use crate::consts::{WIDTH, HEIGHT};
+use crate::consts::WIDTH;
 use super::ppu_registers::Lcdc;
 use arrayvec::ArrayVec;
 

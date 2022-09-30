@@ -299,9 +299,9 @@ impl Ppu {
           //End PxTransfer if lx > WIDTH
           if self.lx >= WIDTH as u8 { 
             //TODO RE-ENABLE ASSERTS ONCE SPRITES WORK CORRECTLY
-            //debug_assert!(self.fetched_sprites == self.oam_buffer.len(), "Fetched {} sprites out of {}", self.fetched_sprites, self.oam_buffer.len());
-            //debug_assert!(self.cycles >= 172, "PxTransfer took less then 172 cycles: {}", self.cycles);
-            //debug_assert!(self.cycles <= 289, "PxTransfer took more then 289 cycles: {}", self.cycles);
+            // debug_assert!(self.fetched_sprites == self.oam_buffer.len(), "Fetched {} sprites out of {}", self.fetched_sprites, self.oam_buffer.len());
+            // debug_assert!(self.cycles >= 172, "PxTransfer took less then 172 cycles: {}", self.cycles);
+            // debug_assert!(self.cycles <= 289, "PxTransfer took more then 289 cycles: {}", self.cycles);
             self.fetched_sprites = 0;
             self.spr_fetcher.eol();
             self.lx = 0;
