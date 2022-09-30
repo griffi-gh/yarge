@@ -1,7 +1,11 @@
 use arraydeque::ArrayDeque;
 use crate::consts::VRAM_SIZE;
 use super::{Fifo, FifoPixel, FetcherState};
-use crate::ppu::{util, oam::{OamBuffer, OamObject}};
+use crate::ppu::{
+  oam::{OamBuffer, OamObject},
+  ppu_registers::Lcdc,
+  util, 
+};
 use bit_reverse::LookupReverse;
 
 pub struct SpriteFetcher {
@@ -40,7 +44,7 @@ impl SpriteFetcher {
     self.state = FetcherState::ReadTileId;
     self.fetching = true;
   }
-  pub fn tick(&mut self, buffer: &OamBuffer, vram: &[u8; VRAM_SIZE]) {
+  pub fn tick(&mut self, buffer: &OamBuffer, vram: &[u8; VRAM_SIZE], lcdc: &Lcdc) {
     let fetch_addr = {
       let base_addr = self.tile_idx * 16;
       let mut y_offset = (self.ly as usize + 16) - self.object.y as usize; //can be > 7 for double height
@@ -56,6 +60,9 @@ impl SpriteFetcher {
       FetcherState::ReadTileId if self.cycle => {
         self.cycle = false;
         self.tile_idx = self.object.tile as usize;
+        if lcdc.obj_size {
+          self.tile_idx &= 0xFE;
+        }
         self.state = FetcherState::ReadTileDataLow;
       },
       FetcherState::ReadTileDataLow if self.cycle => {
@@ -73,6 +80,7 @@ impl SpriteFetcher {
         //TODO this code is... not very good (tm)
         //Make sure that fifo is filled up
         while !self.fifo.is_full() {
+          //TODO FIGURE OUT IF PUSH_BACK OR PUSH_FRONT IS CORRECT
           self.fifo.push_back(FifoPixel::from_color(0)).unwrap();
         }
         //Reverse tile data if flip_x flag is set

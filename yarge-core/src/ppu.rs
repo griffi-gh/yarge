@@ -228,20 +228,21 @@ impl Ppu {
             self.spr_fetcher.start(*sprite, self.ly);
             self.fetched_sprites += 1;
           }
-        } 
+        }
 
         //Tick spr_fetcher if it's not done fetching stuff
         if self.spr_fetcher.fetching {
-          self.spr_fetcher.tick(&self.oam_buffer, &self.vram);
+          self.spr_fetcher.tick(&self.oam_buffer, &self.vram, &self.lcdc);
         }
-
+        
         //Un-suspend bg fetcher if the sprite fetcher is done fetching the sprite
-        if self.suspend_bg_fetcher && self.spr_fetcher.len() > 0 {
+        if self.suspend_bg_fetcher && !self.spr_fetcher.fetching {
           self.suspend_bg_fetcher = false;
         }
 
-        //Update bg fetcher if not fetching sprites
-        //Otherwise its sus pended
+        //MAYBE Check sprite here again ???
+
+        //Update bg fetcher if not suspended
         if !self.suspend_bg_fetcher {
           //Switch to window if the pixel is in window
           if !self.bg_fetcher.is_window() && self.window_in_ly() && (((self.lx + 7) >= self.wx) || (self.wx == 166)) {
@@ -299,8 +300,8 @@ impl Ppu {
           //End PxTransfer if lx > WIDTH
           if self.lx >= WIDTH as u8 { 
             //TODO RE-ENABLE ASSERTS ONCE SPRITES WORK CORRECTLY
-            // debug_assert!(self.fetched_sprites == self.oam_buffer.len(), "Fetched {} sprites out of {}", self.fetched_sprites, self.oam_buffer.len());
-            // debug_assert!(self.cycles >= 172, "PxTransfer took less then 172 cycles: {}", self.cycles);
+            debug_assert!(self.fetched_sprites == self.oam_buffer.len(), "Fetched {} sprites out of {}", self.fetched_sprites, self.oam_buffer.len());
+            debug_assert!(self.cycles >= 172, "PxTransfer took less then 172 cycles: {}", self.cycles);
             // debug_assert!(self.cycles <= 289, "PxTransfer took more then 289 cycles: {}", self.cycles);
             self.fetched_sprites = 0;
             self.spr_fetcher.eol();
