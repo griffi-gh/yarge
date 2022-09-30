@@ -30,7 +30,9 @@ mod u16edit;
 use u16edit::u16_edit;
 use error_words::WORDS as ERROR_WORDS;
 
-pub(crate) use gb::consts::{WIDTH, HEIGHT};
+pub(crate) use gb::consts::{WIDTH as GB_WIDTH, HEIGHT as GB_HEIGHT};
+const WIDTH: u32 = GB_WIDTH as u32;
+const HEIGHT: u32 = GB_HEIGHT as u32;
 const SCALE: u32 = 4;
 const GB_PALETTE: [[u8; 4]; 4] = [
   [0xe0, 0xf8, 0xd0, 0xff],
