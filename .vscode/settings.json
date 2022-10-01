@@ -6,7 +6,8 @@
     "FIXME", "TODO", "XXX",
     "MAYBE", "NOT TESTED",
     "NOTE", "TEST", "FUCK", 
-    "GBC", "[ ]", "[x]"
+    "GBC", "[ ]", "[x]", 
+    "IDK"
   ],
   "editor.tabSize": 2,
   "typescript.tsc.autoDetect": "off",

@@ -39,6 +39,7 @@ pub struct Ppu {
   oam_buffer: OamBuffer,
   suspend_bg_fetcher: bool,
   fetched_sprites: usize,
+  pub mmu_oam_locked: bool,
 }
 impl Ppu {
   pub fn new() -> Self {
@@ -77,6 +78,7 @@ impl Ppu {
       oam_buffer: OamBuffer::default(),
       suspend_bg_fetcher: false,
       fetched_sprites: 0,
+      mmu_oam_locked: false,
     }
   }
 
@@ -102,6 +104,7 @@ impl Ppu {
   fn oam_blocked(&self) -> bool {
     #[cfg(feature = "ly-stub")]  { return false }
     if !self.lcdc.enable_display { return false }
+    if self.mmu_oam_locked { return true }
     matches!(self.mode, PpuMode::OamSearch | PpuMode::PxTransfer)
   }
   fn vram_blocked(&self) -> bool {
