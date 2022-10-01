@@ -59,8 +59,7 @@ impl Mmu {
       //OAM
       0xFE00..=0xFE9F => self.ppu.read_oam(addr, blocking),
       //IO REGISTERS
-      0xFF00..=0xFF7F => {
-        match addr {
+      0xFF00..=0xFF7F => match addr {
           0xFF00 => self.input.get_joyp(),
           0xFF04 => self.timers.get_div(),
           0xFF05 => self.timers.get_tima(),
@@ -84,14 +83,13 @@ impl Mmu {
           0xFF4B => self.ppu.wx,
           0xFF50 => 0xFE | (self.bios_disabled as u8),
           _ => 0xff
-        }
       },
       //HRAM
       0xFF80..=0xFFFE => {
         self.hram[((addr - 0xFF80) & 0x7F) as usize]
       },
       0xFFFF => self.iie,
-      _ => 0
+      _ => 0xFF
     }
   }
   

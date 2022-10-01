@@ -235,7 +235,7 @@ impl Ppu {
 
         //Tick spr_fetcher if it's not done fetching stuff
         if self.spr_fetcher.fetching {
-          self.spr_fetcher.tick(&self.oam_buffer, &self.vram, &self.lcdc);
+          self.spr_fetcher.tick(&self.lcdc, &self.vram);
         }
         
         //Un-suspend bg fetcher if the sprite fetcher is done fetching the sprite

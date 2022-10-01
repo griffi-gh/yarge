@@ -44,7 +44,7 @@ impl SpriteFetcher {
     self.state = FetcherState::ReadTileId;
     self.fetching = true;
   }
-  pub fn tick(&mut self, buffer: &OamBuffer, vram: &[u8; VRAM_SIZE], lcdc: &Lcdc) {
+  pub fn tick(&mut self, lcdc: &Lcdc, vram: &[u8; VRAM_SIZE]) {
     let fetch_addr = {
       let base_addr = self.tile_idx * 16;
       let mut y_offset = (self.ly as usize + 16) - self.object.y as usize; //can be > 7 for double height
