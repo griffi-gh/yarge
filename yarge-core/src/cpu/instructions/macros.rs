@@ -1,5 +1,15 @@
 pub(crate) use paste::paste;
 
+macro_rules! ld_b_b {
+  ($self: expr) => {
+    #[cfg(feature = "breakpoints")] {
+      Err($crate::YargeError::LdBreakpoint {
+        addr: $self.reg.pc.wrapping_sub(1)
+      })?;
+    }
+  }
+} pub(crate) use ld_b_b;
+
 macro_rules! ld_r_u8 {
   ($self: expr, $reg: ident) => { 
     let val = $self.fetch()?;

@@ -27,6 +27,9 @@ pub use consts::VERSION;
 //Types
 pub(crate) type Res<T> = Result<T, YargeError>;
 
+//Tests
+#[cfg(test)] mod tests;
+
 ///Gameboy emulator
 pub struct Gameboy {
   pub running: bool,

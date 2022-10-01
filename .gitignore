@@ -15,5 +15,9 @@ log_*.txt
 log(*).txt
 log.txt
 
-#Roms
-roms
+#Roms, except test .gb files
+/roms/**
+!/roms/tests/
+!/roms/tests/**/
+!/roms/tests/**/*.gb
+!/roms/tests/**/*.gbc

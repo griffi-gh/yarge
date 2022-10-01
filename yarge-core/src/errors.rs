@@ -28,6 +28,11 @@ pub enum YargeError {
     instr: u8,
   },
 
+  #[error("LD B,B breakpoint hit: at {addr:#06X}")]
+  LdBreakpoint {
+    addr: u16
+  },
+
   #[error("I/O error")]
   Io {
     #[from] source: std::io::Error
@@ -35,12 +40,6 @@ pub enum YargeError {
 }
 impl YargeError {
   pub fn is_recoverable(&self) -> bool {
-    match *self {
-      Self::PcBreakpoint{..} => true,
-      //TODO Make recoverable
-      //MMU Breakpoint causes an instruction to return mid-execution
-      //Self::MmuBreakpoint{..} => true,
-      _ => false
-    }
+    matches!(*self, Self::PcBreakpoint{..} | Self::LdBreakpoint{..})
   }
 }

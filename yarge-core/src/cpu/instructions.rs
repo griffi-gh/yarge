@@ -78,7 +78,7 @@ pub fn cpu_instructions(cpu: &mut Cpu, instr: u8) -> Res<()> {
     0x3E => { ld_r_u8!(cpu, A); }           //LD A,u8 
     0x3F => { ccf!(cpu); }                  //CCF
 
-    0x40 => { /*TODO Breakpoint */ }          //LD B,B
+    0x40 => { ld_b_b!(cpu); }               //LD B,B (Breakpoint)
     0x41 => { ld_r_r!(cpu, B, C); }         //LD B,C
     0x42 => { ld_r_r!(cpu, B, D); }         //LD B,D
     0x43 => { ld_r_r!(cpu, B, E); }         //LD B,E
@@ -87,7 +87,7 @@ pub fn cpu_instructions(cpu: &mut Cpu, instr: u8) -> Res<()> {
     0x46 => { ld_r_mhl!(cpu, B); }          //LD B,(HL)
     0x47 => { ld_r_r!(cpu, B, A); }         //LD B,A
     0x48 => { ld_r_r!(cpu, C, B); }         //LD C,B
-    0x49 => { /*IS A NO-OP*/ }                //LD C,C
+    0x49 => { /*IS A NO-OP*/ }              //LD C,C
     0x4A => { ld_r_r!(cpu, C, D); }         //LD C,D
     0x4B => { ld_r_r!(cpu, C, E); }         //LD C,E
     0x4C => { ld_r_r!(cpu, C, H); }         //LD C,H
@@ -97,7 +97,7 @@ pub fn cpu_instructions(cpu: &mut Cpu, instr: u8) -> Res<()> {
 
     0x50 => { ld_r_r!(cpu, D, B); }         //LD D,B
     0x51 => { ld_r_r!(cpu, D, C); }         //LD D,C
-    0x52 => { /*IS A NO-OP*/ }                //LD D,D
+    0x52 => { /*IS A NO-OP*/ }              //LD D,D
     0x53 => { ld_r_r!(cpu, D, E); }         //LD D,E
     0x54 => { ld_r_r!(cpu, D, H); }         //LD D,H
     0x55 => { ld_r_r!(cpu, D, L); }         //LD D,L
@@ -106,7 +106,7 @@ pub fn cpu_instructions(cpu: &mut Cpu, instr: u8) -> Res<()> {
     0x58 => { ld_r_r!(cpu, E, B); }         //LD E,B
     0x59 => { ld_r_r!(cpu, E, C); }         //LD E,C
     0x5A => { ld_r_r!(cpu, E, D); }         //LD E,D
-    0x5B => { /*IS A NO-OP*/ }                //LD E,E
+    0x5B => { /*IS A NO-OP*/ }              //LD E,E
     0x5C => { ld_r_r!(cpu, E, H); }         //LD E,H
     0x5D => { ld_r_r!(cpu, E, L); }         //LD E,L
     0x5E => { ld_r_mhl!(cpu, E); }          //LD E,(HL)
@@ -116,7 +116,7 @@ pub fn cpu_instructions(cpu: &mut Cpu, instr: u8) -> Res<()> {
     0x61 => { ld_r_r!(cpu, H, C); }         //LD H,C
     0x62 => { ld_r_r!(cpu, H, D); }         //LD H,D
     0x63 => { ld_r_r!(cpu, H, E); }         //LD H,E
-    0x64 => { /*IS A NO-OP*/ }                //LD H,H
+    0x64 => { /*IS A NO-OP*/ }              //LD H,H
     0x65 => { ld_r_r!(cpu, H, L); }         //LD H,L
     0x66 => { ld_r_mhl!(cpu, H); }          //LD H,(HL)
     0x67 => { ld_r_r!(cpu, H, A); }         //LD H,A
@@ -125,7 +125,7 @@ pub fn cpu_instructions(cpu: &mut Cpu, instr: u8) -> Res<()> {
     0x6A => { ld_r_r!(cpu, L, D); }         //LD L,D
     0x6B => { ld_r_r!(cpu, L, E); }         //LD L,E
     0x6C => { ld_r_r!(cpu, L, H); }         //LD L,H
-    0x6D => { /*IS A NO-OP*/ }                //LD L,L
+    0x6D => { /*IS A NO-OP*/ }              //LD L,L
     0x6E => { ld_r_mhl!(cpu, L); }          //LD L,(HL)
     0x6F => { ld_r_r!(cpu, L, A); }         //LD L,A
     
@@ -144,7 +144,7 @@ pub fn cpu_instructions(cpu: &mut Cpu, instr: u8) -> Res<()> {
     0x7C => { ld_r_r!(cpu, A, H); }         //LD A,H
     0x7D => { ld_r_r!(cpu, A, L); }         //LD A,L
     0x7E => { ld_r_mhl!(cpu, A); }          //LD A,(HL)
-    0x7F => { /*IS A NO-OP*/ }                //LD A,A
+    0x7F => { /*IS A NO-OP*/ }              //LD A,A
 
     0x80 => { add_a_r!(cpu, B); }           //ADD A,B
     0x81 => { add_a_r!(cpu, C); }           //ADD A,C
