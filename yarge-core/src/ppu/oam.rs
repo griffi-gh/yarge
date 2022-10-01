@@ -8,13 +8,15 @@ pub struct OamFlags {
   pub flip_y: bool,
   pub flip_x: bool,
   pub palette: bool, //DMG ONLY
+  pub hi_bits: u8,
 }
 impl From<OamFlags> for u8 {
   fn from(flags: OamFlags) -> u8 { 
     ((flags.priority as u8) << 7) |
-    ((flags.flip_x   as u8) << 6) |
-    ((flags.flip_y   as u8) << 5) |
-    ((flags.palette  as u8) << 4) 
+    ((flags.flip_y   as u8) << 6) |
+    ((flags.flip_x   as u8) << 5) |
+    ((flags.palette  as u8) << 4) |
+    flags.hi_bits
   }
 }
 impl From<u8> for OamFlags {
@@ -24,6 +26,7 @@ impl From<u8> for OamFlags {
       flip_y:   (value & (1 << 6)) != 0,
       flip_x:   (value & (1 << 5)) != 0,
       palette:  (value & (1 << 4)) != 0,
+      hi_bits:  (value & 0xF)
     }
   }
 }
