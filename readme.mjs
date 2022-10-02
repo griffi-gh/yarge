@@ -7,8 +7,9 @@ import * as fs from 'fs/promises';
       (`
         <table>
           <tr>
-            <th>Test</th>
-            <th>Status</th>
+            <th>Test suite</th>
+            <th>Test name</th>
+            <th>Result</th>
           </tr>
           ${
             (await fs.readFile('_test_result.json', 'utf-8'))
@@ -21,14 +22,17 @@ import * as fs from 'fs/promises';
                   (row.event === "ok") || 
                   (row.event === "failed")
                 )
-              ).map(row => `
+              )
+              .sort()
+              .map(row => `
                 <tr>
-                  <td>${row.name}</td>
-                  <td>${(row.event === 'ok') ? '✔️' : '❌'}</td>
+                  <td> ${ row.name.replace('tests::', '').split('___')[0] }</td>
+                  <td> ${ row.name.replace('tests::', '').split('___')[1] }</td>
+                  <td align="center">${(row.event === 'ok') ? '✔️' : '❌'}</td>
                 </tr>
               `).join('')
           }
         </table>
-      `).replace(/\s/g, '')
+      `).replace(/\s{2,}/g, ' ')
     )
 ));
