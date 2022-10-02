@@ -12,7 +12,7 @@ jobs:
       uses: actions/checkout@v3
 
     - name: Install required packages
-      run: ./setup.sh
+      run: sudo sh setup.sh
     
     - name: Setup Rust toolchain
       uses: actions-rs/toolchain@v1
