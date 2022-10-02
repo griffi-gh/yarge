@@ -24,7 +24,7 @@ import * as fs from 'fs/promises';
               ).map(row => `
                 <tr>
                   <td>${row.name}</td>
-                  <td align="center">${(row.event === 'ok') ? '✔️' : '❌'}</td>
+                  <td>${(row.event === 'ok') ? '✔️' : '❌'}</td>
                 </tr>
               `).join('')
           }
