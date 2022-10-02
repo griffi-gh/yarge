@@ -223,21 +223,24 @@ impl Ppu {
         self.bg_fetcher.update_values(self.scx, self.scy);
 
         //Check for sprite fetch
-        if let Some(sprite) = self.oam_buffer.get(self.fetched_sprites) {
-          if sprite.x <= (self.lx + 8) { // is == ok here?
-            //Initiate sprite fetch
-            self.bg_fetcher.spr_reset();
-            self.suspend_bg_fetcher = true;
-            self.spr_fetcher.start(*sprite, self.ly);
-            self.fetched_sprites += 1;
+        if !self.spr_fetcher.fetching {
+          if let Some(sprite) = self.oam_buffer.get(self.fetched_sprites) {
+            if sprite.x <= (self.lx + 8) { // is == ok here?
+              //Initiate sprite fetch
+              self.bg_fetcher.spr_reset();
+              self.suspend_bg_fetcher = true;
+              self.spr_fetcher.start(*sprite, self.ly);
+              self.fetched_sprites += 1;
+            }
           }
         }
-
+        
         //Tick spr_fetcher if it's not done fetching stuff
         if self.spr_fetcher.fetching {
           self.spr_fetcher.tick(&self.lcdc, &self.vram);
         }
         
+
         //Un-suspend bg fetcher if the sprite fetcher is done fetching the sprite
         if self.suspend_bg_fetcher && !self.spr_fetcher.fetching {
           self.suspend_bg_fetcher = false;
