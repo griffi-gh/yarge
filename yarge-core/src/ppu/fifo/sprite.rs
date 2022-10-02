@@ -45,16 +45,16 @@ impl SpriteFetcher {
     self.fetching = true;
   }
   pub fn tick(&mut self, lcdc: &Lcdc, vram: &[u8; VRAM_SIZE]) {
-    let fetch_addr = {
-      let base_addr = self.tile_idx * 16;
-      let mut y_offset = (self.ly as usize + 16) - self.object.y as usize; //can be > 7 for double height
-      debug_assert!(y_offset <= 15, "y_offset larger then max sprite height");
-      //TODO handle dual-size objs here
-      if self.object.flags.flip_y { 
-        let base = if y_offset > 7 { 15 } else { 7 };
-        y_offset = base - y_offset;
+    let fetch_addr = || {
+      let mut y_offset = (self.ly as usize + 16) - self.object.y as usize;
+      let mut tile_idx = self.tile_idx;
+      if lcdc.obj_size {
+        tile_idx |= ((y_offset > 7) ^ self.object.flags.flip_y) as usize;
+        y_offset &= 7;
+      } else if self.object.flags.flip_y {
+        y_offset = 7 - y_offset;
       }
-      base_addr + (y_offset * 2)
+      (tile_idx * 16) + (y_offset * 2)
     };
     match self.state {
       FetcherState::ReadTileId if self.cycle => {
@@ -66,12 +66,12 @@ impl SpriteFetcher {
         self.state = FetcherState::ReadTileDataLow;
       },
       FetcherState::ReadTileDataLow if self.cycle => {
-        self.tile_data.0 = vram[fetch_addr];
+        self.tile_data.0 = vram[fetch_addr()];
         self.cycle = false;
         self.state = FetcherState::ReadTileDataHigh;
       },
       FetcherState::ReadTileDataHigh if self.cycle => {
-        self.tile_data.1 = vram[fetch_addr + 1];
+        self.tile_data.1 = vram[fetch_addr() + 1];
         self.cycle = false;
         self.state = FetcherState::PushToFifo;
       },
