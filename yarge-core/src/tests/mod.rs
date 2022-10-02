@@ -8,6 +8,9 @@ compile_error!("Enable 'breakpoint-on-ld-b-b' feature to run tests");
 compile_error!("Enable 'breakpoints' feature to run tests");
 
 macro_rules! define_test {
+  ($name: tt, $path: literal) => {
+    define_test!($name, $path, (||{}));
+  };
   ($name: tt, $path: literal, $callback: tt) => {
     define_test!($name, $path, $callback, (|gb: &mut Gameboy, rom: &[u8]| {
       gb.init();
@@ -16,6 +19,19 @@ macro_rules! define_test {
     }));
   };
   ($name: tt, $path: literal, $callback: tt, $setup: tt) => {
+    define_test!($name, $path, $callback, $setup, (|gb: &mut Gameboy, res: $crate::Res<usize>| -> bool {
+      match res {
+        Ok(_) => false,
+        Err(
+          YargeError::LdBreakpoint { .. } | 
+          YargeError::PcBreakpoint { .. } | 
+          YargeError::MmuBreakpoint { .. }
+        ) => true,
+        Err(error) => Err(error).unwrap(),
+      }
+    }));
+  };
+  ($name: tt, $path: literal, $callback: tt, $setup: tt, $predicate: tt) => {
     #[test]
     fn $name () {
       use $crate::{Gameboy, YargeError};
@@ -24,17 +40,10 @@ macro_rules! define_test {
       gb.init();
       $setup(&mut gb, ROM);
       loop {
-        match gb.step() {
-          Ok(_) => {},
-          Err(
-            YargeError::LdBreakpoint { .. } | 
-            YargeError::PcBreakpoint { .. } | 
-            YargeError::MmuBreakpoint { .. }
-          ) => {
-            $callback(&mut gb);
-            break;
-          },
-          Err(error) => Err(error).unwrap(),
+        let result = gb.step();
+        if $predicate(&mut gb, result) {
+          $callback(&mut gb);
+          break;
         }
       }
     }
