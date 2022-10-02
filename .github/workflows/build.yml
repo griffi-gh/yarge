@@ -22,7 +22,7 @@ jobs:
     # Install required packages
 
     - name: Install required packages (Linux only)
-      run: ./setup.sh
+      run: sudo sh setup.sh
       if: runner.os == 'Linux'
     
     - name: Setup Rust toolchain
