@@ -154,6 +154,24 @@ impl Ppu {
     (self.wx < (WIDTH + 7) as u8) || (self.wx == 166)
   }
 
+  fn do_sprite_fetcher_stuff(&mut self) {
+    if !self.spr_fetcher.fetching {
+      if let Some(sprite) = self.oam_buffer.get(self.fetched_sprites) {
+        if sprite.x <= (self.lx + 8) { // is == ok here?
+          //Initiate sprite fetch
+          self.bg_fetcher.spr_reset();
+          self.suspend_bg_fetcher = true;
+          self.spr_fetcher.start(*sprite, self.ly);
+          self.fetched_sprites += 1;
+        }
+      }
+    }
+    //Tick spr_fetcher if it's not done fetching stuff
+    if self.spr_fetcher.fetching {
+      self.spr_fetcher.tick(&self.lcdc, &self.vram);
+    }
+  }
+
   fn tick_inner(&mut self, iif: &mut u8) {
     if !self.lcdc.enable_display {
       if self.display_cleared {
@@ -223,27 +241,12 @@ impl Ppu {
         self.bg_fetcher.update_values(self.scx, self.scy);
 
         //Check for sprite fetch
-        if !self.spr_fetcher.fetching {
-          if let Some(sprite) = self.oam_buffer.get(self.fetched_sprites) {
-            if sprite.x <= (self.lx + 8) { // is == ok here?
-              //Initiate sprite fetch
-              self.bg_fetcher.spr_reset();
-              self.suspend_bg_fetcher = true;
-              self.spr_fetcher.start(*sprite, self.ly);
-              self.fetched_sprites += 1;
-            }
-          }
-        }
-        
-        //Tick spr_fetcher if it's not done fetching stuff
-        if self.spr_fetcher.fetching {
-          self.spr_fetcher.tick(&self.lcdc, &self.vram);
-        }
-        
+        self.do_sprite_fetcher_stuff();
 
         //Un-suspend bg fetcher if the sprite fetcher is done fetching the sprite
         if self.suspend_bg_fetcher && !self.spr_fetcher.fetching {
           self.suspend_bg_fetcher = false;
+          self.do_sprite_fetcher_stuff();
         }
 
         //Update bg fetcher if not suspended
