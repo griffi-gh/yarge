@@ -4,7 +4,7 @@ import * as fs from 'fs/promises';
   (await fs.readFile('README_TEMPLATE.md', 'utf-8'))
     .replace(
       '___TEST_TABLE___',
-      `
+      (`
         <table>
           <tr>
             <th>Test</th>
@@ -29,6 +29,6 @@ import * as fs from 'fs/promises';
               `).join('')
           }
         </table>
-      `
+      `).replace(/\s/g)
     )
 ));
