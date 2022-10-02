@@ -1,5 +1,13 @@
 import * as fs from 'fs/promises';
 
+const ordered = unordered => Object.keys(unordered).sort().reduce(
+  (obj, key) => { 
+    obj[key] = unordered[key]; 
+    return obj;
+  }, 
+  {}
+);
+
 (await fs.writeFile('README.md', 
   (await fs.readFile('README_TEMPLATE.md', 'utf-8'))
     .replace(
@@ -23,11 +31,11 @@ import * as fs from 'fs/promises';
                   (row.event === "failed")
                 )
               )
-              .sort()
+              .sort((a,b) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0))
               .map(row => `
                 <tr>
                   <td><b>${ row.name.replace('tests::', '').split('___')[0].replace(/_/g, ' ') }</b></td>
-                  <td><b>${ row.name.replace('tests::', '').split('___')[1] }</b></td>
+                  <td>${ row.name.replace('tests::', '').split('___')[1] }</td>
                   <td align="center">${(row.event === 'ok') ? '✔️' : '❌'}</td>
                 </tr>
               `).join('')
