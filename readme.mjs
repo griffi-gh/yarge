@@ -26,8 +26,8 @@ import * as fs from 'fs/promises';
               .sort()
               .map(row => `
                 <tr>
-                  <td> ${ row.name.replace('tests::', '').split('___')[0] }</td>
-                  <td> ${ row.name.replace('tests::', '').split('___')[1] }</td>
+                  <td><b>${ row.name.replace('tests::', '').split('___')[0].replace(/_/g, ' ') }</b></td>
+                  <td><b>${ row.name.replace('tests::', '').split('___')[1] }</b></td>
                   <td align="center">${(row.event === 'ok') ? '✔️' : '❌'}</td>
                 </tr>
               `).join('')
