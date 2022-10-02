@@ -1,5 +1,4 @@
 <!--TITLE-->
-
 <h2 align="center">
   <img alt="logo" src=".assets/yarge.svg" border="0" width="78" height="78" align="left">
   <code>yarge</code> - <b>y</b>et <b>a</b>nother <b>r</b>ust <b>g</b>ameboy <b>e</b>mulator<br>
@@ -22,4 +21,23 @@
     <img alt="build win32" src="https://img.shields.io/badge/build-lin64-blue" border="0">
   </a>
 </div>
-<i>TODO:</i> Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+<p>
+  <i>TODO:</i> Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+</p>
+<h1>Tests</h1>
+<p>
+  
+        <table>
+          <tr>
+            <th>Test</th>
+            <th>Status</th>
+          </tr>
+          
+                <tr>
+                  <td>tests::mooneye_oam_dma_basic</td>
+                  <td>✔️</td>
+                </tr>
+              
+        </table>
+      
+</p>

@@ -1,5 +1,4 @@
 <!--TITLE-->
-
 <h2 align="center">
   <img alt="logo" src=".assets/yarge.svg" border="0" width="78" height="78" align="left">
   <code>yarge</code> - <b>y</b>et <b>a</b>nother <b>r</b>ust <b>g</b>ameboy <b>e</b>mulator<br>
