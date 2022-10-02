@@ -29,6 +29,6 @@ import * as fs from 'fs/promises';
               `).join('')
           }
         </table>
-      `).replace(/\s/g)
+      `).replace(/\s/g, '')
     )
 ));
