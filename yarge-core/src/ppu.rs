@@ -237,20 +237,23 @@ impl Ppu {
       PpuMode::PxTransfer => { //This is probably exetremely inaccurate!
         let mut push_color: Option<u8> = None;
 
-        //Update values
-        self.bg_fetcher.update_values(self.scx, self.scy);
-
         //Check for sprite fetch
         self.do_sprite_fetcher_stuff();
 
         //Un-suspend bg fetcher if the sprite fetcher is done fetching the sprite
         if self.suspend_bg_fetcher && !self.spr_fetcher.fetching {
           self.suspend_bg_fetcher = false;
-          self.do_sprite_fetcher_stuff();
+          self.do_sprite_fetcher_stuff(); //In case two sprites overlap
+          // Mayyybee I even need this check
+          // if !self.spr_fetcher.fetching {
+          //   self.suspend_bg_fetcher = false;
+          // }
         }
 
         //Update bg fetcher if not suspended
         if !self.suspend_bg_fetcher {
+          //Update values
+          self.bg_fetcher.update_values(self.scx, self.scy);
           //Switch to window if the pixel is in window
           if !self.bg_fetcher.is_window() && self.window_in_ly() && (((self.lx + 7) >= self.wx) || (self.wx == 166)) {
             self.bg_fetcher.switch_to_window();
@@ -306,9 +309,9 @@ impl Ppu {
           self.lx += 1;
           //End PxTransfer if lx > WIDTH
           if self.lx >= WIDTH as u8 { 
-            //TODO RE-ENABLE ASSERTS ONCE SPRITES WORK CORRECTLY
             debug_assert!(self.fetched_sprites == self.oam_buffer.len(), "Fetched {} sprites out of {}", self.fetched_sprites, self.oam_buffer.len());
             debug_assert!(self.cycles >= 172, "PxTransfer took less then 172 cycles: {}", self.cycles);
+            //TODO RE-ENABLE ASSERT ONCE THE 292 bug is fixed
             // debug_assert!(self.cycles <= 289, "PxTransfer took more then 289 cycles: {}", self.cycles);
             self.fetched_sprites = 0;
             self.spr_fetcher.eol();
