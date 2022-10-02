@@ -8,7 +8,7 @@ jobs:
   readme:
     runs-on: ubuntu-latest
     concurrency: 
-      group: ${{ github.ref }}
+      group: readme-${{ github.ref }}
       cancel-in-progress: true
     steps:
     - name: Checkout

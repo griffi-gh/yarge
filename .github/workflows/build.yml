@@ -16,7 +16,7 @@ jobs:
         os: [ubuntu-latest, windows-latest]
 
     concurrency: 
-      group: ${{ github.ref }}
+      group: build-${{ github.ref }}
       cancel-in-progress: true
     steps:
 
