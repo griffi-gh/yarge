@@ -2426,6 +2426,7 @@ dependencies = [
  "crunchy",
  "enum_dispatch",
  "enumflags2",
+ "fxhash",
  "lazy_static",
  "parse-display",
  "paste",
