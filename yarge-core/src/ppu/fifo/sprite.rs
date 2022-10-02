@@ -1,12 +1,12 @@
 use arraydeque::ArrayDeque;
+use bit_reverse::LookupReverse;
 use crate::consts::VRAM_SIZE;
 use super::{Fifo, FifoPixel, FetcherState};
 use crate::ppu::{
-  oam::{OamBuffer, OamObject},
+  oam::OamObject,
   ppu_registers::Lcdc,
   util, 
 };
-use bit_reverse::LookupReverse;
 
 pub struct SpriteFetcher {
   fifo: ArrayDeque<[FifoPixel; 8]>,
