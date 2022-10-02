@@ -21,3 +21,6 @@ log.txt
 !/roms/tests/**/
 !/roms/tests/**/*.gb
 !/roms/tests/**/*.gbc
+
+#Test results
+_test_result.json

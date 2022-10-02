@@ -1,0 +1,48 @@
+name: Update README
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+  steps:
+  - name: Checkout
+    uses: actions/checkout@v3
+
+  - name: Install required packages
+    run: ./setup.sh
+  
+  - name: Setup Rust toolchain
+    uses: actions-rs/toolchain@v1
+    with:
+      profile: minimal
+      toolchain: nightly
+      default: true
+      override: true
+  
+  - uses: Swatinem/rust-cache@v1
+
+  - name: Setup Node.js
+    uses: actions/setup-node@v3
+    with:
+      node-version: 16.x
+
+  - name: Run tests
+    run: >-
+      cargo test
+        --package yarge-core
+        --features breakpoint-on-ld-b-b,breakpoints
+        --no-fail-fast --quiet --lib
+        -- -Z unstable-options
+        --format json
+      > _test_result.json
+  
+  - name: Update README
+    run: node readme.mjs --input-type=module
+  
+  - name: Add & Commit
+    uses: EndBug/add-and-commit@v9.1.0
+    with:
+      add: 'README.md'
