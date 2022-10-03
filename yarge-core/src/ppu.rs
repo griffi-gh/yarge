@@ -132,7 +132,7 @@ impl Ppu {
   
   fn mode(&mut self, mode: PpuMode) {
     #[cfg(feature = "dbg-emit-ppu-events")] {
-      println!("PPU_EVENT CHSNGE_MODE mode={} from={} ly={}", mode as u8, self.mode as u8, self.ly);
+      println!("PPU_EVENT CHANGE_MODE mode={} from={} ly={}", mode as u8, self.mode as u8, self.ly);
     }
     self.cycles = 0;
     self.mode = mode;
