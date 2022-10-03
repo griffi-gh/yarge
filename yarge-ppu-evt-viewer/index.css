@@ -4,8 +4,8 @@ body {
   color: white;
 }
 #app-main, #point-canvas {
-  width: 800px;
-  height: 360px;
+  width: 960px;
+  height: 432px;
 }
 #app-main {
   position: relative;
@@ -46,4 +46,17 @@ hr {
   justify-content: start;
   align-items: flex-start;
   flex-wrap: wrap;
+}
+#canvas-tooltip {
+  pointer-events: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: rgba(0, 0, 0, .5);
+  border-radius: 5px;
+  z-index: 99999;
+  padding: 2px 5px;
+}
+#point-canvas:not(:hover) ~ #canvas-tooltip {
+  opacity: 0;
 }

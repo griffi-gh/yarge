@@ -20,11 +20,21 @@
   <input type="file" id="file-upload">
   <hr>
   <div id="app-main">
-    <canvas width="800" height="360" id="point-canvas"></canvas>
+    <canvas id="point-canvas"></canvas>
+    <div id="canvas-tooltip">
+      Cycles/LX:<output id="tt-lx">0</output><br>
+      LY:<output id="tt-ly">0</output>
+    </div>
   </div>
   <hr>
   <div id="brow">
     <div id="toggl">
+      <div>Options:</div>
+      <div>
+        <!-- <input type="checkbox" name="" id="offset-image"> -->
+        <label for="offset-image">Offset reference image</label><br>
+        <input type="range" id="offset-image" min="0" max="13" value="0" step="1">
+      </div>
       <div>Show types:</div>
       <div id="toggl-inner">
         <span style="color:gray">Load data first</span>

@@ -1,5 +1,15 @@
 "use strict";
 
+const appMain = document.getElementById('app-main');
+
+function getMousePos(evt, base) {
+  var rect = (base ?? evt.target).getBoundingClientRect();
+  return {
+    x: evt.clientX - rect.left,
+    y: evt.clientY - rect.top
+  };
+}
+
 function loadData(str) {
   return str
     .replace(/\r/g,'')
@@ -43,6 +53,10 @@ function drawPoints(data, state) {
           // ctx.fillRect(point.args.cycles * scale - 3, point.args.ly * scale, 9, 3);
         }
         ctx.fillRect(point.args.cycles * scale, point.args.ly * scale, 3, 3);
+        break;
+      case 'LX_INC':
+        ctx.fillStyle = 'rgb(0,0,0,0.05)';
+        ctx.fillRect(point.args.cycles * scale, point.args.ly * scale, 2, 2);
         break;
     }
   }
@@ -107,6 +121,16 @@ function addUI(data, cb) {
 
   document.getElementById('frm').value = frames.toString();
   document.getElementById('pnt').value = data.length.toString();
+
+  const tooltip = document.getElementById('canvas-tooltip');
+  const canvas = document.getElementById('point-canvas');
+  const scale = canvas.width / (160 * 2);
+  document.getElementById('point-canvas').addEventListener('mousemove', event => {
+    const pos = getMousePos(event);
+    tooltip.style.transform = `translate(${pos.x + 20}px, ${pos.y + 20}px)`;
+    document.getElementById('tt-lx').value = Math.floor(pos.x / scale).toString();
+    document.getElementById('tt-ly').value = Math.floor(pos.y / scale).toString();
+  })
 }
 
 const fup = document.getElementById('file-upload')
@@ -123,3 +147,14 @@ const fupCallback = () => {
 };
 fup.addEventListener('change', fupCallback);
 if (fup.files.length) fupCallback();
+
+
+//offset image
+const oi = document.getElementById('offset-image');
+const updOi = () => {
+  const canvas = document.getElementById('point-canvas');
+  const scale = canvas.width / (160 * 2);
+  appMain.style.backgroundPositionX = `${(oi.value|0)*scale}px`;
+}
+updOi();
+oi.addEventListener('change', updOi);

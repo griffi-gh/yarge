@@ -323,6 +323,9 @@ impl Ppu {
           self.display[addr] = color;
           //Move to the next pixel
           self.lx += 1;
+          #[cfg(feature = "dbg-emit-ppu-events")] {
+            println!("PPU_EVENT LX_INC lx={} ly={} cycles={}", self.lx, self.ly, self.cycles);
+          }
           //End PxTransfer if lx > WIDTH
           if self.lx >= WIDTH as u8 { 
             #[cfg(feature = "dbg-emit-ppu-events")] {
