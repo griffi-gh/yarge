@@ -9,6 +9,8 @@ const ordered = unordered => Object.keys(unordered).sort().reduce(
 );
 
 (await fs.writeFile('README.md', 
+  "<!-- THIS FILE IS GENERATED AUTOMATICALLY, ALL CHANGES WILL BE LOST -->\n" + 
+  "<!-- Generated from README_TEMPLATE.md -->\n\n" + 
   (await fs.readFile('README_TEMPLATE.md', 'utf-8'))
     .replace(
       '___TEST_TABLE___',
