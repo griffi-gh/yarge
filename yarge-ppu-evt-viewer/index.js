@@ -130,7 +130,8 @@ function addUI(data, cb) {
     tooltip.style.transform = `translate(${pos.x + 20}px, ${pos.y + 20}px)`;
     document.getElementById('tt-lx').value = Math.floor(pos.x / scale).toString();
     document.getElementById('tt-ly').value = Math.floor(pos.y / scale).toString();
-  })
+  });
+  updOi();
 }
 
 const fup = document.getElementById('file-upload')
@@ -151,7 +152,7 @@ if (fup.files.length) fupCallback();
 
 //offset image
 const oi = document.getElementById('offset-image');
-const updOi = () => {
+var updOi = () => {
   const canvas = document.getElementById('point-canvas');
   const scale = canvas.width / (160 * 2);
   appMain.style.backgroundPositionX = `${(oi.value|0)*scale}px`;
