@@ -129,9 +129,10 @@ function addUI(data, cb) {
     const pos = getMousePos(event);
     tooltip.style.transform = `translate(${pos.x + 20}px, ${pos.y + 20}px)`;
     document.getElementById('tt-lx').value = Math.floor(pos.x / scale).toString();
+    //document.getElementById('tt-dots').value = (4 * (document.getElementById('tt-lx').value | 0)).toString();
+    document.getElementById('tt-dots').value = (80 + (document.getElementById('tt-lx').value | 0)).toString();
     document.getElementById('tt-ly').value = Math.floor(pos.y / scale).toString();
   });
-  updOi();
 }
 
 const fup = document.getElementById('file-upload')
@@ -143,6 +144,7 @@ const fupCallback = () => {
     console.log('data loaded', data);
     addUI(data);
     console.log('points drawn');
+    setTimeout(updOi, 0);
   });
   reader.readAsText(file);
 };
@@ -152,10 +154,12 @@ if (fup.files.length) fupCallback();
 
 //offset image
 const oi = document.getElementById('offset-image');
+oi.value = (localStorage.getItem('ref-offset') ?? 0).toString();
 var updOi = () => {
   const canvas = document.getElementById('point-canvas');
   const scale = canvas.width / (160 * 2);
   appMain.style.backgroundPositionX = `${(oi.value|0)*scale}px`;
+  localStorage.setItem('ref-offset', oi.value.toString());
 }
 updOi();
 oi.addEventListener('change', updOi);
