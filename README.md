@@ -1,3 +1,6 @@
+<!-- THIS FILE IS GENERATED AUTOMATICALLY, ALL CHANGES WILL BE LOST -->
+<!-- Generated from README_TEMPLATE.md -->
+
 <!--TITLE-->
 <h2 align="center">
   <img alt="logo" src=".assets/yarge.svg" border="0" width="78" height="78" align="left">
@@ -26,5 +29,5 @@
 </p>
 <h1>Tests</h1>
 <p>
-   <table> <tr> <th>Test suite</th> <th>Test name</th> <th>Result</th> </tr> </table> 
+   <table> <tr> <th>Test suite</th> <th>Test name</th> <th>Result</th> </tr> <tr> <td><b>Acid 2</b></td> <td>dmg_acid2</td> <td align="center">✔️</td> </tr> <tr> <td><b>Mooneye</b></td> <td>acceptance_oam_dma_basic</td> <td align="center">✔️</td> </tr> <tr> <td><b>Mooneye</b></td> <td>acceptance_oam_reg_read</td> <td align="center">✔️</td> </tr> <tr> <td><b>Mooneye</b></td> <td>acceptance_oam_sources_gs</td> <td align="center">✔️</td> </tr> <tr> <td><b>Mooneye</b></td> <td>acceptance_timer_div_write</td> <td align="center">✔️</td> </tr> <tr> <td><b>Mooneye</b></td> <td>acceptance_timer_rapid_toggle</td> <td align="center">❌</td> </tr> <tr> <td><b>Mooneye</b></td> <td>acceptance_timer_tim00</td> <td align="center">✔️</td> </tr> <tr> <td><b>Mooneye</b></td> <td>acceptance_timer_tim00_div_trigger</td> <td align="center">✔️</td> </tr> <tr> <td><b>Mooneye</b></td> <td>acceptance_timer_tim01</td> <td align="center">✔️</td> </tr> <tr> <td><b>Mooneye</b></td> <td>acceptance_timer_tim01_div_trigger</td> <td align="center">✔️</td> </tr> <tr> <td><b>Mooneye</b></td> <td>acceptance_timer_tim10</td> <td align="center">✔️</td> </tr> <tr> <td><b>Mooneye</b></td> <td>acceptance_timer_tim10_div_trigger</td> <td align="center">✔️</td> </tr> <tr> <td><b>Mooneye</b></td> <td>acceptance_timer_tim11</td> <td align="center">✔️</td> </tr> <tr> <td><b>Mooneye</b></td> <td>acceptance_timer_tim11_div_trigger</td> <td align="center">✔️</td> </tr> <tr> <td><b>Mooneye</b></td> <td>acceptance_timer_tima_reload</td> <td align="center">✔️</td> </tr> <tr> <td><b>Mooneye</b></td> <td>acceptance_timer_tima_write_reloading</td> <td align="center">❌</td> </tr> <tr> <td><b>Mooneye</b></td> <td>acceptance_timer_tma_write_reloading</td> <td align="center">❌</td> </tr> </table> 
 </p>
