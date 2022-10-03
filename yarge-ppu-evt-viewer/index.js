@@ -154,7 +154,7 @@ if (fup.files.length) fupCallback();
 
 //offset image
 const oi = document.getElementById('offset-image');
-oi.value = (localStorage.getItem('ref-offset') ?? 0).toString();
+oi.value = (localStorage.getItem('ref-offset') ?? 12).toString();
 var updOi = () => {
   const canvas = document.getElementById('point-canvas');
   const scale = canvas.width / (160 * 2);
