@@ -2,7 +2,7 @@
 pub use winit;
 use winit::{
   window::WindowBuilder,
-  event_loop::{ControlFlow, EventLoop},
+  event_loop::{ControlFlow, EventLoop, EventLoopWindowTarget},
   dpi::LogicalSize,
   event::Event,
   window::Window,
@@ -59,16 +59,14 @@ struct Framework<T: Gui> {
   texture_delta: Option<TexturesDelta>,
 }
 impl<T: Gui> Framework<T> {
-  fn new(
+  fn new<E>(
     width: u32, height: u32, 
     scale_factor: f32, pixels: &pixels::Pixels,
-    gui_state: T
+    gui_state: T,
+    event_loop: &EventLoopWindowTarget<E>
   ) -> Self {
     let egui_ctx = EguiCtx::default();
-    let egui_state = egui_winit::State::from_pixels_per_point(
-      pixels.device().limits().max_texture_dimension_2d as usize,
-      scale_factor
-    );
+    let egui_state = egui_winit::State::new(event_loop);
     let screen_descriptor = ScreenDescriptor {
       size_in_pixels: [width, height],
       pixels_per_point: scale_factor
@@ -205,7 +203,8 @@ pub fn init<T: 'static + Gui>(state: T, prop: InitProperties) {
     ).unwrap();
     let framework = Framework::new(
       window_size.width, window_size.height, 
-      scale_factor, &pixels, state
+      scale_factor, &pixels, state,
+      &event_loop
     );
     (pixels, framework)
   };
@@ -246,7 +245,7 @@ pub fn init<T: 'static + Gui>(state: T, prop: InitProperties) {
         // Call prepare callback
         framework.state.prepare();
         // Render
-        framework.state.render(pixels.get_frame());
+        framework.state.render(pixels.get_frame_mut());
         // Prepare framework and check for exit status
         let exit_requested = framework.prepare(&window);
         if exit_requested {

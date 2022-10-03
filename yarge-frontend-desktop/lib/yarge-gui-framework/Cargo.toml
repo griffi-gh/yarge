@@ -7,10 +7,9 @@ edition = "2021"
 rust-version = "1.60"
 
 [dependencies]
-# Can't upgrade because `pixels` uses an old version of `wgpu`
-egui = "0.18"
-egui-wgpu = "0.18"
-egui-winit = "0.18"
-winit = "0.26"
-winit_input_helper = "0.12"
-pixels = "0.9"
+egui = "0.19"
+egui-wgpu = "0.19"
+egui-winit = "0.19"
+winit = "0.27"
+winit_input_helper = "0.13"
+pixels = { git = "https://github.com/parasyte/pixels", rev = "9f7896cd2f1c80989e8f29ec6e3b6687183250a4"}
