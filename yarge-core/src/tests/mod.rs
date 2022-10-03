@@ -1,7 +1,7 @@
 #[cfg(not(test))] 
 compile_error!("Not a test environment");
 
-#[cfg(not(feature = "breakpoint-on-ld-b-b"))]
+#[cfg(not(feature = "dbg-breakpoint-on-ld-b-b"))]
 compile_error!("Enable 'breakpoint-on-ld-b-b' feature to run tests");
 
 #[cfg(not(feature = "dbg-breakpoints"))]
