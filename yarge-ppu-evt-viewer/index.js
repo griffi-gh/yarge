@@ -50,7 +50,7 @@ function drawPoints(data, state) {
   ctx.fillRect(289 * scale,0,2,canvas.height);
 }
 
-function addToggles(data, cb) {
+function addUI(data, cb) {
   const done = {};
   const types = [];
   for(const point of data) {
@@ -59,18 +59,40 @@ function addToggles(data, cb) {
     types.push(point.type);
   }
 
+  let frames = 0;
+  {
+    let allowed = true;
+    data.forEach(v => {
+      if (allowed) {
+        frames++;
+        allowed = false;
+      }
+      if (v.type == "FRAME_END") {
+        allowed = true;
+      }
+    });
+  }
+
   const state = {};
+  cb = cb ?? (statee => {
+    drawPoints(data, statee);
+  });
   document.getElementById('toggl-inner').remove();
   const outer = document.createElement('div');
   outer.id = 'toggl-inner';
   for(const type of types) {
+    const lsKey = 'SAVE_CHECKBOX_' + type;
     state[type] = false;
     const div = document.createElement('div');
     const inp = document.createElement('input');
     inp.type = 'checkbox';
     inp.id = 'input-type-tg-' + type;
+    inp.checked = (localStorage.getItem(lsKey) ?? 'false') === 'true';
+    state[type] = inp.checked;
     inp.addEventListener('change', () => {
-      state[type] = !state[type];
+      state[type] = inp.checked;
+      localStorage.setItem(lsKey, state[type] ? 'true' : 'false');
+      console.log(localStorage[lsKey]);
       cb(state);
     });
     div.appendChild(inp);
@@ -82,18 +104,22 @@ function addToggles(data, cb) {
   }
   document.getElementById('toggl').appendChild(outer);
   cb(state);
+
+  document.getElementById('frm').value = frames.toString();
+  document.getElementById('pnt').value = data.length.toString();
 }
 
-document.getElementById('file-upload').addEventListener('change', event => {
-  const file = event.target.files[0];
+const fup = document.getElementById('file-upload')
+const fupCallback = () => {
+  const file = fup.files[0];
   const reader = new FileReader();
   reader.addEventListener('load', () => {
     let data = loadData(reader.result);
     console.log('data loaded', data);
-    addToggles(data, state => {
-      drawPoints(data, state);
-    });
+    addUI(data);
     console.log('points drawn');
   });
   reader.readAsText(file);
-});
+};
+fup.addEventListener('change', fupCallback);
+if (fup.files.length) fupCallback();
