@@ -213,6 +213,9 @@ impl Ppu {
           self.cycles = 0;
           self.ly += 1;
           if self.ly >= 155 {
+            #[cfg(feature = "dbg-emit-ppu-events")] {
+              println!("PPU_EVENT FRAME_END");
+            }
             self.wly = 0;
             self.ly = 0;
             self.mode(PpuMode::OamSearch);
