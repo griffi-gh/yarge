@@ -5,7 +5,7 @@ compile_error!("Not a test environment");
 compile_error!("Enable 'dbg-breakpoint-on-ld-b-b' feature to run tests");
 
 #[cfg(not(feature = "dbg-breakpoints"))]
-compile_error!("Enable 'breakpoints' feature to run tests");
+compile_error!("Enable 'dbg-breakpoints' feature to run tests");
 
 macro_rules! define_test {
   ($name: tt, $path: literal) => {
