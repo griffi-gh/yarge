@@ -9,18 +9,30 @@
   <link rel="stylesheet" href="index.css">
 </head>
 <body>
+  <h1><code>YARGE PPU EVENT VIEWER</code></h1>
+  <hr>
+  <p>
+    Run like this:<br>
+    <code>
+      cargo run --features dbg-emit-ppu-events,dbg-breakpoint-on-ld-b-b > _ppu_events.log
+    </code>
+  </p>
   <input type="file" id="file-upload">
+  <hr>
   <div id="app-main">
     <canvas width="800" height="360" id="point-canvas"></canvas>
   </div>
-  <div finfo>
-    Frames in log: <output id="frm">0</output><br>
-    Points: <output id="pnt">0</output>
-  </div>
-  <div id="toggl">
-    <div>Show types:</div>
-    <div id="toggl-inner">
-      <span style="color:gray">Load data first</span>
+  <hr>
+  <div id="brow">
+    <div id="toggl">
+      <div>Show types:</div>
+      <div id="toggl-inner">
+        <span style="color:gray">Load data first</span>
+      </div>
+    </div>
+    <div class="finfo">
+      Frames in log: <output id="frm">0</output><br>
+      Points: <output id="pnt">0</output>
     </div>
   </div>
 </body>

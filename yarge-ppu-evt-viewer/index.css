@@ -28,3 +28,22 @@ body {
 #point-canvas {
   z-index: 999;
 }
+hr {
+  border: none;
+  outline: none;
+  border: 1px inset rgba(255, 255, 255, .5);
+}
+.finfo, #toggl {
+  display: inline-block;
+  padding: .25rem;
+  border-radius: 10px;
+  border: 1px solid white;
+  background: rgba(255, 255, 255, .15);
+  margin: .75rem;
+}
+#brow {
+  display: flex;
+  justify-content: start;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
