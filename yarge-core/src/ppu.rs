@@ -102,13 +102,13 @@ impl Ppu {
   }
 
   fn oam_blocked(&self) -> bool {
-    #[cfg(feature = "ly-stub")]  { return false }
+    #[cfg(feature = "dbg-ly-stub")]  { return false }
     if !self.lcdc.enable_display { return false }
     if self.mmu_oam_locked { return true }
     matches!(self.mode, PpuMode::OamSearch | PpuMode::PxTransfer)
   }
   fn vram_blocked(&self) -> bool {
-    #[cfg(feature = "ly-stub")] { return false }
+    #[cfg(feature = "dbg-ly-stub")] { return false }
     self.mode == PpuMode::PxTransfer
   }
 
@@ -131,6 +131,9 @@ impl Ppu {
   }
   
   fn mode(&mut self, mode: PpuMode) {
+    #[cfg(feature = "dbg-emit-ppu-events")] {
+      println!("PPU_EVENT CHSNGE_MODE mode={} from={} ly={}", mode as u8, self.mode as u8, self.ly);
+    }
     self.cycles = 0;
     self.mode = mode;
   }
@@ -163,6 +166,9 @@ impl Ppu {
           self.suspend_bg_fetcher = true;
           self.spr_fetcher.start(*sprite, self.ly);
           self.fetched_sprites += 1;
+          #[cfg(feature = "dbg-emit-ppu-events")] {
+            println!("PPU_EVENT SPR_FETCH_START lx={} ly={} cycles={}", self.lx, self.ly, self.cycles);
+          }
         }
       }
     }
@@ -242,8 +248,12 @@ impl Ppu {
 
         //Un-suspend bg fetcher if the sprite fetcher is done fetching the sprite
         if self.suspend_bg_fetcher && !self.spr_fetcher.fetching {
+          #[cfg(feature = "dbg-emit-ppu-events")] {
+            println!("PPU_EVENT SPR_FETCH_END lx={} ly={} cycles={}", self.lx, self.ly, self.cycles);
+          }
           self.suspend_bg_fetcher = false;
-          self.do_sprite_fetcher_stuff(); //In case two sprites overlap
+          //Re-check In case two sprites overlap
+          self.do_sprite_fetcher_stuff(); 
           // Mayyybee I even need this check
           // if !self.spr_fetcher.fetching {
           //   self.suspend_bg_fetcher = false;
@@ -309,6 +319,9 @@ impl Ppu {
           self.lx += 1;
           //End PxTransfer if lx > WIDTH
           if self.lx >= WIDTH as u8 { 
+            #[cfg(feature = "dbg-emit-ppu-events")] {
+              println!("PPU_EVENT LINE_END ly={} cycles={}", self.ly, self.cycles);
+            }
             debug_assert!(self.fetched_sprites == self.oam_buffer.len(), "Fetched {} sprites out of {}", self.fetched_sprites, self.oam_buffer.len());
             debug_assert!(self.cycles >= 172, "PxTransfer took less then 172 cycles: {}", self.cycles);
             //TODO RE-ENABLE ASSERT ONCE THE 292 bug is fixed

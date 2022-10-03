@@ -15,10 +15,12 @@ clap = { version = "3.1", features = ["derive"] }
 build-time = "0.1.1"
 
 [features]
-default = ["gui", "breakpoints"]
+default = ["gui", "dbg-breakpoints"]
 gui = ["dep:yarge-gui-framework", "dep:rfd", "dep:ahash"]
 # Pass through to yarge-core
-ly-stub = ["yarge-core/ly-stub"]
-logging-file = ["yarge-core/logging-file"]
-logging-stdout = ["yarge-core/logging-stdout"]
-breakpoints = ["yarge-core/breakpoints"]
+dbg-ly-stub = ["yarge-core/dbg-ly-stub"]
+dbg-logging-file = ["yarge-core/dbg-logging-file"]
+dbg-logging-stdout = ["yarge-core/dbg-logging-stdout"]
+dbg-breakpoints = ["yarge-core/dbg-breakpoints"]
+dbg-breakpoint-on-ld-b-b = ["yarge-core/dbg-breakpoint-on-ld-b-b"]
+dbg-emit-ppu-events = ["yarge-core/dbg-emit-ppu-events"]

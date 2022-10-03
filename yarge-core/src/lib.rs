@@ -34,7 +34,7 @@ pub(crate) type Res<T> = Result<T, YargeError>;
 pub struct Gameboy {
   pub running: bool,
   cpu: Cpu,
-  #[cfg(feature = "logging-file")] 
+  #[cfg(feature = "dbg-logging-file")] 
   log_file: Option<std::fs::File>,
 }
 impl Gameboy {
@@ -42,13 +42,13 @@ impl Gameboy {
     Self {
       running: true,
       cpu: Cpu::new(),
-      #[cfg(feature = "logging-file")]
+      #[cfg(feature = "dbg-logging-file")]
       log_file: None,
     }
   }
 
   pub fn init(&mut self) {
-    #[cfg(feature = "logging-file")] {
+    #[cfg(feature = "dbg-logging-file")] {
       use std::{fs, io::Write};
       use consts::LOG_PATH;
       let mut file = fs::File::create(LOG_PATH).unwrap();
@@ -62,7 +62,7 @@ impl Gameboy {
       println!(
         "Writing trace log to file: \"{}\"\n\
         Warning! The log files can get as big as a few gigabytes in size!\n\
-        Build without the 'logging-file' feature to disable.", 
+        Build without the 'dbg-logging-file' feature to disable.", 
         LOG_PATH
       )
     }
@@ -86,7 +86,7 @@ impl Gameboy {
     self.cpu = Cpu::new();
   }
 
-  #[cfg(feature = "logging")]
+  #[cfg(feature = "dbg-logging")]
   fn log_step(&mut self) {
     let r = &self.cpu.reg;
     let m = &self.cpu.mmu;
@@ -105,12 +105,12 @@ impl Gameboy {
       rb2 = m.rb(r.pc + 2, true),
       rb3 = m.rb(r.pc + 3, true)
     );
-    #[cfg(feature = "logging-file")] {
+    #[cfg(feature = "dbg-logging-file")] {
       use std::io::Write;
       assert!(self.log_file.is_some(), "File not inited! Call <Gameboy>.init() or <GameboyBuilder>.init()");
       writeln!(self.log_file.as_mut().unwrap(), "{}", string).unwrap();
     }
-    #[cfg(feature = "logging-stdout")] {
+    #[cfg(feature = "dbg-logging-stdout")] {
       println!("{}", string);
     }
   }
@@ -125,7 +125,7 @@ impl Gameboy {
 
   pub fn step(&mut self) -> Res<usize> {
     if !self.running { return Ok(0); }
-    #[cfg(feature = "logging")] self.log_step();
+    #[cfg(feature = "dbg-logging")] self.log_step();
     let cycles = self.cpu.step()?;
     Ok(cycles)
   }

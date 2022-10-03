@@ -33,7 +33,7 @@ pub(crate) const DEFAULT_HEADER: [u8; 80] = [
   0x00, 0x00, 0x00, 0x80, 0x00, 0x00, 0x00, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x3B, 0xF5, 0x30,
 ];
 
-#[cfg(feature = "logging-file")]
+#[cfg(feature = "dbg-logging-file")]
 pub const LOG_PATH: &str = "./gameboy.log";
 
 pub const MBC_TYPE_LIST: &[(u8, &str)] = &[

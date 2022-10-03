@@ -28,9 +28,9 @@ pub struct Cpu {
   ime: bool,
   t: usize,
 
-  #[cfg(feature = "breakpoints")]
+  #[cfg(feature = "dbg-breakpoints")]
   pub mmu_breakpoints: Box<[u8; 0x10000]>,
-  #[cfg(feature = "breakpoints")]
+  #[cfg(feature = "dbg-breakpoints")]
   pub pc_breakpoints: Box<[bool; 0x10000]>,
 }
 
@@ -44,14 +44,14 @@ impl Cpu {
       ime: false,
       t: 0,
 
-      #[cfg(feature = "breakpoints")]
+      #[cfg(feature = "dbg-breakpoints")]
       mmu_breakpoints: Box::new([0; 0x10000]),
-      #[cfg(feature = "breakpoints")]
+      #[cfg(feature = "dbg-breakpoints")]
       pc_breakpoints: Box::new([false; 0x10000]),
     }
   }
 
-  #[cfg(feature = "breakpoints")]
+  #[cfg(feature = "dbg-breakpoints")]
   fn check_mmu_breakpoints(&self, access_type: u8, addr: u16, value: Option<u8>) -> Res<()> {
     let breakpoint_acc_type = self.mmu_breakpoints[addr as usize];
     let trip = breakpoint_acc_type & access_type;
@@ -66,7 +66,7 @@ impl Cpu {
     }
   }
 
-  #[cfg(feature = "breakpoints")]
+  #[cfg(feature = "dbg-breakpoints")]
   fn check_pc_breakpoints(&mut self, addr: u16) -> Res<()> {
     if self.pc_breakpoints[addr as usize] {
       let instr = self.mmu.rb(addr, true);
@@ -77,13 +77,13 @@ impl Cpu {
   }
 
   fn rb(&mut self, addr: u16) -> Res<u8> {
-    #[cfg(feature = "breakpoints")]
+    #[cfg(feature = "dbg-breakpoints")]
     self.check_mmu_breakpoints(0b01, addr, None)?;
     self.cycle();
     Ok(self.mmu.rb(addr, true))
   }
   fn wb(&mut self, addr: u16, value: u8) -> Res<()> {
-    #[cfg(feature = "breakpoints")]
+    #[cfg(feature = "dbg-breakpoints")]
     self.check_mmu_breakpoints(0b10, addr, Some(value))?;
     self.cycle();
     self.mmu.wb(addr, value, true);
@@ -190,7 +190,7 @@ impl Cpu {
       return Ok(self.t);
     }
     //Remember the PC value for breakpoints
-    #[cfg(feature = "breakpoints")]
+    #[cfg(feature = "dbg-breakpoints")]
     let pc_value = self.reg.pc;
     //Fetch and execute
     let mut op = self.fetch()?;
@@ -201,7 +201,7 @@ impl Cpu {
       cpu_instructions_cb(self, op)?;
     }
     //Check for breakpoints
-    #[cfg(feature = "breakpoints")] {
+    #[cfg(feature = "dbg-breakpoints")] {
       self.check_pc_breakpoints(pc_value)?;
     }
     //Panic if instruction took less then 4 cycles

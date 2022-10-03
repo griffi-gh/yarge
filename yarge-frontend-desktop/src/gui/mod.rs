@@ -54,9 +54,9 @@ pub struct GuiState {
   frame_time: f64,
   enable_gui: bool,
 
-  #[cfg(feature = "breakpoints")]
+  #[cfg(feature = "dbg-breakpoints")]
   mmu_breakpoint_addr: u16,
-  #[cfg(feature = "breakpoints")]
+  #[cfg(feature = "dbg-breakpoints")]
   pc_breakpoint_addr: u16,
 }
 impl GuiState {
@@ -74,9 +74,9 @@ impl GuiState {
       frame_time: 0.,
       enable_gui: true,
 
-      #[cfg(feature = "breakpoints")]
+      #[cfg(feature = "dbg-breakpoints")]
       mmu_breakpoint_addr: 0,
-      #[cfg(feature = "breakpoints")]
+      #[cfg(feature = "dbg-breakpoints")]
       pc_breakpoint_addr: 0,
     }
   }
@@ -455,14 +455,14 @@ impl Gui for GuiState {
       //BREAKPOINTS
       {
         const ENABLED: bool = {
-          #[cfg(not(feature = "breakpoints"))] { false }
-          #[cfg(feature = "breakpoints")]      { true  }
+          #[cfg(not(feature = "dbg-breakpoints"))] { false }
+          #[cfg(feature = "dbg-breakpoints")]      { true  }
         };
         ui.add_enabled_ui(ENABLED, |ui| {
           egui::CollapsingHeader::new(
             "Breakpoints"
           ).show(ui, |ui| {
-            #[cfg(feature = "breakpoints")] {
+            #[cfg(feature = "dbg-breakpoints")] {
               ui.horizontal(|ui| {
                 if let Some(v) = u16_edit(ui, "MMU", self.mmu_breakpoint_addr, true, 1) {
                   self.mmu_breakpoint_addr = v;
@@ -607,7 +607,7 @@ impl Gui for GuiState {
                       Color32::LIGHT_RED
                     } else {
                       const DEFAULT_COLOR: Color32 = Color32::WHITE;
-                      #[cfg(feature = "breakpoints")]
+                      #[cfg(feature = "dbg-breakpoints")]
                       if self.gb.get_pc_breakpoint(addr) {
                         Color32::DARK_GREEN
                       } else if self.gb.get_mmu_breakpoint(addr) > 0 {
@@ -615,7 +615,7 @@ impl Gui for GuiState {
                       } else {
                         DEFAULT_COLOR
                       }
-                      #[cfg(not(feature = "breakpoints"))] {
+                      #[cfg(not(feature = "dbg-breakpoints"))] {
                         DEFAULT_COLOR
                       }
                     }

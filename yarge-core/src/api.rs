@@ -168,11 +168,11 @@ impl Gameboy {
     self.cpu.mmu.bios_disabled
   }
 
-  #[cfg(feature = "breakpoints")]
+  #[cfg(feature = "dbg-breakpoints")]
   #[inline] pub fn set_mmu_breakpoint(&mut self, addr: u16, access_type: u8) {
     self.cpu.mmu_breakpoints[addr as usize] = access_type;
   }
-  #[cfg(feature = "breakpoints")]
+  #[cfg(feature = "dbg-breakpoints")]
   #[inline] pub fn get_mmu_breakpoint(&mut self, addr: u16) -> u8 {
     self.cpu.mmu_breakpoints[addr as usize]
   }
@@ -184,11 +184,11 @@ impl Gameboy {
     self.cpu.mmu.ppu.frame_ready
   }
 
-  #[cfg(feature = "breakpoints")]
+  #[cfg(feature = "dbg-breakpoints")]
   #[inline] pub fn set_pc_breakpoint(&mut self, addr: u16, enable: bool) {
     self.cpu.pc_breakpoints[addr as usize] = enable;
   }
-  #[cfg(feature = "breakpoints")]
+  #[cfg(feature = "dbg-breakpoints")]
   #[inline] pub fn get_pc_breakpoint(&mut self, addr: u16) -> bool {
     self.cpu.pc_breakpoints[addr as usize]
   }

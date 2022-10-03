@@ -4,7 +4,7 @@ compile_error!("Not a test environment");
 #[cfg(not(feature = "breakpoint-on-ld-b-b"))]
 compile_error!("Enable 'breakpoint-on-ld-b-b' feature to run tests");
 
-#[cfg(not(feature = "breakpoints"))]
+#[cfg(not(feature = "dbg-breakpoints"))]
 compile_error!("Enable 'breakpoints' feature to run tests");
 
 macro_rules! define_test {
