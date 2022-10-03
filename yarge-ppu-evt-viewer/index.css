@@ -1,9 +1,17 @@
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  background: darkslateblue;
+  color: white;
+}
+#app-main, #point-canvas {
+  width: 800px;
+  height: 360px;
+}
 #app-main {
   position: relative;
-  width: 400px;
-  height: 360px;
-  background: url(acid.png);
-  background-size: 100%;
+  background: url(acid.png), darkolivegreen;
+  background-repeat: no-repeat;
+  background-size: 50% 100%;
   z-index: 1;
   margin: 8px;
   border: 1px solid red;
@@ -16,4 +24,7 @@
   display: block;
   z-index: -999;
   background: rgba(0, 0, 0, .5);
+}
+#point-canvas {
+  z-index: 999;
 }
