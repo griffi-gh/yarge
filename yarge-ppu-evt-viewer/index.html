@@ -15,6 +15,10 @@
     Run like this:<br>
     <code>
       cargo run --features dbg-emit-ppu-events,dbg-breakpoint-on-ld-b-b > _ppu_events.log
+    </code><br>
+    Or without gui:<br>
+    <code>
+      cargo run --no-default-features --features dbg-emit-ppu-events,dbg-breakpoint-on-ld-b-b -- [rom file] -s -n > _ppu_events.log
     </code>
   </p>
   <input type="file" id="file-upload">
@@ -37,6 +41,11 @@
         <input type="range" id="offset-image" min="0" max="130" value="12" step="1">
         <output id="offset-image-value">0</output><br>
         <button type="button" id="offset-image-reset">Reset offset</button>
+        <div>
+          0 - align with display/lx<br>
+          12 - align with timing/cycles
+          <p></p>
+        </div>
       </div>
       <hr>
       <div>Show types:</div>
