@@ -26,7 +26,7 @@ function drawPoints(data, state) {
     if (!state[point.type]) continue;
     switch (point.type) {
       case 'SPR_FETCH_START':
-        ctx.fillStyle = 'rgba(0,0,255,0.05)';
+        ctx.fillStyle = 'rgba(0,0,255,0.0125)';
         ctx.fillRect(point.args.lx * scale, point.args.ly * scale, 8 * scale, 3);
 
         ctx.fillStyle = 'rgb(255,0,0)';
