@@ -38,6 +38,10 @@ function drawPoints(data, state) {
         break;
       case 'PX_FETCH_LINE_END':
         ctx.fillStyle = 'rgb(255,255,0)';
+        if (point.args.cycles > 289) {
+          ctx.fillStyle = 'rgb(255,140,0)';
+          // ctx.fillRect(point.args.cycles * scale - 3, point.args.ly * scale, 9, 3);
+        }
         ctx.fillRect(point.args.cycles * scale, point.args.ly * scale, 3, 3);
         break;
     }
