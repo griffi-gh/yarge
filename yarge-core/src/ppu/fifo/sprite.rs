@@ -76,7 +76,6 @@ impl SpriteFetcher {
         self.state = FetcherState::PushToFifo;
       },
       FetcherState::PushToFifo => {
-        self.state = FetcherState::ReadTileId;
         //TODO this code is... not very good (tm)
         //Make sure that fifo is filled up
         while !self.fifo.is_full() {
