@@ -509,17 +509,14 @@ impl Gui for GuiState {
                   );
                 }
               });
-              ui.separator();
-              {
-                ui.vertical_centered(|ui| {
-                  ui.label(RichText::new("WARNING").color(Color32::YELLOW).monospace());
-                });
+              egui::CollapsingHeader::new(
+                RichText::new("Warning").color(Color32::LIGHT_YELLOW)
+              ).show(ui, |ui| {
                 ui.label("Breakpoints are experimental");
                 ui.label("1) PC breakpoints get triggered AFTER the instruction is executed");
                 ui.label("2) PC breakpoints can cause minor timing issues");
                 ui.label("3) MMU breakpoints are NOT recoverable");
-              }
-              ui.separator();
+              });
             }
           });
         });
@@ -540,12 +537,12 @@ impl Gui for GuiState {
           "Memory"
         ).show(ui, |ui| {
           ui.horizontal(|ui| {
-            ui.label("GuiState stack usage: ");
+            ui.label("`GuiState` size (on stack): ");
             ui.monospace(std::mem::size_of_val(&*self).to_string());
             ui.label(" bytes");
           });
           ui.horizontal(|ui| {
-            ui.label("\t- Gameboy stack usage: ");
+            ui.label("\t- `Gameboy` size (on stack): ");
             ui.monospace(std::mem::size_of_val(&self.gb).to_string());
             ui.label(" bytes");
           });

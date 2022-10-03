@@ -246,21 +246,24 @@ impl Ppu {
       PpuMode::PxTransfer => { //This is probably exetremely inaccurate!
         let mut push_color: Option<u8> = None;
 
-        //Check for sprite fetch
-        self.do_sprite_fetcher_stuff();
+        //TODO implement sprite fetch abort
+        if (self.oam_buffer.len() != 0) && self.lcdc.enable_obj {
+          //Check for sprite fetch
+          self.do_sprite_fetcher_stuff();
 
-        //Un-suspend bg fetcher if the sprite fetcher is done fetching the sprite
-        if self.suspend_bg_fetcher && !self.spr_fetcher.fetching {
-          #[cfg(feature = "dbg-emit-ppu-events")] {
-            println!("PPU_EVENT SPR_FETCH_END lx={} ly={} cycles={}", self.lx, self.ly, self.cycles);
+          //Un-suspend bg fetcher if the sprite fetcher is done fetching the sprite
+          if self.suspend_bg_fetcher && !self.spr_fetcher.fetching {
+            #[cfg(feature = "dbg-emit-ppu-events")] {
+              println!("PPU_EVENT SPR_FETCH_END lx={} ly={} cycles={}", self.lx, self.ly, self.cycles);
+            }
+            self.suspend_bg_fetcher = false;
+            //Re-check In case two sprites overlap
+            self.do_sprite_fetcher_stuff(); 
+            // Mayyybee I even need this check
+            // if !self.spr_fetcher.fetching {
+            //   self.suspend_bg_fetcher = false;
+            // }
           }
-          self.suspend_bg_fetcher = false;
-          //Re-check In case two sprites overlap
-          self.do_sprite_fetcher_stuff(); 
-          // Mayyybee I even need this check
-          // if !self.spr_fetcher.fetching {
-          //   self.suspend_bg_fetcher = false;
-          // }
         }
 
         //Update bg fetcher if not suspended
