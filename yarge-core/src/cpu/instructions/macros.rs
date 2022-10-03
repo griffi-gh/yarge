@@ -2,7 +2,7 @@ pub(crate) use paste::paste;
 
 macro_rules! ld_b_b {
   ($self: expr) => {
-    #[cfg(feature = "breakpoint-on-ld-b-b")] {
+    #[cfg(feature = "dbg-breakpoint-on-ld-b-b")] {
       Err($crate::YargeError::LdBreakpoint {
         addr: $self.reg.pc.wrapping_sub(1)
       })?;
