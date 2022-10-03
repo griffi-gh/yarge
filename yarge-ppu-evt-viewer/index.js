@@ -160,6 +160,11 @@ var updOi = () => {
   const scale = canvas.width / (160 * 2);
   appMain.style.backgroundPositionX = `${(oi.value|0)*scale}px`;
   localStorage.setItem('ref-offset', oi.value.toString());
+  document.getElementById('offset-image-value').value = oi.value.toString();
 }
 updOi();
 oi.addEventListener('change', updOi);
+document.getElementById('offset-image-reset').addEventListener('click', () => {
+  oi.value = '12';
+  updOi();
+});
