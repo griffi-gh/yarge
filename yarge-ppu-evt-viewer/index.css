@@ -1,0 +1,19 @@
+#app-main {
+  position: relative;
+  width: 400px;
+  height: 360px;
+  background: url(acid.png);
+  background-size: 100%;
+  z-index: 1;
+  margin: 8px;
+  border: 1px solid red;
+}
+/* darken image */
+#app-main::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  display: block;
+  z-index: -999;
+  background: rgba(0, 0, 0, .5);
+}
