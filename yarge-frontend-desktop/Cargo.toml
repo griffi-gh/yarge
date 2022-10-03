@@ -9,14 +9,14 @@ rust-version = "1.64"
 [dependencies]
 yarge-core = { path = "../yarge-core" }
 yarge-gui-framework = { path = "./lib/yarge-gui-framework", optional = true }
-ahash = { version = "0.8", optional = true }
+fxhash = { version = "0.2", optional = true }
 rfd = { version = "0.10", optional = true }
 clap = { version = "3.1", features = ["derive"] }
 build-time = "0.1.1"
 
 [features]
 default = ["gui", "dbg-breakpoints"]
-gui = ["dep:yarge-gui-framework", "dep:rfd", "dep:ahash"]
+gui = ["dep:yarge-gui-framework", "dep:rfd", "dep:fxhash"]
 # Pass through to yarge-core
 dbg-ly-stub = ["yarge-core/dbg-ly-stub"]
 dbg-logging-file = ["yarge-core/dbg-logging-file"]

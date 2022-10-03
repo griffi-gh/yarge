@@ -21,7 +21,7 @@ use crate::{
   VERSION,
   GITHUB_REPO,
 }; 
-use ahash::AHasher;
+use fxhash::FxHasher64;
 use rfd::FileDialog;
 
 mod error_words;
@@ -190,7 +190,7 @@ impl Gui for GuiState {
       ).resizable(false).show(ui, |ui| {
         let error_code = {
           let mut error_code = String::new();
-          let mut hasher = AHasher::default();
+          let mut hasher = FxHasher64::default();
           hasher.write(details.as_bytes());
           hasher.write(id.as_bytes());
           let hash = hasher.finish();
