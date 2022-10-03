@@ -323,7 +323,7 @@ impl Ppu {
           //End PxTransfer if lx > WIDTH
           if self.lx >= WIDTH as u8 { 
             #[cfg(feature = "dbg-emit-ppu-events")] {
-              println!("PPU_EVENT LINE_END ly={} cycles={}", self.ly, self.cycles);
+              println!("PPU_EVENT PX_FETCH_LINE_END ly={} cycles={}", self.ly, self.cycles);
             }
             debug_assert!(self.fetched_sprites == self.oam_buffer.len(), "Fetched {} sprites out of {}", self.fetched_sprites, self.oam_buffer.len());
             debug_assert!(self.cycles >= 172, "PxTransfer took less then 172 cycles: {}", self.cycles);
