@@ -36,16 +36,23 @@
         <label for="offset-image">Offset reference image</label><br>
         <input type="range" id="offset-image" min="0" max="130" value="12" step="1">
         <output id="offset-image-value">0</output><br>
-        <button id="offset-image-reset">Reset offset</button>
+        <button type="button" id="offset-image-reset">Reset offset</button>
       </div>
+      <hr>
       <div>Show types:</div>
       <div id="toggl-inner">
         <span style="color:gray">Load data first</span>
       </div>
     </div>
     <div class="finfo">
-      Frames in log: <output id="frm">0</output><br>
-      Points: <output id="pnt">0</output>
+      Data points: <output id="pnt">0</output>
+      <hr>
+      Frames in log: <output id="frm">0</output>
+      <div>
+        <span>Filter by frame:</span>
+        <input type="text" name="" id="filter-by-frame" value="1" placeholder="Frame index" size="4">
+        <button type="button" id="filter-by-frame-btn">Filter</button>
+      </div>
     </div>
   </div>
 </body>

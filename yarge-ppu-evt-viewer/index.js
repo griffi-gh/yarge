@@ -36,7 +36,7 @@ function drawPoints(data, state) {
     if (!state[point.type]) continue;
     switch (point.type) {
       case 'SPR_FETCH_START':
-        ctx.fillStyle = 'rgba(0,0,255,0.0125)';
+        ctx.fillStyle = 'rgba(0,0,255,0.125)';
         ctx.fillRect(point.args.lx * scale, point.args.ly * scale, 8 * scale, 3);
 
         ctx.fillStyle = 'rgb(255,0,0)';
@@ -55,7 +55,7 @@ function drawPoints(data, state) {
         ctx.fillRect(point.args.cycles * scale, point.args.ly * scale, 3, 3);
         break;
       case 'LX_INC':
-        ctx.fillStyle = 'rgb(0,0,0,0.05)';
+        ctx.fillStyle = 'rgb(0,0,0,0.5)';
         ctx.fillRect(point.args.cycles * scale, point.args.ly * scale, 2, 2);
         break;
     }
@@ -132,6 +132,24 @@ function addUI(data, cb) {
     //document.getElementById('tt-dots').value = (4 * (document.getElementById('tt-lx').value | 0)).toString();
     document.getElementById('tt-dots').value = (80 + (document.getElementById('tt-lx').value | 0)).toString();
     document.getElementById('tt-ly').value = Math.floor(pos.y / scale).toString();
+  });
+
+  const filt_inp = document.getElementById('filter-by-frame');
+  const filt_btn = document.getElementById('filter-by-frame-btn');
+  filt_btn.addEventListener('click', () => {
+    const fval = filt_inp.value | 0;
+    let iframe = 0;
+    data = data.filter(v => {
+      if (v.type == 'FRAME_END') {
+        iframe++;
+        return false;
+      }
+      if (iframe === fval) {
+        return true;
+      }
+      return false;
+    });
+    addUI(data);
   });
 }
 
