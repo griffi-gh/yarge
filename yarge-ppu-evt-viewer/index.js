@@ -26,16 +26,18 @@ function drawPoints(data, state) {
     if (!state[point.type]) continue;
     switch (point.type) {
       case 'SPR_FETCH_START':
-        ctx.fillStyle = 'rgb(0,0,255)';
-        ctx.globalAlpha = 0.5
+        ctx.fillStyle = 'rgba(0,0,255,0.05)';
         ctx.fillRect(point.args.lx * scale, point.args.ly * scale, 8 * scale, 3);
-        ctx.globalAlpha = 1;
-        
+
         ctx.fillStyle = 'rgb(255,0,0)';
         ctx.fillRect(point.args.cycles * scale, point.args.ly * scale, 3, 3);
         break;
       case 'SPR_FETCH_END':
         ctx.fillStyle = 'rgb(0,255,0)';
+        ctx.fillRect(point.args.cycles * scale, point.args.ly * scale, 3, 3);
+        break;
+      case 'PX_FETCH_LINE_END':
+        ctx.fillStyle = 'rgb(255,255,0)';
         ctx.fillRect(point.args.cycles * scale, point.args.ly * scale, 3, 3);
         break;
     }
