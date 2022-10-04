@@ -67,7 +67,7 @@ function drawPoints(data, state) {
         ctx.fillRect(point.args.cycles * scale, point.args.ly * scale, 2, 2);
         break;
       case 'SPR_FETCHER_STATE_CHANGE':
-        ctx.fillStyle = `rgb(${point.args.next * 64},0,0,0.5)`;
+        ctx.fillStyle = `rgb(${point.args.next * 64},0,0,${.5 + (point.args.next / 8)})`;
         ctx.fillRect(point.args.cycles * scale, point.args.ly * scale, 2, 2);
         break;
     }
