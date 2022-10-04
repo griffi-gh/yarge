@@ -60,3 +60,19 @@ hr {
 #point-canvas:not(:hover) ~ #canvas-tooltip {
   opacity: 0;
 }
+.good {
+  color: lightgreen;
+}
+.important {
+  display: inline-block;
+  animation: 1.5s linear infinite blink;
+  font-weight: bold;
+}
+@keyframes blink {
+  0% { color: inherit; }
+  50% { color: #ff4848; }
+  100% { color: inherit; }
+}
+#hide-refimg:checked ~ label ~ * {
+  display: none;
+}

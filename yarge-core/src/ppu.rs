@@ -174,7 +174,14 @@ impl Ppu {
     }
     //Tick spr_fetcher if it's not done fetching stuff
     if self.spr_fetcher.fetching {
+      #[cfg(feature = "dbg-emit-ppu-events")] 
+        let pre_state = self.spr_fetcher.state;      
       self.spr_fetcher.tick(&self.lcdc, &self.vram);
+      #[cfg(feature = "dbg-emit-ppu-events")] {
+        if pre_state != self.spr_fetcher.state {
+          println!("PPU_EVENT SPR_FETCHER_STATE_CHANGE cycles={} ly={} next={} prev={}", self.cycles, self.ly, self.spr_fetcher.state as u8, pre_state as u8);
+        }
+      }
     }
   }
 

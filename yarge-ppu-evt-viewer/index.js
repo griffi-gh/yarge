@@ -1,5 +1,13 @@
 "use strict";
 
+const SUPPORTED_EVT_TYPES = new Set([
+  'SPR_FETCH_START',
+  'SPR_FETCH_END',
+  'PX_FETCH_LINE_END',
+  'LX_INC',
+  'SPR_FETCHER_STATE_CHANGE'
+]);
+
 const appMain = document.getElementById('app-main');
 
 function getMousePos(evt, base) {
@@ -40,7 +48,7 @@ function drawPoints(data, state) {
         ctx.fillRect(point.args.lx * scale, point.args.ly * scale, 8 * scale, 3);
 
         ctx.fillStyle = 'rgb(255,0,0)';
-        ctx.fillRect(point.args.cycles * scale, point.args.ly * scale, 3, 3);
+        ctx.fillRect(point.args.cycles * scale, point.args.ly * scale, 1, scale);
         break;
       case 'SPR_FETCH_END':
         ctx.fillStyle = 'rgb(0,255,0)';
@@ -58,9 +66,13 @@ function drawPoints(data, state) {
         ctx.fillStyle = 'rgb(0,0,0,0.5)';
         ctx.fillRect(point.args.cycles * scale, point.args.ly * scale, 2, 2);
         break;
+      case 'SPR_FETCHER_STATE_CHANGE':
+        ctx.fillStyle = `rgb(${point.args.next * 64},0,0,0.5)`;
+        ctx.fillRect(point.args.cycles * scale, point.args.ly * scale, 2, 2);
+        break;
     }
   }
-  ctx.fillStyle = 'rgba(100,100,255,50)';
+  ctx.fillStyle = 'rgb(100,100,255)';
   ctx.fillRect(289 * scale,0,2,canvas.height);
 }
 
@@ -97,29 +109,43 @@ function addUI(data, cb) {
   for(const type of types) {
     const lsKey = 'SAVE_CHECKBOX_' + type;
     state[type] = false;
+
     const div = document.createElement('div');
+
     const inp = document.createElement('input');
-    inp.type = 'checkbox';
-    inp.id = 'input-type-tg-' + type;
-    inp.checked = (localStorage.getItem(lsKey) ?? 'false') === 'true';
-    state[type] = inp.checked;
-    inp.addEventListener('change', () => {
+      inp.type = 'checkbox';
+      inp.id = 'input-type-tg-' + type;
+      inp.checked = (localStorage.getItem(lsKey) ?? 'false') === 'true';
+      
+      inp.addEventListener('change', () => {
+        state[type] = inp.checked;
+        localStorage.setItem(lsKey, state[type] ? 'true' : 'false');
+        console.log(localStorage[lsKey]);
+        cb(state);
+      });
       state[type] = inp.checked;
-      localStorage.setItem(lsKey, state[type] ? 'true' : 'false');
-      console.log(localStorage[lsKey]);
-      cb(state);
-    });
-    div.appendChild(inp);
+      div.appendChild(inp);
+
     const label = document.createElement('label');
-    label.for = inp.id;
-    label.textContent = type;
-    div.appendChild(label);
-    outer.appendChild(div);
+      label.setAttribute('for', inp.id);
+      label.textContent = type;
+      div.appendChild(label);
+      if (!SUPPORTED_EVT_TYPES.has(type)) {
+        label.textContent += '(Not supported)';
+        inp.disabled = true;
+        inp.checked = false;
+        state[type] = false;
+        localStorage.setItem(lsKey, 'false');
+      }
+      outer.appendChild(div);
   }
   document.getElementById('toggl').appendChild(outer);
   cb(state);
 
-  document.getElementById('frm').value = frames.toString();
+  const frmCntEl = document.getElementById('frm')
+    frmCntEl.value = frames.toString();
+    frmCntEl.classList.toggle('important', frames > 1);
+    frmCntEl.classList.toggle('good', frames === 1);
   document.getElementById('pnt').value = data.length.toString();
 
   const tooltip = document.getElementById('canvas-tooltip');
@@ -179,10 +205,19 @@ var updOi = () => {
   appMain.style.backgroundPositionX = `${(oi.value|0)*scale}px`;
   localStorage.setItem('ref-offset', oi.value.toString());
   document.getElementById('offset-image-value').value = oi.value.toString();
-}
+};
 updOi();
 oi.addEventListener('change', updOi);
 document.getElementById('offset-image-reset').addEventListener('click', () => {
   oi.value = '12';
   updOi();
 });
+
+const hi = document.getElementById('hide-refimg');
+hi.checked = (localStorage.getItem('ref-hide') ?? 'false') === 'true';
+const updHi = () => {
+  appMain.style.backgroundImage = hi.checked ? 'unset': '';
+  localStorage.setItem('ref-hide', hi.checked ? 'true' : 'false');
+};
+hi.addEventListener('change', updHi);
+updHi();

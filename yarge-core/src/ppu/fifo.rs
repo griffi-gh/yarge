@@ -22,13 +22,13 @@ impl FifoPixel {
   }
 }
 
-#[derive(PartialEq)]
+#[derive(Clone, Copy, PartialEq, Eq)]
 #[repr(u8)]
-enum FetcherState {
-  ReadTileId,
-  ReadTileDataLow,
-  ReadTileDataHigh,
-  PushToFifo,
+pub enum FetcherState {
+  ReadTileId = 0,
+  ReadTileDataLow = 1,
+  ReadTileDataHigh = 2,
+  PushToFifo = 3,
 }
 impl Default for FetcherState {
   fn default() -> Self { Self::ReadTileId }

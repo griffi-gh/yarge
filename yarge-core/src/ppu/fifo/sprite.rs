@@ -10,7 +10,7 @@ use crate::ppu::{
 
 pub struct SpriteFetcher {
   fifo: ArrayDeque<[FifoPixel; 8]>,
-  state: FetcherState,
+  pub state: FetcherState,
   cycle: bool,
   object: OamObject,
   tile_idx: usize,
