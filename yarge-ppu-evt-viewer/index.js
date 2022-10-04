@@ -48,7 +48,7 @@ function drawPoints(data, state) {
         ctx.fillRect(point.args.lx * scale, point.args.ly * scale, 8 * scale, 3);
 
         ctx.fillStyle = 'rgb(255,0,0)';
-        ctx.fillRect(point.args.cycles * scale, point.args.ly * scale, 1, scale);
+        ctx.fillRect(point.args.cycles * scale, point.args.ly * scale, 2, scale);
         break;
       case 'SPR_FETCH_END':
         ctx.fillStyle = 'rgb(0,255,0)';
