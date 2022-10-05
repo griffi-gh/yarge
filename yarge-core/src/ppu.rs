@@ -250,7 +250,7 @@ impl Ppu {
           self.check_stat(iif);
         }
       },
-      PpuMode::PxTransfer => { //This is probably exetremely inaccurate!
+      PpuMode::PxTransfer => { //This is probably extremely inaccurate!
         let mut push_color: Option<u8> = None;
 
         //TODO implement sprite fetch abort

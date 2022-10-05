@@ -1,6 +1,6 @@
 use crate::{
   cpu::{Cpu, Interrupt},
-  consts::TIMER_CLOCKS,
+  consts::TIMER_CLOCK_MASKS,
 };
 
 pub struct Timers {
@@ -55,8 +55,8 @@ impl Timers {
       Cpu::set_interrupt(iif, Interrupt::Timer);
     }
     self.div = self.div.wrapping_add(4);
-    let shift = TIMER_CLOCKS[(self.rate & 3) as usize];
-    let div_bit = (self.div & (1 << shift)) != 0;
+    let mask = TIMER_CLOCK_MASKS[(self.rate & 3) as usize];
+    let div_bit = (self.div & mask) != 0;
     let cur_tima_inc = self.enable && div_bit;
     if self.tima_inc && !cur_tima_inc {
       let (tima, carry) = self.tima.overflowing_add(1);
