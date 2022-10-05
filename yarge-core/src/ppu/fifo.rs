@@ -71,6 +71,7 @@ impl FifoBuffer {
     Ok(())
   }
   pub fn align(&mut self) {
+    //do I need this
     self.buffer.rotate_left(self.head);
     self.head = 0;
   }
