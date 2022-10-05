@@ -1,7 +1,7 @@
 use arraydeque::ArrayDeque;
 use bit_reverse::LookupReverse;
 use crate::consts::VRAM_SIZE;
-use super::{Fifo, FifoPixel, FetcherState};
+use super::{Fetcher, FifoPixel, FetcherState};
 use crate::ppu::{
   oam::OamObject,
   ppu_registers::Lcdc,
@@ -112,7 +112,7 @@ impl SpriteFetcher {
     }
   }
 }
-impl Fifo for SpriteFetcher {
+impl Fetcher for SpriteFetcher {
   fn pop(&mut self) -> Option<FifoPixel> {
     self.fifo.pop_front()
   }

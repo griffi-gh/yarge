@@ -3,7 +3,7 @@ use crunchy::unroll;
 use crate::consts::VRAM_SIZE;
 use crate::ppu::ppu_registers::Lcdc;
 use crate::ppu::util;
-use super::{Fifo, FetcherState, FifoPixel};
+use super::{Fetcher, FetcherState, FifoPixel};
 
 #[derive(PartialEq, Eq)]
 #[repr(u8)]
@@ -135,7 +135,7 @@ impl BackgroundFetcher {
     }
   }
 }
-impl Fifo for BackgroundFetcher {
+impl Fetcher for BackgroundFetcher {
   fn pop(&mut self) -> Option<FifoPixel> {
     self.fifo.pop_front()
   }
