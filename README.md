@@ -83,7 +83,7 @@
     </tr>
     <tr>
       <td>MBC3</td>
-      <td align="center">❌</td>
+      <td align="center">✔️</td>
     </tr>
     <tr>
       <td>MBC5</td>
