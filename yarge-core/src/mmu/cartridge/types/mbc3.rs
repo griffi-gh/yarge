@@ -60,15 +60,15 @@ impl CartridgeImpl for CartridgeMbc3 {
   fn write_rom(&mut self, addr: u16, value: u8) {
     match addr {
       0x0000..=0x1FFF => {
-        if !(0x08..=0x0C).contains(&value) {
-          self.ram_enable = (value & 0xF) == 0xA;
-        }
+        self.ram_enable = (value & 0xF) == 0xA;
       },
       0x2000..=0x3FFF => {
         self.rom_bank = (value & self.rom_mask).max(1);
       },
       0x4000..=0x5FFF => {
-        self.ram_bank = value & 0b11;
+        if !(0x08..=0x0C).contains(&value) {
+          self.ram_bank = value & 0b11;
+        }
       },
       0x6000..=0xFFFF => {}
     }
