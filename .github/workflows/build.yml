@@ -44,13 +44,13 @@ jobs:
     # Build
 
     - name: Build
-      run: cargo build -p yarge-frontend-desktop --release
+      run: cargo build -p yarge-frontend-desktop --profile production
     
     # Create deb
 
     - name: Create a binary .deb package (Linux only)
       if: runner.os == 'Linux'
-      run: cargo install cargo-deb; cargo deb -p yarge-frontend-desktop --strip --no-build --output "./yarge-frontend-desktop.deb"
+      run: cargo install cargo-deb; cargo deb -p yarge-frontend-desktop --strip --no-build --profile production --output "./yarge-frontend-desktop.deb"
 
     # Upload build artifacts
 
@@ -59,14 +59,14 @@ jobs:
       if: runner.os == 'Windows'
       with:
         name: release-win64
-        path: ./target/release/yarge-frontend-desktop.exe
+        path: ./target/production/yarge-frontend-desktop.exe
     
     - name: Upload build artifact (Linux only)
       uses: actions/upload-artifact@v3
       if: runner.os == 'Linux'
       with:
         name: release-lin64
-        path: ./target/release/yarge-frontend-desktop
+        path: ./target/production/yarge-frontend-desktop
     
     - name: Upload .deb (Linux only)
       uses: actions/upload-artifact@v3
