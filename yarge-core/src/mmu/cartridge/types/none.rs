@@ -1,5 +1,5 @@
 use crate::Res;
-use super::{CartridgeImpl, common::load_rom_static};
+use super::{CartridgeImpl, helpers::load_rom_static};
 
 pub struct CartridgeNone {
   rom: Box<[u8; 0x8000]>,

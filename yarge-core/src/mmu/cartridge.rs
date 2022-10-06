@@ -1,7 +1,7 @@
 use enum_dispatch::enum_dispatch;
 use crate::{Res, YargeError};
 
-mod common;
+mod helpers;
 
 mod types;
 pub use types::*;
@@ -33,6 +33,7 @@ pub enum Cartridge {
   MockCartridge,
   CartridgeNone,
   CartridgeMbc1,
+  CartridgeMbc3,
 }
 
 pub fn get_cartridge(header: RomHeader) -> Res<Cartridge> {
@@ -42,6 +43,31 @@ pub fn get_cartridge(header: RomHeader) -> Res<Cartridge> {
     0x01 => Ok(CartridgeMbc1::new(Mbc1Type::None, &header).into()),
     0x02 => Ok(CartridgeMbc1::new(Mbc1Type::Ram, &header).into()),
     0x03 => Ok(CartridgeMbc1::new(Mbc1Type::RamBattery, &header).into()),
+    0x0F => Ok(CartridgeMbc3::new(Mbc3Config {
+      timer: true,
+      ram: false,
+      battery: true,
+    }, &header).into()),
+    0x10 => Ok(CartridgeMbc3::new(Mbc3Config {
+      timer: true,
+      ram: true,
+      battery: true,
+    }, &header).into()),
+    0x11 => Ok(CartridgeMbc3::new(Mbc3Config {
+      timer: false,
+      ram: false,
+      battery: false,
+    }, &header).into()),
+    0x12 => Ok(CartridgeMbc3::new(Mbc3Config {
+      timer: false,
+      ram: true,
+      battery: false,
+    }, &header).into()),
+    0x13 => Ok(CartridgeMbc3::new(Mbc3Config {
+      timer: false,
+      ram: true,
+      battery: true,
+    }, &header).into()),
     _ => Err(YargeError::InvalidMbcType(mbc_type))
   }
 }

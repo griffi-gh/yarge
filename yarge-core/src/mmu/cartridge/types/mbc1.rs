@@ -1,6 +1,6 @@
 use crate::Res;
 use super::{
-  common::{
+  helpers::{
     eram_addr,
     rom_addr,
     rom_bank_mask,
@@ -72,7 +72,7 @@ impl CartridgeImpl for CartridgeMbc1 {
       0x4000..=0x5FFF => {
         self.ram_bank = value & 0b11;
       },
-      0x6000..=u16::MAX => {
+      0x6000..=0xFFFF => {
         self.mode = (value & 1) != 0;
       }
     }
@@ -106,7 +106,6 @@ impl CartridgeImpl for CartridgeMbc1 {
     }
   }
   fn load_data(&mut self, data: Vec<u8>) {
-    //TODO add checks
     self.eram = Some(data);
   }
 }
