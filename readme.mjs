@@ -1,12 +1,6 @@
 import * as fs from 'fs/promises';
 
-Object.defineProperty(String.prototype, 'capitalize', {
-  value: function() {
-    return this.charAt(0).toUpperCase() + this.slice(1);
-  },
-  enumerable: false
-});
-
+const capitalize = str => str.charAt(0).toUpperCase() + str.slice(1);
 
 (await fs.writeFile('README.md', 
   "<!-- THIS FILE IS GENERATED AUTOMATICALLY, ALL CHANGES WILL BE LOST -->\n" + 
@@ -15,6 +9,7 @@ Object.defineProperty(String.prototype, 'capitalize', {
     .replace(
       '___TEST_TABLE___',
       (`
+      <!--n--><!-- GENERATED TABLE START --><!--n-->
         <table>
           <tr>
             <th>Test suite</th>
@@ -36,13 +31,14 @@ Object.defineProperty(String.prototype, 'capitalize', {
               .sort((a,b) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0))
               .map(row => `
                 <tr>
-                  <td><b>${ row.name.replace('tests::', '').split('::')[0].replace(/_/g, ' ').сapitalize() }</b></td>
-                  <td>${ row.name.replace('tests::', '').split('::')[1] }</td>
+                  <td><b>${ capitalize(row.name.split('::')[1].replace(/_/g, ' ')) }</b></td>
+                  <td>${ row.name.split('::').slice(2).join('/') }</td>
                   <td align="center">${(row.event === 'ok') ? '✔️' : '❌'}</td>
                 </tr>
               `).join('')
           }
         </table>
-      `).replace(/\s{2,}/g, ' ')
+        <!--n--><!-- GENERATED TABLE END --><!--n-->
+      `).replace(/\s{2,}/g, ' ').replace(/\>\s\</g, '><').replace(/\<\!\-\-n\-\-\>/g, '\n')
     )
 ));
