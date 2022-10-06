@@ -32,28 +32,28 @@
   <table>
     <tr>
       <th align="center">Pocket Monsters: Green</th>
-      <th align="center">The Legend of Zelda: Link's Awakening</th>
+      <th align="center">Super Mario Land</th>
     </tr>
     <tr>
       <td align="center">
         <img src=".assets/screenshots/poke_jp.gif" width="320" height="288">
       </td>
       <td align="center">
-        <img src=".assets/screenshots/zelda.png" width="320" height="288">
+        <img src=".assets/screenshots/sml.gif" width="320" height="288">
       </td>
-    <tr>
+    </tr>
     <tr>
       <th align="center">Tetris</th>
-      <th align="center">Super Mario Land</th>
+      <th align="center">The Legend of Zelda: Link's Awakening</th>
     </tr>
     <tr>
       <td align="center">
         <img src=".assets/screenshots/tetris.png" width="320" height="288">
       </td>
       <td align="center">
-        <img src=".assets/screenshots/sml.gif" width="320" height="288">
+        <img src=".assets/screenshots/zelda.png" width="320" height="288">
       </td>
-    <tr>
+    </tr>
   </table>
 </p>
 <h1>Support</h1>
