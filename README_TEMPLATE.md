@@ -25,35 +25,63 @@
   <i>TODO:</i> Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
 </p>
 <h1>Support</h1>
-<h2>MBC Support</h2>
-&nbsp;&#9745; ROM ONLY <br>
-&nbsp;&#9745; MBC1 <br>
-&nbsp;&#9745; MBC1+RAM <br>
-&nbsp;&#9745; MBC1+RAM+BATTERY <br>
-&nbsp;&#9744; MBC2 <br>
-&nbsp;&#9744; MBC2+BATTERY <br>
-&nbsp;&#9744; ROM+RAM 1 <br>
-&nbsp;&#9744; ROM+RAM+BATTERY 1 <br>
-&nbsp;&#9744; MMM01 <br>
-&nbsp;&#9744; MMM01+RAM <br>
-&nbsp;&#9744; MMM01+RAM+BATTERY <br>
-&nbsp;&#9744; MBC3+TIMER+BATTERY <br>
-&nbsp;&#9744; MBC3+TIMER+RAM+BATTERY 2 <br>
-&nbsp;&#9744; MBC3 <br>
-&nbsp;&#9744; MBC3+RAM 2 <br>
-&nbsp;&#9744; MBC3+RAM+BATTERY 2 <br>
-&nbsp;&#9744; MBC5 <br>
-&nbsp;&#9744; MBC5+RAM <br>
-&nbsp;&#9744; MBC5+RAM+BATTERY <br>
-&nbsp;&#9744; MBC5+RUMBLE <br>
-&nbsp;&#9744; MBC5+RUMBLE+RAM <br>
-&nbsp;&#9744; MBC5+RUMBLE+RAM+BATTERY <br>
-&nbsp;&#9744; MBC6 <br>
-&nbsp;&#9744; MBC7+SENSOR+RUMBLE+RAM+BATTERY <br>
-&nbsp;&#9744; POCKET CAMERA <br>
-&nbsp;&#9744; BANDAI TAMA5 <br>
-&nbsp;&#9744; HuC3 <br>
-&nbsp;&#9744; HuC1+RAM+BATTERY <br>
+<table>
+  <tr>
+    <th align="center" colspan="2">MBC Support</th>
+  </tr>
+  <tr>
+    <th align="center">Type</th>
+    <th align="center">Support</th>
+  </tr>
+  <tr>
+    <td>ROM ONLY</td>
+    <td align="center">✔️</td>
+  </tr>
+  <tr>
+    <td>MBC1</td>
+    <td align="center">✔️</td>
+  </tr>
+  <tr>
+    <td>MBC2</td>
+    <td align="center">❌</td>
+  </tr>
+  <tr>
+    <td>MBC3</td>
+    <td align="center">❌</td>
+  </tr>
+  <tr>
+    <td>MBC5</td>
+    <td align="center">❌</td>
+  </tr>
+  <tr>
+    <td>MBC6</td>
+    <td align="center">❌</td>
+  </tr>
+  <tr>
+    <td>MBC7</td>
+    <td align="center">❌</td>
+  </tr>
+  <tr>
+    <td>MMM01</td>
+    <td align="center">❌</td>
+  </tr>
+  <tr>
+    <td>POCKET CAMERA</td>
+    <td align="center">❌</td>
+  </tr>
+  <tr>
+    <td>BANDAI TAMA5</td>
+    <td align="center">❌</td>
+  </tr>
+  <tr>
+    <td>HuC3</td>
+    <td align="center">❌</td>
+  </tr>
+  <tr>
+    <td>HuC1</td>
+    <td align="center">❌</td>
+  </tr>
+</table>
 <h1>Screenshots</h1>
 <p><i>TODO</i></p>
 <h1>Tests</h1>
