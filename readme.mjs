@@ -1,12 +1,12 @@
 import * as fs from 'fs/promises';
 
-const ordered = unordered => Object.keys(unordered).sort().reduce(
-  (obj, key) => { 
-    obj[key] = unordered[key]; 
-    return obj;
-  }, 
-  {}
-);
+Object.defineProperty(String.prototype, 'capitalize', {
+  value: function() {
+    return this.charAt(0).toUpperCase() + this.slice(1);
+  },
+  enumerable: false
+});
+
 
 (await fs.writeFile('README.md', 
   "<!-- THIS FILE IS GENERATED AUTOMATICALLY, ALL CHANGES WILL BE LOST -->\n" + 
@@ -36,8 +36,8 @@ const ordered = unordered => Object.keys(unordered).sort().reduce(
               .sort((a,b) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0))
               .map(row => `
                 <tr>
-                  <td><b>${ row.name.replace('tests::', '').split('___')[0].replace(/_/g, ' ') }</b></td>
-                  <td>${ row.name.replace('tests::', '').split('___')[1] }</td>
+                  <td><b>${ row.name.replace('tests::', '').split('::')[0].replace(/_/g, ' ').сapitalize() }</b></td>
+                  <td>${ row.name.replace('tests::', '').split('::')[1] }</td>
                   <td align="center">${(row.event === 'ok') ? '✔️' : '❌'}</td>
                 </tr>
               `).join('')

@@ -75,33 +75,57 @@ macro_rules! define_test_mooneye {
 }
 
 // Mooneye tests
-define_test_mooneye!(Mooneye___acceptance_oam_dma_basic, "mooneye/acceptance/oam_dma/basic.gb");
-define_test_mooneye!(Mooneye___acceptance_oam_reg_read, "mooneye/acceptance/oam_dma/reg_read.gb");
-define_test_mooneye!(Mooneye___acceptance_oam_sources_gs, "mooneye/acceptance/oam_dma/sources-GS.gb", (|gb: &mut Gameboy, rom: &[u8]| {
-  gb.load_rom_force_mbc(rom, 0x02).unwrap(); //MBC1+RAM
-  gb.skip_bootrom();
-}));
-define_test_mooneye!(Mooneye___acceptance_timer_div_write, "mooneye/acceptance/timer/div_write.gb");
-define_test_mooneye!(Mooneye___acceptance_timer_rapid_toggle, "mooneye/acceptance/timer/rapid_toggle.gb");
-define_test_mooneye!(Mooneye___acceptance_timer_tim00_div_trigger, "mooneye/acceptance/timer/tim00_div_trigger.gb");
-define_test_mooneye!(Mooneye___acceptance_timer_tim00, "mooneye/acceptance/timer/tim00.gb");
-define_test_mooneye!(Mooneye___acceptance_timer_tim01_div_trigger, "mooneye/acceptance/timer/tim01_div_trigger.gb");
-define_test_mooneye!(Mooneye___acceptance_timer_tim01, "mooneye/acceptance/timer/tim01.gb");
-define_test_mooneye!(Mooneye___acceptance_timer_tim10_div_trigger, "mooneye/acceptance/timer/tim10_div_trigger.gb");
-define_test_mooneye!(Mooneye___acceptance_timer_tim10, "mooneye/acceptance/timer/tim10.gb");
-define_test_mooneye!(Mooneye___acceptance_timer_tim11_div_trigger, "mooneye/acceptance/timer/tim11_div_trigger.gb");
-define_test_mooneye!(Mooneye___acceptance_timer_tim11, "mooneye/acceptance/timer/tim11.gb");
-define_test_mooneye!(Mooneye___acceptance_timer_tima_reload, "mooneye/acceptance/timer/tima_reload.gb");
-define_test_mooneye!(Mooneye___acceptance_timer_tima_write_reloading, "mooneye/acceptance/timer/tima_write_reloading.gb");
-define_test_mooneye!(Mooneye___acceptance_timer_tma_write_reloading, "mooneye/acceptance/timer/tma_write_reloading.gb");
-define_test_mooneye!(Mooneye___acceptance_bits_mem_oam, "mooneye/acceptance/bits/mem_oam.gb");
-define_test_mooneye!(Mooneye___acceptance_bits_reg_f, "mooneye/acceptance/bits/reg_f.gb");
-define_test_mooneye!(Mooneye___acceptance_bits_unused_hwio_GS, "mooneye/acceptance/bits/unused_hwio-GS.gb");
-define_test_mooneye!(Mooneye___acceptance_instr_daa, "mooneye/acceptance/instr/daa.gb");
-define_test_mooneye!(Mooneye___acceptance_interrupts_ie_push, "mooneye/acceptance/interrupts/ie_push.gb");
+mod mooneye {
+  define_test_mooneye!(Mooneye___acceptance_oam_dma_basic, "mooneye/acceptance/oam_dma/basic.gb");
+  define_test_mooneye!(Mooneye___acceptance_oam_reg_read, "mooneye/acceptance/oam_dma/reg_read.gb");
+  define_test_mooneye!(Mooneye___acceptance_oam_sources_gs, "mooneye/acceptance/oam_dma/sources-GS.gb", (|gb: &mut Gameboy, rom: &[u8]| {
+    gb.load_rom_force_mbc(rom, 0x02).unwrap(); //MBC1+RAM
+    gb.skip_bootrom();
+  }));
+  define_test_mooneye!(Mooneye___acceptance_timer_div_write, "mooneye/acceptance/timer/div_write.gb");
+  define_test_mooneye!(Mooneye___acceptance_timer_rapid_toggle, "mooneye/acceptance/timer/rapid_toggle.gb");
+  define_test_mooneye!(Mooneye___acceptance_timer_tim00_div_trigger, "mooneye/acceptance/timer/tim00_div_trigger.gb");
+  define_test_mooneye!(Mooneye___acceptance_timer_tim00, "mooneye/acceptance/timer/tim00.gb");
+  define_test_mooneye!(Mooneye___acceptance_timer_tim01_div_trigger, "mooneye/acceptance/timer/tim01_div_trigger.gb");
+  define_test_mooneye!(Mooneye___acceptance_timer_tim01, "mooneye/acceptance/timer/tim01.gb");
+  define_test_mooneye!(Mooneye___acceptance_timer_tim10_div_trigger, "mooneye/acceptance/timer/tim10_div_trigger.gb");
+  define_test_mooneye!(Mooneye___acceptance_timer_tim10, "mooneye/acceptance/timer/tim10.gb");
+  define_test_mooneye!(Mooneye___acceptance_timer_tim11_div_trigger, "mooneye/acceptance/timer/tim11_div_trigger.gb");
+  define_test_mooneye!(Mooneye___acceptance_timer_tim11, "mooneye/acceptance/timer/tim11.gb");
+  define_test_mooneye!(Mooneye___acceptance_timer_tima_reload, "mooneye/acceptance/timer/tima_reload.gb");
+  define_test_mooneye!(Mooneye___acceptance_timer_tima_write_reloading, "mooneye/acceptance/timer/tima_write_reloading.gb");
+  define_test_mooneye!(Mooneye___acceptance_timer_tma_write_reloading, "mooneye/acceptance/timer/tma_write_reloading.gb");
+  define_test_mooneye!(Mooneye___acceptance_bits_mem_oam, "mooneye/acceptance/bits/mem_oam.gb");
+  define_test_mooneye!(Mooneye___acceptance_bits_reg_f, "mooneye/acceptance/bits/reg_f.gb");
+  define_test_mooneye!(Mooneye___acceptance_bits_unused_hwio_GS, "mooneye/acceptance/bits/unused_hwio-GS.gb");
+  define_test_mooneye!(Mooneye___acceptance_instr_daa, "mooneye/acceptance/instr/daa.gb");
+  define_test_mooneye!(Mooneye___acceptance_interrupts_ie_push, "mooneye/acceptance/interrupts/ie_push.gb");
+}
 
-// Acid2
-define_test!(Acid_2___dmg_acid2, "acid/dmg-acid2.gb", (|gb: &mut Gameboy| {
-  let hash = fxhash::hash64(gb.get_display_data());
-  assert_eq!(hash, 6523616297985761018);
-}));
+
+mod acid_2 {
+  define_test_mooneye!(Mooneye___acceptance_oam_dma_basic, "mooneye/acceptance/oam_dma/basic.gb");
+  define_test_mooneye!(Mooneye___acceptance_oam_reg_read, "mooneye/acceptance/oam_dma/reg_read.gb");
+  define_test_mooneye!(Mooneye___acceptance_oam_sources_gs, "mooneye/acceptance/oam_dma/sources-GS.gb", (|gb: &mut Gameboy, rom: &[u8]| {
+    gb.load_rom_force_mbc(rom, 0x02).unwrap(); //MBC1+RAM
+    gb.skip_bootrom();
+  }));
+  define_test_mooneye!(Mooneye___acceptance_timer_div_write, "mooneye/acceptance/timer/div_write.gb");
+  define_test_mooneye!(Mooneye___acceptance_timer_rapid_toggle, "mooneye/acceptance/timer/rapid_toggle.gb");
+  define_test_mooneye!(Mooneye___acceptance_timer_tim00_div_trigger, "mooneye/acceptance/timer/tim00_div_trigger.gb");
+  define_test_mooneye!(Mooneye___acceptance_timer_tim00, "mooneye/acceptance/timer/tim00.gb");
+  define_test_mooneye!(Mooneye___acceptance_timer_tim01_div_trigger, "mooneye/acceptance/timer/tim01_div_trigger.gb");
+  define_test_mooneye!(Mooneye___acceptance_timer_tim01, "mooneye/acceptance/timer/tim01.gb");
+  define_test_mooneye!(Mooneye___acceptance_timer_tim10_div_trigger, "mooneye/acceptance/timer/tim10_div_trigger.gb");
+  define_test_mooneye!(Mooneye___acceptance_timer_tim10, "mooneye/acceptance/timer/tim10.gb");
+  define_test_mooneye!(Mooneye___acceptance_timer_tim11_div_trigger, "mooneye/acceptance/timer/tim11_div_trigger.gb");
+  define_test_mooneye!(Mooneye___acceptance_timer_tim11, "mooneye/acceptance/timer/tim11.gb");
+  define_test_mooneye!(Mooneye___acceptance_timer_tima_reload, "mooneye/acceptance/timer/tima_reload.gb");
+  define_test_mooneye!(Mooneye___acceptance_timer_tima_write_reloading, "mooneye/acceptance/timer/tima_write_reloading.gb");
+  define_test_mooneye!(Mooneye___acceptance_timer_tma_write_reloading, "mooneye/acceptance/timer/tma_write_reloading.gb");
+  define_test_mooneye!(Mooneye___acceptance_bits_mem_oam, "mooneye/acceptance/bits/mem_oam.gb");
+  define_test_mooneye!(Mooneye___acceptance_bits_reg_f, "mooneye/acceptance/bits/reg_f.gb");
+  define_test_mooneye!(Mooneye___acceptance_bits_unused_hwio_GS, "mooneye/acceptance/bits/unused_hwio-GS.gb");
+  define_test_mooneye!(Mooneye___acceptance_instr_daa, "mooneye/acceptance/instr/daa.gb");
+  define_test_mooneye!(Mooneye___acceptance_interrupts_ie_push, "mooneye/acceptance/interrupts/ie_push.gb");
+}
