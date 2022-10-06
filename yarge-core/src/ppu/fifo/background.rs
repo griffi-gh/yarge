@@ -72,7 +72,13 @@ impl BackgroundFetcher {
     self.scy = scy;
   }
   pub fn spr_reset(&mut self) {
-    self.cycle = false;
+    // ! // HACK // 
+    // THIS SHOULDN'T BE TRUE...
+    // ...but this fixes the issue
+    // with the bg fetcher exiting
+    // 1 cycle late after sprite fetch.
+    // (The 292 bug)
+    self.cycle = true; 
     self.state = FetcherState::default();
   }
   pub fn tick(&mut self, lcdc: &Lcdc, vram: &[u8; VRAM_SIZE]) {
