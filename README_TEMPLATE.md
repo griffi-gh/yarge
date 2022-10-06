@@ -33,10 +33,10 @@
     </tr>
     <tr>
       <td align="center">
-        <img src=".assets/screenshots/poke_jp.gif" width="320" height="288">
+        <img src=".assets/screenshots/poke_jp.gif">
       </td>
       <td align="center">
-        <img src=".assets/screenshots/sml.gif" width="320" height="288">
+        <img src=".assets/screenshots/sml.gif">
       </td>
     </tr>
     <tr>
@@ -45,10 +45,10 @@
     </tr>
     <tr>
       <td align="center">
-        <img src=".assets/screenshots/tetris.png" width="320" height="288">
+        <img src=".assets/screenshots/tetris.png">
       </td>
       <td align="center">
-        <img src=".assets/screenshots/zelda.png" width="320" height="288">
+        <img src=".assets/screenshots/zelda.png">
       </td>
     </tr>
   </table>
