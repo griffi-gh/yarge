@@ -75,8 +75,8 @@ impl From<Lcdc> for u8 {
   }
 }
 impl From<u8> for Lcdc {
-  fn from(v: u8) -> Self {
-    Self::from_u8(v)
+  fn from(value: u8) -> Self {
+    Self::from_u8(value)
   }
 }
 
@@ -112,7 +112,7 @@ impl From<StatInterrupts> for u8 {
   }
 }
 impl From<u8> for StatInterrupts {
-  fn from(v: u8) -> Self {
-    Self::from_u8(v)
+  fn from(value: u8) -> Self {
+    Self::from_u8(value)
   }
 }

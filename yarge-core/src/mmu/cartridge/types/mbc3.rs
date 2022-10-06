@@ -22,8 +22,13 @@ pub struct Type {
 pub struct CartridgeMbc3 {
   mbc3_type: Type,
   rom: Vec<u8>,
+  eram: Option<Vec<u8>>,
+  rom_mask: u8,
+  ram_mask: u8,
   rom_bank: u8,
   ram_bank: u8,
+  ram_enable: bool,
+  mode: bool,
 }
 impl CartridgeMbc3 {
   pub fn new(mbc3_type: Type, header: &RomHeader) -> Self {
@@ -47,9 +52,15 @@ impl CartridgeImpl for CartridgeMbc3 {
       return self.rom[addr as usize];
     }
     return self.rom[rom_addr(addr, self.rom_bank)];
-  } 
-
+  }
   fn write_rom(&mut self, _addr: u16, _value: u8) {
+    todo!()
+  }
+
+  fn read_eram(&self, _addr: u16) {
+    todo!()
+  }
+  fn write_eram(&mut self, _addr: u16, _value: u8) {
     todo!()
   }
 }

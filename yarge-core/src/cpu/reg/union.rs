@@ -33,7 +33,7 @@ impl From<U16Union> for u16 {
   fn from(union: U16Union) -> Self { union.get() }
 }
 impl From<u16> for U16Union {
-  fn from(val: u16) -> Self { Self::new(val) }
+  fn from(value: u16) -> Self { Self::new(value) }
 }
 impl From<U16Union> for (u8, u8) {
   fn from(union: U16Union) -> Self {
@@ -41,8 +41,8 @@ impl From<U16Union> for (u8, u8) {
   }
 }
 impl From<(u8, u8)> for U16Union {
-  fn from(val: (u8, u8)) -> Self {
-    u16::from_be_bytes([val.0, val.1]).into()
+  fn from(value: (u8, u8)) -> Self {
+    u16::from_be_bytes([value.0, value.1]).into()
   }
 }
 impl Default for U16Union {
