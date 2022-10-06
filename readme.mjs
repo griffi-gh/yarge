@@ -32,7 +32,7 @@ const capitalize = str => str.charAt(0).toUpperCase() + str.slice(1);
               .map(row => `
                 <tr>
                   <td><b>${ capitalize(row.name.split('::')[1].replace(/_/g, ' ')) }</b></td>
-                  <td>${ row.name.split('::').slice(2).join('/') }</td>
+                  <td><code>${ row.name.split('::').slice(2).join('/') }</code></td>
                   <td align="center">${(row.event === 'ok') ? '✔️' : '❌'}</td>
                 </tr>
               `).join('')
