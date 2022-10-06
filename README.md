@@ -27,66 +27,95 @@
 <p>
   <i>TODO:</i> Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
 </p>
-<h1>Support</h1>
-<table>
-  <tr>
-    <th align="center" colspan="2">MBC Support</th>
-  </tr>
-  <tr>
-    <th align="center">Type</th>
-    <th align="center">Support</th>
-  </tr>
-  <tr>
-    <td>ROM ONLY</td>
-    <td align="center">✔️</td>
-  </tr>
-  <tr>
-    <td>MBC1</td>
-    <td align="center">✔️</td>
-  </tr>
-  <tr>
-    <td>MBC2</td>
-    <td align="center">❌</td>
-  </tr>
-  <tr>
-    <td>MBC3</td>
-    <td align="center">❌</td>
-  </tr>
-  <tr>
-    <td>MBC5</td>
-    <td align="center">❌</td>
-  </tr>
-  <tr>
-    <td>MBC6</td>
-    <td align="center">❌</td>
-  </tr>
-  <tr>
-    <td>MBC7</td>
-    <td align="center">❌</td>
-  </tr>
-  <tr>
-    <td>MMM01</td>
-    <td align="center">❌</td>
-  </tr>
-  <tr>
-    <td>POCKET CAMERA</td>
-    <td align="center">❌</td>
-  </tr>
-  <tr>
-    <td>BANDAI TAMA5</td>
-    <td align="center">❌</td>
-  </tr>
-  <tr>
-    <td>HuC3</td>
-    <td align="center">❌</td>
-  </tr>
-  <tr>
-    <td>HuC1</td>
-    <td align="center">❌</td>
-  </tr>
-</table>
 <h1>Screenshots</h1>
-<p><i>TODO</i></p>
+<p>
+  <table>
+    <tr>
+      <th align="center">Pocket Monsters: Green</th>
+      <th align="center">The Legend of Zelda: Link's Awakening</th>
+    </tr>
+    <tr>
+      <td align="center">
+        <img src=".assets/screenshots/poke_jp.gif" width="320" height="288">
+      </td>
+      <td align="center">
+        <img src=".assets/screenshots/zelda.png" width="320" height="288">
+      </td>
+    <tr>
+    <tr>
+      <th align="center">Tetris</th>
+      <th align="center">Super Mario Land</th>
+    </tr>
+    <tr>
+      <td align="center">
+        <img src=".assets/screenshots/tetris.png" width="320" height="288">
+      </td>
+      <td align="center">
+        <img src=".assets/screenshots/sml.gif" width="320" height="288">
+      </td>
+    <tr>
+  </table>
+</p>
+<h1>Support</h1>
+<p>
+  <table>
+    <tr>
+      <th align="center" colspan="2">MBC Support</th>
+    </tr>
+    <tr>
+      <th align="center">Type</th>
+      <th align="center">Support</th>
+    </tr>
+    <tr>
+      <td>ROM ONLY</td>
+      <td align="center">✔️</td>
+    </tr>
+    <tr>
+      <td>MBC1</td>
+      <td align="center">✔️</td>
+    </tr>
+    <tr>
+      <td>MBC2</td>
+      <td align="center">❌</td>
+    </tr>
+    <tr>
+      <td>MBC3</td>
+      <td align="center">❌</td>
+    </tr>
+    <tr>
+      <td>MBC5</td>
+      <td align="center">❌</td>
+    </tr>
+    <tr>
+      <td>MBC6</td>
+      <td align="center">❌</td>
+    </tr>
+    <tr>
+      <td>MBC7</td>
+      <td align="center">❌</td>
+    </tr>
+    <tr>
+      <td>MMM01</td>
+      <td align="center">❌</td>
+    </tr>
+    <tr>
+      <td>POCKET CAMERA</td>
+      <td align="center">❌</td>
+    </tr>
+    <tr>
+      <td>BANDAI TAMA5</td>
+      <td align="center">❌</td>
+    </tr>
+    <tr>
+      <td>HuC3</td>
+      <td align="center">❌</td>
+    </tr>
+    <tr>
+      <td>HuC1</td>
+      <td align="center">❌</td>
+    </tr>
+  </table>
+</p>
 <h1>Tests</h1>
 <p><i>These tests are run automatically after each commit.</i></p>
 <p>
