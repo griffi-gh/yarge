@@ -1,7 +1,7 @@
 use crate::consts::AUDIO_BUFFER_SIZE;
 
 pub trait AudioDevice {
-    
+  fn queue_samples(&mut self, buffer: &[f32; AUDIO_BUFFER_SIZE]);
 }
 
 pub struct Apu {
