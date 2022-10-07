@@ -8,6 +8,13 @@
     "swellaby.vscode-rust-test-adapter",
     "hbenl.vscode-test-explorer",
     "christian-kohler.path-intellisense",
-    "lorenzopirro.rust-flash-snippets"
+    "lorenzopirro.rust-flash-snippets",
+    "aaron-bond.better-comments",
+    "ms-vscode.hexeditor",
+    "eamodio.gitlens",
+    "jscearcy.rust-doc-viewer",
+    "zhangyue.rust-mod-generator",
+    "ms-vscode.test-adapter-converter",
+    "Imanolea.z80-asm"
   ]
 }

@@ -1,4 +1,4 @@
-use crate::{Input, Timers, Ppu, Res, consts::BIOS};
+use crate::{Input, Timers, Ppu, Apu, Res, consts::BIOS};
 use std::fs;
 pub mod cartridge;
 use cartridge::{CartridgeImpl as _, RomHeader, Cartridge, MockCartridge};
@@ -17,6 +17,7 @@ pub struct Mmu {
   pub iif: u8,
   //components
   pub ppu: Ppu,
+  pub apu: Apu,
   pub timers: Timers,
   pub input: Input,
   //workaround
@@ -38,6 +39,7 @@ impl Mmu {
       iif: 0x00,
       //components
       ppu: Ppu::new(),
+      apu: Apu::new(),
       timers: Timers::new(),
       input: Input::new(),
       //workaround
@@ -160,7 +162,7 @@ impl Mmu {
   fn start_oam_dma(&mut self, value: u8) {
     //Reset OAM transfer timer (Unlock memory if another oam is in progress)
     self.oam_transfer = 0;
-    // Lock PPU OAM (//IDK: SHOULD IT BE LOCKED DURING OAM TRANSFER????)
+    // Lock PPU OAM //? //IDK //SHOULD IT BE LOCKED DURING OAM TRANSFER????
     self.ppu.mmu_oam_locked = true;
     //Do OAM transfer
     let src_start = (value as u16) << 8;
