@@ -12,14 +12,14 @@ macro_rules! define_test {
     define_test!($name, $path, (|_:&mut Gameboy|{}));
   };
   ($name: tt, $path: literal, $callback: tt) => {
-    define_test!($name, $path, $callback, (|gb: &mut Gameboy, rom: &[u8]| {
+    define_test!($name, $path, ($callback), (|gb: &mut Gameboy, rom: &[u8]| {
       gb.init();
       gb.load_rom(rom).unwrap();
       gb.skip_bootrom();
     }));
   };
   ($name: tt, $path: literal, $callback: tt, $setup: tt) => {
-    define_test!($name, $path, $callback, $setup, (|_: &mut Gameboy, res: $crate::Res<usize>| -> bool {
+    define_test!($name, $path, ($callback), ($setup), (|_: &mut Gameboy, res: $crate::Res<usize>| -> bool {
       match res {
         Ok(_) => false,
         Err(
@@ -39,12 +39,12 @@ macro_rules! define_test {
       const ROM: &[u8] = include_bytes!(concat!("./../../roms/tests/", $path));
       let mut gb = Gameboy::new();
       gb.init();
-      $setup(&mut gb, ROM);
+      ($setup)(&mut gb, ROM);
       loop {
         let result = gb.step();
-        if $predicate(&mut gb, result) {
-          $callback(&mut gb);
-          break;
+        if ($predicate)(&mut gb, result) {
+          ($callback)(&mut gb);
+          break
         }
       }
     }
