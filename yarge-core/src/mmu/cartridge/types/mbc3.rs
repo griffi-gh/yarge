@@ -67,7 +67,7 @@ impl CartridgeImpl for CartridgeMbc3 {
       },
       0x4000..=0x5FFF => {
         if !(0x08..=0x0C).contains(&value) {
-          self.ram_bank = value & 0b11;
+          self.ram_bank = value & 0b11 & self.ram_mask;
         }
       },
       0x6000..=0xFFFF => {}
