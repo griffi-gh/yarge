@@ -1,4 +1,5 @@
 use crate::Res;
+use crate::consts::ROM_SIZE;
 use super::{
   helpers::{
     eram_addr,
@@ -32,7 +33,7 @@ impl CartridgeMbc1 {
   pub fn new(mbc1_type: Type, header: &RomHeader) -> Self {
     Self {
       mbc1_type,
-      rom: Vec::with_capacity(0x8000),
+      rom: Vec::with_capacity(ROM_SIZE),
       eram: (mbc1_type != Type::None).then(|| vec![0; header.ram_size.max(8192)]),
       rom_mask: rom_bank_mask(header),
       ram_mask: eram_bank_mask(header),

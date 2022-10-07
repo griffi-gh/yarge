@@ -1,13 +1,14 @@
 use crate::Res;
+use crate::consts::ROM_SIZE;
 use super::{CartridgeImpl, helpers::load_rom_static};
 
 pub struct CartridgeNone {
-  rom: Box<[u8; 0x8000]>,
+  rom: Box<[u8; ROM_SIZE]>,
 }
 impl CartridgeNone {
   pub fn new() -> Self {
     Self {
-      rom: Box::new([0xFF; 0x8000]),
+      rom: Box::new([0xFF; ROM_SIZE]),
     }
   }
 }

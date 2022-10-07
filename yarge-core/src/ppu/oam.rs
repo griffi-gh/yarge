@@ -1,4 +1,4 @@
-use crate::consts::WIDTH;
+use crate::consts::{WIDTH, OBJECTS_PER_LINE};
 use super::ppu_registers::Lcdc;
 use arrayvec::ArrayVec;
 
@@ -102,7 +102,7 @@ impl Default for OamMemory {
 }
 
 pub struct OamBuffer {
-  objects: ArrayVec<OamObject, 10>
+  objects: ArrayVec<OamObject, OBJECTS_PER_LINE>
 }
 impl OamBuffer {
   pub fn new() -> Self {

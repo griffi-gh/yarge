@@ -7,7 +7,7 @@ use fifo::{Fetcher, BackgroundFetcher, SpriteFetcher, FifoPixel};
 use oam::{OamMemory, OamBuffer};
 use ppu_registers::{Lcdc, PpuMode, StatInterrupts};
 use crate::{
-  consts::{VRAM_SIZE, WIDTH, FB_SIZE},
+  consts::{VRAM_SIZE, WIDTH, FB_SIZE, OBJECTS_PER_LINE},
   cpu::{Cpu, Interrupt}
 };
 
@@ -166,6 +166,7 @@ impl Ppu {
           self.suspend_bg_fetcher = true;
           self.spr_fetcher.start(*sprite, self.ly);
           self.fetched_sprites += 1;
+          debug_assert!(self.fetched_sprites <= OBJECTS_PER_LINE, "Fetched too much sprites");
           #[cfg(feature = "dbg-emit-ppu-events")] {
             println!("PPU_EVENT SPR_FETCH_START lx={} ly={} cycles={}", self.lx, self.ly, self.cycles);
           }
@@ -174,14 +175,10 @@ impl Ppu {
     }
     //Tick spr_fetcher if it's not done fetching stuff
     if self.spr_fetcher.fetching {
-      #[cfg(feature = "dbg-emit-ppu-events")] 
-      let pre_state = self.spr_fetcher.state;
-      // ================================
+      #[cfg(feature = "dbg-emit-ppu-events")] let prev_state = self.spr_fetcher.state;
       self.spr_fetcher.tick(&self.lcdc, &self.vram);
-      // ================================
-      #[cfg(feature = "dbg-emit-ppu-events")]
-      if pre_state != self.spr_fetcher.state {
-        println!("PPU_EVENT SPR_FETCHER_STATE_CHANGE cycles={} ly={} next={} prev={}", self.cycles, self.ly, self.spr_fetcher.state as u8, pre_state as u8);
+      #[cfg(feature = "dbg-emit-ppu-events")] if prev_state != self.spr_fetcher.state {
+        println!("PPU_EVENT SPR_FETCHER_STATE_CHANGE cycles={} ly={} next={} prev={}", self.cycles, self.ly, self.spr_fetcher.state as u8, prev_state as u8);
       }
     }
   }

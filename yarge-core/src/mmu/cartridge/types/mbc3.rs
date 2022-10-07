@@ -1,6 +1,6 @@
 //TODO Handle RTC/Timer
-
 use crate::Res;
+use crate::consts::ROM_SIZE;
 use super::{
   helpers::{
     eram_addr, 
@@ -34,7 +34,7 @@ impl CartridgeMbc3 {
   pub fn new(config: Configuration, header: &RomHeader) -> Self {
     Self {
       config,
-      rom: Vec::with_capacity(0x8000),
+      rom: Vec::with_capacity(ROM_SIZE),
       eram: config.ram.then(|| vec![0; header.ram_size.max(8192)]),
       rom_mask: rom_bank_mask(header),
       ram_mask: eram_bank_mask(header),
