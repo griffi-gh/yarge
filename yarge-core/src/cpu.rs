@@ -2,7 +2,7 @@ mod reg;
 mod instructions;
 use instructions::{cpu_instructions, cpu_instructions_cb};
 pub use reg::Registers;
-use crate::{ Mmu, Res, YargeError, consts::INT_JMP_VEC };
+use crate::{Mmu, Res, consts::INT_JMP_VEC};
 
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub enum CpuState {
@@ -53,6 +53,7 @@ impl Cpu {
 
   #[cfg(feature = "dbg-breakpoints")]
   fn check_mmu_breakpoints(&self, access_type: u8, addr: u16, value: Option<u8>) -> Res<()> {
+    use crate::YargeError;
     let breakpoint_acc_type = self.mmu_breakpoints[addr as usize];
     let trip = breakpoint_acc_type & access_type;
     if trip != 0 {
@@ -68,6 +69,7 @@ impl Cpu {
 
   #[cfg(feature = "dbg-breakpoints")]
   fn check_pc_breakpoints(&mut self, addr: u16) -> Res<()> {
+    use crate::YargeError;
     if self.pc_breakpoints[addr as usize] {
       let instr = self.mmu.rb(addr, true);
       Err(YargeError::PcBreakpoint { instr, addr })
