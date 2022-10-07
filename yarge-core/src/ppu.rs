@@ -375,3 +375,8 @@ impl Ppu {
     todo!() //TODO render_tileset
   }
 }
+impl Default for Ppu {
+  fn default() -> Self {
+    Self::new()
+  }
+}
