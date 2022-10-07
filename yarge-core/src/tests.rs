@@ -36,7 +36,7 @@ macro_rules! define_test {
     #[allow(non_snake_case)]
     fn $name () {
       use $crate::{Gameboy, YargeError};
-      const ROM: &[u8] = include_bytes!(concat!("../../../roms/tests/", $path));
+      const ROM: &[u8] = include_bytes!(concat!("./../../roms/tests/", $path));
       let mut gb = Gameboy::new();
       gb.init();
       $setup(&mut gb, ROM);
