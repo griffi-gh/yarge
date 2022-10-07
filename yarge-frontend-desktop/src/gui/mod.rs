@@ -390,7 +390,7 @@ impl Gui for GuiState {
           }
         });
       });
-      ui.add(egui::Slider::new(&mut self.speed, 1..=15).text("Speed"));
+      ui.add(egui::Slider::new(&mut self.speed, 1..=10).text("Speed"));
 
       //REGISTERS
       egui::CollapsingHeader::new("Registers").default_open(true).show(ui, |ui| {
