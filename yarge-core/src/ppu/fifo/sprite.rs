@@ -51,7 +51,8 @@ impl SpriteFetcher {
       if lcdc.obj_size {
         tile_idx |= ((y_offset > 7) ^ self.object.flags.flip_y) as usize;
         y_offset &= 7;
-      } else if self.object.flags.flip_y {
+      }
+      if self.object.flags.flip_y {
         y_offset = 7 - y_offset;
       }
       (tile_idx * 16) + (y_offset * 2)
@@ -76,7 +77,7 @@ impl SpriteFetcher {
         self.state = FetcherState::PushToFifo;
       },
       FetcherState::PushToFifo => {
-        //TODO this code is... not very good (tm)
+        //TODO clean up. this code is... not very good (tm)
         //Make sure that fifo is filled up
         while !self.fifo.is_full() {
           self.fifo.push_back(FifoPixel::from_color(0)).unwrap();
@@ -87,6 +88,7 @@ impl SpriteFetcher {
           self.tile_data.1 = LookupReverse::swap_bits(self.tile_data.1);
         }
         //If the object is close to the edge, skip some pixels
+        //? //NOTE Maybe I also need to discard some if the object is on the right edge?
         let mut take = 8;
         if self.object.x < 8 {
           let shift = 7 - (self.object.x as u32);
