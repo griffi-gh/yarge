@@ -29,10 +29,10 @@ impl Registers {
     self.pc = self.pc.wrapping_add(by);
     self.pc
   }
-  pub fn dec_pc(&mut self, by: u16) -> u16 {
-    self.pc = self.pc.wrapping_sub(by);
-    self.pc
-  }
+  // pub fn dec_pc(&mut self, by: u16) -> u16 {
+  //   self.pc = self.pc.wrapping_sub(by);
+  //   self.pc
+  // }
   pub fn inc_sp(&mut self, by: u16) -> u16 {
     self.sp = self.sp.wrapping_add(by);
     self.sp
@@ -74,11 +74,9 @@ impl Registers {
   pub fn set_h(&mut self, value: u8) { self.hl.set_a(value); }
   pub fn set_l(&mut self, value: u8) { self.hl.set_b(value); }
 
-  // 16-bit reg setters/getters, for compatability.
+  // 16-bit registers set/get
   pub fn set_sp(&mut self, value: u16) { self.sp = value; }
   pub fn sp(&self) -> u16 { self.sp }
-  pub fn set_pc(&mut self, value: u16) { self.pc = value; }
-  pub fn pc(&self) -> u16 { self.pc }
 
   // Flag register
   pub fn f_z(&self) -> bool { (self.f() & 0x80) != 0 }
