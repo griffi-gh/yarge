@@ -53,6 +53,7 @@ pub struct GuiState {
   last_render: Instant,
   frame_time: f64,
   enable_gui: bool,
+  double_speed: bool,
 
   #[cfg(feature = "dbg-breakpoints")]
   mmu_breakpoint_addr: u16,
@@ -73,6 +74,7 @@ impl GuiState {
       last_render: Instant::now(),
       frame_time: 0.,
       enable_gui: true,
+      double_speed: false,
 
       #[cfg(feature = "dbg-breakpoints")]
       mmu_breakpoint_addr: 0,
@@ -101,6 +103,9 @@ impl Gui for GuiState {
     let instant = Instant::now();
     if self.gb_result.is_ok() {
       self.gb_result = self.gb.run_for_frame();
+      if self.double_speed && self.gb_result.is_ok() {
+        self.gb_result = self.gb.run_for_frame();
+      }
     }
     let elapsed = instant.elapsed();
     self.step_millis = elapsed.as_secs_f64() * 1000.;
@@ -383,7 +388,8 @@ impl Gui for GuiState {
           }
         });
       });
-
+      ui.checkbox(&mut self.double_speed, "Double speed");
+      
       //REGISTERS
       egui::CollapsingHeader::new("Registers").default_open(true).show(ui, |ui| {
         egui::Grid::new("register_layout").num_columns(2).show(ui, |ui| {
