@@ -1,6 +1,5 @@
 use crate::consts::{WIDTH, OBJECTS_PER_LINE};
 use super::ppu_registers::Lcdc;
-use arrayvec::ArrayVec;
 
 #[derive(Clone, Copy, Default)]
 pub struct OamFlags {
