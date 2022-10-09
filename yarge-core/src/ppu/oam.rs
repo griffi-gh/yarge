@@ -102,28 +102,28 @@ impl Default for OamMemory {
 }
 
 pub struct OamBuffer {
-  objects: [OamObject; OBJECTS_PER_LINE],
-  len: usize
+  buffer: [OamObject; OBJECTS_PER_LINE],
+  length: usize
 }
 impl OamBuffer {
   pub fn new() -> Self {
     Self {
-      objects: [OamObject::default(); OBJECTS_PER_LINE],
-      len: 0,
+      buffer: [OamObject::default(); OBJECTS_PER_LINE],
+      length: 0,
     }
   }
   pub fn push(&mut self, object: OamObject) {
-    self.objects[self.len] = object;
-    self.len += 1;
+    self.buffer[self.length] = object;
+    self.length += 1;
   }
   pub fn sort(&mut self) {
-    self.objects.sort_unstable_by_key(|o| (o.x, o.id));
+    self.buffer[0..self.length].sort_unstable_by_key(|o| (o.x, o.id));
   }
   pub fn len(&self) -> usize {
-    self.len
+    self.length
   }
   pub fn get(&self, index: usize) -> Option<&OamObject> {
-    self.objects.get(index)
+    (index < self.length).then(|| &self.buffer[index])
   }
 }
 impl Default for OamBuffer {
