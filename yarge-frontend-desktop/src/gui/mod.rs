@@ -13,7 +13,7 @@ use std::{
   hash::Hasher as _,
   time::Instant,
 };
-use crate::gb;
+pub(crate) use crate::gb;
 use crate::{
   gb::consts::{MBC_TYPE_LIST, MBC_TYPE_NAMES},
   gb::{CpuState, Gameboy},
@@ -29,6 +29,8 @@ mod icons;
 mod u16edit;
 use u16edit::u16_edit;
 use error_words::WORDS as ERROR_WORDS;
+
+mod audio;
 
 pub(crate) use gb::consts::{WIDTH as GB_WIDTH, HEIGHT as GB_HEIGHT};
 const WIDTH: u32 = GB_WIDTH as u32;
@@ -564,7 +566,7 @@ impl Gui for GuiState {
         ui.label(format!("{} v.{} (core: v.{}; {} build)",
           NAME.unwrap_or("<name?>"),
           VERSION.unwrap_or("<version?>"),
-          gb::VERSION.unwrap_or("<version?>"),
+          gb::consts::VERSION.unwrap_or("<version?>"),
           {
             #[cfg(debug_assertions)]      { "debug" }
             #[cfg(not(debug_assertions))] { "release" }

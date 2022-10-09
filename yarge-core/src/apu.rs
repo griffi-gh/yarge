@@ -1,7 +1,7 @@
 mod audio_buffer;
 mod audio_device;
 use audio_buffer::AudioBuffer;
-use audio_device::AudioDevice;
+pub use audio_device::AudioDevice;
 
 pub struct Apu {
   enabled: bool,

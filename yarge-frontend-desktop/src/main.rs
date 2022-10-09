@@ -8,8 +8,7 @@ pub(crate) const VERSION: Option<&str> = option_env!("CARGO_PKG_VERSION");
 pub(crate) const BUILD_TIME: &str = build_time_local!("%Y-%m-%dT%H:%M:%S%.f%:z");
 pub(crate) const GITHUB_REPO: &str = "https://github.com/griffi-gh/yarge";
 
-#[cfg(feature = "gui")]
-mod gui;
+#[cfg(feature = "gui")] mod gui;
 
 #[derive(Parser, Debug)]
 #[clap(author, version, about, long_about = None)]
@@ -37,7 +36,7 @@ fn main() {
       #[cfg(debug_assertions)] { "debug" }
       #[cfg(not(debug_assertions))] { "release" }
     },
-    gb::VERSION.unwrap_or("<version?>"),
+    gb::consts::VERSION.unwrap_or("<version?>"),
     BUILD_TIME,
     GITHUB_REPO
   );

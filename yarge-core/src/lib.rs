@@ -25,7 +25,7 @@ pub use input::Key;
 pub use cpu::CpuState;
 pub use errors::YargeError;
 pub use api::*;
-pub use consts::VERSION;
+pub use apu::AudioDevice;
 
 //Types
 pub(crate) type Res<T> = Result<T, YargeError>;

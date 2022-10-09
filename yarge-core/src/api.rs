@@ -1,7 +1,8 @@
 /// This module exposes some getters/setters
 
-use super::{
+use crate::{
   Gameboy, Res,
+  apu::AudioDevice,
   cpu::CpuState,
   mmu::cartridge::RomHeader,
   consts::FB_SIZE
@@ -191,5 +192,13 @@ impl Gameboy {
   #[cfg(feature = "dbg-breakpoints")]
   #[inline] pub fn get_pc_breakpoint(&mut self, addr: u16) -> bool {
     self.cpu.pc_breakpoints[addr as usize]
+  }
+
+  #[deprecated] #[inline] pub fn _set_audio_device_dyn(&mut self, device: Box<dyn AudioDevice>) {
+    self.cpu.mmu.apu.device = Some(device);
+  }
+
+  #[inline] pub fn set_audio_device(&mut self, device: impl AudioDevice + 'static) {
+    self.cpu.mmu.apu.device = Some(Box::new(device));
   }
 }
