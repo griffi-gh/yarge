@@ -13,6 +13,7 @@ fxhash = { version = "0.2", optional = true }
 rfd = { version = "0.10", optional = true }
 clap = { version = "3.1", features = ["derive"] }
 build-time = "0.1.1"
+cpal = "0.14"
 
 [features]
 default = ["gui", "dbg-breakpoints"]
