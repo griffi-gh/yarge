@@ -1,21 +1,19 @@
-use crate::consts::AUDIO_BUFFER_SIZE;
-
 mod audio_buffer;
+mod audio_device;
 use audio_buffer::AudioBuffer;
-
-pub trait AudioDevice {
-  fn queue_samples(&mut self, buffer: &[f32; AUDIO_BUFFER_SIZE]);
-}
+use audio_device::AudioDevice;
 
 pub struct Apu {
   enabled: bool,
-  buffer: AudioBuffer
+  buffer: AudioBuffer,
+  pub device: Option<Box<dyn AudioDevice>>
 }
 impl Apu {
   pub fn new() -> Self {
     Self {
       enabled: false,
-      buffer: AudioBuffer::new()
+      buffer: AudioBuffer::new(),
+      device: None
     }
   }
 }
