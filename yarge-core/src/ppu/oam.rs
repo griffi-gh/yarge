@@ -102,23 +102,24 @@ impl Default for OamMemory {
 }
 
 pub struct OamBuffer {
-  objects: ArrayVec<OamObject, OBJECTS_PER_LINE>
+  objects: [OamObject; OBJECTS_PER_LINE],
+  len: usize
 }
 impl OamBuffer {
   pub fn new() -> Self {
     Self {
-      objects: ArrayVec::new()
+      objects: [OamObject::default(); OBJECTS_PER_LINE],
+      len: 0,
     }
   }
   pub fn push(&mut self, object: OamObject) {
-    debug_assert!(self.len() < 10);
-    self.objects.push(object);
+    self.objects[self.len] = object;
   }
   pub fn sort(&mut self) {
     self.objects.sort_unstable_by_key(|o| (o.x, o.id));
   }
   pub fn len(&self) -> usize {
-    self.objects.len()
+    self.len
   }
   pub fn get(&self, index: usize) -> Option<&OamObject> {
     self.objects.get(index)
@@ -127,10 +128,3 @@ impl OamBuffer {
 impl Default for OamBuffer {
   fn default() -> Self { Self::new() }
 }
-// impl<'a> IntoIterator for &'a OamBuffer {
-//   type Item = &'a OamObject;
-//   type IntoIter = arrayvec::IntoIter<Self::Item, 10>;
-//   fn into_iter(self) -> Self::IntoIter {
-//     self.objects.into()
-//   }
-// }
