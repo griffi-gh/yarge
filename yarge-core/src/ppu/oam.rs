@@ -114,6 +114,7 @@ impl OamBuffer {
   }
   pub fn push(&mut self, object: OamObject) {
     self.objects[self.len] = object;
+    self.len += 1;
   }
   pub fn sort(&mut self) {
     self.objects.sort_unstable_by_key(|o| (o.x, o.id));
