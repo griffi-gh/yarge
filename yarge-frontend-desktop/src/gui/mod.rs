@@ -30,7 +30,7 @@ mod u16edit;
 use u16edit::u16_edit;
 use error_words::WORDS as ERROR_WORDS;
 
-mod audio;
+#[cfg(feature = "audio")] mod audio;
 
 pub(crate) use gb::consts::{WIDTH as GB_WIDTH, HEIGHT as GB_HEIGHT};
 const WIDTH: u32 = GB_WIDTH as u32;
@@ -86,7 +86,7 @@ impl GuiState {
   }
   ///Warning: consumes self!
   pub fn init(self) {
-    audio::init();
+    #[cfg(feature = "audio")] audio::init();
     framework::init(self, InitProperties {
       title: NAME.unwrap_or("open source gameboy emulator"),
       pixels_resoltion: (WIDTH, HEIGHT),
