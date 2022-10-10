@@ -86,7 +86,7 @@ impl GuiState {
   }
   ///Warning: consumes self!
   pub fn init(self) {
-    //audio::init();
+    audio::init();
     framework::init(self, InitProperties {
       title: NAME.unwrap_or("open source gameboy emulator"),
       pixels_resoltion: (WIDTH, HEIGHT),
