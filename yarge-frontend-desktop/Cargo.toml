@@ -14,10 +14,12 @@ rfd = { version = "0.10", optional = true }
 clap = { version = "4.0", features = ["derive", "help", "usage", "error-context"] }
 build-time = "0.1.1"
 cpal = { version = "0.14", optional = true }
+fastrand = { version = "1.8", optional = true }
 
 [features]
-default = ["gui", "dbg-breakpoints"]
+default = ["audio", "gui", "dbg-breakpoints"]
 gui = ["dep:yarge-gui-framework", "dep:rfd", "dep:fxhash", "dep:cpal"]
+audio = ["dep:cpal", "dep:fastrand"]
 # Pass through to yarge-core
 dbg-ly-stub = ["yarge-core/dbg-ly-stub"]
 dbg-logging-file = ["yarge-core/dbg-logging-file"]
