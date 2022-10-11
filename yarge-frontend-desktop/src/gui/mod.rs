@@ -363,10 +363,22 @@ impl Gui for GuiState {
               self.gb.write_mem(fastrand::u16(..), fastrand::u8(..))
             }
           }
-          if ui.button("Corrupt only wram").clicked() {
+          if ui.button("Corrupt only WRAM").clicked() {
             ui.close_menu();
             for _ in 0..self.corrupt_amount {
-              self.gb.write_mem(fastrand::u16(0xC000..0xFDFF), fastrand::u8(..))
+              self.gb.write_mem(fastrand::u16(0xC000..=0xFDFF), fastrand::u8(..))
+            }
+          }
+          if ui.button("Corrupt only ERAM").clicked() {
+            ui.close_menu();
+            for _ in 0..self.corrupt_amount {
+              self.gb.write_mem(fastrand::u16(0xA000..=0xBFFF), fastrand::u8(..))
+            }
+          }
+          if ui.button("Corrupt only MMIO").clicked() {
+            ui.close_menu();
+            for _ in 0..self.corrupt_amount {
+              self.gb.write_mem(fastrand::u16(0xFF00..=0xFF7F), fastrand::u8(..))
             }
           }
           ui.horizontal(|ui| {
