@@ -56,6 +56,7 @@ pub struct GuiState {
   frame_time: f64,
   enable_gui: bool,
   speed: u8,
+  corrupt_amount: u16,
 
   #[cfg(feature = "dbg-breakpoints")]
   mmu_breakpoint_addr: u16,
@@ -77,6 +78,7 @@ impl GuiState {
       frame_time: 0.,
       enable_gui: true,
       speed: 1,
+      corrupt_amount: 100,
 
       #[cfg(feature = "dbg-breakpoints")]
       mmu_breakpoint_addr: 0,
@@ -352,6 +354,28 @@ impl Gui for GuiState {
               ui.close_menu();
               self.show_mem_view = true;
             }
+          });
+        });
+        ui.menu_button("Fun", |ui| {
+          if ui.button("Corrupt some memory").clicked() {
+            ui.close_menu();
+            for _ in 0..self.corrupt_amount {
+              self.gb.write_mem(fastrand::u16(..), fastrand::u8(..))
+            }
+          }
+          if ui.button("Corrupt only wram").clicked() {
+            ui.close_menu();
+            for _ in 0..self.corrupt_amount {
+              self.gb.write_mem(fastrand::u16(0xC000..0xFDFF), fastrand::u8(..))
+            }
+          }
+          ui.horizontal(|ui| {
+            ui.label("Corruption amount:");
+            let corrupt_amount = self.corrupt_amount;
+            ui.add(
+              egui::DragValue::new(&mut self.corrupt_amount)
+                .suffix(if corrupt_amount == 1 { " byte" } else { " bytes"})
+            );
           });
         });
       });    
