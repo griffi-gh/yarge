@@ -389,14 +389,10 @@ impl Gui for GuiState {
                 .suffix(if corrupt_amount == 1 { " byte" } else { " bytes"})
             );
           });
-          ui.separator();
-          if ui.button("Fill VRAM/OAM with zero").clicked() {
+          if ui.button("Fully fill VRAM with random values").clicked() {
             ui.close_menu();
             for i in 0x8000..=0x9FFF {
-              self.gb.write_mem(i, 0);
-            }
-            for i in 0xFE00..=0xFE9F {
-              self.gb.write_mem(i, 0);
+              self.gb.write_mem(i, fastrand::u8(..));
             }
           }
         });
