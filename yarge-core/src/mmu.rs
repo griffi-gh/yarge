@@ -79,7 +79,7 @@ impl Mmu {
           0xFF43 => self.ppu.scx,
           0xFF44 => { //LY
             #[cfg(feature = "dbg-ly-stub")] { 0x90 }
-            #[cfg(not(feature = "dbg-ly-stub"))] { self.ppu.get_ly() }
+            #[cfg(not(feature = "dbg-ly-stub"))] { self.ppu.mmio_ly }
           },
           0xFF45 => self.ppu.lyc,
           0xFF46 => self.oam_value,

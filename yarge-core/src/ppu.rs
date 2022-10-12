@@ -23,6 +23,8 @@ pub struct Ppu {
   pub wx: u8,
   wly: u8,
   ly: u8,
+  pub mmio_ly: u8,
+  compare_ly: u8,
   lx: u8, 
   hblank_len: usize,
   cycles: usize,
@@ -62,6 +64,8 @@ impl Ppu {
       wx: 0,
       wly: 0,
       ly: 0,
+      mmio_ly: 0,
+      compare_ly: 0,
       lx: 0,
       hblank_len: 204,
       cycles: 0,
@@ -82,8 +86,6 @@ impl Ppu {
     }
   }
 
-  pub fn get_ly(&self) -> u8 { self.ly }
-
   pub fn set_lcdc(&mut self, value: u8) {
     self.lcdc.set_from_u8(value);
   }
@@ -93,7 +95,7 @@ impl Ppu {
 
   pub fn get_stat(&self) -> u8 {
     (self.lcdc.enable_display as u8 * self.mode as u8) | 
-    (((self.ly == self.lyc) as u8) << 2) |
+    (((self.compare_ly == self.lyc) as u8) << 2) |
     (self.stat_intr.into_u8() << 3) |
     0x80
   }
@@ -183,6 +185,38 @@ impl Ppu {
     }
   }
 
+  fn set_ly_and_update(&mut self, ly: u8) {
+    self.ly = ly;
+    self.mmio_ly = ly;
+    self.compare_ly = ly;
+    // Should I check STAT here instead?
+    // self.check_stat(iif);
+  }
+
+  fn line_153_weirdness(&mut self) {
+    // match self.cycles {
+    //   0 => {
+    //     self.mmio_ly = 153;
+    //     self.compare_ly = u8::MAX;
+    //   },
+    //   6 => {
+    //     self.mmio_ly = 0;
+    //     self.compare_ly = 153;
+    //   },
+    //   8 => {
+    //     self.mmio_ly = 0;
+    //     self.compare_ly = u8::MAX;
+    //   },
+    //   12 => {
+    //     self.compare_ly = 0;
+    //   },
+    //   456 => {
+        
+    //   },
+    //   _ => {}
+    // }
+  }
+
   fn tick_inner(&mut self, iif: &mut u8) {
     if !self.lcdc.enable_display {
       if self.display_cleared {
@@ -190,7 +224,7 @@ impl Ppu {
       }
       //TODO find out exact values
       *self.display = [0; FB_SIZE];
-      self.ly = 0;
+      self.set_ly_and_update(0);
       self.lx = 0;
       self.wly = 0;
       self.stat_prev = false;
@@ -202,7 +236,7 @@ impl Ppu {
     match self.mode { 
       PpuMode::HBlank => {
         if self.cycles >= self.hblank_len {
-          self.ly += 1;
+          self.set_ly_and_update(self.ly + 1);
           if self.ly < 144 {
             self.mode(PpuMode::OamSearch);
           } else {
@@ -214,15 +248,18 @@ impl Ppu {
         }
       },
       PpuMode::VBlank => {
+        if self.ly == 153 {
+          self.line_153_weirdness();
+        }
         if self.cycles >= 456 {
           self.cycles = 0;
-          self.ly += 1;
+          self.set_ly_and_update(self.ly + 1);
           if self.ly >= 155 {
             #[cfg(feature = "dbg-emit-ppu-events")] {
               println!("PPU_EVENT FRAME_END");
             }
             self.wly = 0;
-            self.ly = 0;
+            self.set_ly_and_update(0);
             self.mode(PpuMode::OamSearch);
           }
           self.check_stat(iif);
@@ -358,15 +395,19 @@ impl Ppu {
   pub fn tick(&mut self, iif: &mut u8) {
     //TODO optimize waits
     match self.mode {
-      PpuMode::PxTransfer | PpuMode::HBlank => {
+      PpuMode::OamSearch => {
+        self.cycles += 4;
+        self.tick_inner(iif);
+      },
+      PpuMode::VBlank if self.ly != 153 => {
+        self.cycles += 4;
+        self.tick_inner(iif);
+      },
+      _ => {
         for _ in 0..4 {
           self.cycles += 1;
           self.tick_inner(iif);
         }
-      },
-      PpuMode::VBlank | PpuMode::OamSearch => {
-        self.cycles += 4;
-        self.tick_inner(iif);
       }
     }
   }
