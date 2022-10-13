@@ -194,6 +194,7 @@ impl Ppu {
   }
 
   fn line_153_weirdness(&mut self) {
+    //TODO line 153
     // match self.cycles {
     //   0 => {
     //     self.mmio_ly = 153;
@@ -219,17 +220,17 @@ impl Ppu {
 
   fn tick_inner(&mut self, iif: &mut u8) {
     if !self.lcdc.enable_display {
-      if self.display_cleared {
-        return;
+      if !self.display_cleared {
+        *self.display = [0; FB_SIZE];
+        self.set_ly_and_update(0);
+        //self.compare_ly = u8::MAX;
+        self.lx = 0;
+        self.wly = 0;
+        self.stat_prev = false;
+        self.mode(PpuMode::HBlank); //Or OAM scan? //<= resets cycles too
+        self.display_cleared = true;
       }
-      //TODO find out exact values
-      *self.display = [0; FB_SIZE];
-      self.set_ly_and_update(0);
-      self.lx = 0;
-      self.wly = 0;
-      self.stat_prev = false;
-      self.mode(PpuMode::OamSearch); //resets cycles too
-      self.display_cleared = true;
+      return
     } else {
       self.display_cleared = false;
     }
@@ -387,7 +388,6 @@ impl Ppu {
             self.check_stat(iif);
           }
         }
-
       }
     }
   }
