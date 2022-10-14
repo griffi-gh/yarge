@@ -1,6 +1,7 @@
 mod channels;
 mod audio_buffer;
 mod audio_device;
+mod frame_sequencer;
 use audio_buffer::AudioBuffer;
 pub use audio_device::AudioDevice;
 use channels::square::{SquareWaveChannel, SquareWaveChannelType};
