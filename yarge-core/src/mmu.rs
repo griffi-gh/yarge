@@ -226,6 +226,7 @@ impl Mmu {
 
   pub fn tick_components(&mut self) {
     self.tick_oam_dma();
+    self.apu.tick();
     self.ppu.tick(&mut self.iif);
     self.timers.tick(&mut self.iif);
     self.input.tick(&mut self.iif) 

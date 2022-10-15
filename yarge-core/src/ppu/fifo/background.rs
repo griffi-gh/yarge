@@ -1,5 +1,5 @@
 use arraydeque::ArrayDeque;
-use crunchy::unroll;
+use seq_macro::seq;
 use crate::consts::VRAM_SIZE;
 use crate::ppu::ppu_registers::Lcdc;
 use crate::ppu::util;
@@ -130,8 +130,8 @@ impl BackgroundFetcher {
       FetcherState::PushToFifo => {
         if self.fifo.is_empty() {
           let colors = util::spr_line(self.tile_data);
-          unroll!(for i in 0..8 {
-            self.fifo.push_back(FifoPixel::from_color(colors[i])).unwrap();
+          seq!(N in 0..8 {
+            self.fifo.push_back(FifoPixel::from_color(colors[N])).unwrap();
           });
           self.offset += 1;
           self.state = FetcherState::ReadTileId;

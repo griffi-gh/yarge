@@ -2,7 +2,10 @@ mod channels;
 mod audio_buffer;
 mod audio_device;
 mod frame_sequencer;
+mod terminal;
+mod traits;
 
+pub use traits::ApuChannel;
 pub use audio_device::AudioDevice;
 use audio_buffer::AudioBuffer;
 use channels::square::{SquareWaveChannel, SquareWaveChannelType};
@@ -32,7 +35,19 @@ impl Apu {
     self.channel1.tick();
     self.channel2.tick();
     match self.sequencer.tick() {
-      _ => todo!()
+      Some(0 | 4) => { // Length only
+        self.channel1.tick_length();
+        self.channel2.tick_length();
+      },
+      Some(2 | 6) => { // Length and sweep 
+        self.channel1.tick_length();
+        self.channel2.tick_length();
+        self.channel1.tick_sweep();
+      },
+      Some(7) => { //Envelope only
+        self.channel1.tick_envelope();
+      },
+      _ => ()
     }
   }
 }

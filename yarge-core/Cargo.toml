@@ -17,7 +17,7 @@ thiserror = "1.0"
 enum_dispatch = "0.3"
 enumflags2 = "0.7"
 parse-display = "0.6"
-crunchy = "0.2"
+seq-macro = "0.3"
 bit_reverse = "0.1"
 # TODO enumflags2 is only used in input.rs, consider removing it
 

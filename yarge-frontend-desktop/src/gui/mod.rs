@@ -647,7 +647,7 @@ impl Gui for GuiState {
               for col in 0..16_u16 {
                 let addr_rel = col | row_start as u16;
                 let addr = addr_rel + offset;
-                let val = self.gb.read_mem(addr as u16);
+                let val = self.gb.read_mem(addr);
                 ui.label(
                   RichText::new(
                     format!("{:02X}", val)

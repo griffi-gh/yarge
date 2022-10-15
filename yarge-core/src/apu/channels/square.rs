@@ -1,3 +1,5 @@
+use crate::apu::ApuChannel;
+
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub enum SquareWaveChannelType {
   Channel1,
@@ -13,7 +15,9 @@ impl SquareWaveChannel {
       channel_type
     }
   }
-  pub fn tick(&self) {
+}
+impl ApuChannel for SquareWaveChannel {
+  fn tick(&mut self) {
     //TODO SquareWaveChannel::tick
   }
 }
