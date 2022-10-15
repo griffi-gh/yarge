@@ -89,7 +89,7 @@ impl Mmu {
           0xFF4A => self.ppu.wy,
           0xFF4B => self.ppu.wx,
           0xFF50 => 0xFE | (self.bios_disabled as u8),
-          _ => 0xff
+          _ => 0xFF
       },
       //HRAM
       0xFF80..=0xFFFE => {
@@ -117,32 +117,35 @@ impl Mmu {
       //OAM
       0xFE00..=0xFE9F => { self.ppu.write_oam(addr, value, blocking) },
       //IO REGISTERS
-      0xFF00 => { self.input.set_joyp(value) },
-      0xFF04 => { self.timers.reset_div() },
-      0xFF05 => { self.timers.set_tima(value) },
-      0xFF06 => { self.timers.tma = value },
-      0xFF07 => { self.timers.set_tac(value) },
-      0xFF10..=0xFF26 => { self.tmp_apu_reg[addr as usize - 0xFF10] = value; }
-      0xFF0F => { self.iif = value },
-      0xFF40 => { self.ppu.set_lcdc(value) },
-      0xFF41 => { self.ppu.set_stat(value) },
-      0xFF42 => { self.ppu.scy = value },
-      0xFF43 => { self.ppu.scx = value },
-      0xFF45 => { self.ppu.lyc = value },
-      0xFF46 => { self.start_oam_dma(value) }
-      0xFF47 => { self.ppu.bgp = value },
-      0xFF48 => { self.ppu.obp.0 = value },
-      0xFF49 => { self.ppu.obp.1 = value },
-      0xFF4A => { self.ppu.wy  = value },
-      0xFF4B => { self.ppu.wx  = value },
-      0xFF50 => { self.bios_disabled = true },
+      0xFF00..=0xFF7F => match addr {
+        0xFF00 => { self.input.set_joyp(value) },
+        0xFF04 => { self.timers.reset_div() },
+        0xFF05 => { self.timers.set_tima(value) },
+        0xFF06 => { self.timers.tma = value },
+        0xFF07 => { self.timers.set_tac(value) },
+        0xFF10..=0xFF26 => { self.tmp_apu_reg[addr as usize - 0xFF10] = value; }
+        0xFF0F => { self.iif = value },
+        0xFF40 => { self.ppu.set_lcdc(value) },
+        0xFF41 => { self.ppu.set_stat(value) },
+        0xFF42 => { self.ppu.scy = value },
+        0xFF43 => { self.ppu.scx = value },
+        0xFF45 => { self.ppu.lyc = value },
+        0xFF46 => { self.start_oam_dma(value) }
+        0xFF47 => { self.ppu.bgp = value },
+        0xFF48 => { self.ppu.obp.0 = value },
+        0xFF49 => { self.ppu.obp.1 = value },
+        0xFF4A => { self.ppu.wy  = value },
+        0xFF4B => { self.ppu.wx  = value },
+        0xFF50 => { self.bios_disabled = true },
+        _ => ()
+      }
       //HRAM
       0xFF80..=0xFFFE => {
         self.hram[((addr - 0xFF80) & 0x7F) as usize] = value;
       },
       //IE
       0xFFFF => { self.iie = value; },
-      _ => {}
+      _ => ()
     }
   }
 
