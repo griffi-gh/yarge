@@ -72,7 +72,7 @@ impl BackgroundFetcher {
     self.scy = scy;
   }
   pub fn spr_reset(&mut self) {
-    // ! // HACK // 
+    // ! // HACK // self.cycle = true; //
     // THIS SHOULDN'T BE TRUE...
     // ...but this fixes the issue
     // with the bg fetcher exiting

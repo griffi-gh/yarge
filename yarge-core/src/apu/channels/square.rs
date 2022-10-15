@@ -13,4 +13,7 @@ impl SquareWaveChannel {
       channel_type
     }
   }
+  pub fn tick(&self) {
+    //TODO SquareWaveChannel::tick
+  }
 }

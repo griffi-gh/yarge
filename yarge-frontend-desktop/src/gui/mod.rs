@@ -487,8 +487,7 @@ impl Gui for GuiState {
           ));
         });
       });
-
-      //MAYBE add cpu collapsing header
+      
       egui::CollapsingHeader::new("CPU").default_open(true).show(ui, |ui| {
         ui.horizontal(|ui| {
           let state = self.gb.get_cpu_state();

@@ -156,13 +156,13 @@ impl Mmu {
   }
   
   fn check_oam_dma_block(&self, addr: u16) -> bool {
-    //TODO THIS MAY CAUSE CRASHES
+    //TODO THIS MAY CAUSE (gb game?) CRASHES
     (self.oam_transfer > 0) && !((0xFF80..=0xFFFE).contains(&addr) || (addr == 0xFF46))
   }
   fn start_oam_dma(&mut self, value: u8) {
     //Reset OAM transfer timer (Unlock memory if another oam is in progress)
     self.oam_transfer = 0;
-    // Lock PPU OAM //? //IDK //SHOULD IT BE LOCKED DURING OAM TRANSFER????
+    // Lock PPU OAM
     self.ppu.mmu_oam_locked = true;
     //Do OAM transfer
     let src_start = (value as u16) << 8;
