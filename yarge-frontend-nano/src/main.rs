@@ -41,8 +41,8 @@ fn main() {
       ((window.is_key_down(Key::Left) as u8) * (GbKey::Left as u8)) |
       ((window.is_key_down(Key::Up) as u8) * (GbKey::Up as u8)) |
       ((window.is_key_down(Key::Down) as u8) * (GbKey::Down as u8)) |
-      ((window.is_key_down(Key::Z) as u8) * (GbKey::A as u8)) |
-      ((window.is_key_down(Key::X) as u8) * (GbKey::B as u8)) |
+      (((window.is_key_down(Key::Z) || window.is_key_down(Key::NumPad0)) as u8) * (GbKey::A as u8)) |
+      (((window.is_key_down(Key::X) || window.is_key_down(Key::NumPad1)) as u8) * (GbKey::B as u8)) |
       ((window.is_key_down(Key::RightShift) as u8) * (GbKey::Select as u8)) |
       ((window.is_key_down(Key::Enter) as u8) * (GbKey::Start as u8))
     );
