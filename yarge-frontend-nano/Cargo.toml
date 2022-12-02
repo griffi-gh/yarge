@@ -1,0 +1,10 @@
+[package]
+name = "yarge-frontend-nano"
+authors = ["griffi-gh <prasol258@gmail.com>"]
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+yarge-core = { path = "../yarge-core" }
+minifb = "0.23"

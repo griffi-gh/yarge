@@ -1,7 +1,8 @@
 [workspace]
 members = [
   "yarge-core",
-  "yarge-frontend-desktop"
+  "yarge-frontend-desktop",
+  "yarge-frontend-nano"
 ]
 resolver = "2"
 
