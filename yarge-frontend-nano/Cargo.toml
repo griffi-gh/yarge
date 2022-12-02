@@ -7,4 +7,9 @@ publish = false
 
 [dependencies]
 yarge-core = { path = "../yarge-core" }
-minifb = "0.23"
+minifb = { version = "0.23", default-features = false }
+
+[features]
+default = ["x11"]
+x11 = ["minifb/x11"]
+wayland = ["minifb/dlopen", "minifb/wayland"]
