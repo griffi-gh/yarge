@@ -3,7 +3,8 @@ use yarge_core::{
   Key as GbKey,
   consts::{WIDTH as GB_WIDTH, HEIGHT as GB_HEIGHT}
 };
-use minifb::{Key, Window, WindowOptions};
+use minifb::{Key, Window, WindowOptions, Scale};
+use std::time::Duration;
 
 const GB_PALETTE: [u32; 4] = [0x00ffffff, 0x00aaaaaa, 0x00555555, 0x0000000];
 const WIDTH: usize = GB_WIDTH;
@@ -16,12 +17,15 @@ fn main() {
     "Yarge Nano",
     WIDTH,
     HEIGHT,
-    WindowOptions::default(),
+    WindowOptions { 
+      scale: Scale::X2,
+      ..Default::default()
+    }
   ).unwrap();
 
-  //Limit fps
-  window.limit_update_rate(Some(std::time::Duration::from_micros(16600)));
-  
+  //Limit refresh rate
+  window.limit_update_rate(Some(Duration::from_micros(16600)));
+
   //Create a Gameboy struct and load the rom
   let mut gb = Gameboy::new();
   gb.load_rom_file(std::env::args().nth(1).unwrap().as_str()).unwrap();
@@ -44,7 +48,10 @@ fn main() {
     );
 
     //Run emulation
-    gb.run_for_frame().unwrap();
+    let run_frames = 1 + window.is_key_down(Key::LeftShift) as u8;
+    for _ in 0..run_frames {
+      gb.run_for_frame().unwrap();
+    }
 
     //Update framebuffer
     let data = gb.get_display_data();
