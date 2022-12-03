@@ -39,7 +39,6 @@ fn main() {
 
   while window.is_open() && !window.is_key_down(Key::Escape) {
     //Update key state
-    //TODO figure out how to do this without multiplication!
     gb.set_key_state_all(
       ((window.is_key_down(Key::Right) as u8) * (GbKey::Right as u8)) |
       ((window.is_key_down(Key::Left) as u8) * (GbKey::Left as u8)) |
