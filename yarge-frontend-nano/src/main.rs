@@ -11,10 +11,14 @@ const WIDTH: usize = GB_WIDTH;
 const HEIGHT: usize = GB_HEIGHT;
 const FB_SIZE: usize = WIDTH * HEIGHT;
 
+fn window_name(rom_name: Option<&str>) -> String {
+  format!("Yarge(n){}{}", if rom_name.is_some() { " - " } else { "" }, rom_name.unwrap_or(""))
+}
+
 fn main() {
   //Create a minifb window
   let mut window = Window::new(
-    "Yarge Nano",
+    &window_name(None),
     WIDTH,
     HEIGHT,
     WindowOptions { 
@@ -33,6 +37,9 @@ fn main() {
   gb.load_rom_file(
     std::env::args().nth(1).expect("No ROM path specified").as_str()
   ).expect("Failed to load the ROM file");
+
+  //Update window title
+  window.set_title(&window_name(Some(&gb.get_rom_header().name)));
 
   //Create a frame buffer
   let mut framebuffer = Box::new([0u32; FB_SIZE]);
