@@ -2,14 +2,17 @@
 name = "yarge-frontend-nano"
 authors = ["griffi-gh <prasol258@gmail.com>"]
 version = "0.1.0"
+rust-version = "1.65"
 edition = "2021"
 publish = false
 
 [dependencies]
 yarge-core = { path = "../yarge-core" }
 minifb = { version = "0.23", default-features = false }
+cpal = { version = "0.14", optional = true }
 
 [features]
-default = ["x11"]
+default = ["x11", "audio"]
 x11 = ["minifb/x11"]
 wayland = ["minifb/dlopen", "minifb/wayland"]
+audio = ["dep:cpal"]

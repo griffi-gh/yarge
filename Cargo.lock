@@ -3156,6 +3156,7 @@ dependencies = [
 name = "yarge-frontend-nano"
 version = "0.1.0"
 dependencies = [
+ "cpal",
  "minifb",
  "yarge-core",
 ]
