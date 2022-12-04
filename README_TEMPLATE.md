@@ -61,29 +61,42 @@
   <table>
     <tr>
       <th align="center" colspan="2">MBC Support</th>
+      <th align="center" colspan="2">Features</th>
     </tr>
     <tr>
       <th align="center">Type</th>
+      <th align="center">Support</th>
+      <th align="center">Feature</th>
       <th align="center">Support</th>
     </tr>
     <tr>
       <td>ROM ONLY</td>
       <td align="center">✔️</td>
+      <td>Display (PPU)</td>
+      <td align="center">✔️</td>
     </tr>
     <tr>
       <td>MBC1</td>
+      <td align="center">✔️</td>
+      <td>Input</td>
       <td align="center">✔️</td>
     </tr>
     <tr>
       <td>MBC2</td>
       <td align="center">❌</td>
+      <td>Sound (APU)</td>
+      <td align="center">(WIP)</td>
     </tr>
     <tr>
       <td>MBC3</td>
       <td align="center">✔️</td>
+      <td>Link cable/Serial</td>
+      <td align="center">❌</td>
     </tr>
     <tr>
       <td>MBC5</td>
+      <td align="center">❌</td>
+      <td>GBC support</td>
       <td align="center">❌</td>
     </tr>
     <tr>
