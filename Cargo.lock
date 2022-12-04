@@ -1939,8 +1939,9 @@ checksum = "8b870d8c151b6f2fb93e84a13146138f05d02ed11c7e7c54f8826aaaf7c9f184"
 
 [[package]]
 name = "pixels"
-version = "0.9.0"
-source = "git+https://github.com/parasyte/pixels?rev=9f7896cd2f1c80989e8f29ec6e3b6687183250a4#9f7896cd2f1c80989e8f29ec6e3b6687183250a4"
+version = "0.10.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e4110d5d4895e4e474ac7acf49f7dbefd3c2ae9f5635d804a425b7af7d4f5001"
 dependencies = [
  "bytemuck",
  "pollster",

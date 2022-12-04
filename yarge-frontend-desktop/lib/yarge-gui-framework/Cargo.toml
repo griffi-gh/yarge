@@ -12,4 +12,4 @@ egui-wgpu = "0.19"
 egui-winit = "0.19"
 winit = "0.27"
 winit_input_helper = "0.13"
-pixels = { git = "https://github.com/parasyte/pixels", rev = "9f7896cd2f1c80989e8f29ec6e3b6687183250a4"}
+pixels = "0.10"
