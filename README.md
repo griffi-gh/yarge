@@ -23,14 +23,36 @@
 </p>
 <h1>Download</h1>
 <p>
-  <a href="https://nightly.link/griffi-gh/yarge/workflows/build/master/release-win64.zip">
-    <img src=".assets/icons/windows.png" width="48" height="48" alt="Windows logo"></a>
-  <a href="https://nightly.link/griffi-gh/yarge/workflows/build/master/release-lin64.zip">
-    <img src=".assets/icons/linux.png" width="48" height="48" alt="Linux logo"></a>
-  <a href="https://nightly.link/griffi-gh/yarge/workflows/build/master/release-lin64-deb.zip">
-    <img src=".assets/icons/debian.png" width="48" height="48" alt="Debian logo"></a>
-  <a href="https://nightly.link/griffi-gh/yarge/workflows/build/master/release-lin64-deb.zip">
-    <img src=".assets/icons/ubuntu.png" width="48" height="48" alt="Ubuntu logo"></a>
+  <table>
+    <tr>
+      <th align="center">Product</th>
+      <th align="center">Downloads</th>
+    </tr>
+    <tr>
+      <td>
+        yarge-frontend-desktop
+      </td>
+      <td align="center">
+        <a href="https://nightly.link/griffi-gh/yarge/workflows/build/master/release-win64.zip">
+          <img src=".assets/icons/windows.png" width="48" height="48" alt="Windows logo"></a>
+        <a href="https://nightly.link/griffi-gh/yarge/workflows/build/master/release-lin64.zip">
+          <img src=".assets/icons/linux.png" width="48" height="48" alt="Linux logo"></a>
+        <a href="https://nightly.link/griffi-gh/yarge/workflows/build/master/release-lin64-deb.zip">
+          <img src=".assets/icons/debian.png" width="48" height="48" alt="Debian logo"></a>
+        <a href="https://nightly.link/griffi-gh/yarge/workflows/build/master/release-lin64-deb.zip">
+          <img src=".assets/icons/ubuntu.png" width="48" height="48" alt="Ubuntu logo"></a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        yarge-frontend-nano
+      </td>
+      <td align="center">
+        <img src=".assets/1x1.png" width="1" height="48">
+        N/A
+      </td>
+    </tr>
+  </table>
 </p>
 <h1>Screenshots</h1>
 <p>
