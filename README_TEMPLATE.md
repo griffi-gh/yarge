@@ -21,11 +21,13 @@
 <h1>Download</h1>
 <p>
   <a href="https://nightly.link/griffi-gh/yarge/workflows/build/master/release-win64.zip">
-    <img src=".assets/icons/windows.svg" width="48" height="48" alt="Windows logo"></a>
+    <img src=".assets/icons/windows.png" width="48" height="48" alt="Windows logo"></a>
   <a href="https://nightly.link/griffi-gh/yarge/workflows/build/master/release-lin64.zip">
-    <img src=".assets/icons/linux.svg" width="48" height="48" alt="Linux logo"></a>
+    <img src=".assets/icons/linux.png" width="48" height="48" alt="Linux logo"></a>
   <a href="https://nightly.link/griffi-gh/yarge/workflows/build/master/release-lin64-deb.zip">
-    <img src=".assets/icons/uwuntu.svg" width="48" height="48" alt="Ubuntu logo"></a>
+    <img src=".assets/icons/debian.png" width="48" height="48" alt="Debian logo"></a>
+  <a href="https://nightly.link/griffi-gh/yarge/workflows/build/master/release-lin64-deb.zip">
+    <img src=".assets/icons/ubuntu.png" width="48" height="48" alt="Ubuntu logo"></a>
 </p>
 <h1>Screenshots</h1>
 <p>
