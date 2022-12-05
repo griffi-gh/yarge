@@ -41,36 +41,55 @@ jobs:
     
     - uses: Swatinem/rust-cache@v1
 
-    # Build
+    # Build yarge-frontend-desktop
 
     - name: Build
       run: cargo build -p yarge-frontend-desktop --profile production
     
-    # Create deb
+    # Create yarge-frontend-desktop deb
 
-    - name: Create a binary .deb package (Linux only)
+    - name: Create a binary .deb package for yarge-frontend-desktop (Linux only)
       if: runner.os == 'Linux'
       run: cargo install cargo-deb; cargo deb -p yarge-frontend-desktop --strip --no-build --profile production --output "./yarge-frontend-desktop.deb"
 
     # Upload build artifacts
 
-    - name: Upload build artifact (Windows only)
+    - name: Upload Windows build artifact
       uses: actions/upload-artifact@v3
       if: runner.os == 'Windows'
       with:
         name: release-win64
         path: ./target/production/yarge-frontend-desktop.exe
     
-    - name: Upload build artifact (Linux only)
+    - name: Upload Linux build artifact
       uses: actions/upload-artifact@v3
       if: runner.os == 'Linux'
       with:
         name: release-lin64
         path: ./target/production/yarge-frontend-desktop
     
-    - name: Upload .deb (Linux only)
+    - name: Upload yarge-frontend-desktop Debian package
       uses: actions/upload-artifact@v3
       if: runner.os == 'Linux'
       with:
         name: release-lin64-deb
         path: ./yarge-frontend-desktop.deb
+
+    # Build yarge-frontend-nano
+    
+    - name: Build yarge-frontend-nano
+      run: cargo build -p yarge-frontend-nano --profile production
+
+    - name: Upload Nano Windows build artifact
+      uses: actions/upload-artifact@v3
+      if: runner.os == 'Windows'
+      with:
+        name: nano-release-win64
+        path: ./target/production/yarge-frontend-nano.exe
+    
+    - name: Upload Nano Linux build artifact
+      uses: actions/upload-artifact@v3
+      if: runner.os == 'Linux'
+      with:
+        name: nano-release-lin64
+        path: ./target/production/yarge-frontend-nano
