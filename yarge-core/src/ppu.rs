@@ -221,7 +221,7 @@ impl Ppu {
   fn tick_inner(&mut self, iif: &mut u8) {
     if !self.lcdc.enable_display {
       if !self.display_cleared {
-        *self.display = [3; FB_SIZE];
+        *self.display = [0; FB_SIZE];
         //self.set_ly_and_update(0);
 
         //TODO finish fixing mrdo
