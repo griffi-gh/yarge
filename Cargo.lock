@@ -3173,3 +3173,7 @@ dependencies = [
  "winit",
  "winit_input_helper",
 ]
+
+[[package]]
+name = "yarge-rom-tests"
+version = "0.1.0"

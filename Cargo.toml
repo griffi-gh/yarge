@@ -2,7 +2,8 @@
 members = [
   "yarge-core",
   "yarge-frontend-desktop",
-  "yarge-frontend-nano"
+  "yarge-frontend-nano",
+  "yarge-rom-tests"
 ]
 resolver = "2"
 
