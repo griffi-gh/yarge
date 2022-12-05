@@ -39,8 +39,8 @@
           <img src=".assets/icons/linux.png" width="48" height="48" alt="Linux logo"></a>
         <a href="https://nightly.link/griffi-gh/yarge/workflows/build/master/release-lin64-deb.zip">
           <img src=".assets/icons/debian.png" width="48" height="48" alt="Debian logo"></a>
-        <a href="https://nightly.link/griffi-gh/yarge/workflows/build/master/release-lin64-deb.zip">
-          <img src=".assets/icons/ubuntu.png" width="48" height="48" alt="Ubuntu logo"></a>
+        <!-- <a href="https://nightly.link/griffi-gh/yarge/workflows/build/master/release-lin64-deb.zip">
+          <img src=".assets/icons/ubuntu.png" width="48" height="48" alt="Ubuntu logo"></a> -->
       </td>
     </tr>
     <tr>
@@ -48,8 +48,10 @@
         yarge-frontend-nano
       </td>
       <td align="center">
-        <img src=".assets/1x1.png" width="1" height="48">
-        N/A
+        <a href="https://nightly.link/griffi-gh/yarge/workflows/build/master/nano-release-win64.zip">
+          <img src=".assets/icons/windows.png" width="48" height="48" alt="Windows logo"></a>
+        <a href="https://nightly.link/griffi-gh/yarge/workflows/build/master/nano-release-lin64.zip">
+          <img src=".assets/icons/linux.png" width="48" height="48" alt="Linux logo"></a>
       </td>
     </tr>
   </table>
