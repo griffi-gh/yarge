@@ -44,11 +44,10 @@
     <tr>
       <td>yarge-frontend-sdl</td>
       <td align="center">
-        Builds disabled
-        <!-- <a href="https://nightly.link/griffi-gh/yarge/workflows/build/master/sdl-release-win64.zip">
+        <a href="https://nightly.link/griffi-gh/yarge/workflows/build/master/sdl-release-win64.zip">
           <img src=".assets/icons/windows.png" width="48" height="48" alt="Windows logo"></a>
         <a href="https://nightly.link/griffi-gh/yarge/workflows/build/master/sdl-release-lin64.zip">
-          <img src=".assets/icons/linux.png" width="48" height="48" alt="Linux logo"></a> -->
+          <img src=".assets/icons/linux.png" width="48" height="48" alt="Linux logo"></a>
       </td>
     </tr>
   </table>
