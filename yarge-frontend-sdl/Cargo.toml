@@ -8,7 +8,7 @@ publish = false
 
 [dependencies]
 yarge-core = { path = "../yarge-core" }
-clap = { version = "4.0", default-features = false, features = ["std", "derive", "help", "error-context"] }
+clap = { version = "4.0", features = ["derive"] }
 sdl2 = { version = "0.35", features = ["bundled", "static-link"] }
 
 [features]

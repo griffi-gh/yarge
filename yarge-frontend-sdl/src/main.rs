@@ -1,5 +1,7 @@
 #![cfg_attr(target_os = "windows", cfg_attr(feature = "production", windows_subsystem = "windows"))]
 
+use std::compile_error;
+
 use yarge_core::{
   Gameboy,
   Key as GbKey,
@@ -11,7 +13,6 @@ use sdl2::{
   event::Event, 
   keyboard::Keycode, 
 };
-use std::time::Duration;
 use clap::Parser;
 
 const GB_PALETTE: [u32; 4] = [0x00ffffff, 0x00aaaaaa, 0x00555555, 0x0000000];
@@ -26,12 +27,12 @@ struct Args {
   #[arg(long, default_value_t = 2)] scale: u32,
   #[arg(long)] fullscreen: bool,
   #[arg(long)] fullscreen_native: bool,
+  #[arg(long, default_value_t = true)] vsync: bool,
 }
 
 fn main() {
   //Parse arguments
   let args = Args::parse();
-  let scale = args.scale;
 
   //Create a Gameboy struct
   let mut gb = Gameboy::new();
@@ -51,8 +52,8 @@ fn main() {
   let window = {
     let mut builder = video_subsystem.window(
       "YargeSDL", 
-      GB_WIDTH as u32 * scale,
-      GB_HEIGHT as u32 * scale
+      GB_WIDTH as u32 * args.scale,
+      GB_HEIGHT as u32 * args.scale
     );
     builder.position_centered();
     if args.fullscreen {
@@ -64,7 +65,13 @@ fn main() {
     builder.build().unwrap()
   };
   let mut event_pump = sdl_context.event_pump().unwrap();
-  let mut canvas = window.into_canvas().present_vsync().build().unwrap();
+  let mut canvas = {
+    let mut builder = window.into_canvas();
+    if args.vsync {
+      builder = builder.present_vsync();
+    }
+    builder.build().unwrap()
+  };
   
   //Create SDL2 texture
   let texture_creator = canvas.texture_creator();
