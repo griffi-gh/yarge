@@ -9,17 +9,9 @@ use crate::{
 };
 
 impl Gameboy {
-  #[inline] pub fn pause(&mut self) {
-    self.running = false;
-  }
-  #[inline] pub fn resume(&mut self) {
-    self.running = true;
-  }
-
   #[inline] pub fn is_rendering(&self) -> bool {
     (self.cpu.mmu.ppu.get_lcdc() & 0x80) != 0 &&
-    self.cpu.state == CpuState::Running &&
-    self.running
+    self.cpu.state == CpuState::Running
   }
 
   #[inline] pub fn set_key_state_all(&mut self, key_state: u8) {
@@ -169,10 +161,12 @@ impl Gameboy {
     self.cpu.mmu.bios_disabled
   }
 
+  #[deprecated(note = "MMU breakpoints deprecated and are non-recoverable")]
   #[cfg(feature = "dbg-breakpoints")]
   #[inline] pub fn set_mmu_breakpoint(&mut self, addr: u16, access_type: u8) {
     self.cpu.mmu_breakpoints[addr as usize] = access_type;
   }
+  #[deprecated(note = "MMU breakpoints deprecated and are non-recoverable")]
   #[cfg(feature = "dbg-breakpoints")]
   #[inline] pub fn get_mmu_breakpoint(&mut self, addr: u16) -> u8 {
     self.cpu.mmu_breakpoints[addr as usize]

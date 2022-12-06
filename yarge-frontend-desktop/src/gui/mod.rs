@@ -45,6 +45,8 @@ const GB_PALETTE: [[u8; 4]; 4] = [
 
 pub struct GuiState {
   gb: Gameboy,
+  gb_running: bool,
+
   gb_result: Result<(), gb::YargeError>,
   show_mem_view: bool,
   load_force_mbc: bool,
@@ -67,6 +69,8 @@ impl GuiState {
   pub fn new(gb: Gameboy) -> Self {
     Self {
       gb,
+      gb_running: false,
+
       gb_result: Ok(()),
       show_mem_view: false,
       load_force_mbc: false,
@@ -131,7 +135,7 @@ impl Gui for GuiState {
       if let Ok(data) = fs::read(file) {
         self.gb.reset();
         if self.gb.load_rom(&data[..]).is_ok() {
-          self.gb.resume();
+          self.gb_running = true;
         }
       }
     }
@@ -191,7 +195,7 @@ impl Gui for GuiState {
     let mut error_continue = false;
     let mut reset = |gb: &mut Gameboy| {
       gb.reset();
-      gb.pause();
+      self.gb_running = false;
       reset_error_window = true;
     };
     
@@ -400,14 +404,12 @@ impl Gui for GuiState {
 
       // RUN CONTROL
       ui.horizontal(|ui| {
-        ui.checkbox(&mut self.gb.running, "Running");
+        ui.checkbox(&mut self.gb_running, "Running");
         ui.separator();
-        ui.add_enabled_ui(!(self.gb.running || self.gb_result.is_err()), |ui| {
+        ui.add_enabled_ui(!(self.gb_running || self.gb_result.is_err()), |ui| {
           if ui.button(RichText::new("Run for").monospace()).clicked() {
             for _ in 0..self.step_amount {
-              self.gb_result = match self.gb.ignore_running(&mut |gb| {
-                gb.step()
-              }) {
+              self.gb_result = match self.gb.step() {
                 Ok(_) => Ok(()),
                 Err(e) => Err(e)
               };
@@ -429,9 +431,7 @@ impl Gui for GuiState {
           ui.separator();
 
           if ui.button("Run for frame").clicked() {
-            self.gb.ignore_running(&mut |gb| {
-              self.gb_result = gb.run_for_frame();
-            });
+            self.gb_result = self.gb.run_for_frame();
           }
         });
       });
@@ -440,27 +440,27 @@ impl Gui for GuiState {
       //REGISTERS
       egui::CollapsingHeader::new("Registers").default_open(true).show(ui, |ui| {
         egui::Grid::new("register_layout").num_columns(2).show(ui, |ui| {
-          if let Some(v) = u16_edit(ui, "af", self.gb.get_reg_af(), !self.gb.running, 0x10) {
+          if let Some(v) = u16_edit(ui, "af", self.gb.get_reg_af(), !self.gb_running, 0x10) {
             let v = if v <= 0xF { v << 4 } else { v };
             self.gb.set_reg_af(v);
           }
-          if let Some(v) = u16_edit(ui, "bc", self.gb.get_reg_bc(), !self.gb.running, 1) {
+          if let Some(v) = u16_edit(ui, "bc", self.gb.get_reg_bc(), !self.gb_running, 1) {
             self.gb.set_reg_bc(v);
           }
           ui.end_row();
 
-          if let Some(v) = u16_edit(ui, "de", self.gb.get_reg_de(), !self.gb.running, 1) {
+          if let Some(v) = u16_edit(ui, "de", self.gb.get_reg_de(), !self.gb_running, 1) {
             self.gb.set_reg_de(v);
           }
-          if let Some(v) = u16_edit(ui, "hl", self.gb.get_reg_hl(), !self.gb.running, 1) {
+          if let Some(v) = u16_edit(ui, "hl", self.gb.get_reg_hl(), !self.gb_running, 1) {
             self.gb.set_reg_hl(v);
           }
           ui.end_row();
 
-          if let Some(v) = u16_edit(ui, "sp", self.gb.get_reg_sp(), !self.gb.running, 1) {
+          if let Some(v) = u16_edit(ui, "sp", self.gb.get_reg_sp(), !self.gb_running, 1) {
             self.gb.set_reg_sp(v);
           }
-          if let Some(v) = u16_edit(ui, "pc", self.gb.get_reg_pc(), !self.gb.running, 1) {
+          if let Some(v) = u16_edit(ui, "pc", self.gb.get_reg_pc(), !self.gb_running, 1) {
             self.gb.set_reg_pc(v);
           }
           ui.end_row();
@@ -684,7 +684,7 @@ impl Gui for GuiState {
       self.gb_result = Ok(());
     }
     if error_continue {
-      self.gb.pause();
+      self.gb_running = false;
     }
     
     exit

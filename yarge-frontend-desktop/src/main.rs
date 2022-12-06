@@ -58,12 +58,10 @@ fn main() {
     ).expect("Failed to load the ROM file");
     gb.run().unwrap();
   } else {
-    gb.pause();
     if let Some(rom_path) = rom_path {
       gb.load_rom_file(
         rom_path.as_str()
       ).expect("Failed to load the ROM file");
-      gb.resume();
     }
     #[cfg(feature = "gui")] {
       gui::GuiState::new(gb).init();

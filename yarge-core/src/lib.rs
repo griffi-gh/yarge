@@ -36,7 +36,6 @@ mod tests;
 
 ///Gameboy emulator
 pub struct Gameboy {
-  pub running: bool,
   cpu: Cpu,
   #[cfg(feature = "dbg-logging-file")] 
   log_file: Option<std::fs::File>,
@@ -44,7 +43,6 @@ pub struct Gameboy {
 impl Gameboy {
   pub fn new() -> Self {
     Self {
-      running: true,
       cpu: Cpu::new(),
       #[cfg(feature = "dbg-logging-file")]
       log_file: None,
@@ -119,25 +117,14 @@ impl Gameboy {
     }
   }
 
-  pub fn ignore_running<R, F: FnMut(&mut Self) -> R>(&mut self, ctx: &mut F) -> R {
-    let state = self.running;
-    self.resume();
-    let ret: R = ctx(self);
-    self.running = state;
-    ret
-  }
-
   pub fn step(&mut self) -> Res<usize> {
-    if !self.running { return Ok(0); }
+    //if !self.running { return Ok(0); }
     #[cfg(feature = "dbg-logging")] self.log_step();
     let cycles = self.cpu.step()?;
     Ok(cycles)
   }
 
   pub fn run_for_frame(&mut self) -> Res<()> {
-    if !self.running {
-      return Ok(());
-    }
     use consts::CYCLES_PER_FRAME;
     self.reset_frame_ready();
     let mut cycles: usize = 0;
