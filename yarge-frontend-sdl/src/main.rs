@@ -27,7 +27,7 @@ struct Args {
   #[arg(long, default_value_t = 2)] scale: u32,
   #[arg(long)] fullscreen: bool,
   #[arg(long)] fullscreen_native: bool,
-  #[arg(long, default_value_t = true)] vsync: bool,
+  #[arg(long)] no_vsync: bool,
 }
 
 fn main() {
@@ -67,7 +67,7 @@ fn main() {
   let mut event_pump = sdl_context.event_pump().unwrap();
   let mut canvas = {
     let mut builder = window.into_canvas();
-    if args.vsync {
+    if !args.no_vsync {
       builder = builder.present_vsync();
     }
     builder.build().unwrap()
