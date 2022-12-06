@@ -1,5 +1,5 @@
 [package]
-name = "yarge-frontend-nano"
+name = "yarge-frontend-sdl"
 authors = ["griffi-gh <prasol258@gmail.com>"]
 version = "0.1.0"
 rust-version = "1.65"
@@ -8,12 +8,5 @@ publish = false
 
 [dependencies]
 yarge-core = { path = "../yarge-core" }
-minifb = { version = "0.23", default-features = false }
-cpal = { version = "0.14", optional = true }
 clap = { version = "4.0", default-features = false, features = ["std", "derive", "help", "error-context"] }
-
-[features]
-default = ["x11", "audio"]
-x11 = ["minifb/x11"]
-wayland = ["minifb/dlopen", "minifb/wayland"]
-audio = ["dep:cpal"]
+sdl2 = { version = "0.35", features = ["bundled", "static-link"] }

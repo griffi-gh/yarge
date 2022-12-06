@@ -26,9 +26,7 @@
       <th align="center">Downloads</th>
     </tr>
     <tr>
-      <td>
-        yarge-frontend-desktop
-      </td>
+      <td>yarge-frontend-desktop</td>
       <td align="center">
         <a href="https://nightly.link/griffi-gh/yarge/workflows/build/master/release-win64.zip">
           <img src=".assets/icons/windows.png" width="48" height="48" alt="Windows logo"></a>
@@ -41,17 +39,18 @@
       </td>
     </tr>
     <tr>
-      <td>
-        yarge-frontend-nano
-      </td>
+      <td>yarge-frontend-sdl</td>
       <td align="center">
-        <a href="https://nightly.link/griffi-gh/yarge/workflows/build/master/nano-release-win64.zip">
+        Builds disabled
+        <!-- <a href="https://nightly.link/griffi-gh/yarge/workflows/build/master/sdl-release-win64.zip">
           <img src=".assets/icons/windows.png" width="48" height="48" alt="Windows logo"></a>
-        <a href="https://nightly.link/griffi-gh/yarge/workflows/build/master/nano-release-lin64.zip">
-          <img src=".assets/icons/linux.png" width="48" height="48" alt="Linux logo"></a>
+        <a href="https://nightly.link/griffi-gh/yarge/workflows/build/master/sdl-release-lin64.zip">
+          <img src=".assets/icons/linux.png" width="48" height="48" alt="Linux logo"></a> -->
       </td>
     </tr>
   </table>
+  <h3>Other options:</h3>
+  <i>Looking for yarge-frontend-nano?<br>It has been <b>deprecated</b> in favor of yarge-frontend-sdl but can still be found <a href="https://github.com/griffi-gh/yarge/actions/runs/3631796459">here</a></i><br>
   <i><a href="https://github.com/griffi-gh/yarge/tree/master/yarge-core">
     Want to use Yarge as a library in your Rust application?
   </a></i>
