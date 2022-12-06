@@ -11,13 +11,21 @@ use yarge_core::{
 use sdl2::{
   pixels::PixelFormatEnum, 
   event::Event, 
-  keyboard::Keycode, 
+  keyboard::{Scancode, Keycode}, 
 };
 use clap::Parser;
 
 const GB_PALETTE: [u32; 4] = [0x00ffffff, 0x00aaaaaa, 0x00555555, 0x0000000];
-const WIN_WIDTH: usize = GB_WIDTH;
-const WIN_HEIGHT: usize = GB_HEIGHT;
+const GB_KEYBIND: &[(Scancode, GbKey)] = &[
+  (Scancode::Z,       GbKey::A),
+  (Scancode::X,       GbKey::B),
+  (Scancode::Return,  GbKey::Start),
+  (Scancode::Space,   GbKey::Select),
+  (Scancode::Up,      GbKey::Up),
+  (Scancode::Left,    GbKey::Left),
+  (Scancode::Right,   GbKey::Right),
+  (Scancode::Down,    GbKey::Down)
+];
 
 #[derive(Parser, Debug)]
 #[command()]
@@ -28,6 +36,7 @@ struct Args {
   #[arg(long)] fullscreen: bool,
   #[arg(long)] fullscreen_native: bool,
   #[arg(long)] no_vsync: bool,
+  #[arg(long, default_value_t = 1)] speed: usize,
 }
 
 fn main() {
@@ -89,12 +98,19 @@ fn main() {
         Event::Quit {..} |
         Event::KeyDown { keycode: Some(Keycode::Escape), .. } => {
           break 'run
-        },
+        }
         _ => {}
       }
     }
+    //Update Gameboy key state
+    let kb_state = event_pump.keyboard_state();
+    for (scancode, key) in GB_KEYBIND {
+      gb.set_key_state(*key, kb_state.is_scancode_pressed(*scancode));
+    }
     //Run emulation for one frame
-    gb.run_for_frame().unwrap();
+    for _ in 0..args.speed {
+      gb.run_for_frame().unwrap();
+    }
     //Copy data to texture
     let gb_data = gb.get_display_data();
     gb_texture.with_lock(None, |tex_data: &mut [u8], _pitch: usize| {
