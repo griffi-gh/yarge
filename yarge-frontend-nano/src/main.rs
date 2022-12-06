@@ -24,6 +24,8 @@ struct Args {
   rom_path: String,
   #[arg(long)]
   nolimit: bool,
+  #[arg(short, long)]
+  skip_bootrom: bool,
 }
 
 fn main() {
@@ -36,6 +38,11 @@ fn main() {
   //Load the ROM file
   let rom = std::fs::read(args.rom_path).expect("Failed to load the ROM file");
   gb.load_rom(&rom).expect("Invalid ROM file");
+
+  //Skip bootrom
+  if args.skip_bootrom {
+    gb.skip_bootrom();
+  }
 
   //Create a minifb window
   let mut window = Window::new(
@@ -56,7 +63,10 @@ fn main() {
   //Update window title
   window.set_title(&window_name(Some(&gb.get_rom_header().name)));
 
-  //Create a frame buffer
+  // #[cfg(target_os = "windows")]
+  // window.add_menu(&minifb::Menu::new("Menu").unwrap());
+  
+  //Create a framebuffer
   let mut framebuffer = Box::new([0u32; FB_SIZE]);
 
   while window.is_open() && !window.is_key_down(Key::Escape) {
