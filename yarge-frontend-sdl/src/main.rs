@@ -22,6 +22,8 @@ struct Args {
   rom_path: String,
   #[arg(long)] skip_bootrom: bool,
   #[arg(long, default_value_t = 2)] scale: u32,
+  #[arg(long)] fullscreen: bool,
+  #[arg(long)] fullscreen_native: bool,
 }
 
 fn main() {
@@ -44,14 +46,21 @@ fn main() {
   //Initialize SDL2 Context, VideoSubsystem, Window, EventPump and Canvas
   let sdl_context = sdl2::init().unwrap();
   let video_subsystem = sdl_context.video().unwrap();
-  let window = video_subsystem.window(
+  let window = {
+    let mut builder = video_subsystem.window(
       "YargeSDL", 
       GB_WIDTH as u32 * scale,
       GB_HEIGHT as u32 * scale
-    )
-    .position_centered()
-    .build()
-    .unwrap();
+    );
+    builder.position_centered();
+    if args.fullscreen {
+      match args.fullscreen_native {
+        true  => builder.fullscreen(),
+        false => builder.fullscreen_desktop(),
+      };
+    }
+    builder.build().unwrap()
+  };
   let mut event_pump = sdl_context.event_pump().unwrap();
   let mut canvas = window.into_canvas().present_vsync().build().unwrap();
   
