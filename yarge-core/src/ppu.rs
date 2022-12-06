@@ -42,6 +42,7 @@ pub struct Ppu {
   suspend_bg_fetcher: bool,
   fetched_sprites: usize,
   pub mmu_oam_locked: bool,
+  /*HACK*/ stat_r_lyc_eq: bool,
 }
 impl Ppu {
   pub fn new() -> Self {
@@ -83,6 +84,7 @@ impl Ppu {
       suspend_bg_fetcher: false,
       fetched_sprites: 0,
       mmu_oam_locked: false,
+      stat_r_lyc_eq: false
     }
   }
 
@@ -95,7 +97,7 @@ impl Ppu {
 
   pub fn get_stat(&self) -> u8 {
     (self.lcdc.enable_display as u8 * self.mode as u8) | 
-    (((self.compare_ly == self.lyc) as u8) << 2) |
+    ((self.stat_r_lyc_eq as u8) << 2) |
     (self.stat_intr.into_u8() << 3) |
     0x80
   }
@@ -222,21 +224,21 @@ impl Ppu {
     if !self.lcdc.enable_display {
       if !self.display_cleared {
         *self.display = [0; FB_SIZE];
-        //self.set_ly_and_update(0);
-
         //TODO finish fixing mrdo
-        self.compare_ly = self.ly;
-        self.ly = 0;
-        self.mmio_ly = 0;
-
+        //reset ly start
+        //println!("comparison ly {} => {}, then mmio/ly reset", self.compare_ly, self.ly);
+        self.set_ly_and_update(0);
+        //reset ly end
         self.lx = 0;
         self.wly = 0;
         self.stat_prev = false;
-        self.mode(PpuMode::HBlank); //Or OAM scan? //<= resets cycles too
+        self.mode(PpuMode::HBlank); //<= resets cycles too
+        //self.mode(PpuMode::OamSearch);  
         self.display_cleared = true;
       }
       return
     } else {
+      self.stat_r_lyc_eq = self.compare_ly == self.lyc;
       self.display_cleared = false;
     }
     match self.mode { 
