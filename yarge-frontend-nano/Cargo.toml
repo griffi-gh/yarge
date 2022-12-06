@@ -10,6 +10,7 @@ publish = false
 yarge-core = { path = "../yarge-core" }
 minifb = { version = "0.23", default-features = false }
 cpal = { version = "0.14", optional = true }
+clap = { version = "4.0", default-features = false, features = ["std", "derive", "help", "error-context"] }
 
 [features]
 default = ["x11", "audio"]

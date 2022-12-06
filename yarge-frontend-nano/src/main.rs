@@ -15,7 +15,28 @@ fn window_name(rom_name: Option<&str>) -> String {
   format!("Yarge(n){}{}", if rom_name.is_some() { " - " } else { "" }, rom_name.unwrap_or(""))
 }
 
+use clap::Parser;
+
+/// Simple program to greet a person
+#[derive(Parser, Debug)]
+#[command()]
+struct Args {
+  rom_path: String,
+  #[arg(long)]
+  nolimit: bool,
+}
+
 fn main() {
+  //Parse arguments
+  let args = Args::parse();
+
+  //Create a Gameboy struct
+  let mut gb = Gameboy::new();
+
+  //Load the ROM file
+  let rom = std::fs::read(args.rom_path).expect("Failed to load the ROM file");
+  gb.load_rom(&rom).expect("Invalid ROM file");
+
   //Create a minifb window
   let mut window = Window::new(
     &window_name(None),
@@ -28,15 +49,9 @@ fn main() {
   ).expect("Failed to create the window");
 
   //Limit refresh rate
-  window.limit_update_rate(Some(Duration::from_micros(16600)));
-
-  //Create a Gameboy struct
-  let mut gb = Gameboy::new();
-
-  //Load ROM file
-  gb.load_rom_file(
-    std::env::args().nth(1).expect("No ROM path specified").as_str()
-  ).expect("Failed to load the ROM file");
+  if !args.nolimit {
+    window.limit_update_rate(Some(Duration::from_micros(16600)));
+  }
 
   //Update window title
   window.set_title(&window_name(Some(&gb.get_rom_header().name)));

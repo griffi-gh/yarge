@@ -206,11 +206,13 @@ impl Mmu {
     self.cart.load_rom(data)?;
     Ok(())
   }
+  #[deprecated(note = "load_file is deprecated")]
   pub fn load_file(&mut self, path: &str) -> Res<()> {
     let data: &[u8] = &(fs::read(path)?)[..];
     self.load_rom(data)?;
     Ok(())
   }
+  #[deprecated(note = "load_file is deprecated")]
   pub fn load_file_force_mbc(&mut self, path: &str, mbc_type: u8) -> Res<()> {
     let data: &[u8] = &(fs::read(path)?)[..];
     self.load_rom_force_mbc(data, mbc_type)?;

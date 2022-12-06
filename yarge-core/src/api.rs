@@ -53,9 +53,13 @@ impl Gameboy {
   #[inline] pub fn load_rom_force_mbc(&mut self, data: &[u8], mbc_type: u8) -> Res<()> {
     self.cpu.mmu.load_rom_force_mbc(data, mbc_type)
   }
+  #[allow(deprecated)]
+  #[deprecated(note="Please handle file reading yourself")]
   #[inline] pub fn load_rom_file(&mut self, path: &str) -> Res<()> {
     self.cpu.mmu.load_file(path)
   }
+  #[allow(deprecated)]
+  #[deprecated(note="Please handle file reading yourself")]
   #[inline] pub fn load_rom_file_force_mbc(&mut self, path: &str, mbc_type: u8) -> Res<()> {
     self.cpu.mmu.load_file_force_mbc(path, mbc_type)
   }
