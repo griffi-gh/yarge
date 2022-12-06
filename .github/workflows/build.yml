@@ -77,19 +77,19 @@ jobs:
 
     # Build yarge-frontend-sdl
     
-    # - name: Build yarge-frontend-sdl
-    #   run: cargo build -p yarge-frontend-sdl --profile production
+    - name: Build yarge-frontend-sdl
+      run: cargo build -p yarge-frontend-sdl --profile production
 
-    # - name: Upload sdl Windows build artifact
-    #   uses: actions/upload-artifact@v3
-    #   if: runner.os == 'Windows'
-    #   with:
-    #     name: sdl-release-win64
-    #     path: ./target/production/yarge-frontend-sdl.exe
+    - name: Upload sdl Windows build artifact
+      uses: actions/upload-artifact@v3
+      if: runner.os == 'Windows'
+      with:
+        name: sdl-release-win64
+        path: ./target/production/yarge-frontend-sdl.exe
     
-    # - name: Upload sdl Linux build artifact
-    #   uses: actions/upload-artifact@v3
-    #   if: runner.os == 'Linux'
-    #   with:
-    #     name: sdl-release-lin64
-    #     path: ./target/production/yarge-frontend-sdl
+    - name: Upload sdl Linux build artifact
+      uses: actions/upload-artifact@v3
+      if: runner.os == 'Linux'
+      with:
+        name: sdl-release-lin64
+        path: ./target/production/yarge-frontend-sdl
