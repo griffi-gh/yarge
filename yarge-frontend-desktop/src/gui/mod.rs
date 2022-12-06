@@ -1,3 +1,5 @@
+//this is a huge mess and it's totally beyond repair
+
 use yarge_gui_framework as framework;
 use framework::{
   VirtualKeyCode,
@@ -193,11 +195,14 @@ impl Gui for GuiState {
     //TODO fix this ugly shit
     let mut reset_error_window = false;
     let mut error_continue = false;
-    let mut reset = |gb: &mut Gameboy| {
-      gb.reset();
-      self.gb_running = false;
-      reset_error_window = true;
-    };
+
+    macro_rules! reset {
+      () => {
+        self.gb.reset();
+        self.gb_running = false;
+        reset_error_window = true;
+      };
+    }
     
     let mut error_window = |title: &str, color: Color32, details: &str, id: &str, recoverable: bool| {
       egui::TopBottomPanel::new(
@@ -240,7 +245,7 @@ impl Gui for GuiState {
           });
           ui.vertical_centered_justified(|ui| {
             if ui.button("Reset").clicked() {
-              reset(&mut self.gb);
+              reset!();
             }
           });
           ui.vertical_centered_justified(|ui| {
@@ -326,7 +331,7 @@ impl Gui for GuiState {
             if clicked {
               ui.close_menu();
               if !self.load_no_reset {
-                reset(&mut self.gb);
+                reset!();
               }
               let opt = match self.load_force_mbc {
                 true => Some(self.load_force_mbc_type),
@@ -343,7 +348,7 @@ impl Gui for GuiState {
         ui.menu_button("Emulation", |ui| {
           if ui.button("Reset").clicked() {
             ui.close_menu();
-            reset(&mut self.gb);
+            reset!();
           }
           ui.add_enabled_ui(!self.gb.get_bios_disabled(), |ui| { 
             if ui.button("Skip bootrom").clicked() {
