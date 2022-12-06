@@ -21,11 +21,12 @@ mod errors;
 mod api;
 
 //Re-exports
+pub use api::*;
 pub use input::Key;
 pub use cpu::CpuState;
 pub use errors::YargeError;
-pub use api::*;
 pub use apu::AudioDevice;
+pub use mmu::cartridge::RomHeader;
 
 //Types
 pub(crate) type Res<T> = Result<T, YargeError>;
