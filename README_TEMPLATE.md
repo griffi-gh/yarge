@@ -50,7 +50,7 @@
     </tr>
   </table>
   <h3>Other options:</h3>
-  <i>Looking for yarge-frontend-nano?<br>It has been <b>deprecated</b> in favor of yarge-frontend-sdl but can still be found <a href="https://github.com/griffi-gh/yarge/actions/runs/3631796459">here</a></i><br>
+  <i>Looking for yarge-frontend-nano?<br>It has been <b>deprecated</b> in favor of yarge-frontend-sdl but can still be found <a href="https://matsked.netlify.app/yarge-deprecated/">here</a></i><br>
   <i><a href="https://github.com/griffi-gh/yarge/tree/master/yarge-core">
     Want to use Yarge as a library in your Rust application?
   </a></i>
