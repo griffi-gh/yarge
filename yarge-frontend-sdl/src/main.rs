@@ -12,6 +12,9 @@ use sdl2::{
 };
 use clap::Parser;
 
+mod audio;
+use audio::AudioDevice;
+
 const GB_PALETTE: [u32; 4] = [0x00ffffff, 0x00aaaaaa, 0x00555555, 0x0000000];
 const GB_KEYBIND: &[(Scancode, GbKey)] = &[
   (Scancode::Z,       GbKey::A),
@@ -86,6 +89,10 @@ fn main() {
     GB_WIDTH as u32, 
     GB_HEIGHT as u32
   ).unwrap();
+
+  //Create the audio device and assign it
+  let audio_device = AudioDevice::new(&sdl_context).unwrap();
+  gb.set_audio_device(audio_device);
 
   //Main loop
   'run: loop {
