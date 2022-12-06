@@ -16,3 +16,7 @@ strip = true
 codegen-units = 1
 lto = true
 panic = "abort"
+
+[profile.dev-but-gotta-go-fast]
+inherits = "dev"
+opt-level = 3
