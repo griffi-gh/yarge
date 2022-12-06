@@ -1,11 +1,8 @@
 #![cfg_attr(target_os = "windows", cfg_attr(feature = "production", windows_subsystem = "windows"))]
 
-use std::compile_error;
-
 use yarge_core::{
   Gameboy,
   Key as GbKey,
-  RomHeader,
   consts::{WIDTH as GB_WIDTH, HEIGHT as GB_HEIGHT}
 };
 use sdl2::{
