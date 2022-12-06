@@ -55,6 +55,9 @@
       </td>
     </tr>
   </table>
+  <i><a href="https://github.com/griffi-gh/yarge/tree/master/yarge-core">
+    Want to use Yarge as a library in your Rust application?
+  </a></i>
 </p>
 <h1>Screenshots</h1>
 <p>
