@@ -134,30 +134,37 @@
     <tr>
       <td>MBC6</td>
       <td align="center">❌</td>
+      <td colspan="2"></td>
     </tr>
     <tr>
       <td>MBC7</td>
       <td align="center">❌</td>
+      <td colspan="2"></td>
     </tr>
     <tr>
       <td>MMM01</td>
       <td align="center">❌</td>
+      <td colspan="2"></td>
     </tr>
     <tr>
       <td>POCKET CAMERA</td>
       <td align="center">❌</td>
+      <td colspan="2"></td>
     </tr>
     <tr>
       <td>BANDAI TAMA5</td>
       <td align="center">❌</td>
+      <td colspan="2"></td>
     </tr>
     <tr>
       <td>HuC3</td>
       <td align="center">❌</td>
+      <td colspan="2"></td>
     </tr>
     <tr>
       <td>HuC1</td>
       <td align="center">❌</td>
+      <td colspan="2"></td>
     </tr>
   </table>
 </p>
