@@ -4,6 +4,7 @@ mod audio_device;
 mod frame_sequencer;
 mod terminal;
 mod traits;
+mod wave;
 
 pub use traits::ApuChannel;
 pub use audio_device::AudioDevice;
