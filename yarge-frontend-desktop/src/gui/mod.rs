@@ -111,17 +111,19 @@ impl GuiState {
 
 impl Gui for GuiState {
   fn prepare(&mut self) {
-    let instant = Instant::now();
-    if self.gb_result.is_ok() {
-      for _ in 0..self.speed {
-        self.gb_result = self.gb.run_for_frame();
-        if self.gb_result.is_err() {
-          break
+    if self.gb_running {
+      let instant = Instant::now();
+      if self.gb_result.is_ok() {
+        for _ in 0..self.speed {
+          self.gb_result = self.gb.run_for_frame();
+          if (!self.gb_running) || self.gb_result.is_err() {
+            break
+          }
         }
       }
+      let elapsed = instant.elapsed();
+      self.step_millis = elapsed.as_secs_f64() * 1000.;
     }
-    let elapsed = instant.elapsed();
-    self.step_millis = elapsed.as_secs_f64() * 1000.;
   }
   fn render(&mut self, frame: &mut [u8]) {
     self.frame_time = self.last_render.elapsed().as_secs_f64();
