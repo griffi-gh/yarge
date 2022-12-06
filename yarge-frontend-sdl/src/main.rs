@@ -1,3 +1,5 @@
+#![cfg_attr(target_os = "windows", cfg_attr(feature = "production", windows_subsystem = "windows"))]
+
 use yarge_core::{
   Gameboy,
   Key as GbKey,

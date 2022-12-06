@@ -78,7 +78,7 @@ jobs:
     # Build yarge-frontend-sdl
     
     - name: Build yarge-frontend-sdl
-      run: cargo build -p yarge-frontend-sdl --profile production
+      run: cargo build -p yarge-frontend-sdl --profile production --features production
 
     - name: Upload sdl Windows build artifact
       uses: actions/upload-artifact@v3
