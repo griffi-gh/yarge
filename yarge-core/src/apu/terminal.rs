@@ -5,6 +5,7 @@ pub struct Terminal {
   pub enabled_channels: (bool, bool, bool, bool),
 }
 impl Terminal {
+  pub fn new() -> Self { Self::default() }
   /// This is ridicuosly over-optimized but this greatly improves the generated assembly
   /// mixes channels together (averages them) with an option to 
   /// disable individual channels (Self.enabled_channels)

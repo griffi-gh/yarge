@@ -2,7 +2,10 @@ pub const VERSION: Option<&'static str> = option_env!("CARGO_PKG_VERSION");
 pub const WIDTH: usize = 160;
 pub const HEIGHT: usize = 144;
 pub const FB_SIZE: usize = WIDTH * HEIGHT;
-pub(crate) const CYCLES_PER_FRAME: usize = 70684;
+pub const CPU_CLOCK_SPEED: usize = 4194304;
+//not tied to clock speed because it's fine tuned to act only as fallback!
+pub const CYCLES_PER_FRAME: usize = 70684; 
+pub const AUDIO_CYCLES_PER_SAMPLE: usize = CPU_CLOCK_SPEED / AUDIO_SAMPLE_RATE; // 1 sample / 16 cycles
 pub(crate) const ROM_SIZE: usize = 0x8000;
 pub(crate) const VRAM_SIZE: usize = 0x2000;
 pub(crate) const OBJECTS_PER_LINE: usize = 10;
@@ -75,6 +78,7 @@ pub const MBC_TYPE_LIST: &[(u8, &str)] = &[
 use std::collections::HashMap;
 use lazy_static::lazy_static;
 lazy_static! {
+  #[deprecated(note="deprecated because I want to get rid of lazy static!")]
   pub static ref MBC_TYPE_NAMES: HashMap<u8, &'static str> = {
     let mut map = HashMap::new();
     for v in MBC_TYPE_LIST { map.insert(v.0, v.1); }

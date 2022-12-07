@@ -27,14 +27,10 @@ impl SquareWaveChannel {
 }
 impl ApuChannel for SquareWaveChannel {
   fn tick(&mut self) {
-    // tick is called for each M-cycle, so loop 4 times
-    // because 1M = 4T
-    for _ in 0..4 {
-      self.freq_timer -= 1;
-      if self.freq_timer == 0 {
-        self.freq_timer = 4 * (2048 - self.wavelength);
-        self.wave_duty.tick();
-      }
+    self.freq_timer -= 1;
+    if self.freq_timer == 0 {
+      self.freq_timer = 4 * (2048 - self.wavelength);
+      self.wave_duty.tick();
     }
   }
   fn amplitude(&self) -> f32 {
