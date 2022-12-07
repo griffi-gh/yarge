@@ -24,8 +24,7 @@ macro_rules! define_test {
         Ok(_) => false,
         Err(
           YargeError::LdBreakpoint { .. } | 
-          YargeError::PcBreakpoint { .. } | 
-          YargeError::MmuBreakpoint { .. }
+          YargeError::PcBreakpoint { .. }
         ) => true,
         Err(error) => Err(error).unwrap(),
       }
