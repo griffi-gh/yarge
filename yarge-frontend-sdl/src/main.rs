@@ -8,12 +8,15 @@ use yarge_core::{
 use sdl2::{
   pixels::PixelFormatEnum, 
   event::Event, 
-  keyboard::{Scancode, Keycode}, 
+  keyboard::Scancode,
+  render::BlendMode,
 };
 use clap::Parser;
 
 mod audio;
+mod menu;
 use audio::AudioDevice;
+use menu::Menu;
 
 const GB_PALETTE: [u32; 4] = [0x00ffffff, 0x00aaaaaa, 0x00555555, 0x0000000];
 const GB_KEYBIND: &[(Scancode, GbKey)] = &[
@@ -81,6 +84,7 @@ fn main() {
     }
     builder.build().unwrap()
   };
+  canvas.set_blend_mode(BlendMode::Blend);
   
   //Create SDL2 texture
   let texture_creator = canvas.texture_creator();
@@ -94,51 +98,47 @@ fn main() {
   let audio_device = AudioDevice::new(&sdl_context).unwrap();
   gb.set_audio_device(audio_device);
 
+  //Create a Menu object that handles the ESC-menu
+  let mut menu = Menu::new();
+
   //Main loop
   'run: loop {
     //Process SDL2 events
     for event in event_pump.poll_iter() {
+      menu.process_evt(&event);
       match event {
-        Event::Quit {..} |
-        Event::KeyDown { keycode: Some(Keycode::Escape), .. } => {
+        Event::Quit {..} => {
           break 'run
         }
         _ => {}
       }
     }
-    //Update Gameboy key state
-    let kb_state = event_pump.keyboard_state();
-    for (scancode, key) in GB_KEYBIND {
-      gb.set_key_state(*key, kb_state.is_scancode_pressed(*scancode));
-    }
-    //Run emulation for one frame
-    for _ in 0..args.speed {
-      gb.run_for_frame().unwrap();
-    }
-    //Copy data to texture
-    let gb_data = gb.get_display_data();
-    gb_texture.with_lock(None, |tex_data: &mut [u8], _pitch: usize| {
-      for (index, color) in gb_data.iter().enumerate() {
-        let mapped_color = GB_PALETTE[*color as usize];
-        tex_data[3 * index] = mapped_color as u8;
-        tex_data[(3 * index) + 1] = (mapped_color >> 8) as u8;
-        tex_data[(3 * index) + 2] = (mapped_color >> 16) as u8;
+    if menu.is_visible() {
+      menu.update(&mut canvas, &gb_texture);
+    } else {
+      //Update Gameboy key state
+      let kb_state = event_pump.keyboard_state();
+      for (scancode, key) in GB_KEYBIND {
+        gb.set_key_state(*key, kb_state.is_scancode_pressed(*scancode));
       }
-    }).unwrap();
-    //Copy texture to the canvas
-    canvas.copy(&gb_texture, None, None).unwrap();
+      //Run emulation for one frame
+      for _ in 0..args.speed {
+        gb.run_for_frame().unwrap();
+      }
+      //Copy data to texture
+      let gb_data = gb.get_display_data();
+      gb_texture.with_lock(None, |tex_data: &mut [u8], _pitch: usize| {
+        for (index, color) in gb_data.iter().enumerate() {
+          let mapped_color = GB_PALETTE[*color as usize];
+          tex_data[3 * index] = mapped_color as u8;
+          tex_data[(3 * index) + 1] = (mapped_color >> 8) as u8;
+          tex_data[(3 * index) + 2] = (mapped_color >> 16) as u8;
+        }
+      }).unwrap();
+      //Copy texture to the entire canvas
+      canvas.copy(&gb_texture, None, None).unwrap();
+    }
     //Draw canvas
     canvas.present();
   }
-
-  //   gb.set_key_state_all(
-  //     ((window.is_key_down(Key::Right) as u8) * (GbKey::Right as u8)) |
-  //     ((window.is_key_down(Key::Left) as u8) * (GbKey::Left as u8)) |
-  //     ((window.is_key_down(Key::Up) as u8) * (GbKey::Up as u8)) |
-  //     ((window.is_key_down(Key::Down) as u8) * (GbKey::Down as u8)) |
-  //     (((window.is_key_down(Key::Z) || window.is_key_down(Key::NumPad0)) as u8) * (GbKey::A as u8)) |
-  //     (((window.is_key_down(Key::X) || window.is_key_down(Key::NumPad1)) as u8) * (GbKey::B as u8)) |
-  //     ((window.is_key_down(Key::RightShift) as u8) * (GbKey::Select as u8)) |
-  //     ((window.is_key_down(Key::Enter) as u8) * (GbKey::Start as u8))
-  //   );
 }
