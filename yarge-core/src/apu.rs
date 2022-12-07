@@ -80,6 +80,12 @@ impl Apu {
       }
     }
   }
+  pub fn write(addr: u16, value: u8) {
+
+  }
+  pub fn read(addr: u16) -> u8 {
+    0
+  }
 }
 impl Default for Apu {
   fn default() -> Self { Self::new() }

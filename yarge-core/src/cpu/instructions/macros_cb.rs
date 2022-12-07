@@ -12,9 +12,9 @@ macro_rules! swap_r {
 macro_rules! swap_mhl {
   ($self: expr) => {
     paste! {
-      let v = $self.rb($self.reg.hl())?.rotate_left(4);
+      let v = $self.rb($self.reg.hl()).rotate_left(4);
       $self.reg.set_f_znhc(v == 0, false, false, false);
-      $self.wb($self.reg.hl(), v)?;
+      $self.wb($self.reg.hl(), v);
     }
   };
 } pub(crate) use swap_mhl;
@@ -31,7 +31,7 @@ macro_rules! bit_r {
 
 macro_rules! bit_mhl {
   ($self: expr, $bit: expr) => {
-    let v = $self.rb($self.reg.hl())?;
+    let v = $self.rb($self.reg.hl());
     $self.reg.set_f_z((v & (1 << $bit)) == 0);
     $self.reg.set_f_n(false);
     $self.reg.set_f_h(true);
@@ -50,8 +50,8 @@ macro_rules! res_r {
 macro_rules! res_mhl {
   ($self: expr, $bit: expr) => {
     let hl = $self.reg.hl();
-    let val = $self.rb(hl)?;
-    $self.wb(hl, val & !(1 << $bit))?;
+    let val = $self.rb(hl);
+    $self.wb(hl, val & !(1 << $bit));
   };
 } pub(crate) use res_mhl;
 
@@ -67,8 +67,8 @@ macro_rules! set_r {
 macro_rules! set_mhl {
   ($self: expr, $bit: expr) => {
     let hl = $self.reg.hl();
-    let val = $self.rb(hl)?;
-    $self.wb(hl, val | (1 << $bit))?;
+    let val = $self.rb(hl);
+    $self.wb(hl, val | (1 << $bit));
   };
 } pub(crate) use set_mhl;
 
@@ -98,13 +98,13 @@ macro_rules! rl_r {
 macro_rules! rl_mhl {
   ($self: expr) => {
     let hl = $self.reg.hl();
-    let val = $self.rb(hl)?;
+    let val = $self.rb(hl);
 
     let carry = val & 0x80 != 0;
     let val = (val << 1) | ($self.reg.f_c() as u8);
     $self.reg.set_f_znhc(val == 0, false, false, carry);
 
-    $self.wb(hl, val)?;
+    $self.wb(hl, val);
   }
 } pub(crate) use rl_mhl;
 
@@ -128,13 +128,13 @@ macro_rules! rr_r {
 macro_rules! rr_mhl {
   ($self: expr) => {
     let hl = $self.reg.hl();
-    let val = $self.rb(hl)?;
+    let val = $self.rb(hl);
 
     let carry = val & 1 != 0;
     let val = (val >> 1) | (($self.reg.f_c() as u8) << 7);
     $self.reg.set_f_znhc(val == 0, false, false, carry);
 
-    $self.wb(hl, val)?;
+    $self.wb(hl, val);
   }
 } pub(crate) use rr_mhl;
 
@@ -159,13 +159,13 @@ macro_rules! sla_r {
 macro_rules! sla_mhl {
   ($self: expr) => {
     let hl = $self.reg.hl();
-    let val = $self.rb(hl)?;
+    let val = $self.rb(hl);
 
     let carry = val & 0x80 != 0;
     let val = val << 1;
     $self.reg.set_f_znhc(val == 0, false, false, carry);
 
-    $self.wb(hl, val)?;
+    $self.wb(hl, val);
   }
 } pub(crate) use sla_mhl;
 
@@ -192,7 +192,7 @@ macro_rules! sra_r {
 macro_rules! sra_mhl {
   ($self: expr) => {
     let hl = $self.reg.hl();
-    let mut val = $self.rb(hl)?;
+    let mut val = $self.rb(hl);
 
     let carry = val & 1 != 0;
     val >>= 1;
@@ -201,7 +201,7 @@ macro_rules! sra_mhl {
     }
     $self.reg.set_f_znhc(val == 0, false, false, carry);
 
-    $self.wb(hl, val)?;
+    $self.wb(hl, val);
   }
 } pub(crate) use sra_mhl;
 
@@ -225,13 +225,13 @@ macro_rules! rlc_r {
 macro_rules! rlc_mhl {
   ($self: expr) => {
     let hl = $self.reg.hl();
-    let val = $self.rb(hl)?;
+    let val = $self.rb(hl);
 
     let carry = val & 0x80 != 0;
     let val = val.rotate_left(1);
     $self.reg.set_f_znhc(val == 0, false, false, carry);
 
-    $self.wb(hl, val)?;
+    $self.wb(hl, val);
   }
 } pub(crate) use rlc_mhl;
 
@@ -255,13 +255,13 @@ macro_rules! rrc_r {
 macro_rules! rrc_mhl {
   ($self: expr) => {
     let hl = $self.reg.hl();
-    let val = $self.rb(hl)?;
+    let val = $self.rb(hl);
 
     let carry = val & 1 != 0;
     let val = val.rotate_right(1);
     $self.reg.set_f_znhc(val == 0, false, false, carry);
 
-    $self.wb(hl, val)?;
+    $self.wb(hl, val);
   }
 } pub(crate) use rrc_mhl;
 
@@ -284,10 +284,10 @@ macro_rules! srl_r {
 macro_rules! srl_mhl {
   ($self: expr) => {
     let hl = $self.reg.hl();
-    let val = $self.rb(hl)?;
+    let val = $self.rb(hl);
     let carry = val & 1 != 0;
     let val = val >> 1;
     $self.reg.set_f_znhc(val == 0, false, false, carry);
-    $self.wb(hl, val)?;
+    $self.wb(hl, val);
   };
 } pub(crate) use srl_mhl;

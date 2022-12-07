@@ -165,17 +165,6 @@ impl Gameboy {
     self.cpu.mmu.bios_disabled
   }
 
-  #[deprecated(note = "MMU breakpoints deprecated and are non-recoverable")]
-  #[cfg(feature = "dbg-breakpoints")]
-  #[inline] pub fn set_mmu_breakpoint(&mut self, addr: u16, access_type: u8) {
-    self.cpu.mmu_breakpoints[addr as usize] = access_type;
-  }
-  #[deprecated(note = "MMU breakpoints deprecated and are non-recoverable")]
-  #[cfg(feature = "dbg-breakpoints")]
-  #[inline] pub fn get_mmu_breakpoint(&mut self, addr: u16) -> u8 {
-    self.cpu.mmu_breakpoints[addr as usize]
-  }
-
   #[inline] pub fn reset_frame_ready(&mut self) {
     self.cpu.mmu.ppu.frame_ready = false;
   }

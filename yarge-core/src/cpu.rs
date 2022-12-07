@@ -27,9 +27,6 @@ pub struct Cpu {
   ime_pending: bool,
   ime: bool,
   t: usize,
-
-  #[cfg(feature = "dbg-breakpoints")]
-  pub mmu_breakpoints: Box<[u8; 0x10000]>,
   #[cfg(feature = "dbg-breakpoints")]
   pub pc_breakpoints: Box<[bool; 0x10000]>,
 }
@@ -43,27 +40,8 @@ impl Cpu {
       ime_pending: false,
       ime: false,
       t: 0,
-
-      #[cfg(feature = "dbg-breakpoints")]
-      mmu_breakpoints: Box::new([0; 0x10000]),
       #[cfg(feature = "dbg-breakpoints")]
       pc_breakpoints: Box::new([false; 0x10000]),
-    }
-  }
-
-  #[cfg(feature = "dbg-breakpoints")]
-  fn check_mmu_breakpoints(&self, access_type: u8, addr: u16, value: Option<u8>) -> Res<()> {
-    use crate::YargeError;
-    let breakpoint_acc_type = self.mmu_breakpoints[addr as usize];
-    let trip = breakpoint_acc_type & access_type;
-    if trip != 0 {
-      Err(YargeError::MmuBreakpoint {
-        is_write: access_type & 0b10 != 0,
-        value: value.unwrap_or_else(|| self.mmu.rb(addr, true)),
-        addr,
-      })
-    } else {
-      Ok(())
     }
   }
 
@@ -78,52 +56,43 @@ impl Cpu {
     }
   }
 
-  fn rb(&mut self, addr: u16) -> Res<u8> {
-    #[cfg(feature = "dbg-breakpoints")]
-    self.check_mmu_breakpoints(0b01, addr, None)?;
+  fn rb(&mut self, addr: u16) -> u8 {
     self.cycle();
-    Ok(self.mmu.rb(addr, true))
+    self.mmu.rb(addr, true)
   }
-  fn wb(&mut self, addr: u16, value: u8) -> Res<()> {
-    #[cfg(feature = "dbg-breakpoints")]
-    self.check_mmu_breakpoints(0b10, addr, Some(value))?;
+  fn wb(&mut self, addr: u16, value: u8) {
     self.cycle();
     self.mmu.wb(addr, value, true);
-    Ok(())
   }
 
-  fn rw(&mut self, addr: u16) -> Res<u16> {
-    Ok(
-      self.rb(addr)? as u16 | 
-      ((self.rb(addr.wrapping_add(1))? as u16) << 8)
-    )
+  fn rw(&mut self, addr: u16) -> u16 {
+    self.rb(addr) as u16 | 
+    ((self.rb(addr.wrapping_add(1)) as u16) << 8)
   }
-  fn ww(&mut self, addr: u16, value: u16) -> Res<()> {
-    self.wb(addr, (value & 0xFF) as u8)?;
-    self.wb(addr.wrapping_add(1), (value >> 8) as u8)?;
-    Ok(())
+  fn ww(&mut self, addr: u16, value: u16) {
+    self.wb(addr, (value & 0xFF) as u8);
+    self.wb(addr.wrapping_add(1), (value >> 8) as u8);
   }
 
-  fn fetch(&mut self) -> Res<u8> { 
-    let op = self.rb(self.reg.pc)?;
+  fn fetch(&mut self) -> u8 { 
+    let op = self.rb(self.reg.pc);
     self.reg.inc_pc(1);
-    Ok(op)
+    op
   }
-  fn fetch_word(&mut self) -> Res<u16> {
-    let op = self.rw(self.reg.pc)?;
+  fn fetch_word(&mut self) -> u16 {
+    let op = self.rw(self.reg.pc);
     self.reg.inc_pc(2);
-    Ok(op)
+    op
   }
 
-  fn push(&mut self, value: u16) -> Res<()> {
+  fn push(&mut self, value: u16) {
     self.reg.dec_sp(2);
-    self.ww(self.reg.sp, value)?;
-    Ok(())
+    self.ww(self.reg.sp, value);
   }
-  fn pop(&mut self) -> Res<u16> {
-    let value = self.rw(self.reg.sp)?;
+  fn pop(&mut self) -> u16 {
+    let value = self.rw(self.reg.sp);
     self.reg.inc_sp(2);
-    Ok(value)
+    value
   }
 
   fn cycle(&mut self) {
@@ -195,11 +164,11 @@ impl Cpu {
     #[cfg(feature = "dbg-breakpoints")]
     let pc_value = self.reg.pc;
     //Fetch and execute
-    let mut op = self.fetch()?;
+    let mut op = self.fetch();
     if op != 0xCB { 
       cpu_instructions(self, op)?;
     } else {
-      op = self.fetch()?;
+      op = self.fetch();
       cpu_instructions_cb(self, op)?;
     }
     //Check for breakpoints

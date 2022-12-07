@@ -15,12 +15,12 @@ pub enum YargeError {
   #[error("Invalid ROM size: {0} bytes")]
   InvalidRomSize(usize),
 
-  #[error("MMU breakpoint hit: {} at {addr:#06X} with value {value:#04X}", if *is_write { "WRITE" } else { "READ" })]
-  MmuBreakpoint {
-    is_write: bool,
-    addr: u16,
-    value: u8,
-  },
+  // #[error("MMU breakpoint hit: {} at {addr:#06X} with value {value:#04X}", if *is_write { "WRITE" } else { "READ" })]
+  // MmuBreakpoint {
+  //   is_write: bool,
+  //   addr: u16,
+  //   value: u8,
+  // },
 
   #[error("PC breakpoint hit: instruction {instr:#04X} at {addr:#06X}")]
   PcBreakpoint {
