@@ -78,8 +78,14 @@ impl Menu {
   ///Process events
   pub fn process_evt(&mut self, event: &Event) {
     match event {
-      Event::KeyDown { keycode: Some(Keycode::Escape), .. } => {
+      Event::KeyDown { keycode: Some(Keycode::Escape), repeat: false, .. } => {
         self.set_activated_state(!self.is_active());
+      },
+      Event::KeyDown { keycode: Some(Keycode::Down), .. } if self.active => {
+        self.cursor += 1;
+      },
+      Event::KeyDown { keycode: Some(Keycode::Up), .. } if self.active => {
+        self.cursor = self.cursor.saturating_sub(1);
       },
       _ => ()
     }
@@ -164,6 +170,8 @@ impl Menu {
           define_menu_item!("Exit", {});
         } 
       }
+      //HACK: Limit cursor
+      self.cursor = self.cursor.min(x_index - 1);
     }
     //Draw display
     {
