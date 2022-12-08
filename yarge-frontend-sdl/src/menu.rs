@@ -12,9 +12,24 @@ use crate::{
 };
 use yarge_core::Gameboy;
 
-const MINI_DISPLAY_SIZE: (u32, u32) = (96, 96);
+const MINI_DISPLAY_SIZE: (u32, u32) = (86, 86);
 const MINI_DISPLAY_POS:  (i32, i32) = (10, 10);
 const TOP_DETAILS_PADDING: (u32, u32) = (10, 0);
+
+pub struct MenuItem<'a> {
+  pub text: &'a str,
+}
+impl<'a> MenuItem<'a> {
+  pub fn render(
+    self,
+    position: (i32, i32),
+    canvas: &mut Canvas<Window>,
+    text: &mut TextRenderer,
+  ) -> bool {
+    //text.render(canvas, (position), size, text);
+    false
+  }
+}
 
 pub struct Menu {
   active: bool,
@@ -87,6 +102,14 @@ impl Menu {
         "Paused"
       );
     }
+    //Menu items
+    // {
+    //   MenuItem {
+    //     text: "Ass"
+    //   }.render(
+    //     (0, 10.)
+    //   );
+    // }
     //Draw display
     {
       let anim = self.activation_anim_state.value;
