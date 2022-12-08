@@ -80,6 +80,7 @@ fn main() {
         false => builder.fullscreen_desktop(),
       };
     }
+    //builder.resizable();
     builder.build().unwrap()
   };
   let mut event_pump = sdl_context.event_pump().unwrap();

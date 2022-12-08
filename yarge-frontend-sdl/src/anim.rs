@@ -1,4 +1,4 @@
-const EPSILON: f32 = 0.005;
+const EPSILON: f32 = 0.002;
 
 pub struct Animatable {
   pub value: f32,
