@@ -22,14 +22,14 @@ fn menu_item(
   position: (i32, i32, u32, u32),
   canvas: &mut Canvas<Window>,
   text_renderer: &mut TextRenderer,
-  cursor: &mut usize,
+  cursor: isize,
   index: usize,
   click: bool,
 ) -> bool {
   const H_PADDING: u32 = 2;
   let v_padding = (position.3 as i32 - text_renderer.char_size(1.).1 as i32).max(0) as u32 / 2;
   canvas.set_clip_rect(Some(Rect::from(position)));
-  if index == *cursor {
+  if index as isize == cursor {
     canvas.set_draw_color(Color::RGBA(0, 0, 0, 96));
     canvas.fill_rect(Rect::from(position)).unwrap();
     canvas.set_draw_color(Color::RGBA(0, 0, 0, 128));
@@ -53,7 +53,7 @@ enum MenuLocation {
 pub struct Menu {
   active: bool,
   activation_anim_state: Animatable,
-  cursor: usize,
+  cursor: isize,
   menu_stack: Vec<MenuLocation>
 }
 impl Menu {
@@ -85,7 +85,7 @@ impl Menu {
         self.cursor += 1;
       },
       Event::KeyDown { keycode: Some(Keycode::Up), .. } if self.active => {
-        self.cursor = self.cursor.saturating_sub(1);
+        self.cursor -= 1;
       },
       _ => ()
     }
@@ -138,7 +138,7 @@ impl Menu {
       let mut x_index = 0;
       macro_rules! define_menu_item {
         ($text: expr, $on_click: block) => {{
-          if menu_item($text, x_position, canvas, text, &mut self.cursor, x_index, false) {
+          if menu_item($text, x_position, canvas, text, self.cursor, x_index, false) {
             $on_click;
           }
           x_position.1 += x_position.3 as i32 + MENU_MARGIN;
@@ -171,7 +171,11 @@ impl Menu {
         } 
       }
       //HACK: Limit cursor
-      self.cursor = self.cursor.min(x_index - 1);
+      if self.cursor < 0 {
+        self.cursor = x_index as isize - 1;
+      } else if self.cursor >= x_index as isize {
+        self.cursor = 0;
+      }
     }
     //Draw display
     {
