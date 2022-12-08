@@ -12,6 +12,7 @@ use crate::{
 };
 use yarge_core::Gameboy;
 
+const CRATE_VERSION: &str = env!("CARGO_PKG_VERSION");
 const MINI_DISPLAY_SIZE: (u32, u32) = (86, 86);
 const MINI_DISPLAY_POS:  (i32, i32) = (10, 10);
 const TOP_DETAILS_PADDING: (u32, u32) = (10, 0);
@@ -256,9 +257,15 @@ impl Menu {
         Rect::from((0, res.1 as i32 - h as i32 - 1 + offst, res.0, h + 1)),
         Rect::from((0, res.1 as i32 - h as i32 + offst, res.0, h))
       ]).unwrap();
+      //compute y coord
+      let text_y = res.1 as i32 - h as i32 + 1 + offst;
       //help text
       text.set_color(Color::RGBA(255, 255, 255, opa));
-      text.render(canvas, (3, res.1 as i32 - h as i32 + 1 + offst), 1., "\x1e\x1f Move cursor \x04 Confirm")
+      text.render(canvas, (3, text_y), 1., "\x1e\x1f Move cursor \x04 Confirm");
+      //version text
+      let ver_x = (res.0 - text.text_size(CRATE_VERSION, 1.).0 - 3) as i32;
+      text.set_color(Color::RGBA(255, 255, 255, opa / 3));
+      text.render(canvas, (ver_x, text_y), 1., CRATE_VERSION);
     }
     //Draw display
     {
