@@ -108,7 +108,7 @@ fn main() {
     FONT_TEXTURE_SIZE.0,
     FONT_TEXTURE_SIZE.1,
   ).unwrap();
-  font_texture.update(None, FONT_TEXTURE, FONT_TEXTURE_SIZE.0 as usize).unwrap();
+  font_texture.update(None, FONT_TEXTURE, 4 * FONT_TEXTURE_SIZE.0 as usize).unwrap();
 
   //Create text renderer
   let text_renderer = TextRenderer::new(&font_texture, (8, 16), 32);
