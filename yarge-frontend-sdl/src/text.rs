@@ -1,15 +1,17 @@
 use sdl2::{
   render::{Texture, Canvas}, 
-  video::Window, rect::Rect
+  video::Window,
+  rect::Rect, 
+  pixels::Color
 };
 
 pub struct TextRenderer<'a> {
-  texture: &'a Texture<'a>,
+  texture: Texture<'a>,
   char_size: (u32, u32),
   chars_per_line: u32,
 }
 impl<'a> TextRenderer<'a> {
-  pub fn new(texture: &'a Texture<'a>, char_size: (u32, u32), chars_per_line: u32) -> Self {
+  pub fn new(texture: Texture<'a>, char_size: (u32, u32), chars_per_line: u32) -> Self {
     Self { texture, char_size, chars_per_line }
   }
   fn find_position(&self, char: u8) -> (i32, i32, u32, u32) {
@@ -20,12 +22,15 @@ impl<'a> TextRenderer<'a> {
       self.char_size.1
     )
   }
-
+  pub fn set_color(&mut self, color: Color) {
+    self.texture.set_color_mod(color.r, color.g, color.b);
+    self.texture.set_alpha_mod(color.a);
+  }
   pub fn render(&self, canvas: &mut Canvas<Window>, position: (u32, u32), text: &str) {
     //TODO line breaks
     for (i, char) in text.as_bytes().iter().enumerate() {
       canvas.copy(
-        self.texture, 
+        &self.texture, 
         Rect::from(self.find_position(*char)), 
         Rect::from((
           (position.0 + ((i as u32) * self.char_size.0)) as i32, 
@@ -35,5 +40,11 @@ impl<'a> TextRenderer<'a> {
         ))
       ).unwrap();
     }
+  }
+  pub fn char_size(&self) -> (u32, u32) {
+    self.char_size
+  }
+  pub fn text_size(&self, text: &str) -> (u32, u32) {
+    (text.len() as u32 * self.char_size.0, self.char_size.1)
   }
 }

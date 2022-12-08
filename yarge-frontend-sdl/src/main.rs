@@ -23,6 +23,8 @@ use text::TextRenderer;
 
 const FONT_TEXTURE: &[u8] = include_bytes!("../font.rgba");
 const FONT_TEXTURE_SIZE: (u32, u32) = (256, 368);
+const FONT_CHAR_SIZE: (u32, u32) = (8, 16);
+const FONT_CHARS_PER_LINE: u32 = FONT_TEXTURE_SIZE.0 / FONT_CHAR_SIZE.0;
 
 const GB_PALETTE: [u32; 4] = [0x00ffffff, 0x00aaaaaa, 0x00555555, 0x0000000];
 const GB_KEYBIND: &[(Scancode, GbKey)] = &[
@@ -109,11 +111,19 @@ fn main() {
     FONT_TEXTURE_SIZE.0,
     FONT_TEXTURE_SIZE.1,
   ).unwrap();
+  font_texture.update(
+    None, 
+    FONT_TEXTURE, 
+    4 * FONT_TEXTURE_SIZE.0 as usize
+  ).unwrap();
   font_texture.set_blend_mode(BlendMode::Blend);
-  font_texture.update(None, FONT_TEXTURE, 4 * FONT_TEXTURE_SIZE.0 as usize).unwrap();
 
   //Create text renderer
-  let text_renderer = TextRenderer::new(&font_texture, (8, 16), 32);
+  let mut text_renderer = TextRenderer::new(
+    font_texture, 
+    FONT_CHAR_SIZE,
+    FONT_CHARS_PER_LINE
+  );
 
   //Create the audio device and assign it
   let audio_device = AudioDevice::new(&sdl_context).unwrap();
@@ -135,7 +145,7 @@ fn main() {
       }
     }
     if menu.is_visible() {
-      menu.update(&mut canvas, &gb_texture, &text_renderer);
+      menu.update(&mut canvas, &gb_texture, &mut text_renderer);
     } else {
       //Update Gameboy key state
       let kb_state = event_pump.keyboard_state();
