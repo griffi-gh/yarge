@@ -222,7 +222,7 @@ impl Menu {
             self.set_activated_state(false);
           });
           define_menu_item!("Load ROM file...", {});
-          define_menu_item!("Manage savestates...", {});
+          // define_menu_item!("Manage savestates...", {});
           define_submenu_item!("Options...", MenuLocation::Options);
           define_menu_item!("Exit", { *do_exit = true });
         },
