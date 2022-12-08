@@ -145,7 +145,12 @@ fn main() {
       }
     }
     if menu.is_visible() {
-      menu.update(&mut canvas, &gb_texture, &mut text_renderer);
+      menu.update(
+        &mut canvas,
+        &mut gb,
+        &gb_texture,
+        &mut text_renderer
+      );
     } else {
       //Update Gameboy key state
       let kb_state = event_pump.keyboard_state();

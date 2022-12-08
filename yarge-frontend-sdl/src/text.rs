@@ -26,17 +26,17 @@ impl<'a> TextRenderer<'a> {
     self.texture.set_color_mod(color.r, color.g, color.b);
     self.texture.set_alpha_mod(color.a);
   }
-  pub fn render(&self, canvas: &mut Canvas<Window>, position: (u32, u32), text: &str) {
+  pub fn render(&self, canvas: &mut Canvas<Window>, position: (u32, u32), size: f32, text: &str) {
     //TODO line breaks
     for (i, char) in text.as_bytes().iter().enumerate() {
       canvas.copy(
         &self.texture, 
         Rect::from(self.find_position(*char)), 
         Rect::from((
-          (position.0 + ((i as u32) * self.char_size.0)) as i32, 
+          (position.0 as f32 + (i as f32 * self.char_size.0 as f32 * size)) as i32, 
           position.1 as i32, 
-          self.char_size.0, 
-          self.char_size.1
+          (self.char_size.0 as f32 * size) as u32, 
+          (self.char_size.1 as f32 * size) as u32
         ))
       ).unwrap();
     }

@@ -10,6 +10,7 @@ use crate::{
   anim::Animatable,
   text::TextRenderer
 };
+use yarge_core::Gameboy;
 
 const MINI_DISPLAY_SIZE: (u32, u32) = (96, 96);
 const MINI_DISPLAY_POS:  (i32, i32) = (10, 10);
@@ -45,7 +46,13 @@ impl Menu {
       _ => ()
     }
   }
-  pub fn update(&mut self, canvas: &mut Canvas<Window>, gb_texture: &Texture, text: &mut TextRenderer) {
+  pub fn update(
+    &mut self,
+    canvas: &mut Canvas<Window>,
+    gb: &mut Gameboy,
+    gb_texture: &Texture,
+    text: &mut TextRenderer
+  ) {
     //Get canvas resoultion
     let res = canvas.output_size().unwrap(); //HACK: should use logical size, but it returns 0,0
     //Update avtivation animation
@@ -62,7 +69,8 @@ impl Menu {
           MINI_DISPLAY_POS.0 as u32 + MINI_DISPLAY_SIZE.0 + TOP_DETAILS_PADDING.0,
           MINI_DISPLAY_POS.1 as u32 + TOP_DETAILS_PADDING.1
         ), 
-        "testing text"
+        1.25,
+        gb.get_rom_header().name.as_str()
       );
     }
     //Draw display
