@@ -6,9 +6,10 @@ use sdl2::{
   rect::Rect, 
   pixels::Color, 
 };
-
-mod anim;
-use anim::Animatable;
+use crate::{
+  anim::Animatable,
+  text::TextRenderer
+};
 
 const PAUSED_DISPLAY_SIZE: (u32, u32) = (96, 96);
 
@@ -42,7 +43,7 @@ impl Menu {
       _ => ()
     }
   }
-  pub fn update(&mut self, canvas: &mut Canvas<Window>, gb_texture: &Texture) {
+  pub fn update(&mut self, canvas: &mut Canvas<Window>, gb_texture: &Texture, text: &TextRenderer) {
     //Update avtivation animation
     self.activation_anim_state.step();
     //Clear canvas
@@ -66,7 +67,8 @@ impl Menu {
       ]).unwrap();
       canvas.copy(gb_texture, None, Rect::from(display_pos)).unwrap();
     }
-    
+    //testing
+    text.render(canvas, (0, 0), "testing text");
   }
 }
 impl Default for Menu {

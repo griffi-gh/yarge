@@ -15,8 +15,14 @@ use clap::Parser;
 
 mod audio;
 mod menu;
+mod anim;
+mod text;
 use audio::AudioDevice;
 use menu::Menu;
+use text::TextRenderer;
+
+const FONT_TEXTURE: &[u8] = include_bytes!("../font.rgba");
+const FONT_TEXTURE_SIZE: (u32, u32) = (256, 368);
 
 const GB_PALETTE: [u32; 4] = [0x00ffffff, 0x00aaaaaa, 0x00555555, 0x0000000];
 const GB_KEYBIND: &[(Scancode, GbKey)] = &[
@@ -86,13 +92,26 @@ fn main() {
   };
   canvas.set_blend_mode(BlendMode::Blend);
   
-  //Create SDL2 texture
+  //Get a texture creator
   let texture_creator = canvas.texture_creator();
+
+  //Create a texture for the screen
   let mut gb_texture = texture_creator.create_texture_streaming(
     PixelFormatEnum::RGB24,
     GB_WIDTH as u32, 
     GB_HEIGHT as u32
   ).unwrap();
+
+  //Create the font texture
+  let mut font_texture = texture_creator.create_texture_static(
+    PixelFormatEnum::RGBA8888,
+    FONT_TEXTURE_SIZE.0,
+    FONT_TEXTURE_SIZE.1,
+  ).unwrap();
+  font_texture.update(None, FONT_TEXTURE, FONT_TEXTURE_SIZE.0 as usize).unwrap();
+
+  //Create text renderer
+  let text_renderer = TextRenderer::new(&font_texture, (8, 16), 32);
 
   //Create the audio device and assign it
   let audio_device = AudioDevice::new(&sdl_context).unwrap();
@@ -114,7 +133,7 @@ fn main() {
       }
     }
     if menu.is_visible() {
-      menu.update(&mut canvas, &gb_texture);
+      menu.update(&mut canvas, &gb_texture, &text_renderer);
     } else {
       //Update Gameboy key state
       let kb_state = event_pump.keyboard_state();
