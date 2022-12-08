@@ -137,20 +137,22 @@ fn main() {
     //Process SDL2 events
     for event in event_pump.poll_iter() {
       menu.process_evt(&event);
-      match event {
-        Event::Quit {..} => {
-          break 'run
-        }
-        _ => {}
+      if let Event::Quit {..} = event {
+        break 'run
       }
     }
     if menu.is_visible() {
+      let mut exit = false;
       menu.update(
         &mut canvas,
         &mut gb,
         &gb_texture,
-        &mut text_renderer
+        &mut text_renderer,
+        &mut exit
       );
+      if exit {
+        break 'run;
+      }
     } else {
       //Update Gameboy key state
       let kb_state = event_pump.keyboard_state();
