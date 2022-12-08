@@ -89,16 +89,15 @@ impl Apu {
     //If the APU is disabled most registers are R/O
     if blocking && !self.check_write_access(addr) { return }
     match addr {
-      0xFF26 => { //NR52 
+      R_NR52 => {
         self.enabled = (value & 0x80) != 0;
-        //TODO other NR52 bits
       },
       _ => ()
     }
   }
   pub fn read(&self, addr: u16) -> u8 {
     match addr {
-      0xFF26 => (self.enabled as u8) << 7, //NR52 
+      R_NR52 => (self.enabled as u8) << 7, //TODO other NR52 bits
       _ => 0
     }
   }
