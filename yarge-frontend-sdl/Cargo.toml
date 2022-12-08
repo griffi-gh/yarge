@@ -9,16 +9,4 @@ publish = false
 [dependencies]
 yarge-core = { path = "../yarge-core" }
 clap = { version = "4.0", features = ["derive"] }
-sdl2 = { version = "0.35", features = ["use-vcpkg", "static-link", "ttf"] }
-
-[package.metadata.vcpkg]
-git = "https://github.com/microsoft/vcpkg"
-rev = "35619c26a9bb550eacd7c17119d9732b085b198e"
-dependencies = ["sdl2", "sdl2-ttf"]
-
-[package.metadata.vcpkg.target]
-x86_64-pc-windows-msvc = { triplet = "x64-windows-static-md" }
-
-[features]
-default = []
-production = []
+sdl2 = { version = "0.35", features = ["bundled", "static-link"] }
