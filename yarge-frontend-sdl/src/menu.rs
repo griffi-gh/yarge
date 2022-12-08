@@ -62,22 +62,26 @@ impl Menu {
     canvas.clear();
     //top details
     {
-      text.set_color(Color::RGBA(0, 0, 0, 255));
+      const ANIM_DIST: f32 = 25.;
+      let opa = (self.activation_anim_state.value * 255.) as u32 as u8;
+      let x_anim_offset = ANIM_DIST - (self.activation_anim_state.value * ANIM_DIST);
+      let x_pos = MINI_DISPLAY_POS.0 as u32 + MINI_DISPLAY_SIZE.0 + TOP_DETAILS_PADDING.0;
+      let y_pos = MINI_DISPLAY_POS.1 as u32 + TOP_DETAILS_PADDING.1;
+      //Game titile
+      text.set_color(Color::RGBA(0, 0, 0, opa));
       text.render(
         canvas, 
-        (
-          MINI_DISPLAY_POS.0 as u32 + MINI_DISPLAY_SIZE.0 + TOP_DETAILS_PADDING.0,
-          MINI_DISPLAY_POS.1 as u32 + TOP_DETAILS_PADDING.1
-        ), 
+        (x_pos + x_anim_offset as u32, y_pos), 
         2.0,
         gb.get_rom_header().name.as_str()
       );
-      text.set_color(Color::RGBA(64, 64, 64, 255));
+      //"Paused" text
+      text.set_color(Color::RGBA(64, 64, 64, opa));
       text.render(
         canvas, 
         (
-          MINI_DISPLAY_POS.0 as u32 + MINI_DISPLAY_SIZE.0 + TOP_DETAILS_PADDING.0,
-          MINI_DISPLAY_POS.1 as u32 + TOP_DETAILS_PADDING.1 + text.char_size(2.).1
+          x_pos + (2. * x_anim_offset) as u32,
+          y_pos + text.char_size(2.).1
         ), 
         1.0,
         "Paused"
