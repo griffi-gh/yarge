@@ -104,10 +104,11 @@ fn main() {
 
   //Create the font texture
   let mut font_texture = texture_creator.create_texture_static(
-    PixelFormatEnum::RGBA8888,
+    PixelFormatEnum::ARGB8888,
     FONT_TEXTURE_SIZE.0,
     FONT_TEXTURE_SIZE.1,
   ).unwrap();
+  font_texture.set_blend_mode(BlendMode::Blend);
   font_texture.update(None, FONT_TEXTURE, 4 * FONT_TEXTURE_SIZE.0 as usize).unwrap();
 
   //Create text renderer
