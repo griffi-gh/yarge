@@ -1,4 +1,4 @@
-use crate::consts::AUDIO_CYCLES_PER_SAMPLE;
+use crate::consts::{AUDIO_CYCLES_PER_SAMPLE, audio_registers::*};
 
 mod channels;
 mod audio_buffer;
@@ -80,11 +80,27 @@ impl Apu {
       }
     }
   }
-  pub fn write(addr: u16, value: u8) {
-
+  fn check_write_access(&self, addr: u16) -> bool {
+    self.enabled ||
+    [R_NR52, R_NR11, R_NR21, R_NR31, R_NR41].contains(&addr) || //GBC: THIS IS NOT THE CASE ON GBC
+    (0xff30..=0xff3f).contains(&addr) // Wave pattern ram
   }
-  pub fn read(addr: u16) -> u8 {
-    0
+  pub fn write(&mut self, addr: u16, value: u8, blocking: bool) {
+    //If the APU is disabled most registers are R/O
+    if blocking && !self.check_write_access(addr) { return }
+    match addr {
+      0xFF26 => { //NR52 
+        self.enabled = (value & 0x80) != 0;
+        //TODO other NR52 bits
+      },
+      _ => ()
+    }
+  }
+  pub fn read(&self, addr: u16) -> u8 {
+    match addr {
+      0xFF26 => (self.enabled as u8) << 7, //NR52 
+      _ => 0
+    }
   }
 }
 impl Default for Apu {
