@@ -14,7 +14,7 @@ use yarge_core::Gameboy;
 
 const MINI_DISPLAY_SIZE: (u32, u32) = (96, 96);
 const MINI_DISPLAY_POS:  (i32, i32) = (10, 10);
-const TOP_DETAILS_PADDING: (u32, u32) = (10, 5);
+const TOP_DETAILS_PADDING: (u32, u32) = (10, 0);
 
 pub struct Menu {
   active: bool,
@@ -69,8 +69,18 @@ impl Menu {
           MINI_DISPLAY_POS.0 as u32 + MINI_DISPLAY_SIZE.0 + TOP_DETAILS_PADDING.0,
           MINI_DISPLAY_POS.1 as u32 + TOP_DETAILS_PADDING.1
         ), 
-        1.25,
+        2.0,
         gb.get_rom_header().name.as_str()
+      );
+      text.set_color(Color::RGBA(64, 64, 64, 255));
+      text.render(
+        canvas, 
+        (
+          MINI_DISPLAY_POS.0 as u32 + MINI_DISPLAY_SIZE.0 + TOP_DETAILS_PADDING.0,
+          MINI_DISPLAY_POS.1 as u32 + TOP_DETAILS_PADDING.1 + text.char_size(2.).1
+        ), 
+        1.0,
+        "Paused"
       );
     }
     //Draw display

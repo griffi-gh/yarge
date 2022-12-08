@@ -41,10 +41,16 @@ impl<'a> TextRenderer<'a> {
       ).unwrap();
     }
   }
-  pub fn char_size(&self) -> (u32, u32) {
-    self.char_size
+  pub fn char_size(&self, size: f32) -> (u32, u32) {
+    (
+      (self.char_size.0 as f32 * size) as u32,
+      (self.char_size.1 as f32 * size) as u32
+    )
   }
-  pub fn text_size(&self, text: &str) -> (u32, u32) {
-    (text.len() as u32 * self.char_size.0, self.char_size.1)
+  pub fn text_size(&self, text: &str, size: f32) -> (u32, u32) {
+    (
+      ((text.len() as u32 * self.char_size.0) as f32 * size) as u32,
+      (self.char_size.1 as f32 * size) as u32
+    )
   }
 }
