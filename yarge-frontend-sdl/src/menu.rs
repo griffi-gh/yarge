@@ -72,6 +72,11 @@ impl Menu {
     self.is_active() || self.activation_anim_state.is_animating()
   }
   pub fn set_activated_state(&mut self, active: bool) {
+    if (!self.is_visible()) && (!self.active) && active {
+      //reset menu
+      self.cursor = 0;
+      self.menu_stack = vec![MenuLocation::MainMenu];
+    }
     self.activation_anim_state.target = (active as u32) as f32;
     self.active = active;
   }
