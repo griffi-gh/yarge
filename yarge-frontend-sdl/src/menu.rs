@@ -15,6 +15,7 @@ use yarge_core::Gameboy;
 const MINI_DISPLAY_SIZE: (u32, u32) = (86, 86);
 const MINI_DISPLAY_POS:  (i32, i32) = (10, 10);
 const TOP_DETAILS_PADDING: (u32, u32) = (10, 0);
+const MENU_MARGIN: i32 = 2;
 
 fn menu_item(
   text: &str,
@@ -126,28 +127,39 @@ impl Menu {
     }
     //Menu items
     {
-      const MENU_MARGIN: i32 = 2;
-      let mut position: (i32, i32, u32, u32) = (0, 100, res.0, 18);
-      let mut index = 0;
+      //Macros to display menu items conviniently
+      let mut x_position: (i32, i32, u32, u32) = (0, 100, res.0, 18);
+      let mut x_index = 0;
       macro_rules! define_menu_item {
-        ($text: literal, $on_click: block) => {{
-          if menu_item($text, position, canvas, text, &mut self.cursor, index, false) {
+        ($text: expr, $on_click: block) => {{
+          if menu_item($text, x_position, canvas, text, &mut self.cursor, x_index, false) {
             $on_click;
           }
-          position.1 += position.3 as i32 + MENU_MARGIN;
-          index += 1;
-          let _ = index;
-        }};
+          x_position.1 += x_position.3 as i32 + MENU_MARGIN;
+          x_index += 1;
+          let _ = x_index;
+        };};
       }
+      macro_rules! define_submenu_item {
+        ($text: expr, $target: expr) => {{
+          define_menu_item!($text, {
+            self.menu_stack.push($target);
+            self.cursor = 0;
+          });
+        };};
+      }
+      //If menu stack contains more then 1 item allow going back
       if self.menu_stack.len() > 1 {
         define_menu_item!("Back", {
           self.menu_stack.pop();
+          self.cursor = 0;
         });
       }
+      //Menu layouts
       match self.menu_stack.last().unwrap() {
         MenuLocation::MainMenu => {
           define_menu_item!("Load ROM file...", {});
-          define_menu_item!("Save states...", {});
+          define_menu_item!("Manage savestates...", {});
           define_menu_item!("Options...", {});
           define_menu_item!("Exit", {});
         } 
