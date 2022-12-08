@@ -16,30 +16,52 @@ const MINI_DISPLAY_SIZE: (u32, u32) = (86, 86);
 const MINI_DISPLAY_POS:  (i32, i32) = (10, 10);
 const TOP_DETAILS_PADDING: (u32, u32) = (10, 0);
 
-pub struct MenuItem<'a> {
-  pub text: &'a str,
-}
-impl<'a> MenuItem<'a> {
-  pub fn render(
-    self,
-    position: (i32, i32),
-    canvas: &mut Canvas<Window>,
-    text: &mut TextRenderer,
-  ) -> bool {
-    //text.render(canvas, (position), size, text);
-    false
+fn menu_item(
+  text: &str,
+  position: (i32, i32, u32, u32),
+  canvas: &mut Canvas<Window>,
+  text_renderer: &mut TextRenderer,
+  cursor: &mut usize,
+  index: usize,
+  click: bool,
+) -> bool {
+  const H_PADDING: u32 = 2;
+  let v_padding = (position.3 as i32 - text_renderer.char_size(1.).1 as i32).max(0) as u32 / 2;
+  canvas.set_clip_rect(Some(Rect::from(position)));
+  if index == *cursor {
+    canvas.set_draw_color(Color::RGBA(0, 0, 0, 96));
+    canvas.fill_rect(Rect::from(position)).unwrap();
+    canvas.set_draw_color(Color::RGBA(0, 0, 0, 128));
+    canvas.draw_rect(Rect::from(position)).unwrap();
+    text_renderer.set_color(Color::RGBA(255, 255, 255, 255));
+  } else {
+    text_renderer.set_color(Color::RGBA(0, 0, 0, 255));
   }
+  text_renderer.render(canvas, (
+    position.0 + H_PADDING as i32,
+    position.1 + v_padding as i32
+  ), 1., text);
+  canvas.set_clip_rect(None);
+  false
+}
+
+enum MenuLocation {
+  MainMenu
 }
 
 pub struct Menu {
   active: bool,
-  activation_anim_state: Animatable
+  activation_anim_state: Animatable,
+  cursor: usize,
+  menu_stack: Vec<MenuLocation>
 }
 impl Menu {
   pub fn new() -> Self {
     Self {
       active: false,
       activation_anim_state: Animatable::new(),
+      cursor: 0,
+      menu_stack: vec![MenuLocation::MainMenu]
     }
   }
   pub fn is_active(&self) -> bool {
@@ -80,13 +102,13 @@ impl Menu {
       const ANIM_DIST: f32 = 25.;
       let opa = (self.activation_anim_state.value * 255.) as u32 as u8;
       let x_anim_offset = ANIM_DIST - (self.activation_anim_state.value * ANIM_DIST);
-      let x_pos = MINI_DISPLAY_POS.0 as u32 + MINI_DISPLAY_SIZE.0 + TOP_DETAILS_PADDING.0;
-      let y_pos = MINI_DISPLAY_POS.1 as u32 + TOP_DETAILS_PADDING.1;
-      //Game titile
+      let x_pos = MINI_DISPLAY_POS.0 as i32 + MINI_DISPLAY_SIZE.0 as i32 + TOP_DETAILS_PADDING.0 as i32;
+      let y_pos = MINI_DISPLAY_POS.1 as i32 + TOP_DETAILS_PADDING.1 as i32;
+      //Game title
       text.set_color(Color::RGBA(0, 0, 0, opa));
       text.render(
         canvas, 
-        (x_pos + x_anim_offset as u32, y_pos), 
+        (x_pos + x_anim_offset as i32, y_pos), 
         2.0,
         gb.get_rom_header().name.as_str()
       );
@@ -95,21 +117,42 @@ impl Menu {
       text.render(
         canvas, 
         (
-          x_pos + (2. * x_anim_offset) as u32,
-          y_pos + text.char_size(2.).1
+          x_pos + (2. * x_anim_offset) as i32,
+          y_pos + text.char_size(2.).1 as i32
         ), 
         1.0,
         "Paused"
       );
     }
     //Menu items
-    // {
-    //   MenuItem {
-    //     text: "Ass"
-    //   }.render(
-    //     (0, 10.)
-    //   );
-    // }
+    {
+      const MENU_MARGIN: i32 = 2;
+      let mut position: (i32, i32, u32, u32) = (0, 100, res.0, 18);
+      let mut index = 0;
+      macro_rules! define_menu_item {
+        ($text: literal, $on_click: block) => {{
+          if menu_item($text, position, canvas, text, &mut self.cursor, index, false) {
+            $on_click;
+          }
+          position.1 += position.3 as i32 + MENU_MARGIN;
+          index += 1;
+          let _ = index;
+        }};
+      }
+      if self.menu_stack.len() > 1 {
+        define_menu_item!("Back", {
+          self.menu_stack.pop();
+        });
+      }
+      match self.menu_stack.last().unwrap() {
+        MenuLocation::MainMenu => {
+          define_menu_item!("Load ROM file...", {});
+          define_menu_item!("Save states...", {});
+          define_menu_item!("Options...", {});
+          define_menu_item!("Exit", {});
+        } 
+      }
+    }
     //Draw display
     {
       let anim = self.activation_anim_state.value;

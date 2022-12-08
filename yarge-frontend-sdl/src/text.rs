@@ -26,7 +26,7 @@ impl<'a> TextRenderer<'a> {
     self.texture.set_color_mod(color.r, color.g, color.b);
     self.texture.set_alpha_mod(color.a);
   }
-  pub fn render(&self, canvas: &mut Canvas<Window>, position: (u32, u32), size: f32, text: &str) {
+  pub fn render(&self, canvas: &mut Canvas<Window>, position: (i32, i32), size: f32, text: &str) {
     //TODO line breaks
     for (i, char) in text.as_bytes().iter().enumerate() {
       canvas.copy(
