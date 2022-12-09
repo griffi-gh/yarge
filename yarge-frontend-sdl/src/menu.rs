@@ -162,7 +162,15 @@ impl Menu {
       let capacity = (SHORT_PATH_CHARS + 1) * (self.menu_stack.len() - 1) + self.menu_stack.last().unwrap().friendly_name().len();
       let mut path = String::with_capacity(capacity);
       for item in &self.menu_stack[..self.menu_stack.len() - 1] {
-        path += &item.friendly_name()[..SHORT_PATH_CHARS];
+        let name = item.friendly_name();
+        let words = name.matches(' ').count() + 1;
+        if words >= SHORT_PATH_CHARS {
+          for word in name.split(' ').take(SHORT_PATH_CHARS) {
+            path.push(word.chars().next().unwrap());
+          }
+        } else {
+          path += &name[..SHORT_PATH_CHARS];
+        }
         path.push('>');
       }
       path += self.menu_stack.last().unwrap().friendly_name();
