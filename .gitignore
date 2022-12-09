@@ -27,3 +27,7 @@ log.txt
 
 #Test results
 _test_result.json
+
+#YargeSDL local config dir
+.yarge-data
+.yarge-sdl-data

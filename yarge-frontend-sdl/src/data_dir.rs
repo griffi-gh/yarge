@@ -1,14 +1,17 @@
 use std::{path::PathBuf, fs};
 use anyhow::Result;
 
+#[cfg(feature = "global_config")]
 const YARGE_DIR_NAME: &str = "yarge-sdl";
+#[cfg(not(feature = "global_config"))]
+const YARGE_DIR_NAME: &str = ".yarge-sdl-data";
 
 pub struct DataDir;
 impl DataDir {
   pub fn get_path() -> PathBuf {
     let mut dir = {
       #[cfg(feature = "global_config")] {
-        dirs::config_dir().unwrap_or_else(|| PathBuf::from("."))
+        dirs::data_dir().unwrap_or_else(|| PathBuf::from("."))
       }
       #[cfg(not(feature = "global_config"))] {
         PathBuf::from(".")

@@ -27,8 +27,7 @@ impl Default for WindowScale {
   fn default() -> Self { Self::Scale(2) }
 }
 
-
-const YARGE_CONFIG_FILE_NAME: &str = "options.bin";
+const CONFIG_FILE_NAME: &str = "options.bin";
 
 #[derive(Default, Serialize, Deserialize)]
 pub struct Configuration {
@@ -39,13 +38,15 @@ pub struct Configuration {
 impl Configuration {
   pub fn save(&self) -> anyhow::Result<()> {
     DataDir::ensure_exists();
-    let path = DataDir::get_path();
-    fs::write(path, toml::to_vec(self)?)?;
+    let mut path = DataDir::get_path();
+    path.push(CONFIG_FILE_NAME);
+    fs::write(path, bincode::serialize(self)?)?;
     Ok(())
   }
   pub fn load() -> anyhow::Result<Self> {
-    let path = DataDir::get_path();
-    Ok(toml::from_slice(&fs::read(path)?)?)
+    let mut path = DataDir::get_path();
+    path.push(CONFIG_FILE_NAME);
+    Ok(bincode::deserialize(&fs::read(path)?)?)
   }
   pub fn load_or_default() -> Self {
     Self::load().unwrap_or_default()
