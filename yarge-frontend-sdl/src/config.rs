@@ -33,7 +33,8 @@ const CONFIG_FILE_NAME: &str = "options.bin";
 pub struct Configuration {
   pub palette: Palette,
   pub framerate: FramerateLimit,
-  pub scale: WindowScale
+  pub scale: WindowScale,
+  pub last_rom: Option<PathBuf>
 }
 impl Configuration {
   pub fn save(&self) -> anyhow::Result<()> {
@@ -49,6 +50,8 @@ impl Configuration {
     Ok(bincode::deserialize(&fs::read(path)?)?)
   }
   pub fn load_or_default() -> Self {
-    Self::load().unwrap_or_default()
+    Self::load().map_err(|_| {
+      println!("[WARN] Failed to load configuration");
+    }).unwrap_or_default()
   }
 }
