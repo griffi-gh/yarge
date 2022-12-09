@@ -37,7 +37,7 @@ pub struct Configuration {
 }
 impl Configuration {
   pub fn save(&self) -> anyhow::Result<()> {
-    DataDir::ensure_exists();
+    DataDir::ensure_exists()?;
     let mut path = DataDir::get_path();
     path.push(CONFIG_FILE_NAME);
     fs::write(path, bincode::serialize(self)?)?;
