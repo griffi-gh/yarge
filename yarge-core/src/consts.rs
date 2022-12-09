@@ -201,17 +201,3 @@ pub const MBC_TYPE_LIST: &[(u8, &str)] = &[
   (0xFE, "HuC3"),
   (0xFF, "HuC1+RAM+BATTERY"),
 ];
-
-//static
-
-use std::collections::HashMap;
-use lazy_static::lazy_static;
-lazy_static! {
-  #[deprecated(note="deprecated because I want to get rid of lazy static!")]
-  pub static ref MBC_TYPE_NAMES: HashMap<u8, &'static str> = {
-    let mut map = HashMap::new();
-    for v in MBC_TYPE_LIST { map.insert(v.0, v.1); }
-    map.shrink_to_fit();
-    map
-  };
-}

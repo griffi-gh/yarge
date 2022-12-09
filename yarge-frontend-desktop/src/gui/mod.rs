@@ -17,7 +17,7 @@ use std::{
 };
 pub(crate) use crate::gb;
 use crate::{
-  gb::consts::{MBC_TYPE_LIST, MBC_TYPE_NAMES},
+  gb::consts::{MBC_TYPE_LIST},
   gb::{CpuState, Gameboy},
   NAME,
   VERSION,
@@ -311,7 +311,15 @@ impl Gui for GuiState {
                 format!(
                   "\"{}\"",
                   if self.load_force_mbc {
-                    MBC_TYPE_NAMES.get(&self.load_force_mbc_type).unwrap()
+                    let mut sname = "INVALID";
+                    for x in MBC_TYPE_LIST {
+                      if x.0 == self.load_force_mbc_type {
+                        sname = x.1;
+                        break
+                      }
+                    }
+                    sname
+                    //MBC_TYPE_NAMES.get(&self.load_force_mbc_type).unwrap()
                   } else {
                     &"Disabled"
                   }

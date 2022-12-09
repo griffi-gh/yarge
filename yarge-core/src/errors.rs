@@ -1,5 +1,4 @@
 use thiserror::Error;
-use crate::consts::MBC_TYPE_NAMES;
 
 #[derive(Error, Debug)]
 pub enum YargeError {
@@ -9,7 +8,7 @@ pub enum YargeError {
     addr: u16,
   },
 
-  #[error("Invalid or unimplemented MBC type: {0:#04X} ({})", MBC_TYPE_NAMES.get(.0).unwrap_or(&"INVALID") )]
+  #[error("Invalid or unimplemented MBC type: {0:#04X}")]
   InvalidMbcType(u8),
 
   #[error("Invalid ROM size: {0} bytes")]

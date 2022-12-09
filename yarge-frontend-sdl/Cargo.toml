@@ -10,3 +10,7 @@ publish = false
 yarge-core = { path = "../yarge-core" }
 clap = { version = "4.0", features = ["derive"] }
 sdl2 = { version = "0.35", features = ["bundled", "static-link"] }
+
+[features]
+default = []
+production = []
