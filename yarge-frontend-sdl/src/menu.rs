@@ -21,6 +21,7 @@ use crate::{
 };
 
 const CRATE_VERSION: &str = env!("CARGO_PKG_VERSION");
+const BACKGROUND_COLOR: Color = Color::RGB(233, 226, 207);
 const MINI_DISPLAY_SIZE: (u32, u32) = (86, 86);
 const MINI_DISPLAY_POS:  (i32, i32) = (10, 10);
 const TOP_DETAILS_PADDING: (u32, u32) = (10, 0);
@@ -140,7 +141,7 @@ impl Menu {
     //check if game is loaded
     self.has_game = gb.get_mbc_name() != "N/A";
   }
-  
+
   pub fn update(
     &mut self,
     canvas: &mut Canvas<Window>,
@@ -157,11 +158,24 @@ impl Menu {
     self.activation_anim_state.step();
 
     //Clear canvas
-    canvas.set_draw_color(Color::RGB(233, 226, 207));
+    canvas.set_draw_color(BACKGROUND_COLOR);
     canvas.clear();
 
+    //check for small screen
+    let small =  config.scale.scale_or_default() == 1;
+
+    //spcial activation animation for 1x
+    if small {
+      let alpha = ((self.activation_anim_state.value * 255.) as u8);
+      if alpha != 255 {
+        canvas.copy(gb_texture, None, None).unwrap();
+        canvas.set_draw_color(Color::RGBA(BACKGROUND_COLOR.r, BACKGROUND_COLOR.g, BACKGROUND_COLOR.b, alpha));
+        canvas.fill_rect(Rect::from((0, 0, res.0, res.1))).unwrap();
+      }
+    }
+
     //top details
-    {
+    if !small {
       const ANIM_DIST: f32 = 25.;
       let opa = (self.activation_anim_state.value * 255.) as u32 as u8;
       let x_anim_offset = ANIM_DIST - (self.activation_anim_state.value * ANIM_DIST);
@@ -197,6 +211,7 @@ impl Menu {
           "Please load a Gameboy ROM"
         }
       );
+
       //Menu path
       let path: Cow<str> = if self.menu_stack.len() <= 1 {
         Cow::from(self.menu_stack.last().unwrap().friendly_name())
@@ -229,9 +244,16 @@ impl Menu {
         path.as_ref()
       );
     }
+
     //Menu items
     {
-      let list_start_y = (MINI_DISPLAY_POS.1 << 1) + MINI_DISPLAY_SIZE.1 as i32;
+      let list_start_y = if !small {
+        //TODO animation for 2x+
+        (MINI_DISPLAY_POS.1 << 1) + MINI_DISPLAY_SIZE.1 as i32
+      } else {
+        //has activation animation for 1x
+        MENU_MARGIN + res.1 as i32 - (res.1 as f32 * self.activation_anim_state.value) as i32
+      }; 
       //Macros to display menu items conviniently
       //THIS IS A HUGE HACK AND I WENT ***TOO*** FAR WITH THESE MACROS!!!
       //BUT HEY IF IT WORKS IT WORKS
@@ -320,7 +342,7 @@ impl Menu {
         MenuLocation::ScalePicker => {
           let mut needs_size_change = false;
           define_radio_group!(&mut config.scale, {
-            //define_radio_item!("1x", WindowScale::Scale(1), WindowScale::Scale(1), { needs_size_change = true });
+            define_radio_item!("1x (unsupported)", WindowScale::Scale(1), WindowScale::Scale(1), { needs_size_change = true });
             define_radio_item!("2x", WindowScale::Scale(2), WindowScale::Scale(2), { needs_size_change = true });
             define_radio_item!("3x", WindowScale::Scale(3), WindowScale::Scale(3), { needs_size_change = true });
             define_radio_item!("4x", WindowScale::Scale(4), WindowScale::Scale(4), { needs_size_change = true });
@@ -375,7 +397,11 @@ impl Menu {
       let text_y = res.1 as i32 - h as i32 + 1 + offst;
       //help text
       text.set_color(Color::RGBA(255, 255, 255, opa));
-      text.render(canvas, (3, text_y), 1., "\x1e\x1f Move cursor \x04 Confirm");
+      text.render(canvas, (3, text_y), 1., if !small {
+        "\x1e\x1f Move cursor \x04 Confirm"
+      } else {
+        "\x1e\x1f Move \x04 OK"
+      });
       //version text
       let ver_x = (res.0 - text.text_size(CRATE_VERSION, 1.).0 - 3) as i32;
       text.set_color(Color::RGBA(255, 255, 255, opa / 3));
@@ -383,7 +409,7 @@ impl Menu {
     }
 
     //Draw display
-    {
+    if !small {
       let anim = self.activation_anim_state.value;
       let display_pos = (
         (anim * (MINI_DISPLAY_POS.0 as f32)) as i32,
