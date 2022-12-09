@@ -6,11 +6,13 @@ use sdl2::{
   rect::Rect, 
   pixels::Color, 
 };
+use std::borrow::Cow;
+use yarge_core::Gameboy;
 use crate::{
   anim::Animatable,
   text::TextRenderer
 };
-use yarge_core::Gameboy;
+
 
 const CRATE_VERSION: &str = env!("CARGO_PKG_VERSION");
 const MINI_DISPLAY_SIZE: (u32, u32) = (86, 86);
@@ -159,22 +161,27 @@ impl Menu {
         "Paused"
       );
       //Menu path
-      let capacity = (SHORT_PATH_CHARS + 1) * (self.menu_stack.len() - 1) + self.menu_stack.last().unwrap().friendly_name().len();
-      let mut path = String::with_capacity(capacity);
-      for item in &self.menu_stack[..self.menu_stack.len() - 1] {
-        let name = item.friendly_name();
-        let words = name.matches(' ').count() + 1;
-        if words >= SHORT_PATH_CHARS {
-          for word in name.split(' ').take(SHORT_PATH_CHARS) {
-            path.push(word.chars().next().unwrap());
+      let path: Cow<str> = if self.menu_stack.len() <= 1 {
+        Cow::from(self.menu_stack.last().unwrap().friendly_name())
+      } else {
+        let capacity = (SHORT_PATH_CHARS + 1) * (self.menu_stack.len() - 1) + self.menu_stack.last().unwrap().friendly_name().len();
+        let mut path = String::with_capacity(capacity);
+        for item in &self.menu_stack[..self.menu_stack.len() - 1] {
+          let name = item.friendly_name();
+          let words = name.matches(' ').count() + 1;
+          if words >= SHORT_PATH_CHARS {
+            for word in name.split(' ').take(SHORT_PATH_CHARS) {
+              path.push(word.chars().next().unwrap());
+            }
+          } else {
+            path += &name[..SHORT_PATH_CHARS];
           }
-        } else {
-          path += &name[..SHORT_PATH_CHARS];
+          path.push('>');
         }
-        path.push('>');
-      }
-      path += self.menu_stack.last().unwrap().friendly_name();
-      debug_assert!(capacity == path.len());
+        path += self.menu_stack.last().unwrap().friendly_name();
+        debug_assert!(capacity == path.len());
+        Cow::from(path)
+      };
       text.render(
         canvas, 
         (
