@@ -17,9 +17,12 @@ mod audio;
 mod menu;
 mod anim;
 mod text;
+mod data_dir;
+mod config;
 use audio::AudioDevice;
 use menu::Menu;
 use text::TextRenderer;
+use config::Configuration;
 
 const FONT_TEXTURE: &[u8] = include_bytes!("../font.rgba");
 const FONT_TEXTURE_SIZE: (u32, u32) = (256, 368);
@@ -53,6 +56,9 @@ struct Args {
 fn main() {
   //Parse arguments
   let args = Args::parse();
+
+  //Read config
+  let config = Configuration::load_or_default();
 
   //Create a Gameboy struct
   let mut gb = Gameboy::new();
@@ -179,4 +185,6 @@ fn main() {
     //Draw canvas
     canvas.present();
   }
+  //Save options
+  config.save().unwrap();
 }

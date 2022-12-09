@@ -10,7 +10,12 @@ publish = false
 yarge-core = { path = "../yarge-core" }
 clap = { version = "4.0", features = ["derive"] }
 sdl2 = { version = "0.35", features = ["bundled", "static-link"] }
+serde = { version = "1", features = ["derive"] }
+toml = "0.5"
+anyhow = "1.0"
+dirs = { version = "4.0", optional = true }
 
 [features]
-default = []
+default = ["global_config"]
 production = []
+global_config = ["dep:dirs"]
