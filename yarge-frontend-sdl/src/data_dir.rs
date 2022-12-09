@@ -23,12 +23,14 @@ impl DataDir {
 
   pub fn ensure_exists() -> anyhow::Result<()> {
     let path = Self::get_path();
-    #[cfg(feature = "global_config")] {
-      fs::create_dir_all(&path)?;
-    }
-    #[cfg(not(feature = "global_config"))] {
-      fs::create_dir(&path)?;
-    }
+    fs::create_dir_all(&path)?;
     Ok(())
+
+    // #[cfg(feature = "global_config")] {
+    //   fs::create_dir_all(&path)?;
+    // }
+    // #[cfg(not(feature = "global_config"))] {
+    //   fs::create_dir(&path)?;
+    // }
   }
 }
