@@ -138,7 +138,7 @@ fn main() {
   //Activate the menu right away if no rom is loaded
   if args.rom_path.is_none() {
     menu.set_activated_state(true);
-    //menu.skip_activation_animation();
+    menu.skip_activation_animation();
   }
 
   //Main loop
