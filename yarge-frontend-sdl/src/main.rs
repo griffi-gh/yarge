@@ -150,9 +150,9 @@ fn main() {
         break 'run
       }
     }
+    menu.always_update(&gb);
     if menu.is_visible() {
       let mut exit_signal = false;
-      let mut redraw_signal = false;
       menu.update(
         &mut canvas,
         &mut gb,

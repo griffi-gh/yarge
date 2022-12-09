@@ -133,6 +133,14 @@ impl Menu {
       _ => ()
     }
   }
+  pub fn always_update(
+    &mut self,
+    gb: &Gameboy,
+  ) {
+    //check if game is loaded
+    self.has_game = gb.get_mbc_name() != "N/A";
+  }
+  
   pub fn update(
     &mut self,
     canvas: &mut Canvas<Window>,
@@ -151,9 +159,6 @@ impl Menu {
     //Clear canvas
     canvas.set_draw_color(Color::RGB(233, 226, 207));
     canvas.clear();
-
-    //check if game is loaded
-    self.has_game = gb.get_mbc_name() != "N/A";
 
     //top details
     {
