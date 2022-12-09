@@ -2,17 +2,23 @@ use sdl2::{
   event::Event,
   keyboard::Keycode, 
   render::{Canvas, Texture}, 
-  video::Window, 
+  video::{Window, FullscreenType}, 
   rect::Rect, 
   pixels::Color, 
 };
 use std::borrow::Cow;
-use yarge_core::Gameboy;
+use yarge_core::{
+  Gameboy, 
+  consts::{
+    WIDTH as GB_WIDTH,
+    HEIGHT as GB_HEIGHT
+  }
+};
 use crate::{
   anim::Animatable,
-  text::TextRenderer
+  text::TextRenderer,
+  config::{Configuration, Palette, WindowScale}
 };
-
 
 const CRATE_VERSION: &str = env!("CARGO_PKG_VERSION");
 const MINI_DISPLAY_SIZE: (u32, u32) = (86, 86);
@@ -55,14 +61,18 @@ fn menu_item(
 enum MenuLocation {
   Main,
   Options,
-  PalettePicker
+  PalettePicker,
+  ScalePicker,
+  AskForRestart,
 }
 impl MenuLocation {
   pub fn friendly_name(&self) -> &'static str {
     match *self {
-      MenuLocation::Main => "Main menu",
-      MenuLocation::Options => "Options",
-      MenuLocation::PalettePicker => "Color palette"
+      Self::Main => "Main menu",
+      Self::Options => "Options",
+      Self::PalettePicker => "Color palette",
+      Self::ScalePicker => "Display scale",
+      Self::AskForRestart => "Restart"
     }
   }
 }
@@ -72,7 +82,8 @@ pub struct Menu {
   activation_anim_state: Animatable,
   cursor: isize,
   menu_stack: Vec<MenuLocation>,
-  clicked: bool
+  clicked: bool,
+  has_game: bool,
 }
 impl Menu {
   pub fn new() -> Self {
@@ -82,6 +93,7 @@ impl Menu {
       cursor: 0,
       menu_stack: vec![MenuLocation::Main],
       clicked: false,
+      has_game: false,
     }
   }
   pub fn is_active(&self) -> bool {
@@ -99,10 +111,14 @@ impl Menu {
     self.activation_anim_state.target = (active as u32) as f32;
     self.active = active;
   }
+  pub fn skip_activation_animation(&mut self) {
+    self.activation_anim_state.value = self.activation_anim_state.target;
+    self.activation_anim_state.step();
+  }
   ///Process events
   pub fn process_evt(&mut self, event: &Event) {
     match event {
-      Event::KeyDown { keycode: Some(Keycode::Escape), repeat: false, .. } => {
+      Event::KeyDown { keycode: Some(Keycode::Escape), repeat: false, .. } if self.has_game => {
         self.set_activated_state(!self.is_active());
       },
       Event::KeyDown { keycode: Some(Keycode::Down), .. } if self.active => {
@@ -123,15 +139,22 @@ impl Menu {
     gb: &mut Gameboy,
     gb_texture: &Texture,
     text: &mut TextRenderer,
+    config: &mut Configuration,
     do_exit: &mut bool,
   ) {
     //Get canvas resoultion
     let res = canvas.output_size().unwrap(); //HACK: should use logical size, but it returns 0,0
+
     //Update avtivation animation
     self.activation_anim_state.step();
+
     //Clear canvas
     canvas.set_draw_color(Color::RGB(233, 226, 207));
     canvas.clear();
+
+    //check if game is loaded
+    self.has_game = gb.get_mbc_name() != "N/A";
+
     //top details
     {
       const ANIM_DIST: f32 = 25.;
@@ -139,7 +162,12 @@ impl Menu {
       let x_anim_offset = ANIM_DIST - (self.activation_anim_state.value * ANIM_DIST);
       let x_pos = MINI_DISPLAY_POS.0 + MINI_DISPLAY_SIZE.0 as i32 + TOP_DETAILS_PADDING.0 as i32;
       let y_pos = MINI_DISPLAY_POS.1 + TOP_DETAILS_PADDING.1 as i32;
-      let display_name = gb.get_rom_header().name;
+      let rom_header = gb.get_rom_header();
+      let display_name = if self.has_game {
+        rom_header.name.as_str()
+      } else {
+        "No game"
+      };
       let computed_scale = ((res.0 as f32 - x_pos as f32) / (display_name.len() as f32 * text.char_size(1.).0 as f32)).min(2.);
       //Game title
       text.set_color(Color::RGBA(0, 0, 0, opa));
@@ -147,7 +175,7 @@ impl Menu {
         canvas, 
         (x_pos + x_anim_offset as i32, y_pos), 
         computed_scale,
-        display_name.as_str()
+        display_name
       );
       //"Paused" text
       text.set_color(Color::RGBA(64, 64, 64, opa));
@@ -158,7 +186,11 @@ impl Menu {
           y_pos + text.char_size(2.).1 as i32
         ), 
         1.0,
-        "Paused"
+        if self.has_game {
+          "Paused"
+        } else {
+          "Please load a Gameboy ROM"
+        }
       );
       //Menu path
       let path: Cow<str> = if self.menu_stack.len() <= 1 {
@@ -194,8 +226,10 @@ impl Menu {
     }
     //Menu items
     {
-      //Macros to display menu items conviniently
       let list_start_y = (MINI_DISPLAY_POS.1 << 1) + MINI_DISPLAY_SIZE.1 as i32;
+      //Macros to display menu items conviniently
+      //THIS IS A HUGE HACK AND I WENT ***TOO*** FAR WITH THESE MACROS!!!
+      //BUT HEY IF IT WORKS IT WORKS
       let mut x_position: (i32, i32, u32, u32) = (0, list_start_y, res.0, MENU_ITEM_HEIGHT);
       let mut x_index = 0;
       macro_rules! define_menu_item {
@@ -207,6 +241,9 @@ impl Menu {
           x_index += 1;
           let _ = x_index;
         };};
+        ($text: expr) => {{
+          define_menu_item!($text, {});
+        }};
       }
       macro_rules! define_submenu_item {
         ($text: expr, $target: expr) => {{
@@ -217,12 +254,33 @@ impl Menu {
         };};
       }
       macro_rules! define_spacing_item {
-        ($pixels: expr) => {
+        ($pixels: expr) => {{
           x_position.1 += $pixels as i32;
-        };
+        };};
       }
+      macro_rules! define_radio_group {
+        ($rg_value_mut_ref: expr, $rg_block: block) => {{
+          {
+            let x_radio: &mut _ = $rg_value_mut_ref;
+            macro_rules! define_radio_item {
+              ($ri_text: expr, $ri_pattern: pat, $ri_value: expr, $ri_on_click: block) => {{
+                define_menu_item!(&format!("{} {}", if matches!(*x_radio, $ri_pattern) { ">" } else { " " }, $ri_text), {
+                  *x_radio = ($ri_value);
+                  $ri_on_click
+                });
+              };};
+              ($ri_text: expr, $ri_pattern: pat, $ri_value: expr) => {{
+                define_radio_item!($ri_text, $ri_pattern, $ri_value, {});
+              };};
+            }
+            $rg_block
+          }
+        };};
+      }
+
       //Get top item from the menu stack
       let top_item = *self.menu_stack.last().unwrap();
+
       //If menu stack contains more then 1 item allow going back
       if self.menu_stack.len() > 1 {
         define_menu_item!("Back", {
@@ -231,34 +289,70 @@ impl Menu {
         });
         define_spacing_item!(MENU_MARGIN);
       }
+
       //Menu layouts
       match top_item {
         MenuLocation::Main => {
-          define_menu_item!("Resume", {
-            self.set_activated_state(false);
-          });
-          define_menu_item!("Load ROM file...", {});
-          // define_menu_item!("Manage savestates...", {});
+          if self.has_game {
+            define_menu_item!("Resume", {
+              self.set_activated_state(false);
+            });
+          }
+          define_menu_item!("Load ROM file...");
           define_submenu_item!("Options...", MenuLocation::Options);
           define_menu_item!("Exit", { *do_exit = true });
         },
         MenuLocation::Options => {
           define_submenu_item!("Color palette...", MenuLocation::PalettePicker);
-          define_menu_item!("Display scale...", {});
+          define_submenu_item!("Display scale...", MenuLocation::ScalePicker);
         },
         MenuLocation::PalettePicker => {
-          define_menu_item!("> Grayscale", {});
-          define_menu_item!("BGB", {});
+          define_radio_group!(&mut config.palette, {
+            define_radio_item!(Palette::Grayscale.get_name(), Palette::Grayscale, Palette::Grayscale);
+            define_radio_item!(Palette::Green.get_name(), Palette::Green, Palette::Green);
+          });
         }
-        _ => ()
+        MenuLocation::ScalePicker => {
+          let mut needs_size_change = false;
+          define_radio_group!(&mut config.scale, {
+            //define_radio_item!("1x", WindowScale::Scale(1), WindowScale::Scale(1), { needs_size_change = true });
+            define_radio_item!("2x", WindowScale::Scale(2), WindowScale::Scale(2), { needs_size_change = true });
+            define_radio_item!("3x", WindowScale::Scale(3), WindowScale::Scale(3), { needs_size_change = true });
+            define_radio_item!("4x", WindowScale::Scale(4), WindowScale::Scale(4), { needs_size_change = true });
+            define_radio_item!("5x", WindowScale::Scale(5), WindowScale::Scale(5), { needs_size_change = true });
+            define_radio_item!("Maximized", WindowScale::Maximized, WindowScale::Maximized, { needs_size_change = true });
+            define_radio_item!("Fullscreen", WindowScale::Fullscreen, WindowScale::Fullscreen, { needs_size_change = true });
+          });
+          if needs_size_change {
+            match config.scale {
+              WindowScale::Scale(scale) => {
+                canvas.window_mut().restore();
+                canvas.window_mut().set_fullscreen(FullscreenType::Off).unwrap();
+                canvas.window_mut().set_size(scale * GB_WIDTH as u32, scale * GB_HEIGHT as u32).unwrap();
+              },
+              WindowScale::Maximized => {
+                canvas.window_mut().set_fullscreen(FullscreenType::Off).unwrap();
+                canvas.window_mut().maximize();
+              },
+              WindowScale::Fullscreen => {
+                canvas.window_mut().set_fullscreen(FullscreenType::Desktop).unwrap();
+              },
+            }
+          }
+        }
+        MenuLocation::AskForRestart => {
+          define_menu_item!("Restart now to apply changes", { *do_exit = true });
+        }
       }
-      //HACK: Limit cursor
+
+      // Limit cursor
       if self.cursor < 0 {
         self.cursor = x_index as isize - 1;
       } else if self.cursor >= x_index as isize {
         self.cursor = 0;
       }
     }
+
     //Draw key help
     {
       //height
@@ -282,6 +376,7 @@ impl Menu {
       text.set_color(Color::RGBA(255, 255, 255, opa / 3));
       text.render(canvas, (ver_x, text_y), 1., CRATE_VERSION);
     }
+
     //Draw display
     {
       let anim = self.activation_anim_state.value;
@@ -299,6 +394,8 @@ impl Menu {
       ]).unwrap();
       canvas.copy(gb_texture, None, Rect::from(display_pos)).unwrap();
     }
+
+    //Reset clicked state
     self.clicked = false;
   }
 }

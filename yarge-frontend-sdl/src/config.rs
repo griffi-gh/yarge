@@ -2,15 +2,33 @@ use std::{path::PathBuf, fs};
 use serde::{Serialize, Deserialize};
 use crate::data_dir::DataDir;
 
-#[derive(Default, Serialize, Deserialize)]
+const CONFIG_FILE_NAME: &str = "options.bin";
+
+#[derive(Default, Serialize, Deserialize, Clone, Copy)]
 pub enum Palette {
   #[default]
   Grayscale,
-  Bgb,
+  Green,
   Custom([u32; 4])
 }
+impl Palette {
+  pub fn get_map(&self) -> [u32; 4] {
+    match self {
+      Self::Grayscale => [0x00ffffff, 0x00aaaaaa, 0x00555555, 0x0000000],
+      Self::Green     => [0x00e0f8d0, 0x0088c070, 0x00346856, 0x0081820],
+      Self::Custom(x) => *x
+    }
+  }
+  pub fn get_name(&self) -> &'static str {
+    match self {
+      Self::Grayscale => "Grayscale",
+      Self::Green     => "Green",
+      Self::Custom(_) => "Custom"
+    }
+  }
+}
 
-#[derive(Default, Serialize, Deserialize)]
+#[derive(Default, Serialize, Deserialize, Clone, Copy)]
 pub enum FramerateLimit {
   #[default]
   VSync,
@@ -18,16 +36,24 @@ pub enum FramerateLimit {
   Unlimited,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone, Copy)]
 pub enum WindowScale {
   Scale(u32),
+  Maximized,
   Fullscreen
 }
 impl Default for WindowScale {
   fn default() -> Self { Self::Scale(2) }
 }
-
-const CONFIG_FILE_NAME: &str = "options.bin";
+impl WindowScale {
+  pub fn scale_or_default(&self) -> u32 {
+    if let Self::Scale(scale) = *self {
+      scale
+    } else {
+      2
+    }
+  }
+}
 
 #[derive(Default, Serialize, Deserialize)]
 pub struct Configuration {

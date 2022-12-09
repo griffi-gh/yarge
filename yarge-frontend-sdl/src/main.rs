@@ -22,14 +22,14 @@ mod config;
 use audio::AudioDevice;
 use menu::Menu;
 use text::TextRenderer;
-use config::Configuration;
+use config::{Configuration, WindowScale};
 
+const FAT_TEXTURE: &[u8] = include_bytes!("../yoshi.rgb");
 const FONT_TEXTURE: &[u8] = include_bytes!("../font.rgba");
 const FONT_TEXTURE_SIZE: (u32, u32) = (256, 368);
 const FONT_CHAR_SIZE: (u32, u32) = (8, 16);
 const FONT_CHARS_PER_LINE: u32 = FONT_TEXTURE_SIZE.0 / FONT_CHAR_SIZE.0;
 
-const GB_PALETTE: [u32; 4] = [0x00ffffff, 0x00aaaaaa, 0x00555555, 0x0000000];
 const GB_KEYBIND: &[(Scancode, GbKey)] = &[
   (Scancode::Z,       GbKey::A),
   (Scancode::X,       GbKey::B),
@@ -44,12 +44,8 @@ const GB_KEYBIND: &[(Scancode, GbKey)] = &[
 #[derive(Parser, Debug)]
 #[command()]
 struct Args {
-  rom_path: String,
+  rom_path: Option<String>,
   #[arg(long)] skip_bootrom: bool,
-  #[arg(long, default_value_t = 2)] scale: u32,
-  #[arg(long)] fullscreen: bool,
-  #[arg(long)] fullscreen_native: bool,
-  #[arg(long)] no_vsync: bool,
   #[arg(long, default_value_t = 1)] speed: usize,
 }
 
@@ -58,14 +54,16 @@ fn main() {
   let args = Args::parse();
 
   //Read config
-  let config = Configuration::load_or_default();
+  let mut config = Configuration::load_or_default();
 
   //Create a Gameboy struct
   let mut gb = Gameboy::new();
 
   //Load the ROM file
-  let rom = std::fs::read(args.rom_path).expect("Failed to load the ROM file");
-  gb.load_rom(&rom).expect("Invalid ROM file");
+  if let Some(path) = args.rom_path.as_ref() {
+    let rom = std::fs::read(path).expect("Failed to load the ROM file");
+    gb.load_rom(&rom).expect("Invalid ROM file");
+  }
 
   //Skip bootrom
   if args.skip_bootrom {
@@ -78,25 +76,23 @@ fn main() {
   let window = {
     let mut builder = video_subsystem.window(
       "YargeSDL", 
-      GB_WIDTH as u32 * args.scale,
-      GB_HEIGHT as u32 * args.scale
+      GB_WIDTH as u32 * config.scale.scale_or_default(),
+      GB_HEIGHT as u32 * config.scale.scale_or_default()
     );
     builder.position_centered();
-    if args.fullscreen {
-      match args.fullscreen_native {
-        true  => builder.fullscreen(),
-        false => builder.fullscreen_desktop(),
-      };
-    }
+    match config.scale {
+      WindowScale::Fullscreen => { builder.fullscreen_desktop(); },
+      WindowScale::Maximized  => { builder.maximized(); }, 
+      _ => ()
+    };
     //builder.resizable();
     builder.build().unwrap()
   };
   let mut event_pump = sdl_context.event_pump().unwrap();
   let mut canvas = {
     let mut builder = window.into_canvas();
-    if !args.no_vsync {
-      builder = builder.present_vsync();
-    }
+    // if !args.no_vsync
+    builder = builder.present_vsync();
     builder.build().unwrap()
   };
   canvas.set_blend_mode(BlendMode::Blend);
@@ -110,6 +106,7 @@ fn main() {
     GB_WIDTH as u32, 
     GB_HEIGHT as u32
   ).unwrap();
+  gb_texture.update(None, FAT_TEXTURE, 3 * GB_WIDTH).unwrap();
 
   //Create the font texture
   let mut font_texture = texture_creator.create_texture_static(
@@ -138,6 +135,12 @@ fn main() {
   //Create a Menu object that handles the ESC-menu
   let mut menu = Menu::new();
 
+  //Activate the menu right away if no rom is loaded
+  if args.rom_path.is_none() {
+    menu.set_activated_state(true);
+    //menu.skip_activation_animation();
+  }
+
   //Main loop
   'run: loop {
     //Process SDL2 events
@@ -148,15 +151,17 @@ fn main() {
       }
     }
     if menu.is_visible() {
-      let mut exit = false;
+      let mut exit_signal = false;
+      let mut redraw_signal = false;
       menu.update(
         &mut canvas,
         &mut gb,
         &gb_texture,
         &mut text_renderer,
-        &mut exit
+        &mut config,
+        &mut exit_signal
       );
-      if exit {
+      if exit_signal {
         break 'run;
       }
     } else {
@@ -171,9 +176,10 @@ fn main() {
       }
       //Copy data to texture
       let gb_data = gb.get_display_data();
+      let palette = config.palette.get_map();
       gb_texture.with_lock(None, |tex_data: &mut [u8], _pitch: usize| {
         for (index, color) in gb_data.iter().enumerate() {
-          let mapped_color = GB_PALETTE[*color as usize];
+          let mapped_color = palette[*color as usize];
           tex_data[3 * index] = mapped_color as u8;
           tex_data[(3 * index) + 1] = (mapped_color >> 8) as u8;
           tex_data[(3 * index) + 2] = (mapped_color >> 16) as u8;
