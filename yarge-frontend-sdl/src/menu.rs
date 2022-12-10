@@ -92,6 +92,7 @@ pub struct Menu {
   activation_anim_state: Animatable,
   cursor: isize,
   menu_stack: Vec<MenuLocation>,
+  scroll: i32,
   clicked: bool,
   has_game: bool,
 }
@@ -102,6 +103,7 @@ impl Menu {
       activation_anim_state: Animatable::new(),
       cursor: 0,
       menu_stack: vec![MenuLocation::Main],
+      scroll: 0,
       clicked: false,
       has_game: false,
     }
@@ -115,7 +117,7 @@ impl Menu {
   pub fn set_activated_state(&mut self, active: bool) {
     if (!self.is_visible()) && (!self.active) && active {
       //reset menu
-      self.cursor = 0;
+      self.menu_prepare_for_navigation();
       self.menu_stack = vec![MenuLocation::Main];
     }
     self.activation_anim_state.target = (active as u32) as f32;
@@ -151,22 +153,32 @@ impl Menu {
     self.has_game = gb.get_mbc_name() != "N/A";
   }
 
-  pub fn file_explorer_goto(&mut self, path: PathBuf) {
-    //TODO: This is bad, very bad
-    let items = fs::read_dir(&path).unwrap().map(|x| x.unwrap().path()).collect();
-    match self.menu_stack.last_mut().unwrap() {
-      MenuLocation::FileExplorer { path: path_ref, items: items_ref } => {
-        *path_ref = path;
-        *items_ref = items;
-      }
-      _ => {
-        self.menu_stack.push(MenuLocation::FileExplorer { path, items });
-      }
-    }
+  fn menu_prepare_for_navigation(&mut self) {
+    self.clicked = false;
     self.cursor = 0;
+    self.scroll = 0;
   }
 
-  pub fn file_explorer_open(&mut self, path: PathBuf) {
+  fn menu_go_back(&mut self) {
+    self.menu_prepare_for_navigation();
+    self.menu_stack.pop();
+  }
+
+  fn menu_goto(&mut self, to: MenuLocation) {
+    self.menu_prepare_for_navigation();
+    self.menu_stack.push(to);
+  }
+
+  fn file_explorer_goto(&mut self, path: PathBuf) {
+    //TODO: This is bad, very bad
+    let items = fs::read_dir(&path).unwrap().map(|x| x.unwrap().path()).collect();
+    if matches!(self.menu_stack.last().unwrap(), MenuLocation::FileExplorer { .. }) {
+      self.menu_go_back()
+    }
+    self.menu_goto(MenuLocation::FileExplorer { path, items });
+  }
+
+  fn file_explorer_open(&mut self, path: PathBuf) {
     let metadata = fs::metadata(&path).unwrap();
     if metadata.is_file() {
       println!("[INFO] open file {}", path.to_str().unwrap());
@@ -301,21 +313,19 @@ impl Menu {
           x_index += 1;
           let _ = x_index;
         };};
+        ($text: expr, $target: expr) => {{
+          define_menu_item!($text, {
+            self.menu_goto($target);
+          });
+        };};
         ($text: expr) => {{
           define_menu_item!($text, {});
         }};
       }
-      macro_rules! define_submenu_item {
-        ($text: expr, $target: expr) => {{
-          define_menu_item!($text, {
-            self.menu_stack.push($target);
-            self.cursor = 0;
-          });
-        };};
-      }
-      macro_rules! define_spacing_item {
+      macro_rules! add_spacing {
         ($pixels: expr) => {{
-          x_position.1 += $pixels as i32;
+          let pixels: i32 = $pixels;
+          x_position.1 += pixels;
         };};
       }
       macro_rules! define_radio_group {
@@ -338,18 +348,15 @@ impl Menu {
         };};
       }
 
-      //If menu stack contains more then 1 item allow going back
-      if self.menu_stack.len() > 1 {
-        define_menu_item!("Back", {
-          self.menu_stack.pop();
-          self.cursor = 0;
-        });
-        define_spacing_item!(MENU_MARGIN);
-      }
-
       //Get top item from the menu stack
       let top_item = self.menu_stack.last().unwrap().clone();
 
+      //If menu stack contains more then 1 item allow going back
+      if self.menu_stack.len() > 1 {
+        define_menu_item!("Back", { self.menu_go_back() });
+        add_spacing!(3);
+      }
+      
       //Menu layouts
       match top_item {
         MenuLocation::Main => {
@@ -361,12 +368,12 @@ impl Menu {
           define_menu_item!("Load ROM file...", {
             self.file_explorer_goto(dirs::home_dir().unwrap());
           });
-          define_submenu_item!("Options...", MenuLocation::Options);
+          define_menu_item!("Options...", MenuLocation::Options);
           define_menu_item!("Exit", { *do_exit = true });
         },
         MenuLocation::Options => {
-          define_submenu_item!("Color palette...", MenuLocation::PalettePicker);
-          define_submenu_item!("Display scale...", MenuLocation::ScalePicker);
+          define_menu_item!("Color palette...", MenuLocation::PalettePicker);
+          define_menu_item!("Display scale...", MenuLocation::ScalePicker);
         },
         MenuLocation::PalettePicker => {
           define_radio_group!(&mut config.palette, {
