@@ -166,6 +166,15 @@ impl Menu {
     self.cursor = 0;
   }
 
+  pub fn file_explorer_open(&mut self, path: PathBuf) {
+    let metadata = fs::metadata(&path).unwrap();
+    if metadata.is_file() {
+      println!("[INFO] open file {}", path.to_str().unwrap());
+    } else {
+      self.file_explorer_goto(path);
+    }
+  }
+
   pub fn update(
     &mut self,
     canvas: &mut Canvas<Window>,
@@ -405,7 +414,7 @@ impl Menu {
           if !items.is_empty() {
             for item in items {
               define_menu_item!(item.file_name().unwrap().to_str().unwrap(), {
-                self.file_explorer_goto(item);
+                self.file_explorer_open(item);
               });
             }
           } else {
