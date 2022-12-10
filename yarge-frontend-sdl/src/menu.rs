@@ -292,21 +292,26 @@ impl Menu {
 
     //Menu items
     {
-      let list_start_y = if !small {
+      let list_start_y_noscroll = if !small {
         //TODO animation for 2x+
         (MINI_DISPLAY_POS.1 << 1) + MINI_DISPLAY_SIZE.1 as i32
       } else {
         //has activation animation for 1x
         MENU_MARGIN + res.1 as i32 - (res.1 as f32 * self.activation_anim_state.value) as i32
       }; 
+      let list_start_y = list_start_y_noscroll - self.scroll;
       //Macros to display menu items conviniently
       //THIS IS A HUGE HACK AND I WENT ***TOO*** FAR WITH THESE MACROS!!!
       //BUT HEY IF IT WORKS IT WORKS
       let mut x_position: (i32, i32, u32, u32) = (0, list_start_y, res.0, MENU_ITEM_HEIGHT);
       let mut x_index = 0;
+      let mut x_cursor_y: Option<i32> = None;
       macro_rules! define_menu_item {
         ($text: expr, $on_click: block) => {{
-          if menu_item($text, x_position, canvas, text, self.cursor, x_index, self.clicked) {
+          if self.cursor == x_index {
+            x_cursor_y = Some(x_position.1);
+          }
+          if menu_item($text, x_position, canvas, text, self.cursor, x_index as usize, self.clicked) {
             $on_click;
           }
           x_position.1 += x_position.3 as i32 + MENU_MARGIN;
@@ -430,10 +435,19 @@ impl Menu {
         }
       }
 
+      // Update scroll, VERY HACKY but works (tm)
+      if let Some(cursor_y) = x_cursor_y {
+        if cursor_y > res.1 as i32 - (text.char_size(1.).1 as i32 + 2) - MENU_ITEM_HEIGHT as i32 {
+          self.scroll += 2;
+        } else if cursor_y < list_start_y_noscroll {
+          self.scroll -= 2;
+        }
+      }
+
       // Limit cursor
       if self.cursor < 0 {
-        self.cursor = x_index as isize - 1;
-      } else if self.cursor >= x_index as isize {
+        self.cursor = x_index - 1;
+      } else if self.cursor >= x_index {
         self.cursor = 0;
       }
     }
