@@ -356,7 +356,7 @@ impl Menu {
         define_menu_item!("Back", { self.menu_go_back() });
         add_spacing!(3);
       }
-      
+
       //Menu layouts
       match top_item {
         MenuLocation::Main => {
@@ -385,7 +385,7 @@ impl Menu {
           let mut needs_size_change = false;
           define_radio_group!(&mut config.scale, {
             define_radio_item!("1x (unsupported)", WindowScale::Scale(1), WindowScale::Scale(1), { needs_size_change = true });
-            define_radio_item!("2x", WindowScale::Scale(2), WindowScale::Scale(2), { needs_size_change = true });
+            define_radio_item!("2x (recommended)", WindowScale::Scale(2), WindowScale::Scale(2), { needs_size_change = true });
             define_radio_item!("3x", WindowScale::Scale(3), WindowScale::Scale(3), { needs_size_change = true });
             define_radio_item!("4x", WindowScale::Scale(4), WindowScale::Scale(4), { needs_size_change = true });
             define_radio_item!("5x", WindowScale::Scale(5), WindowScale::Scale(5), { needs_size_change = true });
