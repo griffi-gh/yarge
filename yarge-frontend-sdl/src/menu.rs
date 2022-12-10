@@ -6,7 +6,11 @@ use sdl2::{
   rect::Rect, 
   pixels::Color, 
 };
-use std::borrow::Cow;
+use std::{
+  borrow::Cow, 
+  path::{PathBuf, Path}, 
+  fs::{self, DirEntry}
+};
 use yarge_core::{
   Gameboy, 
   consts::{
@@ -58,22 +62,27 @@ fn menu_item(
   click && (index as isize == cursor)
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 enum MenuLocation {
   Main,
   Options,
   PalettePicker,
   ScalePicker,
   AskForRestart,
+  FileExplorer {
+    path: PathBuf,
+    items: Vec<PathBuf>
+  },
 }
 impl MenuLocation {
   pub fn friendly_name(&self) -> &'static str {
-    match *self {
+    match self {
       Self::Main => "Main menu",
       Self::Options => "Options",
       Self::PalettePicker => "Color palette",
       Self::ScalePicker => "Display scale",
-      Self::AskForRestart => "Restart"
+      Self::AskForRestart => "Restart",
+      Self::FileExplorer { .. } => "File explorer"
     }
   }
 }
@@ -140,6 +149,13 @@ impl Menu {
   ) {
     //check if game is loaded
     self.has_game = gb.get_mbc_name() != "N/A";
+  }
+
+  pub fn file_explorer_goto(&mut self, path: PathBuf) {
+    //TODO: This is bad, very bad
+    let items = fs::read_dir(&path).unwrap().map(|x| x.unwrap().path()).collect();
+    self.menu_stack.push(MenuLocation::FileExplorer { path, items });
+    self.cursor = 0;
   }
 
   pub fn update(
@@ -305,9 +321,6 @@ impl Menu {
         };};
       }
 
-      //Get top item from the menu stack
-      let top_item = *self.menu_stack.last().unwrap();
-
       //If menu stack contains more then 1 item allow going back
       if self.menu_stack.len() > 1 {
         define_menu_item!("Back", {
@@ -317,6 +330,9 @@ impl Menu {
         define_spacing_item!(MENU_MARGIN);
       }
 
+      //Get top item from the menu stack
+      let top_item = self.menu_stack.last().unwrap().clone();
+
       //Menu layouts
       match top_item {
         MenuLocation::Main => {
@@ -325,7 +341,9 @@ impl Menu {
               self.set_activated_state(false);
             });
           }
-          define_menu_item!("Load ROM file...");
+          define_menu_item!("Load ROM file...", {
+            self.file_explorer_goto(dirs::home_dir().unwrap());
+          });
           define_submenu_item!("Options...", MenuLocation::Options);
           define_menu_item!("Exit", { *do_exit = true });
         },
@@ -369,6 +387,13 @@ impl Menu {
         }
         MenuLocation::AskForRestart => {
           define_menu_item!("Restart now to apply changes", { *do_exit = true });
+        }
+        MenuLocation::FileExplorer { items, .. } => {
+          for item in items {
+            define_menu_item!(item.file_name().unwrap().to_str().unwrap(), {
+              self.file_explorer_goto(item);
+            });
+          }
         }
       }
 
