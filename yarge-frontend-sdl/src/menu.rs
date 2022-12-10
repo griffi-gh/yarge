@@ -402,10 +402,14 @@ impl Menu {
               self.file_explorer_goto(parent.to_owned());
             });
           }
-          for item in items {
-            define_menu_item!(item.file_name().unwrap().to_str().unwrap(), {
-              self.file_explorer_goto(item);
-            });
+          if items.is_empty() {
+            for item in items {
+              define_menu_item!(item.file_name().unwrap().to_str().unwrap(), {
+                self.file_explorer_goto(item);
+              });
+            }
+          } else {
+            define_menu_item!("This directory is empty");
           }
         }
       }
