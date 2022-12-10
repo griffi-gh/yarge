@@ -435,12 +435,17 @@ impl Menu {
         }
       }
 
-      // Update scroll, VERY HACKY but works (tm)
+      // Update scroll
+      //TODO rewrite!!
       if let Some(cursor_y) = x_cursor_y {
-        if cursor_y > res.1 as i32 - (text.char_size(1.).1 as i32 + 2) - MENU_ITEM_HEIGHT as i32 {
-          self.scroll += 2;
-        } else if cursor_y < list_start_y_noscroll {
-          self.scroll -= 2;
+        loop {
+          if cursor_y > res.1 as i32 - (text.char_size(1.).1 as i32 + 2) - MENU_ITEM_HEIGHT as i32 {
+            self.scroll += 1;
+          } else if cursor_y < list_start_y_noscroll {
+            self.scroll -= 1;
+          } else {
+            break
+          }
         }
       }
 
