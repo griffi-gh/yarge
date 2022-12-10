@@ -154,7 +154,15 @@ impl Menu {
   pub fn file_explorer_goto(&mut self, path: PathBuf) {
     //TODO: This is bad, very bad
     let items = fs::read_dir(&path).unwrap().map(|x| x.unwrap().path()).collect();
-    self.menu_stack.push(MenuLocation::FileExplorer { path, items });
+    match self.menu_stack.last_mut().unwrap() {
+      MenuLocation::FileExplorer { path: path_ref, items: items_ref } => {
+        *path_ref = path;
+        *items_ref = items;
+      }
+      _ => {
+        self.menu_stack.push(MenuLocation::FileExplorer { path, items });
+      }
+    }
     self.cursor = 0;
   }
 
@@ -388,7 +396,12 @@ impl Menu {
         MenuLocation::AskForRestart => {
           define_menu_item!("Restart now to apply changes", { *do_exit = true });
         }
-        MenuLocation::FileExplorer { items, .. } => {
+        MenuLocation::FileExplorer { items, path } => {
+          if let Some(parent) = path.parent() {
+            define_menu_item!("..", {
+              self.file_explorer_goto(parent.to_owned());
+            });
+          }
           for item in items {
             define_menu_item!(item.file_name().unwrap().to_str().unwrap(), {
               self.file_explorer_goto(item);
