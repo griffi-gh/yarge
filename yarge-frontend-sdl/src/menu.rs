@@ -129,6 +129,7 @@ impl Menu {
   pub fn closed_improperly(&mut self) {
     self.set_activated_state(true);
     self.menu_goto(MenuLocation::ClosedImproperly);
+    self.cursor = 1;
   }
   pub fn skip_activation_animation(&mut self) {
     self.activation_anim_state.value = self.activation_anim_state.target;
