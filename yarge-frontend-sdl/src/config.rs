@@ -55,13 +55,26 @@ impl WindowScale {
   }
 }
 
-#[derive(Default, Serialize, Deserialize)]
+#[derive(Serialize, Deserialize)]
 pub struct Configuration {
   pub palette: Palette,
   pub framerate: FramerateLimit,
   pub scale: WindowScale,
   pub last_rom: Option<PathBuf>,
   pub last_path: Option<PathBuf>,
+  pub closed_properly: bool,
+}
+impl Default for Configuration {
+  fn default() -> Self {
+    Self {
+      palette: Default::default(),
+      framerate: Default::default(),
+      scale: Default::default(),
+      last_rom: Default::default(),
+      last_path: Default::default(),
+      closed_properly: true
+    }
+  }
 }
 impl Configuration {
   pub fn save(&self) -> anyhow::Result<()> {

@@ -56,6 +56,14 @@ fn main() {
   //Read config
   let mut config = Configuration::load_or_default();
 
+  //Set closed_properly flag
+  {
+    let original = config.closed_properly;
+    config.closed_properly = false;
+    config.save().unwrap();
+    config.closed_properly = original;
+  }
+  
   //Create a Gameboy struct
   let mut gb = Gameboy::new();
 
@@ -135,6 +143,12 @@ fn main() {
   //Create a Menu object that handles the ESC-menu
   let mut menu = Menu::new();
 
+  //Check close status 
+  if !config.closed_properly {
+    menu.closed_improperly();
+    menu.skip_activation_animation();
+  }
+
   //Activate the menu right away if no rom is loaded
   if args.rom_path.is_none() {
     menu.set_activated_state(true);
@@ -170,10 +184,12 @@ fn main() {
       for (scancode, key) in GB_KEYBIND {
         gb.set_key_state(*key, kb_state.is_scancode_pressed(*scancode));
       }
+
       //Run emulation for one frame
       for _ in 0..args.speed {
         gb.run_for_frame().unwrap();
       }
+
       //Copy data to texture
       let gb_data = gb.get_display_data();
       let palette = config.palette.get_map();
@@ -185,12 +201,17 @@ fn main() {
           tex_data[(3 * index) + 2] = (mapped_color >> 16) as u8;
         }
       }).unwrap();
+
       //Copy texture to the entire canvas
       canvas.copy(&gb_texture, None, None).unwrap();
     }
     //Draw canvas
     canvas.present();
   }
+  
+  //Set flag
+  config.closed_properly = true;
+
   //Save options
   config.save().unwrap();
 }

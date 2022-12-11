@@ -74,6 +74,7 @@ enum MenuLocation {
     path: PathBuf,
     items: Vec<PathBuf>
   },
+  ClosedImproperly,
 }
 impl MenuLocation {
   pub fn friendly_name(&self) -> &'static str {
@@ -83,7 +84,8 @@ impl MenuLocation {
       Self::PalettePicker => "Color palette",
       Self::ScalePicker => "Display scale",
       Self::AskForRestart => "Restart",
-      Self::FileExplorer { .. } => "File explorer"
+      Self::FileExplorer { .. } => "File explorer",
+      Self::ClosedImproperly => "Warning",
     }
   }
 }
@@ -123,6 +125,10 @@ impl Menu {
     }
     self.activation_anim_state.target = (active as u32) as f32;
     self.active = active;
+  }
+  pub fn closed_improperly(&mut self) {
+    self.set_activated_state(true);
+    self.menu_goto(MenuLocation::ClosedImproperly);
   }
   pub fn skip_activation_animation(&mut self) {
     self.activation_anim_state.value = self.activation_anim_state.target;
@@ -189,6 +195,7 @@ impl Menu {
     if metadata.is_file() {
       println!("[INFO] open file {}", path.to_str().unwrap());
       self.load_file(path, gb);
+      self.set_activated_state(false);
       false
     } else {
       self.file_explorer_goto(path);
@@ -465,6 +472,19 @@ impl Menu {
           } else {
             define_menu_item!("This directory is empty");
           }
+        }
+        MenuLocation::ClosedImproperly => {
+          define_menu_item!("Continue", {
+            if self.has_game {
+              self.set_activated_state(false);
+            } else {
+              self.menu_go_back();
+            }
+          });
+          add_spacing!(5);
+          define_menu_item!("Looks like yarge crashed");
+          define_menu_item!("or has been closed improperly");
+          define_menu_item!("some data may be lost");
         }
       }
 
