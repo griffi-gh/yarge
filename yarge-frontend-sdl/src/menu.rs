@@ -184,15 +184,21 @@ impl Menu {
     self.file_explorer_goto(dirs::home_dir().unwrap());
   }
 
-  fn file_explorer_open(&mut self, path: PathBuf) -> bool {
+  fn file_explorer_open(&mut self, path: PathBuf, gb: &mut Gameboy) -> bool {
     let metadata = fs::metadata(&path).unwrap();
     if metadata.is_file() {
       println!("[INFO] open file {}", path.to_str().unwrap());
+      self.load_file(path, gb);
       false
     } else {
       self.file_explorer_goto(path);
       true
     }
+  }
+
+  fn load_file(&mut self, path: PathBuf, gb: &mut Gameboy) {
+    let data = fs::read(path).unwrap();
+    gb.load_rom(&data[..]).unwrap();
   }
 
   pub fn update(
@@ -450,7 +456,7 @@ impl Menu {
           if !items.is_empty() {
             for item in items {
               define_menu_item!(item.file_name().unwrap().to_str().unwrap(), {
-                if self.file_explorer_open(item.clone()) {
+                if self.file_explorer_open(item.clone(), &mut gb) {
                   config.last_path = Some(item);
                 }
               });
