@@ -57,7 +57,7 @@ fn main() {
   let mut config = Configuration::load_or_default();
 
   if !config.closed_properly {
-    println!("[WARN] Improper exit detected");
+    println!("[WARN] Improper exit detected (configuration file dirty)");
   }
   
   //Set closed_properly flag
