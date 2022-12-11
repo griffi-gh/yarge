@@ -33,6 +33,7 @@ const MENU_MARGIN: i32 = 2;
 const MENU_ITEM_H_PADDING: u32 = 4;
 const MENU_ITEM_HEIGHT: u32 = 18;
 const SHORT_PATH_CHARS: usize = 2;
+const SCROLLBAR_WIDTH: u32 = 5;
 
 fn menu_item(
   text: &str,
@@ -455,22 +456,23 @@ impl Menu {
       self.scroll = self.scroll.max(0);
       
       // Draw scroll bar
-      let viewport_height = res.1 as f32 - list_start_y_noscroll as f32;
-      if (x_position.1 - list_start_y) as f32 > viewport_height {
+      let viewport_height = res.1 as f32 - list_start_y_noscroll as f32 - (text.char_size(1.).1 as f32 + 2.);
+      let scrollbar_visible = (x_position.1 - list_start_y) as f32 > viewport_height;
+      if scrollbar_visible {
         //Compute stuff
         let progress: f32 = self.cursor as f32 / (x_index - 1) as f32;
         let viewport_height_ratio: f32 = (viewport_height / MENU_ITEM_HEIGHT as f32) / (x_index - 1) as f32;
         //Use that stuff to compute scrollbar pos
-        let scrollbar_h = (viewport_height_ratio * viewport_height) as u32;
+        let scrollbar_h = viewport_height_ratio * viewport_height;
+        let y_correction: f32 = - (scrollbar_h * progress);
         canvas.set_draw_color(Color::RGBA(0, 0, 0, 80));
         canvas.fill_rect(Rect::from((
-          res.0 as i32 - 5,
-          list_start_y_noscroll + (progress * viewport_height) as i32,
-          5u32,
-          scrollbar_h
+          res.0 as i32 - SCROLLBAR_WIDTH as i32,
+          list_start_y_noscroll + ((progress * viewport_height) + y_correction) as i32,
+          SCROLLBAR_WIDTH,
+          scrollbar_h as u32
         ))).unwrap();
       }
-      
 
       // Limit cursor
       if self.cursor < 0 {
