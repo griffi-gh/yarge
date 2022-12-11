@@ -93,7 +93,7 @@ impl Configuration {
     Ok(())
   }
   pub fn save_clean(self) -> anyhow::Result<()> {
-    println!("[INFO] Saving configuration (exit)...");
+    println!("[INFO] Saving configuration (clean)...");
     self.internal_save()?;
     Ok(())
   }
