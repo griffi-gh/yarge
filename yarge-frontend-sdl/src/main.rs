@@ -212,9 +212,8 @@ fn main() {
     //Draw canvas
     canvas.present();
   }
-  
-  //Set flag
-  config.closed_properly = true;
+
+  println!("[INFO] Clean exit...");
 
   //Save options
   config.save_clean().unwrap();

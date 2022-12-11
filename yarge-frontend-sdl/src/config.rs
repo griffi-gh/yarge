@@ -77,7 +77,7 @@ impl Default for Configuration {
   }
 }
 impl Configuration {
-  fn internal_save(&self) -> anyhow::Result<()> {
+  fn save(&self) -> anyhow::Result<()> {
     DataDir::ensure_exists()?;
     let mut path = DataDir::get_path();
     path.push(CONFIG_FILE_NAME);
@@ -88,13 +88,14 @@ impl Configuration {
     println!("[INFO] Saving configuration (dirty)...");
     let original = self.closed_properly;
     self.closed_properly = false;
-    self.internal_save()?;
+    self.save()?;
     self.closed_properly = original;
     Ok(())
   }
-  pub fn save_clean(self) -> anyhow::Result<()> {
+  pub fn save_clean(mut self) -> anyhow::Result<()> {
     println!("[INFO] Saving configuration (clean)...");
-    self.internal_save()?;
+    self.closed_properly = true;
+    self.save()?;
     Ok(())
   }
   
