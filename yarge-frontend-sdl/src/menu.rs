@@ -198,6 +198,7 @@ impl Menu {
 
   fn load_file(&mut self, path: PathBuf, gb: &mut Gameboy) {
     let data = fs::read(path).unwrap();
+    gb.reset();
     gb.load_rom(&data[..]).unwrap();
   }
 
