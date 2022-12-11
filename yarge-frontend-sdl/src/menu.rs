@@ -179,6 +179,10 @@ impl Menu {
     self.menu_goto(MenuLocation::FileExplorer { path, items });
   }
 
+  fn file_explorer_goto_home(&mut self) {
+    self.file_explorer_goto(dirs::home_dir().unwrap());
+  }
+
   fn file_explorer_open(&mut self, path: PathBuf) {
     let metadata = fs::metadata(&path).unwrap();
     if metadata.is_file() {
@@ -379,7 +383,10 @@ impl Menu {
             });
           }
           define_menu_item!("Load ROM file...", {
-            self.file_explorer_goto(dirs::home_dir().unwrap());
+            match config.last_path.clone() {
+              Some(x) => self.file_explorer_goto(x),
+              None => self.file_explorer_goto_home()
+            }
           });
           define_menu_item!("Options...", MenuLocation::Options);
           define_menu_item!("Exit", { *do_exit = true });
@@ -426,15 +433,22 @@ impl Menu {
           define_menu_item!("Restart now to apply changes", { *do_exit = true });
         }
         MenuLocation::FileExplorer { items, path } => {
+          define_menu_item!("Home", {
+            self.file_explorer_goto_home();
+            config.last_path = None;
+          });
+          add_spacing!(3);
           if let Some(parent) = path.parent() {
             define_menu_item!("..", {
               self.file_explorer_goto(parent.to_owned());
+              config.last_path = Some(path.clone());
             });
           }
           if !items.is_empty() {
             for item in items {
               define_menu_item!(item.file_name().unwrap().to_str().unwrap(), {
                 self.file_explorer_open(item);
+                config.last_path = Some(path.clone());
               });
             }
           } else {
@@ -461,7 +475,7 @@ impl Menu {
       if scrollbar_visible {
         //Compute stuff
         let progress: f32 = self.cursor as f32 / (x_index - 1) as f32;
-        let viewport_height_ratio: f32 = (viewport_height / MENU_ITEM_HEIGHT as f32) / (x_index - 1) as f32;
+        let viewport_height_ratio: f32 = (viewport_height / (MENU_ITEM_HEIGHT + MENU_MARGIN as u32) as f32) / (x_index - 1) as f32;
         //Use that stuff to compute scrollbar pos
         let scrollbar_h = viewport_height_ratio * viewport_height;
         let y_correction: f32 = - (scrollbar_h * progress);

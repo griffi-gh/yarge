@@ -60,7 +60,8 @@ pub struct Configuration {
   pub palette: Palette,
   pub framerate: FramerateLimit,
   pub scale: WindowScale,
-  pub last_rom: Option<PathBuf>
+  pub last_rom: Option<PathBuf>,
+  pub last_path: Option<PathBuf>,
 }
 impl Configuration {
   pub fn save(&self) -> anyhow::Result<()> {
