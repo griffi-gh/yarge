@@ -465,13 +465,20 @@ impl Menu {
         //Use that stuff to compute scrollbar pos
         let scrollbar_h = viewport_height_ratio * viewport_height;
         let y_correction: f32 = - (scrollbar_h * progress);
-        canvas.set_draw_color(Color::RGBA(0, 0, 0, 80));
-        canvas.fill_rect(Rect::from((
+        let scrollbar_rect = Rect::from((
           res.0 as i32 - SCROLLBAR_WIDTH as i32,
           list_start_y_noscroll + ((progress * viewport_height) + y_correction) as i32,
           SCROLLBAR_WIDTH,
           scrollbar_h as u32
-        ))).unwrap();
+        ));
+        let scrollbar_bg_rect = Rect::from((
+          res.0 as i32 - SCROLLBAR_WIDTH as i32,
+          list_start_y_noscroll,
+          SCROLLBAR_WIDTH,
+          viewport_height as u32
+        ));
+        canvas.set_draw_color(Color::RGBA(0, 0, 0, 96));
+        canvas.fill_rects(&[scrollbar_rect, scrollbar_rect, scrollbar_bg_rect]).unwrap();
       }
 
       // Limit cursor
