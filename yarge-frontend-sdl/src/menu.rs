@@ -486,9 +486,16 @@ impl Menu {
             }
           });
           add_spacing!(5);
-          define_menu_item!("Looks like yarge crashed");
-          define_menu_item!("or has been closed improperly");
-          define_menu_item!("some data may be lost");
+          if !small {
+            define_menu_item!("Yarge didn't close correcly");
+            define_menu_item!("Some data may be lost");
+          } else {
+            define_menu_item!("Yarge didn't");
+            define_menu_item!("close correcly");
+            define_menu_item!("Some data may");
+            define_menu_item!("be lost");
+          }
+          
         }
       }
 
