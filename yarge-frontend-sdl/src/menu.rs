@@ -44,7 +44,7 @@ fn menu_item(
   click: bool,
 ) -> bool {
   let v_padding = (position.3 as i32 - text_renderer.char_size(1.).1 as i32).max(0) as u32 / 2;
-  canvas.set_clip_rect(Some(Rect::from(position)));
+  //canvas.set_clip_rect(Rect::from(position));
   if index as isize == cursor {
     canvas.set_draw_color(Color::RGBA(0, 0, 0, 96));
     canvas.fill_rect(Rect::from(position)).unwrap();
@@ -58,7 +58,7 @@ fn menu_item(
     position.0 + MENU_ITEM_H_PADDING as i32,
     position.1 + v_padding as i32
   ), 1., text);
-  canvas.set_clip_rect(None);
+  //canvas.set_clip_rect(None);
   click && (index as isize == cursor)
 }
 
@@ -211,7 +211,7 @@ impl Menu {
 
     //spcial activation animation for 1x
     if small {
-      let alpha = ((self.activation_anim_state.value * 255.) as u8);
+      let alpha = (self.activation_anim_state.value * 255.) as u8;
       if alpha != 255 {
         canvas.copy(gb_texture, None, None).unwrap();
         canvas.set_draw_color(Color::RGBA(BACKGROUND_COLOR.r, BACKGROUND_COLOR.g, BACKGROUND_COLOR.b, alpha));
@@ -227,13 +227,16 @@ impl Menu {
       let x_pos = MINI_DISPLAY_POS.0 + MINI_DISPLAY_SIZE.0 as i32 + TOP_DETAILS_PADDING.0 as i32;
       let y_pos = MINI_DISPLAY_POS.1 + TOP_DETAILS_PADDING.1 as i32;
       let rom_header = gb.get_rom_header();
+      //Get the game title
       let display_name = if self.has_game {
         rom_header.name.as_str()
       } else {
         "No game"
       };
+      //Compute game title text size to fit the width
       let computed_scale = ((res.0 as f32 - x_pos as f32) / (display_name.len() as f32 * text.char_size(1.).0 as f32)).min(2.);
-      //Game title
+      
+      //Game title text
       text.set_color(Color::RGBA(0, 0, 0, opa));
       text.render(
         canvas, 
@@ -241,6 +244,7 @@ impl Menu {
         computed_scale,
         display_name
       );
+
       //"Paused" text
       text.set_color(Color::RGBA(64, 64, 64, opa));
       text.render(
@@ -353,6 +357,9 @@ impl Menu {
         };};
       }
 
+      //Set clip before rendering the menu
+      canvas.set_clip_rect(Rect::from((0, list_start_y_noscroll, res.0, res.1)));
+
       //Get top item from the menu stack
       let top_item = self.menu_stack.last().unwrap().clone();
 
@@ -435,15 +442,35 @@ impl Menu {
         }
       }
 
+      // Unset clip rect
+      canvas.set_clip_rect(None);
+
       // Update scroll
       //TODO rewrite!!
       if let Some(cursor_y) = x_cursor_y {
-        if cursor_y > res.1 as i32 - (text.char_size(1.).1 as i32 + 2) - MENU_ITEM_HEIGHT as i32 {
-          self.scroll += 3;
-        } else if cursor_y < list_start_y_noscroll {
-          self.scroll -= 3;
-        }
+        let cursor_underscroll = cursor_y - (res.1 as i32 - (text.char_size(1.).1 as i32 + 2) - 2 * MENU_ITEM_HEIGHT as i32);
+        let cursor_overscroll = cursor_y - list_start_y_noscroll - MENU_ITEM_HEIGHT as i32;
+        self.scroll += cursor_underscroll.max(0) + cursor_overscroll.min(0);
       }
+      self.scroll = self.scroll.max(0);
+      
+      // Draw scroll bar
+      let viewport_height = res.1 as f32 - list_start_y_noscroll as f32;
+      if (x_position.1 - list_start_y) as f32 > viewport_height {
+        //Compute stuff
+        let progress: f32 = self.cursor as f32 / (x_index - 1) as f32;
+        let viewport_height_ratio: f32 = (viewport_height / MENU_ITEM_HEIGHT as f32) / (x_index - 1) as f32;
+        //Use that stuff to compute scrollbar pos
+        let scrollbar_h = (viewport_height_ratio * viewport_height) as u32;
+        canvas.set_draw_color(Color::RGBA(0, 0, 0, 80));
+        canvas.fill_rect(Rect::from((
+          res.0 as i32 - 5,
+          list_start_y_noscroll + (progress * viewport_height) as i32,
+          5u32,
+          scrollbar_h
+        ))).unwrap();
+      }
+      
 
       // Limit cursor
       if self.cursor < 0 {

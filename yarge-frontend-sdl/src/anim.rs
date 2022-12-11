@@ -34,4 +34,7 @@ impl Animatable {
   pub fn is_animating(&self) -> bool {
     self.value != self.target
   }
+  pub fn skip_animation(&mut self) {
+    self.value = self.target;
+  }
 }
