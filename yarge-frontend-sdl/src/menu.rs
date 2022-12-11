@@ -180,15 +180,18 @@ impl Menu {
   }
 
   fn file_explorer_goto_home(&mut self) {
+    println!("Going home");
     self.file_explorer_goto(dirs::home_dir().unwrap());
   }
 
-  fn file_explorer_open(&mut self, path: PathBuf) {
+  fn file_explorer_open(&mut self, path: PathBuf) -> bool {
     let metadata = fs::metadata(&path).unwrap();
     if metadata.is_file() {
       println!("[INFO] open file {}", path.to_str().unwrap());
+      false
     } else {
       self.file_explorer_goto(path);
+      true
     }
   }
 
@@ -441,14 +444,15 @@ impl Menu {
           if let Some(parent) = path.parent() {
             define_menu_item!("..", {
               self.file_explorer_goto(parent.to_owned());
-              config.last_path = Some(path.clone());
+              config.last_path = Some(parent.to_owned());
             });
           }
           if !items.is_empty() {
             for item in items {
               define_menu_item!(item.file_name().unwrap().to_str().unwrap(), {
-                self.file_explorer_open(item);
-                config.last_path = Some(path.clone());
+                if self.file_explorer_open(item.clone()) {
+                  config.last_path = Some(item);
+                }
               });
             }
           } else {
