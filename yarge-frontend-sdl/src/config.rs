@@ -78,6 +78,7 @@ impl Default for Configuration {
 }
 impl Configuration {
   pub fn save(&self) -> anyhow::Result<()> {
+    println!("[INFO] Saving configuration...");
     DataDir::ensure_exists()?;
     let mut path = DataDir::get_path();
     path.push(CONFIG_FILE_NAME);
@@ -85,6 +86,7 @@ impl Configuration {
     Ok(())
   }
   pub fn load() -> anyhow::Result<Self> {
+    println!("[INFO] Loading configuration...");
     let mut path = DataDir::get_path();
     path.push(CONFIG_FILE_NAME);
     Ok(bincode::deserialize(&fs::read(path)?)?)

@@ -56,6 +56,10 @@ fn main() {
   //Read config
   let mut config = Configuration::load_or_default();
 
+  if !config.closed_properly {
+    println!("[WARN] Improper exit detected");
+  }
+  
   //Set closed_properly flag
   {
     let original = config.closed_properly;
