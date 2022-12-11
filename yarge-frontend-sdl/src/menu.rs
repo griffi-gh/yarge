@@ -456,7 +456,7 @@ impl Menu {
           if !items.is_empty() {
             for item in items {
               define_menu_item!(item.file_name().unwrap().to_str().unwrap(), {
-                if self.file_explorer_open(item.clone(), &mut gb) {
+                if self.file_explorer_open(item.clone(), gb) {
                   config.last_path = Some(item);
                 }
               });
