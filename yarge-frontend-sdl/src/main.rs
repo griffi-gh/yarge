@@ -64,7 +64,7 @@ fn main() {
   {
     let original = config.closed_properly;
     config.closed_properly = false;
-    config.save().unwrap();
+    config.save_dirty().unwrap();
     config.closed_properly = original;
   }
   
@@ -217,5 +217,5 @@ fn main() {
   config.closed_properly = true;
 
   //Save options
-  config.save().unwrap();
+  config.save_clean().unwrap();
 }

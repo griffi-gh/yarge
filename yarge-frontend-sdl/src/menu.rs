@@ -361,13 +361,16 @@ impl Menu {
         };};
       }
       macro_rules! define_radio_group {
-        ($rg_value_mut_ref: expr, $rg_block: block) => {{
+        ($rg_value_mut_ref: expr, $rg_block: block, $rg_on_any_clicked: block) => {{
           {
             let x_radio: &mut _ = $rg_value_mut_ref;
+            let mut x_selection_did_change = false;
             macro_rules! define_radio_item {
               ($ri_text: expr, $ri_pattern: pat, $ri_value: expr, $ri_on_click: block) => {{
                 define_menu_item!(&format!("{} {}", if matches!(*x_radio, $ri_pattern) { ">" } else { " " }, $ri_text), {
                   *x_radio = ($ri_value);
+                  x_selection_did_change = true;
+                  $rg_on_any_clicked
                   $ri_on_click
                 });
               };};
@@ -376,8 +379,12 @@ impl Menu {
               };};
             }
             $rg_block
+            x_selection_did_change
           }
         };};
+        ($rg_value_mut_ref: expr, $rg_block: block) => {{
+          define_radio_group!($rg_value_mut_ref, $rg_block, {})
+        }}
       }
 
       //Set clip before rendering the menu
@@ -417,23 +424,24 @@ impl Menu {
           define_menu_item!("Display scale...", MenuLocation::ScalePicker);
         },
         MenuLocation::PalettePicker => {
-          define_radio_group!(&mut config.palette, {
+          if define_radio_group!(&mut config.palette, {
             define_radio_item!(Palette::Grayscale.get_name(), Palette::Grayscale, Palette::Grayscale);
             define_radio_item!(Palette::Green.get_name(), Palette::Green, Palette::Green);
-          });
+          }) {
+            config.save_dirty().unwrap();
+          };
         }
         MenuLocation::ScalePicker => {
-          let mut needs_size_change = false;
-          define_radio_group!(&mut config.scale, {
-            define_radio_item!("1x (unsupported)", WindowScale::Scale(1), WindowScale::Scale(1), { needs_size_change = true });
-            define_radio_item!("2x (recommended)", WindowScale::Scale(2), WindowScale::Scale(2), { needs_size_change = true });
-            define_radio_item!("3x", WindowScale::Scale(3), WindowScale::Scale(3), { needs_size_change = true });
-            define_radio_item!("4x", WindowScale::Scale(4), WindowScale::Scale(4), { needs_size_change = true });
-            define_radio_item!("5x", WindowScale::Scale(5), WindowScale::Scale(5), { needs_size_change = true });
-            define_radio_item!("Maximized", WindowScale::Maximized, WindowScale::Maximized, { needs_size_change = true });
-            define_radio_item!("Fullscreen", WindowScale::Fullscreen, WindowScale::Fullscreen, { needs_size_change = true });
-          });
-          if needs_size_change {
+          if define_radio_group!(&mut config.scale, {
+            define_radio_item!("1x (unsupported)", WindowScale::Scale(1), WindowScale::Scale(1));
+            define_radio_item!("2x (recommended)", WindowScale::Scale(2), WindowScale::Scale(2));
+            define_radio_item!("3x", WindowScale::Scale(3), WindowScale::Scale(3));
+            define_radio_item!("4x", WindowScale::Scale(4), WindowScale::Scale(4));
+            define_radio_item!("5x", WindowScale::Scale(5), WindowScale::Scale(5));
+            define_radio_item!("Maximized", WindowScale::Maximized, WindowScale::Maximized);
+            define_radio_item!("Fullscreen", WindowScale::Fullscreen, WindowScale::Fullscreen);
+          }) {
+            config.save_dirty().unwrap();
             match config.scale {
               WindowScale::Scale(scale) => {
                 canvas.window_mut().restore();

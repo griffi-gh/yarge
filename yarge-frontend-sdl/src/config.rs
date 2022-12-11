@@ -77,14 +77,27 @@ impl Default for Configuration {
   }
 }
 impl Configuration {
-  pub fn save(&self) -> anyhow::Result<()> {
-    println!("[INFO] Saving configuration...");
+  fn internal_save(&self) -> anyhow::Result<()> {
     DataDir::ensure_exists()?;
     let mut path = DataDir::get_path();
     path.push(CONFIG_FILE_NAME);
     fs::write(path, bincode::serialize(self)?)?;
     Ok(())
   }
+  pub fn save_dirty(&mut self) -> anyhow::Result<()> {
+    println!("[INFO] Saving configuration (dirty)...");
+    let original = self.closed_properly;
+    self.closed_properly = false;
+    self.internal_save()?;
+    self.closed_properly = original;
+    Ok(())
+  }
+  pub fn save_clean(self) -> anyhow::Result<()> {
+    println!("[INFO] Saving configuration (exit)...");
+    self.internal_save()?;
+    Ok(())
+  }
+  
   pub fn load() -> anyhow::Result<Self> {
     println!("[INFO] Loading configuration...");
     let mut path = DataDir::get_path();
