@@ -398,6 +398,9 @@ impl Menu {
             define_menu_item!("Resume", {
               self.set_activated_state(false);
             });
+            // define_menu_item!("Reset", {
+            //   gb.reset();
+            // });
           }
           define_menu_item!("Load ROM file...", {
             match config.last_path.clone() {
