@@ -19,6 +19,7 @@ mod anim;
 mod text;
 mod data_dir;
 mod config;
+mod saves;
 use audio::AudioDevice;
 use menu::Menu;
 use text::TextRenderer;
