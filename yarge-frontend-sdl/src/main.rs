@@ -53,6 +53,8 @@ fn main() {
   //Parse arguments
   let args = Args::parse();
 
+  println!("[INIT] Initializing configuration system");
+
   //Read config
   let mut config = Configuration::load_or_default();
 
@@ -63,12 +65,12 @@ fn main() {
     println!("[WARN] Improper exit detected (configuration file dirty)");
   }
   
-  println!("[INFO] Initializing emulation");
+  println!("[INIT] Initializing emulation");
 
   //Create a Gameboy struct
   let mut gb = Gameboy::new();
 
-  println!("[INFO] Loading ROM file");
+  println!("[INIT] Loading ROM file");
 
   //Load the ROM file
   if let Some(path) = args.rom_path.as_ref() {
@@ -81,7 +83,7 @@ fn main() {
     gb.skip_bootrom();
   }
 
-  println!("[INFO] Initializing SDL2");
+  println!("[INIT] Initializing SDL2");
 
   //Initialize SDL2 Context, VideoSubsystem, Window, EventPump and Canvas
   let sdl_context = sdl2::init().unwrap();
@@ -110,7 +112,7 @@ fn main() {
   };
   canvas.set_blend_mode(BlendMode::Blend);
   
-  println!("[INFO] Initializing textures");
+  println!("[INIT] Creating textures");
 
   //Get a texture creator
   let texture_creator = canvas.texture_creator();
@@ -143,13 +145,13 @@ fn main() {
     FONT_CHARS_PER_LINE
   );
 
-  println!("[INFO] Creating audio device");
+  println!("[INIT] Initializing audio");
 
   //Create the audio device and assign it
   let audio_device = AudioDevice::new(&sdl_context).unwrap();
   gb.set_audio_device(audio_device);
 
-  println!("[INFO] Creating menu");
+  println!("[INIT] Creating menu");
 
   //Create a Menu object that handles the ESC-menu
   let mut menu = Menu::new();
@@ -166,7 +168,7 @@ fn main() {
     menu.skip_activation_animation();
   }
 
-  println!("[INFO] Initialized!");
+  println!("[INIT] Initialization done");
 
   //Main loop
   'run: loop {
