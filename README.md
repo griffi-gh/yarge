@@ -18,9 +18,13 @@
     <img alt="build" src="https://shields.io/github/workflow/status/griffi-gh/yarge/Build" border="0">
   </a>
 </div>
+<!--DESCRIPTION-->
 <p>
+  <img src=".assets/product.png" align="right" width="310" height="299">
   <i>TODO:</i> Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+  <br>
 </p>
+<!--DOWNLOADS-->
 <h1>Download</h1>
 <p>
   <table>
@@ -57,6 +61,7 @@
     Want to use Yarge as a library in your Rust application?
   </a></i>
 </p>
+<!--SCREENSHOTS-->
 <h1>Screenshots</h1>
 <p>
   <table>
@@ -86,6 +91,7 @@
     </tr>
   </table>
 </p>
+<!--SUPPORT-->
 <h1>Support</h1>
 <p>
   <table>
@@ -166,6 +172,7 @@
     </tr>
   </table>
 </p>
+<!--TEST TABLE-->
 <h1>Tests</h1>
 <p><i>These tests are run automatically after each commit.</i></p>
 <p>
