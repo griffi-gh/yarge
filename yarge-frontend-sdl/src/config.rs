@@ -85,7 +85,7 @@ impl Configuration {
     Ok(())
   }
   pub fn save_dirty(&mut self) -> anyhow::Result<()> {
-    println!("[INFO] Saving configuration (dirty)...");
+    println!("[CONF/INFO] Saving configuration (dirty)...");
     let original = self.closed_properly;
     self.closed_properly = false;
     self.save()?;
@@ -93,21 +93,21 @@ impl Configuration {
     Ok(())
   }
   pub fn save_clean(mut self) -> anyhow::Result<()> {
-    println!("[INFO] Saving configuration (clean)...");
+    println!("[CONF/INFO] Saving configuration (clean)...");
     self.closed_properly = true;
     self.save()?;
     Ok(())
   }
   
   pub fn load() -> anyhow::Result<Self> {
-    println!("[INFO] Loading configuration...");
+    println!("[CONF/INFO] Loading configuration...");
     let mut path = DataDir::get_path();
     path.push(CONFIG_FILE_NAME);
     Ok(bincode::deserialize(&fs::read(path)?)?)
   }
   pub fn load_or_default() -> Self {
     Self::load().map_err(|_| {
-      println!("[WARN] Failed to load configuration");
+      println!("[CONF/WARN] Failed to load configuration");
     }).unwrap_or_default()
   }
 }

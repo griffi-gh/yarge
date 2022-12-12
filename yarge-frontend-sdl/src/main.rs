@@ -53,7 +53,7 @@ fn main() {
   //Parse arguments
   let args = Args::parse();
 
-  println!("[INIT] Initializing configuration system");
+  println!("[INIT/INFO] Initializing configuration system");
 
   //Read config
   let mut config = Configuration::load_or_default();
@@ -62,15 +62,15 @@ fn main() {
     //Mark config as dirty
     config.save_dirty().unwrap();
   } else {
-    println!("[WARN] Improper exit detected (configuration file dirty)");
+    println!("[INIT/WARN] Improper exit detected (configuration file dirty)");
   }
   
-  println!("[INIT] Initializing emulation");
+  println!("[INIT/INFO] Initializing emulation");
 
   //Create a Gameboy struct
   let mut gb = Gameboy::new();
 
-  println!("[INIT] Loading ROM file");
+  println!("[INIT/INFO] Loading ROM file");
 
   //Load the ROM file
   if let Some(path) = args.rom_path.as_ref() {
@@ -83,7 +83,7 @@ fn main() {
     gb.skip_bootrom();
   }
 
-  println!("[INIT] Initializing SDL2");
+  println!("[INIT/INFO] Initializing SDL2");
 
   //Initialize SDL2 Context, VideoSubsystem, Window, EventPump and Canvas
   let sdl_context = sdl2::init().unwrap();
@@ -112,7 +112,7 @@ fn main() {
   };
   canvas.set_blend_mode(BlendMode::Blend);
   
-  println!("[INIT] Creating textures");
+  println!("[INIT/INFO] Creating textures");
 
   //Get a texture creator
   let texture_creator = canvas.texture_creator();
@@ -145,13 +145,13 @@ fn main() {
     FONT_CHARS_PER_LINE
   );
 
-  println!("[INIT] Initializing audio");
+  println!("[INIT/INFO] Initializing audio");
 
   //Create the audio device and assign it
   let audio_device = AudioDevice::new(&sdl_context).unwrap();
   gb.set_audio_device(audio_device);
 
-  println!("[INIT] Creating menu");
+  println!("[INIT/INFO] Creating menu");
 
   //Create a Menu object that handles the ESC-menu
   let mut menu = Menu::new();
@@ -168,7 +168,7 @@ fn main() {
     menu.skip_activation_animation();
   }
 
-  println!("[INIT] Initialization done");
+  println!("[INIT/INFO] Initialization done");
 
   //Main loop
   'run: loop {
@@ -224,11 +224,12 @@ fn main() {
     canvas.present();
   }
 
-  println!("[INFO] Starting clean exit procedure...");
+  println!("[EXIT/INFO] Starting clean exit procedure...");
 
   //Save options
   config.save_clean().unwrap();
 
-  println!("[INFO] Clean exit done");
+  println!("[EXIT/INFO] Clean exit done");
+
   println!("Goodbye")
 }
