@@ -66,30 +66,30 @@ impl Mmu {
       0xFE00..=0xFE9F => self.ppu.read_oam(addr, blocking),
       //IO REGISTERS
       0xFF00..=0xFF7F => match addr {
-          0xFF00 => self.input.get_joyp(),
-          0xFF04 => self.timers.get_div(),
-          0xFF05 => self.timers.get_tima(),
-          0xFF06 => self.timers.tma,
-          0xFF07 => self.timers.get_tac(),
-          0xFF0F => self.iif,
-          0xFF10..=0xFF26 => self.tmp_apu_reg[addr as usize - 0xFF10],
-          0xFF40 => self.ppu.get_lcdc(), //LCDC
-          0xFF41 => self.ppu.get_stat(), //STAT
-          0xFF42 => self.ppu.scy,
-          0xFF43 => self.ppu.scx,
-          0xFF44 => { //LY
-            #[cfg(feature = "dbg-ly-stub")] { 0x90 }
-            #[cfg(not(feature = "dbg-ly-stub"))] { self.ppu.mmio_ly }
-          },
-          0xFF45 => self.ppu.lyc,
-          0xFF46 => self.oam_value,
-          0xFF47 => self.ppu.bgp,
-          0xFF48 => self.ppu.obp.0,
-          0xFF49 => self.ppu.obp.1,
-          0xFF4A => self.ppu.wy,
-          0xFF4B => self.ppu.wx,
-          0xFF50 => 0xFE | (self.bios_disabled as u8),
-          _ => 0xFF
+        0xFF00 => self.input.get_joyp(),
+        0xFF04 => self.timers.get_div(),
+        0xFF05 => self.timers.get_tima(),
+        0xFF06 => self.timers.tma,
+        0xFF07 => self.timers.get_tac(),
+        0xFF0F => self.iif,
+        0xFF10..=0xFF26 => self.tmp_apu_reg[addr as usize - 0xFF10],
+        0xFF40 => self.ppu.get_lcdc(), //LCDC
+        0xFF41 => self.ppu.get_stat(), //STAT
+        0xFF42 => self.ppu.scy,
+        0xFF43 => self.ppu.scx,
+        0xFF44 => { //LY
+          #[cfg(feature = "dbg-ly-stub")] { 0x90 }
+          #[cfg(not(feature = "dbg-ly-stub"))] { self.ppu.mmio_ly }
+        },
+        0xFF45 => self.ppu.lyc,
+        0xFF46 => self.oam_value,
+        0xFF47 => self.ppu.bgp,
+        0xFF48 => self.ppu.obp.0,
+        0xFF49 => self.ppu.obp.1,
+        0xFF4A => self.ppu.wy,
+        0xFF4B => self.ppu.wx,
+        0xFF50 => 0xFE | (self.bios_disabled as u8),
+        _ => 0xFF
       },
       //HRAM
       0xFF80..=0xFFFE => {
