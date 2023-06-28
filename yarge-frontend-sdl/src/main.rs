@@ -6,7 +6,7 @@ use yarge_core::{
   consts::{WIDTH as GB_WIDTH, HEIGHT as GB_HEIGHT}
 };
 use sdl2::{
-  pixels::PixelFormatEnum,
+  pixels::{PixelFormatEnum, Color},
   event::Event,
   keyboard::Scancode,
   render::BlendMode,
@@ -226,6 +226,15 @@ fn main() {
 
       //Copy texture to the entire canvas
       canvas.copy(&gb_texture, None, None).unwrap();
+
+      //Allow skipping bootrom
+      if !gb.get_bios_disabled() {
+        text_renderer.set_color(Color::BLACK);
+        text_renderer.render(&mut canvas, (0, 0), 1., "Press space to skip");
+        if kb_state.is_scancode_pressed(Scancode::Space) {
+          gb.skip_bootrom();
+        }
+      }
     }
     //Draw canvas
     canvas.present();
