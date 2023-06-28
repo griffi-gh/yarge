@@ -15,7 +15,7 @@
     <img alt="unsafe forbidden" src="https://img.shields.io/badge/unsafe-forbidden-success.svg" border="0">
   </a>
   <a href="https://github.com/griffi-gh/yarge/actions">
-    <img alt="build" src="https://shields.io/github/workflow/status/griffi-gh/yarge/Build" border="0">
+    <img alt="build" src="https://shields.io/github/workflow/status/griffi-gh/yarge/build.yml?branch=master" border="0">
   </a>
 </div>
 <!--IMAGE-->
