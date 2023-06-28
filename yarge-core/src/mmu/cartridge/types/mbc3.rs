@@ -85,6 +85,7 @@ impl CartridgeImpl for CartridgeMbc3 {
     self.eram.as_mut().unwrap()[eram_addr(addr, self.ram_bank)] = value;
   }
 
+  fn has_save_data(&self) -> bool { true }
   fn save_data(&self) -> Option<Vec<u8>> {
     (self.config.battery && self.config.ram).then(|| {
       self.eram.as_ref().unwrap().clone()

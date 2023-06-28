@@ -21,7 +21,7 @@ use yarge_core::{
 use crate::{
   anim::Animatable,
   text::TextRenderer,
-  config::{Configuration, Palette, WindowScale}, FAT_TEXTURE
+  config::{Configuration, Palette, WindowScale}, FAT_TEXTURE, saves::SaveManager
 };
 
 const CRATE_VERSION: &str = env!("CARGO_PKG_VERSION");
@@ -70,6 +70,8 @@ enum MenuLocation {
   PalettePicker,
   ScalePicker,
   SpeedPicker,
+  SaveSlotPicker,
+  SaveSlotConfirm(u8),
   AskForRestart,
   FileExplorer {
     path: PathBuf,
@@ -85,6 +87,8 @@ impl MenuLocation {
       Self::PalettePicker => "Color palette",
       Self::ScalePicker => "Display scale",
       Self::SpeedPicker => "Speed",
+      Self::SaveSlotPicker => "Save slot",
+      Self::SaveSlotConfirm(_) => "Confirm restart",
       Self::AskForRestart => "Restart",
       Self::FileExplorer { .. } => "File explorer",
       Self::ClosedImproperly => "Warning",
@@ -100,6 +104,7 @@ pub struct Menu {
   scroll: i32,
   clicked: bool,
   has_game: bool,
+  schedule_save: bool,
 }
 impl Menu {
   pub fn new() -> Self {
@@ -111,6 +116,7 @@ impl Menu {
       scroll: 0,
       clicked: false,
       has_game: false,
+      schedule_save: false,
     }
   }
   pub fn is_active(&self) -> bool {
@@ -120,6 +126,9 @@ impl Menu {
     self.is_active() || self.activation_anim_state.is_animating()
   }
   pub fn set_activated_state(&mut self, active: bool) {
+    if self.active != active {
+      self.on_activation_change(active);
+    }
     if (!self.is_visible()) && (!self.active) && active {
       //reset menu
       self.menu_prepare_for_navigation();
@@ -127,6 +136,12 @@ impl Menu {
     }
     self.activation_anim_state.target = (active as u32) as f32;
     self.active = active;
+  }
+  fn on_activation_change(&mut self, state: bool) {
+    if state {
+      //Save every time menu is opened
+      self.schedule_save = true;
+    }
   }
   pub fn closed_improperly(&mut self) {
     self.set_activated_state(true);
@@ -193,11 +208,11 @@ impl Menu {
     self.file_explorer_goto(dirs::home_dir().unwrap());
   }
 
-  fn file_explorer_open(&mut self, path: PathBuf, gb: &mut Gameboy) -> bool {
+  fn file_explorer_open(&mut self, path: PathBuf, gb: &mut Gameboy, config: &Configuration) -> bool {
     let metadata = fs::metadata(&path).unwrap();
     if metadata.is_file() {
       println!("[INFO] open file {}", path.to_str().unwrap());
-      self.load_file(path, gb);
+      self.load_file(path, gb, config);
       self.set_activated_state(false);
       false
     } else {
@@ -206,10 +221,12 @@ impl Menu {
     }
   }
 
-  fn load_file(&mut self, path: PathBuf, gb: &mut Gameboy) {
+  fn load_file(&mut self, path: PathBuf, gb: &mut Gameboy, config: &Configuration) {
     let data = fs::read(path).unwrap();
     gb.reset();
     gb.load_rom(&data[..]).unwrap();
+    SaveManager::load_idk(gb, config.save_slot);
+    SaveManager::save(gb, config.save_slot).unwrap(); //Create save file
   }
 
   pub fn reset_game(
@@ -225,6 +242,19 @@ impl Menu {
     self.cursor = 0;
   }
 
+  pub fn reboot_game(
+    &mut self,
+    config: &Configuration,
+    gb: &mut Gameboy,
+  ) {
+    if let Some(path) = &config.last_rom {
+      self.load_file(path.into(), gb, config);
+    } else {
+      gb.reset();
+      self.has_game = false;
+    }
+  }
+
   pub fn update(
     &mut self,
     canvas: &mut Canvas<Window>,
@@ -234,6 +264,12 @@ impl Menu {
     config: &mut Configuration,
     do_exit: &mut bool,
   ) {
+    //If save is scheduled, do it now
+    if self.schedule_save {
+      SaveManager::save(gb, config.save_slot).unwrap();
+      self.schedule_save = false;
+    }
+
     //Get canvas resoultion
     let res = canvas.output_size().unwrap(); //HACK: should use logical size, but it returns 0,0
 
@@ -421,14 +457,18 @@ impl Menu {
             define_menu_item!("Resume", {
               self.set_activated_state(false);
             });
-            define_menu_item!("Reset", {
+            define_menu_item!("Stop", {
               self.reset_game(gb_texture, gb);
+            });
+            define_menu_item!("Reset", {
+              self.reboot_game(config, gb);
+              self.set_activated_state(false);
             });
           } else if let Some(resume_path) = &config.last_rom {
             let resume_file_name = resume_path.file_name().map(|x| x.to_str().unwrap_or("")).unwrap_or("");
             define_menu_item!(&format!("Resume {}", resume_file_name), {
               println!("[INFO] resume to path: {}", resume_path.to_str().unwrap());
-              self.load_file(resume_path.clone(), gb);
+              self.load_file(resume_path.clone(), gb, config);
               self.set_activated_state(false);
             });
           }
@@ -445,6 +485,7 @@ impl Menu {
           define_menu_item!("Color palette...", MenuLocation::PalettePicker);
           define_menu_item!("Display scale...", MenuLocation::ScalePicker);
           define_menu_item!("Speed...", MenuLocation::SpeedPicker);
+          define_menu_item!("Save slot...", MenuLocation::SaveSlotPicker);
         },
         MenuLocation::PalettePicker => {
           if define_radio_group!(&mut config.palette, {
@@ -497,6 +538,29 @@ impl Menu {
             config.save_dirty().unwrap();
           }
         }
+        MenuLocation::SaveSlotPicker => {
+          let mut save_slot = config.save_slot;
+          if define_radio_group!(&mut save_slot, {
+            define_radio_item!("Slot 1", 0, 0);
+            define_radio_item!("Slot 2", 1, 1);
+            define_radio_item!("Slot 3", 2, 2);
+            define_radio_item!("Slot 4", 3, 3);
+            define_radio_item!("Slot 5", 4, 4);
+          }) && (save_slot != config.save_slot){
+            self.menu_goto(MenuLocation::SaveSlotConfirm(save_slot));
+            self.cursor = 1;
+          }
+        }
+        MenuLocation::SaveSlotConfirm(save_slot) => {
+          define_menu_item!("Restart the game now?", {
+            SaveManager::save(gb, config.save_slot).unwrap();
+            config.save_slot = save_slot;
+            config.save_dirty().unwrap();
+            self.reboot_game(config, gb); //calls load internally
+            SaveManager::save(gb, config.save_slot).unwrap();
+            self.set_activated_state(false);
+          });
+        }
         MenuLocation::AskForRestart => {
           define_menu_item!("Restart now to apply changes", { *do_exit = true });
         }
@@ -517,7 +581,7 @@ impl Menu {
           if !items.is_empty() {
             for item in items {
               define_menu_item!(item.file_name().unwrap().to_str().unwrap(), {
-                if self.file_explorer_open(item.clone(), gb) {
+                if self.file_explorer_open(item.clone(), gb, config) {
                   config.last_path = Some(item.clone());
                 } else {
                   config.last_rom = Some(item.clone());

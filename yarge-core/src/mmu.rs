@@ -5,7 +5,7 @@ use cartridge::{CartridgeImpl as _, RomHeader, Cartridge, MockCartridge};
 
 pub struct Mmu {
   pub bios_disabled: bool,
-  cart: Cartridge,
+  pub cart: Cartridge,
   cart_header: RomHeader,
   wram: Box<[u8; 0x2000]>,
   hram: [u8; 0x007F],

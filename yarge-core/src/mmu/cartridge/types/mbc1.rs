@@ -100,6 +100,7 @@ impl CartridgeImpl for CartridgeMbc1 {
     self.eram.as_mut().unwrap()[eram_addr(addr, bank)] = value;
   }
 
+  fn has_save_data(&self) -> bool { true }
   fn save_data(&self) -> Option<Vec<u8>> {
     match self.mbc1_type {
       Type::RamBattery => Some(self.eram.as_ref().unwrap().clone()),

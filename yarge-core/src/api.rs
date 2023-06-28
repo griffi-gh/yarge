@@ -4,7 +4,7 @@ use crate::{
   Gameboy, Res,
   apu::AudioDevice,
   cpu::CpuState,
-  mmu::cartridge::RomHeader,
+  mmu::cartridge::{RomHeader, CartridgeImpl},
   consts::FB_SIZE
 };
 
@@ -187,5 +187,17 @@ impl Gameboy {
 
   #[inline] pub fn set_audio_device(&mut self, device: impl AudioDevice + 'static) {
     self.cpu.mmu.apu.device = Some(Box::new(device));
+  }
+
+  #[inline] pub fn has_save_data(&self) -> bool {
+    self.cpu.mmu.cart.has_save_data()
+  }
+
+  #[inline] pub fn set_save_data(&mut self, data: Vec<u8>) {
+    self.cpu.mmu.cart.load_data(data);
+  }
+
+  #[inline] pub fn get_save_data(&self) -> Option<Vec<u8>> {
+    self.cpu.mmu.cart.save_data()
   }
 }

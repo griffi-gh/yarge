@@ -20,10 +20,12 @@ mod text;
 mod data_dir;
 mod config;
 mod saves;
+
 use audio::AudioDevice;
 use menu::Menu;
 use text::TextRenderer;
 use config::{Configuration, WindowScale};
+use saves::SaveManager;
 
 const FAT_TEXTURE: &[u8] = include_bytes!("../yoshi.rgb");
 const FONT_TEXTURE: &[u8] = include_bytes!("../font.rgba");
@@ -78,6 +80,10 @@ fn main() {
     gb.load_rom(&rom).expect("Invalid ROM file");
     config.last_rom = Some(path.into());
   }
+
+  //Try to load the save file
+  SaveManager::load_idk(&mut gb, config.save_slot);
+  SaveManager::save(&gb, config.save_slot).unwrap(); // Call save to create the save file
 
   //Skip bootrom
   if args.skip_bootrom {
@@ -226,6 +232,9 @@ fn main() {
   }
 
   println!("[EXIT/INFO] Starting clean exit procedure...");
+
+  //Save eram
+  SaveManager::save(&gb, config.save_slot).unwrap();
 
   //Save options
   config.save_clean().unwrap();

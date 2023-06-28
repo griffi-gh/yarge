@@ -64,6 +64,7 @@ pub struct Configuration {
   pub last_path: Option<PathBuf>,
   pub closed_properly: bool,
   pub speed: u8,
+  pub save_slot: u8,
 }
 impl Default for Configuration {
   fn default() -> Self {
@@ -75,6 +76,7 @@ impl Default for Configuration {
       last_path: Default::default(),
       closed_properly: true,
       speed: 1,
+      save_slot: 0,
     }
   }
 }
