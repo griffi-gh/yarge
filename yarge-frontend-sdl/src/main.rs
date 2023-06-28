@@ -232,6 +232,7 @@ fn main() {
         text_renderer.set_color(Color::BLACK);
         text_renderer.render(&mut canvas, (0, 0), 1., "Press space to skip");
         if kb_state.is_scancode_pressed(Scancode::Space) {
+          println!("[INFO] Skipping bootrom");
           gb.skip_bootrom();
         }
       }
