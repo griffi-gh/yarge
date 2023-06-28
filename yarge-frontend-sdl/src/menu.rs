@@ -546,9 +546,14 @@ impl Menu {
             define_radio_item!("Slot 3", 2, 2);
             define_radio_item!("Slot 4", 3, 3);
             define_radio_item!("Slot 5", 4, 4);
-          }) && (save_slot != config.save_slot){
-            self.menu_goto(MenuLocation::SaveSlotConfirm(save_slot));
-            self.cursor = 1;
+          }) && (save_slot != config.save_slot) {
+            if self.has_game {
+              self.menu_goto(MenuLocation::SaveSlotConfirm(save_slot));
+              self.cursor = 1;
+            } else {
+              config.save_slot = save_slot;
+              config.save_dirty().unwrap();
+            }
           }
         }
         MenuLocation::SaveSlotConfirm(save_slot) => {
