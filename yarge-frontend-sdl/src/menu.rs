@@ -21,7 +21,7 @@ use yarge_core::{
 use crate::{
   anim::Animatable,
   text::TextRenderer,
-  config::{Configuration, Palette, WindowScale}
+  config::{Configuration, Palette, WindowScale}, FAT_TEXTURE
 };
 
 const CRATE_VERSION: &str = env!("CARGO_PKG_VERSION");
@@ -69,6 +69,7 @@ enum MenuLocation {
   Options,
   PalettePicker,
   ScalePicker,
+  SpeedPicker,
   AskForRestart,
   FileExplorer {
     path: PathBuf,
@@ -83,6 +84,7 @@ impl MenuLocation {
       Self::Options => "Options",
       Self::PalettePicker => "Color palette",
       Self::ScalePicker => "Display scale",
+      Self::SpeedPicker => "Speed",
       Self::AskForRestart => "Restart",
       Self::FileExplorer { .. } => "File explorer",
       Self::ClosedImproperly => "Warning",
@@ -210,11 +212,24 @@ impl Menu {
     gb.load_rom(&data[..]).unwrap();
   }
 
+  pub fn reset_game(
+    &mut self,
+    gb_texture: &mut Texture,
+    gb: &mut Gameboy
+  ) {
+    self.set_activated_state(true);
+    //self.skip_activation_animation();
+    gb.reset();
+    gb_texture.update(None, FAT_TEXTURE, 3 * GB_WIDTH).unwrap();
+    self.has_game = false;
+    self.cursor = 0;
+  }
+
   pub fn update(
     &mut self,
     canvas: &mut Canvas<Window>,
     gb: &mut Gameboy,
-    gb_texture: &Texture,
+    gb_texture: &mut Texture,
     text: &mut TextRenderer,
     config: &mut Configuration,
     do_exit: &mut bool,
@@ -262,8 +277,8 @@ impl Menu {
       //Game title text
       text.set_color(Color::RGBA(0, 0, 0, opa));
       text.render(
-        canvas, 
-        (x_pos + x_anim_offset as i32, y_pos), 
+        canvas,
+        (x_pos + x_anim_offset as i32, y_pos),
         computed_scale,
         display_name
       );
@@ -271,11 +286,11 @@ impl Menu {
       //"Paused" text
       text.set_color(Color::RGBA(64, 64, 64, opa));
       text.render(
-        canvas, 
+        canvas,
         (
           x_pos + (2. * x_anim_offset) as i32,
           y_pos + text.char_size(2.).1 as i32
-        ), 
+        ),
         1.0,
         if self.has_game {
           "Paused"
@@ -307,11 +322,11 @@ impl Menu {
         Cow::from(path)
       };
       text.render(
-        canvas, 
+        canvas,
         (
           x_pos + (2. * x_anim_offset) as i32,
           MINI_DISPLAY_POS.1 + MINI_DISPLAY_SIZE.1 as i32 - (text.char_size(1.).1 as i32) - TOP_DETAILS_PADDING.1 as i32
-        ), 
+        ),
         1.,
         path.as_ref()
       );
@@ -325,7 +340,7 @@ impl Menu {
       } else {
         //has activation animation for 1x
         MENU_MARGIN + res.1 as i32 - (res.1 as f32 * self.activation_anim_state.value) as i32
-      }; 
+      };
       let list_start_y = list_start_y_noscroll - self.scroll;
       //Macros to display menu items conviniently
       //THIS IS A HUGE HACK AND I WENT ***TOO*** FAR WITH THESE MACROS!!!
@@ -406,9 +421,16 @@ impl Menu {
             define_menu_item!("Resume", {
               self.set_activated_state(false);
             });
-            // define_menu_item!("Reset", {
-            //   gb.reset();
-            // });
+            define_menu_item!("Reset", {
+              self.reset_game(gb_texture, gb);
+            });
+          } else if let Some(resume_path) = &config.last_rom {
+            let resume_file_name = resume_path.file_name().map(|x| x.to_str().unwrap_or("")).unwrap_or("");
+            define_menu_item!(&format!("Resume {}", resume_file_name), {
+              println!("[INFO] resume to path: {}", resume_path.to_str().unwrap());
+              self.load_file(resume_path.clone(), gb);
+              self.set_activated_state(false);
+            });
           }
           define_menu_item!("Load ROM file...", {
             match config.last_path.clone() {
@@ -422,6 +444,7 @@ impl Menu {
         MenuLocation::Options => {
           define_menu_item!("Color palette...", MenuLocation::PalettePicker);
           define_menu_item!("Display scale...", MenuLocation::ScalePicker);
+          define_menu_item!("Speed...", MenuLocation::SpeedPicker);
         },
         MenuLocation::PalettePicker => {
           if define_radio_group!(&mut config.palette, {
@@ -429,7 +452,7 @@ impl Menu {
             define_radio_item!(Palette::Green.get_name(), Palette::Green, Palette::Green);
           }) {
             config.save_dirty().unwrap();
-          };
+          }
         }
         MenuLocation::ScalePicker => {
           if define_radio_group!(&mut config.scale, {
@@ -458,6 +481,22 @@ impl Menu {
             }
           }
         }
+        MenuLocation::SpeedPicker => {
+          if define_radio_group!(&mut config.speed, {
+            define_radio_item!("1x", 1, 1);
+            define_radio_item!("2x", 2, 2);
+            define_radio_item!("3x", 3, 3);
+            define_radio_item!("4x", 4, 4);
+            define_radio_item!("5x", 5, 5);
+            define_radio_item!("6x", 6, 6);
+            define_radio_item!("7x", 7, 7);
+            define_radio_item!("8x", 8, 8);
+            define_radio_item!("9x", 9, 9);
+            define_radio_item!("10x", 10, 10);
+          }) {
+            config.save_dirty().unwrap();
+          }
+        }
         MenuLocation::AskForRestart => {
           define_menu_item!("Restart now to apply changes", { *do_exit = true });
         }
@@ -465,20 +504,25 @@ impl Menu {
           define_menu_item!("Home", {
             self.file_explorer_goto_home();
             config.last_path = None;
+            config.save_dirty().unwrap();
           });
           add_spacing!(3);
           if let Some(parent) = path.parent() {
             define_menu_item!("..", {
               self.file_explorer_goto(parent.to_owned());
               config.last_path = Some(parent.to_owned());
+              config.save_dirty().unwrap();
             });
           }
           if !items.is_empty() {
             for item in items {
               define_menu_item!(item.file_name().unwrap().to_str().unwrap(), {
                 if self.file_explorer_open(item.clone(), gb) {
-                  config.last_path = Some(item);
+                  config.last_path = Some(item.clone());
+                } else {
+                  config.last_rom = Some(item.clone());
                 }
+                config.save_dirty().unwrap();
               });
             }
           } else {
@@ -503,7 +547,6 @@ impl Menu {
             define_menu_item!("Some data may");
             define_menu_item!("be lost");
           }
-          
         }
       }
 

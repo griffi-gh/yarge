@@ -63,6 +63,7 @@ pub struct Configuration {
   pub last_rom: Option<PathBuf>,
   pub last_path: Option<PathBuf>,
   pub closed_properly: bool,
+  pub speed: u8,
 }
 impl Default for Configuration {
   fn default() -> Self {
@@ -72,7 +73,8 @@ impl Default for Configuration {
       scale: Default::default(),
       last_rom: Default::default(),
       last_path: Default::default(),
-      closed_properly: true
+      closed_properly: true,
+      speed: 1,
     }
   }
 }
@@ -98,7 +100,7 @@ impl Configuration {
     self.save()?;
     Ok(())
   }
-  
+
   pub fn load() -> anyhow::Result<Self> {
     println!("[CONF/INFO] Loading configuration...");
     let mut path = DataDir::get_path();

@@ -6,8 +6,8 @@ use yarge_core::{
   consts::{WIDTH as GB_WIDTH, HEIGHT as GB_HEIGHT}
 };
 use sdl2::{
-  pixels::PixelFormatEnum, 
-  event::Event, 
+  pixels::PixelFormatEnum,
+  event::Event,
   keyboard::Scancode,
   render::BlendMode,
 };
@@ -47,7 +47,6 @@ const GB_KEYBIND: &[(Scancode, GbKey)] = &[
 struct Args {
   rom_path: Option<String>,
   #[arg(long)] skip_bootrom: bool,
-  #[arg(long, default_value_t = 1)] speed: usize,
 }
 
 fn main() {
@@ -65,7 +64,7 @@ fn main() {
   } else {
     println!("[INIT/WARN] Improper exit detected (configuration file dirty)");
   }
-  
+
   println!("[INIT/INFO] Initializing emulation");
 
   //Create a Gameboy struct
@@ -77,6 +76,7 @@ fn main() {
   if let Some(path) = args.rom_path.as_ref() {
     let rom = std::fs::read(path).expect("Failed to load the ROM file");
     gb.load_rom(&rom).expect("Invalid ROM file");
+    config.last_rom = Some(path.into());
   }
 
   //Skip bootrom
@@ -91,14 +91,14 @@ fn main() {
   let video_subsystem = sdl_context.video().unwrap();
   let window = {
     let mut builder = video_subsystem.window(
-      "YargeSDL", 
+      "YargeSDL",
       GB_WIDTH as u32 * config.scale.scale_or_default(),
       GB_HEIGHT as u32 * config.scale.scale_or_default()
     );
     builder.position_centered();
     match config.scale {
       WindowScale::Fullscreen => { builder.fullscreen_desktop(); },
-      WindowScale::Maximized  => { builder.maximized(); }, 
+      WindowScale::Maximized  => { builder.maximized(); },
       _ => ()
     };
     //builder.resizable();
@@ -112,7 +112,7 @@ fn main() {
     builder.build().unwrap()
   };
   canvas.set_blend_mode(BlendMode::Blend);
-  
+
   println!("[INIT/INFO] Creating textures");
 
   //Get a texture creator
@@ -121,7 +121,7 @@ fn main() {
   //Create a texture for the screen
   let mut gb_texture = texture_creator.create_texture_streaming(
     PixelFormatEnum::RGB24,
-    GB_WIDTH as u32, 
+    GB_WIDTH as u32,
     GB_HEIGHT as u32
   ).unwrap();
   gb_texture.update(None, FAT_TEXTURE, 3 * GB_WIDTH).unwrap();
@@ -133,15 +133,15 @@ fn main() {
     FONT_TEXTURE_SIZE.1,
   ).unwrap();
   font_texture.update(
-    None, 
-    FONT_TEXTURE, 
+    None,
+    FONT_TEXTURE,
     4 * FONT_TEXTURE_SIZE.0 as usize
   ).unwrap();
   font_texture.set_blend_mode(BlendMode::Blend);
 
   //Create text renderer
   let mut text_renderer = TextRenderer::new(
-    font_texture, 
+    font_texture,
     FONT_CHAR_SIZE,
     FONT_CHARS_PER_LINE
   );
@@ -157,7 +157,7 @@ fn main() {
   //Create a Menu object that handles the ESC-menu
   let mut menu = Menu::new();
 
-  //Check close status 
+  //Check close status
   if !config.closed_properly {
     menu.closed_improperly();
     menu.skip_activation_animation();
@@ -186,7 +186,7 @@ fn main() {
       menu.update(
         &mut canvas,
         &mut gb,
-        &gb_texture,
+        &mut gb_texture,
         &mut text_renderer,
         &mut config,
         &mut exit_signal
@@ -202,7 +202,7 @@ fn main() {
       }
 
       //Run emulation for one frame
-      for _ in 0..args.speed {
+      for _ in 0..config.speed {
         gb.run_for_frame().unwrap();
       }
 
