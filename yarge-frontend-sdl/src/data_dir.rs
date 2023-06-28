@@ -1,5 +1,4 @@
 use std::{path::PathBuf, fs};
-use anyhow::Result;
 
 #[cfg(feature = "global_config")]
 const YARGE_DIR_NAME: &str = "yarge-sdl";
@@ -23,7 +22,7 @@ impl DataDir {
 
   pub fn ensure_exists() -> anyhow::Result<()> {
     let path = Self::get_path();
-    fs::create_dir_all(&path)?;
+    fs::create_dir_all(path)?;
     Ok(())
 
     // #[cfg(feature = "global_config")] {

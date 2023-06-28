@@ -321,7 +321,7 @@ impl Gui for GuiState {
                     sname
                     //MBC_TYPE_NAMES.get(&self.load_force_mbc_type).unwrap()
                   } else {
-                    &"Disabled"
+                    "Disabled"
                   }
                 ), 
                 |ui| {

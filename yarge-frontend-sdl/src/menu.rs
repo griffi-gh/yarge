@@ -1,18 +1,18 @@
 use sdl2::{
   event::Event,
-  keyboard::Keycode, 
-  render::{Canvas, Texture}, 
-  video::{Window, FullscreenType}, 
-  rect::Rect, 
-  pixels::Color, 
+  keyboard::Keycode,
+  render::{Canvas, Texture},
+  video::{Window, FullscreenType},
+  rect::Rect,
+  pixels::Color,
 };
 use std::{
-  borrow::Cow, 
-  path::{PathBuf, Path}, 
-  fs::{self, DirEntry}
+  borrow::Cow,
+  path::PathBuf,
+  fs
 };
 use yarge_core::{
-  Gameboy, 
+  Gameboy,
   consts::{
     WIDTH as GB_WIDTH,
     HEIGHT as GB_HEIGHT
@@ -381,7 +381,7 @@ impl Menu {
             $rg_block
             x_selection_did_change
           }
-        };};
+        }};
         ($rg_value_mut_ref: expr, $rg_block: block) => {{
           define_radio_group!($rg_value_mut_ref, $rg_block, {})
         }}

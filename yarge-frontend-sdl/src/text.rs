@@ -33,8 +33,8 @@ impl<'a> TextRenderer<'a> {
         &self.texture, 
         Rect::from(self.find_position(*char)), 
         Rect::from((
-          (position.0 as f32 + (i as f32 * self.char_size.0 as f32 * size)) as i32, 
-          position.1 as i32, 
+          (position.0 as f32 + (i as f32 * self.char_size.0 as f32 * size)) as i32,
+          position.1,
           (self.char_size.0 as f32 * size) as u32, 
           (self.char_size.1 as f32 * size) as u32
         ))
