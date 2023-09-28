@@ -26,11 +26,14 @@ jobs:
     - uses: actions/checkout@v3
 
     # Install required packages
-
-    - name: Install required packages (Linux only)
-      run: sudo sh setup.sh
-      if: runner.os == 'Linux'
     
+    - name: Install required packages (Linux only)
+      uses: awalsh128/cache-apt-pkgs-action@latest
+      if: runner.os == 'Linux'
+      with:
+        packages: libsdl2-dev libgtk-3-dev libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev libspeechd-dev libxkbcommon-dev libssl-dev libatk1.0-dev gir1.2-gtk-3.0 libasound2-dev
+        version: 1.0
+
     - name: Setup Rust toolchain
       uses: actions-rs/toolchain@v1
       with:
@@ -39,7 +42,13 @@ jobs:
         default: true
         override: true
     
-    - uses: Swatinem/rust-cache@v1
+    # cache rust
+    - uses: Swatinem/rust-cache@v2
+    
+    # install cargo packages...
+    - name: Install cargo-deb
+      if: runner.os == 'Linux'
+      run: cargo install cargo-deb
 
     # Build yarge-frontend-desktop
 
@@ -50,7 +59,7 @@ jobs:
 
     - name: Create a binary .deb package for yarge-frontend-desktop (Linux only)
       if: runner.os == 'Linux'
-      run: cargo install cargo-deb; cargo deb -p yarge-frontend-desktop --strip --no-build --profile production --output "./yarge-frontend-desktop.deb"
+      run: cargo deb -p yarge-frontend-desktop --strip --no-build --profile production --output "./yarge-frontend-desktop.deb"
 
     # Upload build artifacts
 
@@ -86,6 +95,10 @@ jobs:
     - name: Build yarge-frontend-sdl
       run: cargo build -p yarge-frontend-sdl --profile production --features production
 
+    - name: Create a binary .deb package for yarge-frontend-sdl (Linux only)
+      if: runner.os == 'Linux'
+      run: cargo deb -p yarge-frontend-sdl --strip --no-build --profile production --output "./yarge-frontend-sdl.deb"
+
     - name: Upload sdl Windows build artifact
       uses: actions/upload-artifact@v3
       if: runner.os == 'Windows'
@@ -99,3 +112,10 @@ jobs:
       with:
         name: sdl-release-lin64
         path: ./target/production/yarge-frontend-sdl
+    
+    - name: Upload sdl Debian package
+      uses: actions/upload-artifact@v3
+      if: runner.os == 'Linux'
+      with:
+        name: sdl-release-lin64-deb
+        path: ./yarge-frontend-sdl.deb

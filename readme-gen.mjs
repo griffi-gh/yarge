@@ -31,8 +31,8 @@ const capitalize = str => str.charAt(0).toUpperCase() + str.slice(1);
               .sort((a,b) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0))
               .map(row => `
                 <tr>
-                  <td><b>${ capitalize(row.name.split('::')[1].replace(/_/g, ' ')) }</b></td>
-                  <td><code>${ row.name.split('::').slice(2).join('/') }</code></td>
+                  <td><b>${ capitalize(row.name.split('::')[0].replace(/_/g, ' ')) }</b></td>
+                  <td><code>${ row.name.split('::').slice(1).join('/') }</code></td>
                   <td align="center">${(row.event === 'ok') ? '✔️' : '❌'}</td>
                 </tr>
               `).join('')
