@@ -12,7 +12,7 @@ pub enum FetcherLayer {
 }
 
 pub struct BackgroundFetcher {
-  fifo: ArrayDeque<[FifoPixel; 8]>,
+  fifo: ArrayDeque<FifoPixel, 8>,
   state: FetcherState,
   cycle: bool,
   scx: u8, 

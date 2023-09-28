@@ -9,7 +9,7 @@ use crate::ppu::{
 };
 
 pub struct SpriteFetcher {
-  fifo: ArrayDeque<[FifoPixel; 8]>,
+  fifo: ArrayDeque<FifoPixel, 8>,
   pub state: FetcherState,
   cycle: bool,
   object: OamObject,
