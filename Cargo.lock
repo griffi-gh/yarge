@@ -3263,7 +3263,6 @@ dependencies = [
  "bit_reverse",
  "enum_dispatch",
  "enumflags2",
- "fxhash",
  "parse-display",
  "paste",
  "seq-macro",
@@ -3312,3 +3311,7 @@ dependencies = [
 [[package]]
 name = "yarge-testbench"
 version = "0.1.0"
+dependencies = [
+ "fxhash",
+ "yarge-core",
+]

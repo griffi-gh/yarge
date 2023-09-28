@@ -4,3 +4,5 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+yarge-core = { path = "../yarge-core", features = ["dbg-breakpoints", "dbg-breakpoint-on-ld-b-b"] }
+fxhash = "0.2"

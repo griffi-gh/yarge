@@ -20,9 +20,6 @@ seq-macro = "0.3"
 bit_reverse = "0.1"
 # TODO enumflags2 is only used in input.rs, consider removing it
 
-[dev-dependencies]
-fxhash = "0.2"
-
 [features]
 default = []
 dbg-ly-stub = []

@@ -35,7 +35,7 @@ jobs:
         node-version: 16.x
 
     - name: Run tests
-      run: cargo test --package yarge-core --features dbg-breakpoint-on-ld-b-b,dbg-breakpoints --no-fail-fast --quiet --lib -- -Z unstable-options --format json > _test_result.json
+      run: cargo test --package yarge-testbench --no-fail-fast --quiet --lib -- -Z unstable-options --format json > _test_result.json
       continue-on-error: true
       timeout-minutes: 10
     
