@@ -35,18 +35,25 @@ impl<'a> TextRenderer<'a> {
   }
 
   pub fn render(&self, canvas: &mut Canvas<Window>, position: (i32, i32), size: f32, text: &str) {
-    //TODO line breaks
-    for (i, char) in text.as_bytes().iter().enumerate() {
+    let mut col = 0;
+    let mut line = 0;
+    for &char in text.as_bytes() {
+      if char == b'\n' {
+        line += 1;
+        col = 0;
+        continue;
+      }
       canvas.copy(
         &self.texture, 
-        Rect::from(self.find_position(*char)), 
+        Rect::from(self.find_position(char)), 
         Rect::from((
-          (position.0 as f32 + (i as f32 * self.char_size.0 as f32 * size * self.dpi_scale)) as i32,
-          position.1,
+          (position.0 as f32 + (col as f32 * self.char_size.0 as f32 * size * self.dpi_scale)) as i32,
+          (position.1 as f32 + (line as f32 * self.char_size.1 as f32 * size * self.dpi_scale)) as i32,
           (self.char_size.0 as f32 * size * self.dpi_scale) as u32, 
           (self.char_size.1 as f32 * size * self.dpi_scale) as u32
         ))
       ).unwrap();
+      col += 1;
     }
   }
 
@@ -58,6 +65,7 @@ impl<'a> TextRenderer<'a> {
   }
 
   pub fn text_size(&self, text: &str, size: f32) -> (u32, u32) {
+    //TODO handle newlines
     (
       ((text.len() as u32 * self.char_size.0) as f32 * size) as u32,
       (self.char_size.1 as f32 * size) as u32

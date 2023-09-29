@@ -276,10 +276,15 @@ fn main() {
       //Allow skipping bootrom
       if !gb.get_bios_disabled() {
         text_renderer.set_color(Color::BLACK);
-        text_renderer.render(&mut canvas, (0, 0), 1., "Press space to skip");
+        text_renderer.render(&mut canvas, (0, 0), 1., "Press space to skip\nL(Hold LAlt to TICK)");
         if kb_state.is_scancode_pressed(Scancode::Space) {
-          println!("[INFO] Skipping bootrom");
-          gb.skip_bootrom();
+          if kb_state.is_scancode_pressed(Scancode::LAlt) {
+            println!("[INFO] Skipping bootrom [TICKING!!!]");
+            while gb.get_reg_pc() < 0x100 { gb.step().unwrap(); }
+          } else {
+            println!("[INFO] Skipping bootrom");
+            gb.skip_bootrom();
+          }
         }
       }
     }
