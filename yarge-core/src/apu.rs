@@ -42,7 +42,17 @@ impl Apu {
     }
   }
 
-  pub fn tick(&mut self) {
+  ///XXX: sequencer should be ticked by the DIV
+  /// ...but this is good enough for now
+  /// 
+  /// > The frame sequencer clocks are derived from the DIV timer. 
+  /// > In Normal Speed Mode, falling edges of bit 5 step the FS 
+  /// > while in CGB Double Speed Mode, bit 6 is used instead. 
+  /// > Here bits 5 and 6 refer to the bits of the upper byte of DIV 
+  /// > (internally DIV is 16 bit but only the upper 8 bits are mapped to memory).
+  /// https://nightshade256.github.io/2021/03/27/gb-sound-emulation.html
+  
+  fn tick(&mut self) {
     if !self.enabled { return }
     self.channel1.tick();
     self.channel2.tick();
@@ -88,6 +98,7 @@ impl Apu {
     [R_NR52, R_NR11, R_NR21, R_NR31, R_NR41].contains(&addr) || //GBC: THIS IS NOT THE CASE ON GBC
     (0xff30..=0xff3f).contains(&addr) // Wave pattern ram
   }
+
   pub fn write(&mut self, addr: u16, value: u8, blocking: bool) {
     //If the APU is disabled most registers are R/O
     if blocking && !self.check_write_access(addr) { return }
