@@ -57,6 +57,7 @@
           <img src=".assets/icons/debian.png" width="48" height="48" alt="Debian logo"></a>
     </tr>
   </table>
+  <i><code>yarge-frontend-desktop</code> is no longer actively maintained, but I'm keeping it around because it's debugging capabilities are still much better then those in <code>yarge-frontend-sdl</code></i>
   <h3>Other options:</h3>
   <ul>
     <li>
