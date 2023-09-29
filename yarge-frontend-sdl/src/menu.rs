@@ -721,7 +721,7 @@ impl Menu {
         Rect::from((0, res.1 as i32 - m(h as i32 + offst, dpi_scale), res.0, mu(h, dpi_scale)))
       ]).unwrap();
       //compute y coord
-      let text_y = res.1 as i32 - m(h as i32 + 1 + offst, dpi_scale);
+      let text_y = res.1 as i32 - m(h as i32 - 1 + offst, dpi_scale);
       //help text
       text.set_color(Color::RGBA(255, 255, 255, opa));
       text.render(canvas, (m(3, dpi_scale), text_y), 1., if !small {
