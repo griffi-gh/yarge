@@ -2,6 +2,7 @@
 Type=Application
 Name=YargeSDL
 Comment=Open-source Gameboy Emulator
+Icon=yarge-frontend-sdl/yarge-icon.png
 Exec=/usr/bin/yarge-frontend-desktop
 Terminal=false
 Categories=Game;

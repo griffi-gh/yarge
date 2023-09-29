@@ -17,13 +17,13 @@ anyhow = "1.0"
 dirs = "5.0"
 
 [target.'cfg(windows)'.dependencies]
-windows = { version = "0.51", features = ["Win32_UI_HiDpi"], optional = true }
+windows = { version = "0.51", optional = true }
 
 [features]
 default = ["global_config", "hidpi"]
 production = []
 global_config = []
-hidpi = ["dep:windows"]
+hidpi = ["dep:windows", "windows/Win32_UI_HiDpi"]
 
 [package.metadata.deb]
 maintainer = "griffi-gh <prasol258@gmail.com>"
@@ -33,4 +33,5 @@ depends = "$auto"
 assets = [
   ["target/release/yarge-frontend-sdl", "/usr/bin/yarge-frontend-sdl", "755"],
   ["yarge-frontend-sdl.desktop", "/usr/share/applications/yarge-frontend-sdl.desktop", "755"],
+  ["yarge.png", "/usr/share/icons/yarge-frontend-sdl/yarge-icon.png", "644"],
 ]
