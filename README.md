@@ -23,7 +23,7 @@
 <!--<img src=".assets/1x1.png" width="150" height="0"><br>--> <!--This prevents the text from getting too thin -->
 <!--DESCRIPTION-->
 <p>
-  <b>Yarge</b>&#160;is&#160;an&#160;open-source&#160;(licensed under LGPL)&#160;Nintendo&#160;Gameboy&#160;emulator written in Rust and focused on accuracy and performance.<br>It includes cycle-accurate emulation of the GBZ80 CPU and PPU FIFO.<br>The emulator is built on a modular architecture, isolating the core from frontends (which can be used as a regular Rust library).<br>
+  <b>Yarge</b>&#160;is&#160;an&#160;open&#160;source&#160;(licensed&#160;under&#160;LGPL)&#160;Nintendo&#160;Gameboy&#160;emulator written in Rust and focused on accuracy and performance.<br>It includes cycle-accurate emulation of the GBZ80 CPU and PPU FIFO.<br>The emulator is built on a modular architecture, isolating the core from frontends (which can be used as a regular Rust library).<br>
   SDL2 frontend is fully-featured with intuitive UI and various quality-of-life features such as save slots.
   <br>
 </p>
