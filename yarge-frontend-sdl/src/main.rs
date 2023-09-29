@@ -120,10 +120,14 @@ fn main() {
     builder.build().unwrap()
   };
   let mut event_pump = sdl_context.event_pump().unwrap();
+
+  let using_vsync = true; //refresh_rate % 60 == 0;
   let mut canvas = {
+    println!("[INIT/INFO] using vsync? {}", if using_vsync { "YES" } else { "NO" });
     let mut builder = window.into_canvas();
-    // if !args.no_vsync
-    builder = builder.present_vsync();
+    if using_vsync {
+      builder = builder.present_vsync();
+    }
     builder.build().unwrap()
   };
   canvas.set_blend_mode(BlendMode::Blend);
@@ -279,8 +283,17 @@ fn main() {
         }
       }
     }
+
     //Draw canvas
     canvas.present();
+
+    //On high-refresh-rate displays, that are multiple of 60 frames, present the same frame multiple times
+    //It's ok to run the menu at 120+hz tho, so only do this while emulation is running
+    let refresh_rate = canvas.window().display_mode().unwrap().refresh_rate;
+    if !menu.is_visible() && using_vsync && (refresh_rate % 60) == 0 && refresh_rate > 60 {
+      let skip = (refresh_rate / 60) - 1;
+      for _ in 0..skip { canvas.present(); }
+    }
   }
 
   println!("[EXIT/INFO] Starting clean exit procedure...");
