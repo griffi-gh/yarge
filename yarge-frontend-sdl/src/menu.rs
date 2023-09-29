@@ -526,20 +526,20 @@ impl Menu {
         }
         MenuLocation::ScalePicker => {
           define_checkbox!(
-            "HiDPI Scaling (experimental)", 
+            if small { "HiDPI Scaling" } else { "HiDPI Scaling (experimental)" }, 
             &mut config.dpi_scaling, 
             { config.save_dirty().unwrap() }
           );
           if config.dpi_scaling {
             define_checkbox!(
-              "HiDPI Scaling: Allow fractional", 
+              if small { "Allow fract." } else { "HiDPI Scaling: Allow fractional" }, 
               &mut config.dpi_scaling_frac, 
               { config.save_dirty().unwrap() }
             );
           }
 
           if define_radio_group!(&mut config.scale, {
-            define_radio_item!("1x (unsupported)", WindowScale::Scale(1), WindowScale::Scale(1));
+            define_radio_item!("1x", WindowScale::Scale(1), WindowScale::Scale(1));
             define_radio_item!("2x (recommended)", WindowScale::Scale(2), WindowScale::Scale(2));
             define_radio_item!("3x", WindowScale::Scale(3), WindowScale::Scale(3));
             define_radio_item!("4x", WindowScale::Scale(4), WindowScale::Scale(4));
