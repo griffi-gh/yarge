@@ -11,9 +11,9 @@
   <a href="https://github.com/griffi-gh/yarge/blob/master/LICENSE">
     <img alt="license" src="https://shields.io/github/license/griffi-gh/yarge" border="0">
   </a>
-  <a href="https://github.com/rust-secure-code/safety-dance/">
+  <!-- <a href="https://github.com/rust-secure-code/safety-dance/">
     <img alt="unsafe forbidden" src="https://img.shields.io/badge/unsafe-forbidden-success.svg" border="0">
-  </a>
+  </a> -->
   <a href="https://github.com/griffi-gh/yarge/actions">
     <img alt="build" src="https://img.shields.io/github/actions/workflow/status/griffi-gh/yarge/build.yml" border="0">
   </a>
