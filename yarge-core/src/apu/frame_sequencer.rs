@@ -6,10 +6,12 @@ pub struct FrameSequencer {
   cycles: u16,
   step: u8,
 }
+
 impl FrameSequencer {
   pub fn new() -> Self {
     Self::default()
   }
+  
   pub fn tick(&mut self) -> Option<u8> {
     self.cycles += 1;
     (self.cycles >= FRAME_SEQUENCER_MAX_CYCLES).then(|| {

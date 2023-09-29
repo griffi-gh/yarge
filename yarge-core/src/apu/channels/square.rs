@@ -13,6 +13,7 @@ pub struct SquareWaveChannel {
   freq_timer: usize,
   channel_enabled: bool,
 }
+
 impl SquareWaveChannel {
   pub fn new(channel_type: SquareWaveChannelType) -> Self {
     //TODO provide sensilble defaults?
@@ -25,6 +26,7 @@ impl SquareWaveChannel {
     }
   }
 }
+
 impl ApuChannel for SquareWaveChannel {
   fn tick(&mut self) {
     self.freq_timer -= 1;
@@ -33,6 +35,7 @@ impl ApuChannel for SquareWaveChannel {
       self.wave_duty.tick();
     }
   }
+
   fn amplitude(&self) -> f32 {
     if !self.channel_enabled {
       return 0.

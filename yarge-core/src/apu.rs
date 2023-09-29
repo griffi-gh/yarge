@@ -27,6 +27,7 @@ pub struct Apu {
   /// 1 - Left /SO2
   terminals: (Terminal, Terminal)
 }
+
 impl Apu {
   pub fn new() -> Self {
     Self {
@@ -40,6 +41,7 @@ impl Apu {
       terminals: (Terminal::new(), Terminal::new())
     }
   }
+
   pub fn tick(&mut self) {
     if !self.enabled { return }
     self.channel1.tick();
@@ -80,6 +82,7 @@ impl Apu {
       }
     }
   }
+
   fn check_write_access(&self, addr: u16) -> bool {
     self.enabled ||
     [R_NR52, R_NR11, R_NR21, R_NR31, R_NR41].contains(&addr) || //GBC: THIS IS NOT THE CASE ON GBC
@@ -95,6 +98,7 @@ impl Apu {
       _ => ()
     }
   }
+
   pub fn read(&self, addr: u16) -> u8 {
     match addr {
       R_NR52 => (self.enabled as u8) << 7, //TODO other NR52 bits
@@ -102,6 +106,7 @@ impl Apu {
     }
   }
 }
+
 impl Default for Apu {
   fn default() -> Self { Self::new() }
 }
