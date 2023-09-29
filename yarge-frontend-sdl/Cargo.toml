@@ -1,5 +1,6 @@
 [package]
 name = "yarge-frontend-sdl"
+description = "An open source Gameboy emulator"
 authors = ["griffi-gh <prasol258@gmail.com>"]
 version = "0.1.0"
 rust-version = "1.65"
@@ -23,3 +24,12 @@ default = ["global_config", "hidpi"]
 production = []
 global_config = []
 hidpi = ["dep:windows"]
+
+[package.metadata.deb]
+maintainer = "griffi-gh <prasol258@gmail.com>"
+copyright = "2022-2023, griffi-gh <prasol258@gmail.com>"
+extended-description = "An open source Gameboy emulator (SDL frontend)"
+depends = "$auto"
+assets = [
+  ["yarge-frontend-sdl.desktop", "/usr/share/applications/yarge-frontend-sdl.desktop", "755"],
+]

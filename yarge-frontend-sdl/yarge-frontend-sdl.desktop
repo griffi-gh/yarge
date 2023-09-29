@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=YargeSDL
+Comment=Open-source Gameboy Emulator
+Exec=/usr/bin/yarge-frontend-desktop
+Terminal=false
+Categories=Game;
