@@ -23,7 +23,8 @@
 <!--<img src=".assets/1x1.png" width="150" height="0"><br>--> <!--This prevents the text from getting too thin -->
 <!--DESCRIPTION-->
 <p>
-  <i>TODO:</i>&#160;Lorem&#160;ipsum&#160;dolor&#160;sit&#160;amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+  <b>Yarge</b>&#160;is&#160;an&#160;open-source&#160;(licensed under LGPL)&#160;Nintendo&#160;Gameboy&#160;emulator written in Rust and focused on accuracy and performance.<br>It includes cycle-accurate emulation of the GBZ80 CPU and PPU FIFO.<br>The emulator is built on a modular architecture, isolating the core from frontends (which can be used as a regular Rust library).<br>
+  SDL2 frontend is fully-featured with intuitive UI and various quality-of-life features such as save slots.
   <br>
 </p>
 <!--DOWNLOADS-->
@@ -33,16 +34,6 @@
     <tr>
       <th align="center">Product</th>
       <th align="center">Downloads</th>
-    </tr>
-    <tr>
-      <td>yarge-frontend-desktop</td>
-      <td align="center">
-        <a href="https://nightly.link/griffi-gh/yarge/workflows/build/master/release-win64.zip">
-          <img src=".assets/icons/windows.png" width="48" height="48" alt="Windows logo"></a>
-        <a href="https://nightly.link/griffi-gh/yarge/workflows/build/master/release-lin64.zip">
-          <img src=".assets/icons/linux.png" width="48" height="48" alt="Linux logo"></a>
-        <a href="https://nightly.link/griffi-gh/yarge/workflows/build/master/release-lin64-deb.zip">
-          <img src=".assets/icons/debian.png" width="48" height="48" alt="Debian logo"></a>
     </tr>
     <tr>
       <td>yarge-frontend-sdl</td>
@@ -55,12 +46,29 @@
           <img src=".assets/icons/debian.png" width="48" height="48" alt="Debian logo"></a>
       </td>
     </tr>
+    <tr>
+      <td>yarge-frontend-desktop<br><i>(deprecated)</i></td>
+      <td align="center">
+        <a href="https://nightly.link/griffi-gh/yarge/workflows/build/master/release-win64.zip">
+          <img src=".assets/icons/windows.png" width="48" height="48" alt="Windows logo"></a>
+        <a href="https://nightly.link/griffi-gh/yarge/workflows/build/master/release-lin64.zip">
+          <img src=".assets/icons/linux.png" width="48" height="48" alt="Linux logo"></a>
+        <a href="https://nightly.link/griffi-gh/yarge/workflows/build/master/release-lin64-deb.zip">
+          <img src=".assets/icons/debian.png" width="48" height="48" alt="Debian logo"></a>
+    </tr>
   </table>
   <h3>Other options:</h3>
-  <i>Looking for yarge-frontend-nano?<br>It has been <b>deprecated</b> in favor of yarge-frontend-sdl but can still be found <a href="https://matsked.netlify.app/yarge-deprecated/">here</a></i><br>
-  <i><a href="https://github.com/griffi-gh/yarge/tree/master/yarge-core">
-    Want to use Yarge as a library in your Rust application?
-  </a></i>
+  <ul>
+    <li>
+      <i><a href="https://github.com/griffi-gh/yarge/tree/master/yarge-core">
+        Want to use Yarge as a library in your Rust application?
+      </a></i>
+    </li>
+    <li>
+      <a href="https://matsked.netlify.app/yarge-deprecated/">yarge-frontend-nano builds</a>
+      (deprecated; does not represent current state of the project)
+    </li>
+  </ul>
 </p>
 <!--SCREENSHOTS-->
 <h1>Screenshots</h1>
