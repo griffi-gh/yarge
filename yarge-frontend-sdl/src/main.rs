@@ -299,6 +299,7 @@ fn main() {
       let skip = (refresh_rate / 60) - 1;
       for _ in 0..skip { canvas.present(); }
     }
+    //TODO framelimit if refresh rate > 60 but not multiple 60 (e.g. 75/90);
   }
 
   println!("[EXIT/INFO] Starting clean exit procedure...");
