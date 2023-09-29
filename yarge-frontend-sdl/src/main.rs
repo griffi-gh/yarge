@@ -201,7 +201,10 @@ fn main() {
     let display_dpi_scale = {
       #[cfg(feature = "hidpi")] {
         let mut display_dpi_scale = if config.dpi_scaling {
-          video_subsystem.display_dpi(canvas.window().display_index().unwrap()).unwrap().0 / 96.
+          video_subsystem.display_dpi(canvas.window().display_index().unwrap()).unwrap_or_else(|_| {
+            println!("[WARN/DPI] failed to get display DPI, assuming 96dpi");
+            (96., -1., -1.)
+          }).0 / 96.
         } else {
           1.
         };
