@@ -80,7 +80,7 @@ impl Default for Configuration {
       speed: 1,
       save_slot: 0,
       dpi_scaling: true,
-      dpi_scaling_frac: false,
+      dpi_scaling_frac: true,
     }
   }
 }

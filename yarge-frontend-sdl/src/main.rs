@@ -53,7 +53,7 @@ struct Args {
 
 fn main() {
   //Set dpi aware flag on windows
-  #[cfg(windows)] {
+  #[cfg(all(windows, feature = "hidpi"))] {
     use windows::Win32::UI::HiDpi::{SetProcessDpiAwareness, PROCESS_PER_MONITOR_DPI_AWARE};
     if unsafe { SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE) }.is_err() {
       println!("[ERR] Failed to set DPI awareness");
@@ -186,30 +186,39 @@ fn main() {
 
   println!("[INIT/INFO] Initialization done");
 
-  //Main loop
+  #[cfg(feature = "hidpi")]
   let mut dpi_prev = 1.;
+
+  //Main loop
   'run: loop {
-    //Update dpi scale
-    let mut display_dpi_scale = if config.dpi_scaling {
-      video_subsystem.display_dpi(canvas.window().display_index().unwrap()).unwrap().0 / 96.
-    } else {
-      1.
+    //Figure out dpi stuff
+    let display_dpi_scale = {
+      #[cfg(feature = "hidpi")] {
+        let mut display_dpi_scale = if config.dpi_scaling {
+          video_subsystem.display_dpi(canvas.window().display_index().unwrap()).unwrap().0 / 96.
+        } else {
+          1.
+        };
+        if !config.dpi_scaling_frac {
+          display_dpi_scale = display_dpi_scale.ceil();
+        }
+        if dpi_prev != display_dpi_scale {
+          println!("[INFO/DPI] dpi scale changed from {} to {}", dpi_prev, display_dpi_scale);
+          dpi_prev = display_dpi_scale;
+          let s = (
+            GB_WIDTH as u32 * config.scale.scale_or_default(),
+            GB_HEIGHT as u32 * config.scale.scale_or_default()
+          );
+          canvas.window_mut().set_size(
+            (display_dpi_scale * s.0 as f32) as u32, 
+            (display_dpi_scale * s.1 as f32) as u32
+          ).unwrap();
+        }
+        text_renderer.set_render_dpi_scale(display_dpi_scale);
+        display_dpi_scale
+      }
+      #[cfg(not(feature = "hidpi"))] { 1. }
     };
-    if !config.dpi_scaling_frac {
-      display_dpi_scale = display_dpi_scale.ceil();
-    }
-    if dpi_prev != display_dpi_scale {
-      dpi_prev = display_dpi_scale;
-      let s = (
-        GB_WIDTH as u32 * config.scale.scale_or_default(),
-        GB_HEIGHT as u32 * config.scale.scale_or_default()
-      );
-      canvas.window_mut().set_size(
-        (display_dpi_scale * s.0 as f32) as u32, 
-        (display_dpi_scale * s.1 as f32) as u32
-      ).unwrap();
-    }
-    text_renderer.set_render_dpi_scale(display_dpi_scale);
 
     //Process SDL2 events
     for event in event_pump.poll_iter() {

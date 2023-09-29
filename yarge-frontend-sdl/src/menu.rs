@@ -667,14 +667,14 @@ impl Menu {
       // Update scroll
       //TODO rewrite!!
       if let Some(cursor_y) = x_cursor_y {
-        let cursor_underscroll = cursor_y - (res.1 as i32 - (text.char_size(1.).1 as i32 + 2) - 2 * MENU_ITEM_HEIGHT as i32);
+        let cursor_underscroll = cursor_y - ((res.1 as f32 / dpi_scale) as i32 - (text.char_size(1.).1 as i32 + 2) - 2 * MENU_ITEM_HEIGHT as i32);
         let cursor_overscroll = cursor_y - list_start_y_noscroll - MENU_ITEM_HEIGHT as i32;
         self.scroll += cursor_underscroll.max(0) + cursor_overscroll.min(0);
       }
       self.scroll = self.scroll.max(0);
       
       // Draw scroll bar
-      let viewport_height = res.1 as f32 - list_start_y_noscroll as f32 - (text.char_size(1.).1 as f32 + 2.);
+      let viewport_height = (res.1 as f32 / dpi_scale) - list_start_y_noscroll as f32 - (text.char_size(1.).1 as f32 + 2.);
       let scrollbar_visible = (x_position.1 - list_start_y) as f32 > viewport_height;
       if scrollbar_visible {
         //Compute stuff
@@ -684,16 +684,16 @@ impl Menu {
         let scrollbar_h = viewport_height_ratio * viewport_height;
         let y_correction: f32 = - (scrollbar_h * progress);
         let scrollbar_rect = Rect::from((
-          res.0 as i32 - SCROLLBAR_WIDTH as i32,
-          list_start_y_noscroll + ((progress * viewport_height) + y_correction) as i32,
-          SCROLLBAR_WIDTH,
-          scrollbar_h as u32
+          res.0 as i32 - m(SCROLLBAR_WIDTH as i32, dpi_scale),
+          m(list_start_y_noscroll + ((progress * viewport_height) + y_correction) as i32, dpi_scale),
+          mu(SCROLLBAR_WIDTH, dpi_scale),
+          mu(scrollbar_h as u32, dpi_scale)
         ));
         let scrollbar_bg_rect = Rect::from((
-          res.0 as i32 - SCROLLBAR_WIDTH as i32,
-          list_start_y_noscroll,
-          SCROLLBAR_WIDTH,
-          viewport_height as u32
+          res.0 as i32 - m(SCROLLBAR_WIDTH as i32, dpi_scale),
+          m(list_start_y_noscroll, dpi_scale),
+          mu(SCROLLBAR_WIDTH, dpi_scale),
+          mu(viewport_height as u32, dpi_scale)
         ));
         canvas.set_draw_color(Color::RGBA(0, 0, 0, 96));
         canvas.fill_rects(&[scrollbar_rect, scrollbar_rect, scrollbar_bg_rect]).unwrap();
@@ -713,7 +713,7 @@ impl Menu {
       let h = text.char_size(1.).1 + 2;
       //animation
       let opa = (self.activation_anim_state.value * 255.) as u32 as u8;
-      let offst = h as i32 - (self.activation_anim_state.value * h as f32) as i32;
+      let offst = -(h as i32 - (self.activation_anim_state.value * h as f32) as i32);
       //box
       canvas.set_draw_color(Color::RGBA(0, 0, 0, opa / 4));
       canvas.fill_rects(&[

@@ -16,9 +16,10 @@ anyhow = "1.0"
 dirs = "5.0"
 
 [target.'cfg(windows)'.dependencies]
-windows = { version = "0.51", features = ["Win32_UI_HiDpi"] }
+windows = { version = "0.51", features = ["Win32_UI_HiDpi"], optional = true }
 
 [features]
-default = ["global_config"]
+default = ["global_config", "hidpi"]
 production = []
 global_config = []
+hidpi = ["dep:windows"]
