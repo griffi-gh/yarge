@@ -192,7 +192,8 @@ fn main() {
 
   #[cfg(feature = "hidpi")]
   let mut dpi_prev = 1.;
-
+  let mut hz_prev = 60;
+  
   //Main loop
   'run: loop {
     //Figure out dpi stuff
@@ -294,7 +295,14 @@ fn main() {
 
     //On high-refresh-rate displays, that are multiple of 60 frames, present the same frame multiple times
     //It's ok to run the menu at 120+hz tho, so only do this while emulation is running
-    let refresh_rate = canvas.window().display_mode().unwrap().refresh_rate;
+    let refresh_rate = canvas.window().display_mode().map(|x| x.refresh_rate).unwrap_or_else(|_| {
+      println!("[WARN/UHH] window display mode lookup failed, falling back to monitor 0");
+      video_subsystem.display_mode(0, 0).map(|x| x.refresh_rate).unwrap_or_else(|_| {
+        println!("[WARN/FUCK] monitor 0 lookup failed, falling back to last successful lookup");
+        hz_prev
+      })
+    });
+    hz_prev = refresh_rate;
     if !menu.is_visible() && using_vsync && (refresh_rate % 60) == 0 && refresh_rate > 60 {
       let skip = (refresh_rate / 60) - 1;
       for _ in 0..skip { canvas.present(); }

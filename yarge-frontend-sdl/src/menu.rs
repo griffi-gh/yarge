@@ -599,7 +599,7 @@ impl Menu {
           }
         }
         MenuLocation::SaveSlotConfirm(save_slot) => {
-          define_menu_item!("Restart the game now?", {
+          define_menu_item!(if small { "Restart" } else { "Restart the game now?" }, {
             SaveManager::save(gb, config.save_slot).unwrap();
             config.save_slot = save_slot;
             config.save_dirty().unwrap();
