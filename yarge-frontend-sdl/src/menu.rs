@@ -468,7 +468,7 @@ impl Menu {
       }
 
       //Set clip before rendering the menu
-      canvas.set_clip_rect(Rect::from((0, list_start_y_noscroll, res.0, res.1)));
+      canvas.set_clip_rect(Rect::from((0, m(list_start_y_noscroll, dpi_scale), mu(res.0, dpi_scale), mu(res.1, dpi_scale))));
 
       //Get top item from the menu stack
       let top_item = self.menu_stack.last().unwrap().clone();
