@@ -31,5 +31,6 @@ copyright = "2022-2023, griffi-gh <prasol258@gmail.com>"
 extended-description = "An open source Gameboy emulator (SDL frontend)"
 depends = "$auto"
 assets = [
+  ["target/release/yarge-frontend-sdl", "/usr/bin/yarge-frontend-sdl", "755"],
   ["yarge-frontend-sdl.desktop", "/usr/share/applications/yarge-frontend-sdl.desktop", "755"],
 ]
