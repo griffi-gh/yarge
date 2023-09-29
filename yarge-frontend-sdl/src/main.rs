@@ -52,6 +52,14 @@ struct Args {
 }
 
 fn main() {
+  //Set dpi aware flag on windows
+  #[cfg(windows)] {
+    use windows::Win32::UI::HiDpi::{SetProcessDpiAwareness, PROCESS_PER_MONITOR_DPI_AWARE};
+    if unsafe { SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE) }.is_err() {
+      println!("[ERR] Failed to set DPI awareness");
+    }
+  }
+
   //Parse arguments
   let args = Args::parse();
 
@@ -102,6 +110,7 @@ fn main() {
       GB_HEIGHT as u32 * config.scale.scale_or_default()
     );
     builder.position_centered();
+    builder.allow_highdpi();
     match config.scale {
       WindowScale::Fullscreen => { builder.fullscreen_desktop(); },
       WindowScale::Maximized  => { builder.maximized(); },
@@ -178,7 +187,27 @@ fn main() {
   println!("[INIT/INFO] Initialization done");
 
   //Main loop
+  let mut dpi_prev = 1.;
   'run: loop {
+    //Update dpi scale
+    let display_dpi_scale = if config.dpi_scaling {
+      (video_subsystem.display_dpi(canvas.window().display_index().unwrap()).unwrap().0 / 96.).ceil()
+    } else {
+      1.
+    };
+    if dpi_prev != display_dpi_scale {
+      dpi_prev = display_dpi_scale;
+      let s = (
+        GB_WIDTH as u32 * config.scale.scale_or_default(),
+        GB_HEIGHT as u32 * config.scale.scale_or_default()
+      );
+      canvas.window_mut().set_size(
+        (display_dpi_scale * s.0 as f32) as u32, 
+        (display_dpi_scale * s.1 as f32) as u32
+      ).unwrap();
+    }
+    text_renderer.set_render_dpi_scale(display_dpi_scale);
+
     //Process SDL2 events
     for event in event_pump.poll_iter() {
       menu.process_evt(&event);
@@ -191,6 +220,7 @@ fn main() {
       let mut exit_signal = false;
       menu.update(
         &mut canvas,
+        display_dpi_scale,
         &mut gb,
         &mut gb_texture,
         &mut text_renderer,

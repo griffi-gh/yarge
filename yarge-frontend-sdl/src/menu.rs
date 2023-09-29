@@ -35,9 +35,11 @@ const MENU_ITEM_HEIGHT: u32 = 18;
 const SHORT_PATH_CHARS: usize = 2;
 const SCROLLBAR_WIDTH: u32 = 5;
 
+#[allow(clippy::too_many_arguments)]
 fn menu_item(
   text: &str,
   position: (i32, i32, u32, u32),
+  dpi_scale: f32,
   canvas: &mut Canvas<Window>,
   text_renderer: &mut TextRenderer,
   cursor: isize,
@@ -47,17 +49,23 @@ fn menu_item(
   let v_padding = (position.3 as i32 - text_renderer.char_size(1.).1 as i32).max(0) as u32 / 2;
   //canvas.set_clip_rect(Rect::from(position));
   if index as isize == cursor {
+    let position_dpi = Rect::from((
+      ((position.0 as f32) * dpi_scale) as i32,
+      ((position.1 as f32) * dpi_scale) as i32,
+      ((position.2 as f32) * dpi_scale) as u32,
+      ((position.3 as f32) * dpi_scale) as u32,
+    ));
     canvas.set_draw_color(Color::RGBA(0, 0, 0, 96));
-    canvas.fill_rect(Rect::from(position)).unwrap();
+    canvas.fill_rect(position_dpi).unwrap();
     canvas.set_draw_color(Color::RGBA(0, 0, 0, 128));
-    canvas.draw_rect(Rect::from(position)).unwrap();
+    canvas.draw_rect(position_dpi).unwrap();
     text_renderer.set_color(Color::RGBA(255, 255, 255, 255));
   } else {
     text_renderer.set_color(Color::RGBA(0, 0, 0, 255));
   }
   text_renderer.render(canvas, (
-    position.0 + MENU_ITEM_H_PADDING as i32,
-    position.1 + v_padding as i32
+    ((position.0 + MENU_ITEM_H_PADDING as i32) as f32 * dpi_scale) as i32,
+    ((position.1 + v_padding as i32) as f32 * dpi_scale) as i32
   ), 1., text);
   //canvas.set_clip_rect(None);
   click && (index as isize == cursor)
@@ -255,15 +263,20 @@ impl Menu {
     }
   }
 
+  #[allow(clippy::too_many_arguments)]
   pub fn update(
     &mut self,
     canvas: &mut Canvas<Window>,
+    dpi_scale: f32,
     gb: &mut Gameboy,
     gb_texture: &mut Texture,
     text: &mut TextRenderer,
     config: &mut Configuration,
     do_exit: &mut bool,
   ) {
+    fn m (x: i32, y: f32) -> i32 { ((x as f32) * y) as i32 }
+    fn mu(x: u32, y: f32) -> u32 { ((x as f32) * y) as u32 }
+
     //If save is scheduled, do it now
     if self.schedule_save {
       SaveManager::save(gb, config.save_slot).unwrap();
@@ -308,13 +321,14 @@ impl Menu {
         "No game"
       };
       //Compute game title text size to fit the width
-      let computed_scale = ((res.0 as f32 - x_pos as f32) / (display_name.len() as f32 * text.char_size(1.).0 as f32)).min(2.);
+      //XXX: this does not handle hidpi properly
+      let computed_scale = ((res.0 as f32 - x_pos as f32) / (display_name.len() as f32 * (text.char_size(1.).0 as f32))).min(2.);
       
       //Game title text
       text.set_color(Color::RGBA(0, 0, 0, opa));
       text.render(
         canvas,
-        (x_pos + x_anim_offset as i32, y_pos),
+        (m(x_pos + x_anim_offset as i32, dpi_scale), m(y_pos, dpi_scale)),
         computed_scale,
         display_name
       );
@@ -324,8 +338,8 @@ impl Menu {
       text.render(
         canvas,
         (
-          x_pos + (2. * x_anim_offset) as i32,
-          y_pos + text.char_size(2.).1 as i32
+          m(x_pos + (2. * x_anim_offset) as i32, dpi_scale),
+          m(y_pos + text.char_size(2.).1 as i32, dpi_scale)
         ),
         1.0,
         if self.has_game {
@@ -360,8 +374,8 @@ impl Menu {
       text.render(
         canvas,
         (
-          x_pos + (2. * x_anim_offset) as i32,
-          MINI_DISPLAY_POS.1 + MINI_DISPLAY_SIZE.1 as i32 - (text.char_size(1.).1 as i32) - TOP_DETAILS_PADDING.1 as i32
+          m(x_pos + (2. * x_anim_offset) as i32, dpi_scale),
+          m(MINI_DISPLAY_POS.1 + MINI_DISPLAY_SIZE.1 as i32 - (text.char_size(1.).1 as i32) - TOP_DETAILS_PADDING.1 as i32, dpi_scale)
         ),
         1.,
         path.as_ref()
@@ -389,7 +403,7 @@ impl Menu {
           if self.cursor == x_index {
             x_cursor_y = Some(x_position.1);
           }
-          if menu_item($text, x_position, canvas, text, self.cursor, x_index as usize, self.clicked) {
+          if menu_item($text, x_position, dpi_scale, canvas, text, self.cursor, x_index as usize, self.clicked) {
             $on_click;
           }
           x_position.1 += x_position.3 as i32 + MENU_MARGIN;
@@ -496,6 +510,10 @@ impl Menu {
           }
         }
         MenuLocation::ScalePicker => {
+          define_menu_item!(if config.dpi_scaling { "[x] HiDPI Scaling (experimental)" } else { "[ ] HiDPI Scaling (experimental)" }, {
+            config.dpi_scaling ^= true;
+            config.save_dirty().unwrap();
+          });
           if define_radio_group!(&mut config.scale, {
             define_radio_item!("1x (unsupported)", WindowScale::Scale(1), WindowScale::Scale(1));
             define_radio_item!("2x (recommended)", WindowScale::Scale(2), WindowScale::Scale(2));
@@ -510,7 +528,7 @@ impl Menu {
               WindowScale::Scale(scale) => {
                 canvas.window_mut().restore();
                 canvas.window_mut().set_fullscreen(FullscreenType::Off).unwrap();
-                canvas.window_mut().set_size(scale * GB_WIDTH as u32, scale * GB_HEIGHT as u32).unwrap();
+                canvas.window_mut().set_size(mu(scale * GB_WIDTH as u32, dpi_scale), mu(scale * GB_HEIGHT as u32, dpi_scale)).unwrap();
               },
               WindowScale::Maximized => {
                 canvas.window_mut().set_fullscreen(FullscreenType::Off).unwrap();
@@ -675,20 +693,20 @@ impl Menu {
       //box
       canvas.set_draw_color(Color::RGBA(0, 0, 0, opa / 4));
       canvas.fill_rects(&[
-        Rect::from((0, res.1 as i32 - h as i32 - 1 + offst, res.0, h + 1)),
-        Rect::from((0, res.1 as i32 - h as i32 + offst, res.0, h))
+        Rect::from((0, res.1 as i32 - m(h as i32 + offst, dpi_scale) - 1, res.0, mu(h, dpi_scale) + 1)),
+        Rect::from((0, res.1 as i32 - m(h as i32 + offst, dpi_scale), res.0, mu(h, dpi_scale)))
       ]).unwrap();
       //compute y coord
-      let text_y = res.1 as i32 - h as i32 + 1 + offst;
+      let text_y = res.1 as i32 - m(h as i32 + 1 + offst, dpi_scale);
       //help text
       text.set_color(Color::RGBA(255, 255, 255, opa));
-      text.render(canvas, (3, text_y), 1., if !small {
+      text.render(canvas, (m(3, dpi_scale), text_y), 1., if !small {
         "\x1e\x1f Move cursor \x04 Confirm"
       } else {
         "\x1e\x1f Move \x04 OK"
       });
       //version text
-      let ver_x = (res.0 - text.text_size(CRATE_VERSION, 1.).0 - 3) as i32;
+      let ver_x = res.0 as i32 - m((text.text_size(CRATE_VERSION, 1.).0 + 3) as i32, dpi_scale);
       text.set_color(Color::RGBA(255, 255, 255, opa / 3));
       text.render(canvas, (ver_x, text_y), 1., CRATE_VERSION);
     }
@@ -697,10 +715,10 @@ impl Menu {
     if !small {
       let anim = self.activation_anim_state.value;
       let display_pos = (
-        (anim * (MINI_DISPLAY_POS.0 as f32)) as i32,
-        (anim * (MINI_DISPLAY_POS.1 as f32)) as i32,
-        res.0 - (anim * (res.0 - MINI_DISPLAY_SIZE.0) as f32) as u32,
-        res.1 - (anim * (res.1 - MINI_DISPLAY_SIZE.1) as f32) as u32,
+        (anim * (MINI_DISPLAY_POS.0 as f32 * dpi_scale)) as i32,
+        (anim * (MINI_DISPLAY_POS.1 as f32 * dpi_scale)) as i32,
+        res.0 - (anim * (res.0 as f32 - (MINI_DISPLAY_SIZE.0 as f32 * dpi_scale))) as u32,
+        res.1 - (anim * (res.1 as f32 - (MINI_DISPLAY_SIZE.1 as f32 * dpi_scale))) as u32,
       );
       //Draw display shadow
       canvas.set_draw_color(Color::RGBA(0, 0, 0, 32));
