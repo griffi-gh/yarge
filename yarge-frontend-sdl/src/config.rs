@@ -66,6 +66,7 @@ pub struct Configuration {
   pub speed: u8,
   pub save_slot: u8,
   pub dpi_scaling: bool,
+  pub dpi_scaling_frac: bool,
 }
 impl Default for Configuration {
   fn default() -> Self {
@@ -79,6 +80,7 @@ impl Default for Configuration {
       speed: 1,
       save_slot: 0,
       dpi_scaling: true,
+      dpi_scaling_frac: false,
     }
   }
 }

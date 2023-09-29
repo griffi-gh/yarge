@@ -426,7 +426,7 @@ impl Menu {
         };};
       }
       macro_rules! define_radio_group {
-        ($rg_value_mut_ref: expr, $rg_block: block, $rg_on_any_clicked: block) => {{
+        ($rg_value_mut_ref: expr, $rg_block: block, $rg_on_any_clicked: block) => {
           {
             let x_radio: &mut _ = $rg_value_mut_ref;
             let mut x_selection_did_change = false;
@@ -446,10 +446,25 @@ impl Menu {
             $rg_block
             x_selection_did_change
           }
-        }};
-        ($rg_value_mut_ref: expr, $rg_block: block) => {{
+        };
+        ($rg_value_mut_ref: expr, $rg_block: block) => {
           define_radio_group!($rg_value_mut_ref, $rg_block, {})
-        }}
+        }
+      }
+      macro_rules! define_checkbox {
+        ($cb_text: expr, $cb_bool_value: expr, $on_change: block) => {
+          {
+            let bref: &mut bool = ($cb_bool_value).into();
+            let btext: &str = ($cb_text).into();
+            define_menu_item!(&format!("[{}] {}", if *bref { "X" } else { " " }, btext), {
+              *bref ^= true;
+              $on_change;
+            });
+          }
+        };
+        ($cb_text: expr, $cb_bool_value: expr) => {
+          define_checkbox!($cb_text, $cb_bool_value, {});
+        }
       }
 
       //Set clip before rendering the menu
@@ -510,10 +525,19 @@ impl Menu {
           }
         }
         MenuLocation::ScalePicker => {
-          define_menu_item!(if config.dpi_scaling { "[x] HiDPI Scaling (experimental)" } else { "[ ] HiDPI Scaling (experimental)" }, {
-            config.dpi_scaling ^= true;
-            config.save_dirty().unwrap();
-          });
+          define_checkbox!(
+            "HiDPI Scaling (experimental)", 
+            &mut config.dpi_scaling, 
+            { config.save_dirty().unwrap() }
+          );
+          if config.dpi_scaling {
+            define_checkbox!(
+              "HiDPI Scaling: Allow fractional", 
+              &mut config.dpi_scaling_frac, 
+              { config.save_dirty().unwrap() }
+            );
+          }
+
           if define_radio_group!(&mut config.scale, {
             define_radio_item!("1x (unsupported)", WindowScale::Scale(1), WindowScale::Scale(1));
             define_radio_item!("2x (recommended)", WindowScale::Scale(2), WindowScale::Scale(2));

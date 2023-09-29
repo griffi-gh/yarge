@@ -190,11 +190,14 @@ fn main() {
   let mut dpi_prev = 1.;
   'run: loop {
     //Update dpi scale
-    let display_dpi_scale = if config.dpi_scaling {
-      (video_subsystem.display_dpi(canvas.window().display_index().unwrap()).unwrap().0 / 96.).ceil()
+    let mut display_dpi_scale = if config.dpi_scaling {
+      video_subsystem.display_dpi(canvas.window().display_index().unwrap()).unwrap().0 / 96.
     } else {
       1.
     };
+    if !config.dpi_scaling_frac {
+      display_dpi_scale = display_dpi_scale.ceil();
+    }
     if dpi_prev != display_dpi_scale {
       dpi_prev = display_dpi_scale;
       let s = (
