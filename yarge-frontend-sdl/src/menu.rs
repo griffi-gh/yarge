@@ -229,7 +229,7 @@ impl Menu {
     }
   }
 
-  fn load_file(&mut self, path: PathBuf, gb: &mut Gameboy, config: &Configuration) {
+  pub fn load_file(&mut self, path: PathBuf, gb: &mut Gameboy, config: &Configuration) {
     let data = fs::read(path).unwrap();
     gb.reset();
     gb.load_rom(&data[..]).unwrap();

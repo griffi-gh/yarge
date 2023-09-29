@@ -12,6 +12,7 @@ use sdl2::{
   render::BlendMode,
 };
 use clap::Parser;
+use std::path::PathBuf;
 
 mod audio;
 mod menu;
@@ -228,9 +229,18 @@ fn main() {
     //Process SDL2 events
     for event in event_pump.poll_iter() {
       menu.process_evt(&event);
-      if let Event::Quit {..} = event {
-        break 'run
-      }
+      match event {
+        Event::DropFile { filename, .. } => {
+          SaveManager::save(&gb, config.save_slot).unwrap();
+          let path: PathBuf = filename.into();
+          menu.load_file(path.clone(), &mut gb, &config);
+          config.last_rom = Some(path);
+          config.save_dirty().unwrap();
+          menu.set_activated_state(false);
+        },
+        Event::Quit {..} => break 'run,
+        _ => ()
+      } 
     }
     menu.always_update(&gb);
     if menu.is_visible() {
