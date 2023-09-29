@@ -508,13 +508,13 @@ impl Menu {
             }
           });
           define_menu_item!("Options...", MenuLocation::Options);
+          define_menu_item!("Speed...", MenuLocation::SpeedPicker);
+          define_menu_item!("Save slot...", MenuLocation::SaveSlotPicker);
           define_menu_item!("Exit", { *do_exit = true });
         },
         MenuLocation::Options => {
           define_menu_item!("Color palette...", MenuLocation::PalettePicker);
           define_menu_item!("Display scale...", MenuLocation::ScalePicker);
-          define_menu_item!("Speed...", MenuLocation::SpeedPicker);
-          define_menu_item!("Save slot...", MenuLocation::SaveSlotPicker);
         },
         MenuLocation::PalettePicker => {
           if define_radio_group!(&mut config.palette, {
