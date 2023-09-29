@@ -52,7 +52,7 @@ impl Apu {
   /// > (internally DIV is 16 bit but only the upper 8 bits are mapped to memory).
   /// https://nightshade256.github.io/2021/03/27/gb-sound-emulation.html
   
-  fn tick(&mut self) {
+  pub fn tick(&mut self) {
     if !self.enabled { return }
     self.channel1.tick();
     self.channel2.tick();
