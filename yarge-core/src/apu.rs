@@ -4,7 +4,6 @@ use seq_macro::seq;
 mod channels;
 mod audio_buffer;
 mod audio_device;
-mod frame_sequencer;
 mod terminal;
 mod traits;
 mod wave;
@@ -13,20 +12,20 @@ pub use traits::ApuChannel;
 pub use audio_device::AudioDevice;
 use audio_buffer::AudioBuffer;
 use channels::square::{SquareWaveChannel, SquareWaveChannelType};
-use frame_sequencer::FrameSequencer;
 use terminal::Terminal;
 
 pub struct Apu {
   pub device: Option<Box<dyn AudioDevice>>,
   enabled: bool,
   buffer: AudioBuffer,
-  sequencer: FrameSequencer,
+  sequencer: u8,
   channel1: SquareWaveChannel,
   channel2: SquareWaveChannel,
   sample_cycles: usize,
   /// 0 - Right/SO1
   /// 1 - Left /SO2
-  terminals: (Terminal, Terminal)
+  terminals: (Terminal, Terminal),
+  prev_div: u16,
 }
 
 impl Apu {
@@ -35,43 +34,61 @@ impl Apu {
       device: None,
       enabled: false,
       buffer: AudioBuffer::new(),
-      sequencer: FrameSequencer::new(),
+      sequencer: 0,
       channel1: SquareWaveChannel::new(SquareWaveChannelType::Channel1),
       channel2: SquareWaveChannel::new(SquareWaveChannelType::Channel2),
       sample_cycles: 0,
-      terminals: (Terminal::new(), Terminal::new())
+      terminals: (Terminal::new(), Terminal::new()),
+      prev_div: 0,
     }
   }
 
-  ///XXX: sequencer should be ticked by the DIV
-  /// ...but this is good enough for now
-  /// 
-  /// > The frame sequencer clocks are derived from the DIV timer. 
-  /// > In Normal Speed Mode, falling edges of bit 5 step the FS 
-  /// > while in CGB Double Speed Mode, bit 6 is used instead. 
-  /// > Here bits 5 and 6 refer to the bits of the upper byte of DIV 
-  /// > (internally DIV is 16 bit but only the upper 8 bits are mapped to memory).
-  /// https://nightshade256.github.io/2021/03/27/gb-sound-emulation.html
-  
-  pub fn tick(&mut self) {
-    if !self.enabled { return }
-    self.channel1.tick();
-    self.channel2.tick();
-    match self.sequencer.tick() {
-      Some(0 | 4) => { // Length only
+  // > The frame sequencer clocks are derived from the DIV timer. 
+  // > In Normal Speed Mode, falling edges of bit 5 step the FS 
+  // > while in CGB Double Speed Mode, bit 6 is used instead. 
+  // > Here bits 5 and 6 refer to the bits of the upper byte of DIV 
+  // > (internally DIV is 16 bit but only the upper 8 bits are mapped to memory).
+  // https://nightshade256.github.io/2021/03/27/gb-sound-emulation.html
+
+  fn update_div_falling_edge(&mut self, div: u16) -> bool {
+    //GBC: use bit 14 in double speed mode
+    let is_falling_edge = ((div >> 13) & 1 != 0) && ((self.prev_div >> 13) & 1 != 0);
+    self.prev_div = div;
+    is_falling_edge
+  }
+
+  fn tick_sequencer(&mut self) {
+    //XXX: should sequencer be incremented before of after the match block?\
+    self.sequencer = (self.sequencer + 1) & 7;
+    match self.sequencer {
+      0 | 4 => { // Length only
         self.channel1.tick_length();
         self.channel2.tick_length();
       },
-      Some(2 | 6) => { // Length and sweep 
+      2 | 6 => { // Length and sweep 
         self.channel1.tick_length();
         self.channel2.tick_length();
         self.channel1.tick_sweep();
       },
-      Some(7) => { //Envelope only
+      7 => { //Envelope only
         self.channel1.tick_envelope();
       },
       _ => ()
+    }   
+  }
+
+  pub fn tick(&mut self, div: u16) {
+    let is_div_falling_edge = self.update_div_falling_edge(div);
+
+    if !self.enabled { return }
+
+    self.channel1.tick();
+    self.channel2.tick();
+
+    if is_div_falling_edge {
+      self.tick_sequencer();
     }
+    
     self.sample_cycles += 1;
     if self.sample_cycles >= AUDIO_CYCLES_PER_SAMPLE {
       self.sample_cycles = 0;
@@ -89,7 +106,7 @@ impl Apu {
         if let Some(device) = self.device.as_mut() {
           device.queue_samples(self.buffer.get_buffer());
         }
-          self.buffer.reset();
+        self.buffer.reset();
       }
     }
   }

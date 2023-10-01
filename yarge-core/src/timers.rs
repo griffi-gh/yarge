@@ -25,6 +25,9 @@ impl Timers {
     }
   }
 
+  pub fn get_div_raw(&self) -> u16 {
+    self.div
+  }
   pub fn get_div(&self) -> u8 {
     (self.div >> 8) as u8
   }
