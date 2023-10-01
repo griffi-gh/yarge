@@ -175,7 +175,7 @@ fn main() {
   println!("[INIT/INFO] Creating menu");
 
   //Create a Menu object that handles the ESC-menu
-  let mut menu = Menu::new();
+  let mut menu = Menu::new(&config);
 
   //Check close status
   if !config.closed_properly {

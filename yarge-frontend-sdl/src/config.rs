@@ -1,4 +1,5 @@
 use std::{path::PathBuf, fs};
+use sdl2::pixels::Color;
 use serde::{Serialize, Deserialize};
 use crate::data_dir::DataDir;
 
@@ -55,6 +56,74 @@ impl WindowScale {
   }
 }
 
+pub struct ThemeColors {
+  //Example: Most text
+  pub text: Color,
+  //Example: "Paused" text, menu stack text
+  pub text_faded: Color,
+  ///Example: Global menu background
+  pub background: Color,
+  ///Example: Selected menu item bg, bottom panel bg
+  pub caret: Color,
+  ///Example: Selected menu item text color, bottom panel text color
+  pub caret_text_color: Color,
+  ///Example: Selected menu item border
+  pub caret_border: Color,
+  ///Scrollbar color, relies on alpha, scrollbar is layered on top of it's bg with same color
+  pub scrollbar_color: Color,
+}
+
+#[derive(Serialize, Deserialize, Default, Clone, Copy, Debug)]
+pub enum UiTheme {
+  Light,
+  Dark,
+  #[default] SystemPreference,
+}
+impl UiTheme {
+  pub fn resolve(self) -> Self {
+    match self {
+      Self::SystemPreference => {
+        #[cfg(feature = "system-theme")] {
+          use dark_light::Mode;
+          match dark_light::detect() {
+            Mode::Default | Mode::Light => Self::Light,
+            Mode::Dark => Self::Dark,
+          }
+        }
+        #[cfg(not(feature = "system-theme"))] {
+          Self::Light
+        }
+      }
+      _ => self
+    }
+  }
+
+  #[inline]
+  pub const fn colors(&self) -> ThemeColors {
+    match *self {
+      Self::Light => ThemeColors {
+        text: Color::BLACK,
+        text_faded: Color::RGB(64, 64, 64),
+        background: Color::RGB(233, 226, 207),
+        caret: Color::RGBA(64, 64, 64, 255 / 2),
+        caret_text_color: Color::WHITE,
+        caret_border: Color::RGBA(0, 0, 0, 128),
+        scrollbar_color: Color::RGBA(0, 0, 0, 96),
+      },
+      Self::Dark => ThemeColors {
+        text: Color::WHITE,
+        text_faded: Color::RGB(240, 240, 240),
+        background: Color::RGB(0x1e, 0x1e, 0x1e),
+        caret: Color::RGBA(255, 255, 255, 255 / 2),
+        caret_text_color: Color::BLACK,
+        caret_border: Color::RGBA(255, 255, 255, 128),
+        scrollbar_color: Color::RGBA(255, 255, 255, 96),
+      },
+      Self::SystemPreference => unreachable!()
+    }
+  }
+}
+
 #[derive(Serialize, Deserialize)]
 pub struct Configuration {
   pub palette: Palette,
@@ -67,6 +136,7 @@ pub struct Configuration {
   pub save_slot: u8,
   pub dpi_scaling: bool,
   pub dpi_scaling_frac: bool,
+  pub theme: UiTheme,
 }
 impl Default for Configuration {
   fn default() -> Self {
@@ -81,6 +151,7 @@ impl Default for Configuration {
       save_slot: 0,
       dpi_scaling: true,
       dpi_scaling_frac: true,
+      theme: Default::default(),
     }
   }
 }

@@ -21,11 +21,12 @@ use yarge_core::{
 use crate::{
   anim::Animatable,
   text::TextRenderer,
-  config::{Configuration, Palette, WindowScale}, FAT_TEXTURE, saves::SaveManager
+  config::{Configuration, Palette, WindowScale, UiTheme}, 
+  saves::SaveManager,
+  FAT_TEXTURE, 
 };
 
 const CRATE_VERSION: &str = env!("CARGO_PKG_VERSION");
-const BACKGROUND_COLOR: Color = Color::RGB(233, 226, 207);
 const MINI_DISPLAY_SIZE: (u32, u32) = (86, 86);
 const MINI_DISPLAY_POS:  (i32, i32) = (10, 10);
 const TOP_DETAILS_PADDING: (u32, u32) = (10, 0);
@@ -45,6 +46,7 @@ fn menu_item(
   cursor: isize,
   index: usize,
   click: bool,
+  theme: &UiTheme,
 ) -> bool {
   let v_padding = (position.3 as i32 - text_renderer.char_size(1.).1 as i32).max(0) as u32 / 2;
   //canvas.set_clip_rect(Rect::from(position));
@@ -55,13 +57,13 @@ fn menu_item(
       ((position.2 as f32) * dpi_scale) as u32,
       ((position.3 as f32) * dpi_scale) as u32,
     ));
-    canvas.set_draw_color(Color::RGBA(0, 0, 0, 96));
+    canvas.set_draw_color(theme.colors().caret);
     canvas.fill_rect(position_dpi).unwrap();
-    canvas.set_draw_color(Color::RGBA(0, 0, 0, 128));
+    canvas.set_draw_color(theme.colors().caret_border);
     canvas.draw_rect(position_dpi).unwrap();
-    text_renderer.set_color(Color::RGBA(255, 255, 255, 255));
+    text_renderer.set_color(theme.colors().caret_text_color);
   } else {
-    text_renderer.set_color(Color::RGBA(0, 0, 0, 255));
+    text_renderer.set_color(theme.colors().text);
   }
   text_renderer.render(canvas, (
     ((position.0 + MENU_ITEM_H_PADDING as i32) as f32 * dpi_scale) as i32,
@@ -86,6 +88,7 @@ enum MenuLocation {
     items: Vec<PathBuf>
   },
   ClosedImproperly,
+  UiTheme,
 }
 impl MenuLocation {
   pub fn friendly_name(&self) -> &'static str {
@@ -100,6 +103,7 @@ impl MenuLocation {
       Self::AskForRestart => "Restart",
       Self::FileExplorer { .. } => "File explorer",
       Self::ClosedImproperly => "Warning",
+      Self::UiTheme => "Theme",
     }
   }
 }
@@ -113,9 +117,10 @@ pub struct Menu {
   clicked: bool,
   has_game: bool,
   schedule_save: bool,
+  theme: UiTheme,
 }
 impl Menu {
-  pub fn new() -> Self {
+  pub fn new(config: &Configuration) -> Self {
     Self {
       active: false,
       activation_anim_state: Animatable::new(),
@@ -125,6 +130,7 @@ impl Menu {
       clicked: false,
       has_game: false,
       schedule_save: false,
+      theme: config.theme.resolve(),
     }
   }
   pub fn is_active(&self) -> bool {
@@ -263,6 +269,10 @@ impl Menu {
     }
   }
 
+  fn resolve_theme(&mut self, config: &Configuration) {
+    self.theme = config.theme.resolve();
+  }
+
   #[allow(clippy::too_many_arguments)]
   pub fn update(
     &mut self,
@@ -290,7 +300,7 @@ impl Menu {
     self.activation_anim_state.step();
 
     //Clear canvas
-    canvas.set_draw_color(BACKGROUND_COLOR);
+    canvas.set_draw_color(self.theme.colors().background);
     canvas.clear();
 
     //check for small screen
@@ -301,7 +311,8 @@ impl Menu {
       let alpha = (self.activation_anim_state.value * 255.) as u8;
       if alpha != 255 {
         canvas.copy(gb_texture, None, None).unwrap();
-        canvas.set_draw_color(Color::RGBA(BACKGROUND_COLOR.r, BACKGROUND_COLOR.g, BACKGROUND_COLOR.b, alpha));
+        let bg_color = self.theme.colors().background;
+        canvas.set_draw_color(Color::RGBA(bg_color.r, bg_color.g, bg_color.b, alpha));
         canvas.fill_rect(Rect::from((0, 0, res.0, res.1))).unwrap();
       }
     }
@@ -325,7 +336,9 @@ impl Menu {
       let computed_scale = ((res.0 as f32 - x_pos as f32) / (display_name.len() as f32 * (text.char_size(1.).0 as f32))).min(2.);
       
       //Game title text
-      text.set_color(Color::RGBA(0, 0, 0, opa));
+      let mut text_color = self.theme.colors().text;
+      text_color.a = opa;
+      text.set_color(text_color);
       text.render(
         canvas,
         (m(x_pos + x_anim_offset as i32, dpi_scale), m(y_pos, dpi_scale)),
@@ -334,7 +347,8 @@ impl Menu {
       );
 
       //"Paused" text
-      text.set_color(Color::RGBA(64, 64, 64, opa));
+      let mut text_color = self.theme.colors().text_faded;
+      text_color.a = opa;
       text.render(
         canvas,
         (
@@ -371,6 +385,7 @@ impl Menu {
         debug_assert!(capacity == path.len());
         Cow::from(path)
       };
+      //using same color as above
       text.render(
         canvas,
         (
@@ -403,7 +418,7 @@ impl Menu {
           if self.cursor == x_index {
             x_cursor_y = Some(x_position.1);
           }
-          if menu_item($text, x_position, dpi_scale, canvas, text, self.cursor, x_index as usize, self.clicked) {
+          if menu_item($text, x_position, dpi_scale, canvas, text, self.cursor, x_index as usize, self.clicked, &self.theme) {
             $on_click;
           }
           x_position.1 += x_position.3 as i32 + MENU_MARGIN;
@@ -515,6 +530,7 @@ impl Menu {
         MenuLocation::Options => {
           define_menu_item!("Color palette...", MenuLocation::PalettePicker);
           define_menu_item!("Display scale...", MenuLocation::ScalePicker);
+          define_menu_item!("Theme...", MenuLocation::UiTheme);
         },
         MenuLocation::PalettePicker => {
           if define_radio_group!(&mut config.palette, {
@@ -658,6 +674,17 @@ impl Menu {
             define_menu_item!("Some data may");
             define_menu_item!("be lost");
           }
+        },
+        MenuLocation::UiTheme => {
+          if define_radio_group!(&mut config.theme, {
+            define_radio_item!("Light", UiTheme::Light, UiTheme::Light);
+            define_radio_item!("Dark", UiTheme::Dark, UiTheme::Dark);
+            #[cfg(feature = "system-theme")]
+            define_radio_item!(if small { "System" } else { "System preference" }, UiTheme::SystemPreference, UiTheme::SystemPreference);
+          }) {
+            config.save_dirty().unwrap();
+            self.resolve_theme(config);
+          }
         }
       }
 
@@ -695,7 +722,7 @@ impl Menu {
           mu(SCROLLBAR_WIDTH, dpi_scale),
           mu(viewport_height as u32, dpi_scale)
         ));
-        canvas.set_draw_color(Color::RGBA(0, 0, 0, 96));
+        canvas.set_draw_color(self.theme.colors().scrollbar_color);
         canvas.fill_rects(&[scrollbar_rect, scrollbar_rect, scrollbar_bg_rect]).unwrap();
       }
 
@@ -715,7 +742,8 @@ impl Menu {
       let opa = (self.activation_anim_state.value * 255.) as u32 as u8;
       let offst = -(h as i32 - (self.activation_anim_state.value * h as f32) as i32);
       //box
-      canvas.set_draw_color(Color::RGBA(0, 0, 0, opa / 4));
+      let caret_color = self.theme.colors().caret;
+      canvas.set_draw_color(Color::RGBA(caret_color.r, caret_color.g, caret_color.b, (caret_color.a as f32 * (opa as f32 / 255.)) as u8));
       canvas.fill_rects(&[
         Rect::from((0, res.1 as i32 - m(h as i32 + offst, dpi_scale) - 1, res.0, mu(h, dpi_scale) + 1)),
         Rect::from((0, res.1 as i32 - m(h as i32 + offst, dpi_scale), res.0, mu(h, dpi_scale)))
@@ -723,7 +751,7 @@ impl Menu {
       //compute y coord
       let text_y = res.1 as i32 - m(h as i32 - 1 + offst, dpi_scale);
       //help text
-      text.set_color(Color::RGBA(255, 255, 255, opa));
+      text.set_color(self.theme.colors().caret_text_color);
       text.render(canvas, (m(3, dpi_scale), text_y), 1., if !small {
         "\x1e\x1f Move cursor \x04 Confirm"
       } else {
@@ -758,5 +786,5 @@ impl Menu {
   }
 }
 impl Default for Menu {
-  fn default() -> Self { Self::new() }
+  fn default() -> Self { Self::new(&Configuration::default()) }
 }
