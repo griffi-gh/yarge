@@ -11,6 +11,7 @@ pub struct SquareWaveChannel {
   wave_duty: WaveDuty,
   wavelength: usize,
   freq_timer: usize,
+  dac_enabled: bool,
   channel_enabled: bool,
 }
 
@@ -22,6 +23,7 @@ impl SquareWaveChannel {
       wave_duty: WaveDuty::new(),
       freq_timer: 8192, //or 0?
       wavelength: 0,
+      dac_enabled: false,
       channel_enabled: false,
     }
   }
@@ -62,7 +64,8 @@ impl ApuChannel for SquareWaveChannel {
         //   I L- freq timer
         //   L- pat type
         self.wave_duty.set_pattern_type((value >> 6) as usize);
-        self.freq_timer = (value & 0x3f) as usize;
+        //self.freq_timer = (value & 0x3f) as usize;
+        //NO, length!
         //HACK: force enable channel!
         self.channel_enabled = true;
       }
