@@ -124,7 +124,7 @@ impl Apu {
         self.channel1.write(addr, value);
       }
       R_NR21 | R_NR22 | R_NR23 | R_NR24 => {
-        self.channel1.write(addr, value);
+        self.channel2.write(addr, value);
       }
       _ => ()
     }
