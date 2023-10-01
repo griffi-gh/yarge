@@ -92,7 +92,7 @@ impl Gameboy {
   #[cfg(feature = "dbg-logging")]
   fn log_step(&mut self) {
     let r = &self.cpu.reg;
-    let m = &self.cpu.mmu;
+    let m = &self.cpu.bus;
     let string = format!(
       "A: {a:02X} F: {f:02X} B: {b:02X} C: {c:02X} \
       D: {d:02X} E: {e:02X} H: {h:02X} L: {l:02X} \
