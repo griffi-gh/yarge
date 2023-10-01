@@ -72,7 +72,8 @@ impl Mmu {
         0xFF06 => self.timers.tma,
         0xFF07 => self.timers.get_tac(),
         0xFF0F => self.iif,
-        0xFF10..=0xFF26 => self.tmp_apu_reg[addr as usize - 0xFF10],
+        //0xFF10..=0xFF26 => self.tmp_apu_reg[addr as usize - 0xFF10],
+        0xFF10..=0xFF3F => self.apu.read(addr),
         0xFF40 => self.ppu.get_lcdc(), //LCDC
         0xFF41 => self.ppu.get_stat(), //STAT
         0xFF42 => self.ppu.scy,
@@ -123,8 +124,9 @@ impl Mmu {
         0xFF05 => { self.timers.set_tima(value) },
         0xFF06 => { self.timers.tma = value },
         0xFF07 => { self.timers.set_tac(value) },
-        0xFF10..=0xFF26 => { self.tmp_apu_reg[addr as usize - 0xFF10] = value; }
         0xFF0F => { self.iif = value },
+        // 0xFF10..=0xFF26 => { self.tmp_apu_reg[addr as usize - 0xFF10] = value; }
+        0xFF10..=0xFF3F => { self.apu.write(addr, value, blocking) }
         0xFF40 => { self.ppu.set_lcdc(value) },
         0xFF41 => { self.ppu.set_stat(value) },
         0xFF42 => { self.ppu.scy = value },

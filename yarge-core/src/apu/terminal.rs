@@ -1,4 +1,4 @@
-#[derive(Default, Clone, Copy)]
+#[derive(Default, Clone, Copy, Debug)]
 pub struct Terminal {
   pub vin: bool,
   pub volume: u8,

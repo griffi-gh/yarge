@@ -1,4 +1,5 @@
 use crate::consts::{AUDIO_CYCLES_PER_SAMPLE, audio_registers::*};
+use seq_macro::seq;
 
 mod channels;
 mod audio_buffer;
@@ -103,14 +104,27 @@ impl Apu {
     //If the APU is disabled most registers are R/O
     if blocking && !self.check_write_access(addr) { return }
     match addr {
+      R_NR51 => {
+        //these were supposed to be used for this right?
+        //haven't touched this codebase for a *while*
+        #[allow(clippy::identity_op)] {
+          seq!(S in 0..=1 {
+            seq!(N in 0..4 {
+              self.terminals.S.enabled_channels.N = (value >> ((S << 2) + N)) & 1 != 0;
+            });
+          });
+        }
+        //println!("TERMINALS: {:?}", self.terminals);
+      }
       R_NR52 => {
         self.enabled = (value & 0x80) != 0;
+        //TODO when/if disabled, clear registers
       },
       R_NR10 | R_NR11 | R_NR12 | R_NR13 | R_NR14 => {
-        self.channel1.write(addr as u8, value);
+        self.channel1.write(addr, value);
       }
       R_NR21 | R_NR22 | R_NR23 | R_NR24 => {
-        self.channel1.write(addr as u8, value);
+        self.channel1.write(addr, value);
       }
       _ => ()
     }

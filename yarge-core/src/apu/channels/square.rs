@@ -29,7 +29,7 @@ impl SquareWaveChannel {
 
 impl ApuChannel for SquareWaveChannel {
   fn tick(&mut self) {
-    self.freq_timer -= 1;
+    self.freq_timer = self.freq_timer.saturating_sub(1);
     if self.freq_timer == 0 {
       self.freq_timer = 4 * (2048 - self.wavelength);
       self.wave_duty.tick();
@@ -45,17 +45,21 @@ impl ApuChannel for SquareWaveChannel {
     (data / 7.5) - 1.0 
   }
   
-  fn read(&self, mmio_addr: u8) -> u8 {
+  fn read(&self, mmio_addr: u16) -> u8 {
     0
   }
 
-  fn write(&mut self, mmio_addr: u8, value: u8) {
-    match mmio_addr as u16 | 0xFF00 { 
+  fn write(&mut self, mmio_addr: u16, value: u8) {
+    match mmio_addr { 
       R_NR10 => {
         //TODO
       }
       R_NR11 | R_NR21 => {
-        //TODO
+        // 0bAABBBBBB;
+        //   I L- freq timer
+        //   L- pat type
+        self.wave_duty.set_pattern_type((value >> 6) as usize);
+        self.freq_timer = (value & 0x3f) as usize;
       }
       R_NR12 | R_NR22 => {
         //TODO
