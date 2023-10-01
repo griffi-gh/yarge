@@ -2,7 +2,7 @@ mod reg;
 mod instructions;
 use instructions::{cpu_instructions, cpu_instructions_cb};
 pub use reg::Registers;
-use crate::{Mmu, Res, consts::INT_JMP_VEC};
+use crate::{MemBus, Res, consts::INT_JMP_VEC};
 
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub enum CpuState {
@@ -22,7 +22,7 @@ pub enum Interrupt {
 
 pub struct Cpu {
   pub reg: Registers,
-  pub mmu: Mmu,
+  pub bus: MemBus,
   pub state: CpuState,
   ime_pending: bool,
   ime: bool,
@@ -35,7 +35,7 @@ impl Cpu {
   pub fn new() -> Self {
     Self {
       reg: Registers::new(),
-      mmu: Mmu::new(),
+      bus: MemBus::new(),
       state: CpuState::Running,
       ime_pending: false,
       ime: false,
@@ -49,7 +49,7 @@ impl Cpu {
   fn check_pc_breakpoints(&mut self, addr: u16) -> Res<()> {
     use crate::YargeError;
     if self.pc_breakpoints[addr as usize] {
-      let instr = self.mmu.rb(addr, true);
+      let instr = self.bus.rb(addr, true);
       Err(YargeError::PcBreakpoint { instr, addr })
     } else {
       Ok(())
@@ -58,11 +58,11 @@ impl Cpu {
 
   fn rb(&mut self, addr: u16) -> u8 {
     self.cycle();
-    self.mmu.rb(addr, true)
+    self.bus.rb(addr, true)
   }
   fn wb(&mut self, addr: u16, value: u8) {
     self.cycle();
-    self.mmu.wb(addr, value, true);
+    self.bus.wb(addr, value, true);
   }
 
   fn rw(&mut self, addr: u16) -> u16 {
@@ -97,7 +97,7 @@ impl Cpu {
 
   fn cycle(&mut self) {
     self.t += 4;
-    self.mmu.tick_components();
+    self.bus.tick_components();
   }
 
   fn disable_ime(&mut self) {
@@ -118,10 +118,10 @@ impl Cpu {
     debug_assert!(int < 5, "Invalid interrupt: {int}");
     //Call interrupt handler
     self.reg.dec_sp(2);
-    self.mmu.ww(self.reg.sp, self.reg.pc, true);
+    self.bus.ww(self.reg.sp, self.reg.pc, true);
     self.reg.pc = INT_JMP_VEC[int];
     //flip IF bit and disable IME
-    self.mmu.iif &= !(1 << int);
+    self.bus.iif &= !(1 << int);
     self.disable_ime();
     //Run for 20 cycles
     //TODO spread out cycles???
@@ -136,7 +136,7 @@ impl Cpu {
   }
   
   fn check_interrupts(&mut self) {
-    let check = self.mmu.iie & self.mmu.iif;
+    let check = self.bus.iie & self.bus.iif;
     if check != 0 {
       if self.state == CpuState::Halt {
         self.state = CpuState::Running;

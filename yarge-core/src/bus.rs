@@ -3,7 +3,7 @@ use std::fs;
 pub mod cartridge;
 use cartridge::{CartridgeImpl as _, RomHeader, Cartridge, MockCartridge};
 
-pub struct Mmu {
+pub struct MemBus {
   pub bios_disabled: bool,
   pub cart: Cartridge,
   cart_header: RomHeader,
@@ -20,10 +20,8 @@ pub struct Mmu {
   pub apu: Apu,
   pub timers: Timers,
   pub input: Input,
-  //workaround
-  tmp_apu_reg: [u8; 23],
 }
-impl Mmu {
+impl MemBus {
   pub fn new() -> Self {
     Self {
       bios_disabled: false,
@@ -42,8 +40,6 @@ impl Mmu {
       apu: Apu::new(),
       timers: Timers::new(),
       input: Input::new(),
-      //workaround
-      tmp_apu_reg: [0; 23],
     }
   }
 

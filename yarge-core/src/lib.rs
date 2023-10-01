@@ -1,14 +1,14 @@
 #![forbid(unsafe_code)]
 
 //Components
-pub(crate) mod mmu;
+pub(crate) mod bus;
 pub(crate) mod cpu;
 pub(crate) mod ppu;
 pub(crate) mod apu;
 pub(crate) mod timers;
 pub(crate) mod input;
 
-pub(crate) use mmu::Mmu;
+pub(crate) use bus::MemBus;
 pub(crate) use cpu::Cpu;
 pub(crate) use ppu::Ppu;
 pub(crate) use apu::Apu;
@@ -26,7 +26,7 @@ pub use input::Key;
 pub use cpu::CpuState;
 pub use errors::YargeError;
 pub use apu::AudioDevice;
-pub use mmu::cartridge::RomHeader;
+pub use bus::cartridge::RomHeader;
 
 //Types
 pub(crate) type Res<T> = Result<T, YargeError>;
@@ -72,7 +72,7 @@ impl Gameboy {
   }
   
   pub fn skip_bootrom(&mut self) {
-    if self.cpu.mmu.bios_disabled {
+    if self.cpu.bus.bios_disabled {
       panic!("Attempt to skip bios while not in bootrom");
     }
     let reg = &mut self.cpu.reg;
@@ -82,7 +82,7 @@ impl Gameboy {
     reg.set_bc(0x0013);
     reg.set_de(0x00D8);
     reg.set_hl(0x014D);
-    self.cpu.mmu.bios_disabled = true;
+    self.cpu.bus.bios_disabled = true;
   }
   
   pub fn reset(&mut self) {
