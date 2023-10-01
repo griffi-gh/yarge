@@ -86,7 +86,10 @@ impl Gameboy {
   }
   
   pub fn reset(&mut self) {
+    //MAYBE: option to keep rom?
+    let device = self.cpu.bus.apu.device.take();
     self.cpu = Cpu::new();
+    self.cpu.bus.apu.device = device;
   }
 
   #[cfg(feature = "dbg-logging")]

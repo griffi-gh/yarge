@@ -189,6 +189,18 @@ impl Gameboy {
     self.cpu.bus.apu.device = Some(Box::new(device));
   }
 
+  #[inline] pub fn get_audio_device(&mut self) -> Option<&dyn AudioDevice> {
+    self.cpu.bus.apu.device.as_ref().map(|x| x.as_ref())
+  }
+
+  #[inline] pub fn get_audio_device_mut(&mut self) -> Option<&mut Box<dyn AudioDevice>> {
+    self.cpu.bus.apu.device.as_mut()
+  }
+
+  #[inline] pub fn remove_audio_device(&mut self) -> Option<Box<dyn AudioDevice>> {
+    self.cpu.bus.apu.device.take()
+  }
+
   #[inline] pub fn has_save_data(&self) -> bool {
     self.cpu.bus.cart.has_save_data()
   }

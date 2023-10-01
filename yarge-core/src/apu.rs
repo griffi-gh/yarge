@@ -88,8 +88,8 @@ impl Apu {
       if self.buffer.is_full() {
         if let Some(device) = self.device.as_mut() {
           device.queue_samples(self.buffer.get_buffer());
-          self.buffer.reset();
         }
+          self.buffer.reset();
       }
     }
   }
