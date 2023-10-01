@@ -214,14 +214,18 @@ fn main() {
         if dpi_prev != display_dpi_scale {
           println!("[INFO/DPI] dpi scale changed from {} to {}", dpi_prev, display_dpi_scale);
           dpi_prev = display_dpi_scale;
-          let s = (
-            GB_WIDTH as u32 * config.scale.scale_or_default(),
-            GB_HEIGHT as u32 * config.scale.scale_or_default()
-          );
-          canvas.window_mut().set_size(
-            (display_dpi_scale * s.0 as f32) as u32, 
-            (display_dpi_scale * s.1 as f32) as u32
-          ).unwrap();
+          if matches!(config.scale, WindowScale::Fullscreen | WindowScale::Maximized) {
+            println!("[WARN/DPI] Not applying dpi scaling to window size as it's either fullscreen or maximized");
+          } else {
+            let s = (
+              GB_WIDTH as u32 * config.scale.scale_or_default(),
+              GB_HEIGHT as u32 * config.scale.scale_or_default()
+            );
+            canvas.window_mut().set_size(
+              (display_dpi_scale * s.0 as f32) as u32, 
+              (display_dpi_scale * s.1 as f32) as u32
+            ).unwrap();
+          }
         }
         text_renderer.set_render_dpi_scale(display_dpi_scale);
         display_dpi_scale
