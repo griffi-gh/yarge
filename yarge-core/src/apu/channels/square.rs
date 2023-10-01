@@ -1,4 +1,4 @@
-use crate::apu::{ApuChannel, wave::WaveDuty};
+use crate::{apu::{ApuChannel, wave::WaveDuty}, consts::audio_registers::*};
 
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub enum SquareWaveChannelType {
@@ -43,5 +43,30 @@ impl ApuChannel for SquareWaveChannel {
     let data = self.wave_duty.get_data() as f32;
     //idk why /7.5 - 1 part is needed, I stole it from another emu
     (data / 7.5) - 1.0 
+  }
+  
+  fn read(&self, mmio_addr: u8) -> u8 {
+    0
+  }
+
+  fn write(&mut self, mmio_addr: u8, value: u8) {
+    match mmio_addr as u16 | 0xFF00 { 
+      R_NR10 => {
+        //TODO
+      }
+      R_NR11 | R_NR21 => {
+        //TODO
+      }
+      R_NR12 | R_NR22 => {
+        //TODO
+      }
+      R_NR13 | R_NR23 => {
+        //TODO
+      }
+      R_NR14 | R_NR24 => {
+        //TODO
+      }
+      _ => ()
+    }
   }
 }

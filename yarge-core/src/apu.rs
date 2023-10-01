@@ -106,6 +106,12 @@ impl Apu {
       R_NR52 => {
         self.enabled = (value & 0x80) != 0;
       },
+      R_NR10 | R_NR11 | R_NR12 | R_NR13 | R_NR14 => {
+        self.channel1.write(addr as u8, value);
+      }
+      R_NR21 | R_NR22 | R_NR23 | R_NR24 => {
+        self.channel1.write(addr as u8, value);
+      }
       _ => ()
     }
   }
