@@ -29,10 +29,13 @@ impl SquareWaveChannel {
 
 impl ApuChannel for SquareWaveChannel {
   fn tick(&mut self) {
+    if !self.channel_enabled { return }
+    //self.freq_timer -= 1;
     self.freq_timer = self.freq_timer.saturating_sub(1);
     if self.freq_timer == 0 {
       self.freq_timer = 4 * (2048 - self.wavelength);
       self.wave_duty.tick();
+      self.channel_enabled = false;
     }
   }
 
@@ -60,6 +63,8 @@ impl ApuChannel for SquareWaveChannel {
         //   L- pat type
         self.wave_duty.set_pattern_type((value >> 6) as usize);
         self.freq_timer = (value & 0x3f) as usize;
+        //HACK: force enable channel!
+        self.channel_enabled = true;
       }
       R_NR12 | R_NR22 => {
         //TODO
