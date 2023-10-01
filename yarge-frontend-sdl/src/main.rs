@@ -294,9 +294,9 @@ fn main() {
       //Allow skipping bootrom
       if !gb.get_bios_disabled() {
         text_renderer.set_color(Color::BLACK);
-        text_renderer.render(&mut canvas, (0, 0), 1., "Press space to skip\nL(Hold LAlt to TICK)");
+        text_renderer.render(&mut canvas, (0, 0), 1., "Press space to skip\n(Hold Alt to tick)");
         if kb_state.is_scancode_pressed(Scancode::Space) {
-          if kb_state.is_scancode_pressed(Scancode::LAlt) {
+          if kb_state.is_scancode_pressed(Scancode::LAlt) | kb_state.is_scancode_pressed(Scancode::RAlt) {
             println!("[INFO] Skipping bootrom [TICKING!!!]");
             while gb.get_reg_pc() < 0x100 { gb.step().unwrap(); }
           } else {
