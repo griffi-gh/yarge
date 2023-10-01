@@ -9,22 +9,34 @@ const CONFIG_FILE_NAME: &str = "options.bin";
 pub enum Palette {
   #[default]
   Grayscale,
+  GrayscaleDark,
   Green,
   Custom([u32; 4])
 }
 impl Palette {
   pub fn get_map(&self) -> [u32; 4] {
     match self {
-      Self::Grayscale => [0x00ffffff, 0x00aaaaaa, 0x00555555, 0x0000000],
-      Self::Green     => [0x00e0f8d0, 0x0088c070, 0x00346856, 0x0081820],
+      Self::Grayscale     => [0x00ffffff, 0x00aaaaaa, 0x00555555, 0x00000000],
+      Self::GrayscaleDark => [0x00000000, 0x00555555, 0x00aaaaaa, 0x00ffffff],
+      Self::Green         => [0x00e0f8d0, 0x0088c070, 0x00346856, 0x00081820],
       Self::Custom(x) => *x
     }
   }
   pub fn get_name(&self) -> &'static str {
     match self {
       Self::Grayscale => "Grayscale",
+      Self::GrayscaleDark => "Grayscale (Dark)",
       Self::Green     => "Green",
       Self::Custom(_) => "Custom"
+    }
+  }
+  ///Should overlay text be white?
+  pub fn is_dark(&self) -> bool {
+    match self {
+      Self::Grayscale => false,
+      Self::GrayscaleDark => true,
+      Self::Green     => false,
+      Self::Custom(_) => false //TODO check color brightness
     }
   }
 }

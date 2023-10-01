@@ -535,6 +535,7 @@ impl Menu {
         MenuLocation::PalettePicker => {
           if define_radio_group!(&mut config.palette, {
             define_radio_item!(Palette::Grayscale.get_name(), Palette::Grayscale, Palette::Grayscale);
+            define_radio_item!(Palette::GrayscaleDark.get_name(), Palette::GrayscaleDark, Palette::GrayscaleDark);
             define_radio_item!(Palette::Green.get_name(), Palette::Green, Palette::Green);
           }) {
             config.save_dirty().unwrap();

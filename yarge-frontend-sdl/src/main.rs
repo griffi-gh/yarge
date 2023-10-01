@@ -293,7 +293,7 @@ fn main() {
 
       //Allow skipping bootrom
       if !gb.get_bios_disabled() {
-        text_renderer.set_color(Color::BLACK);
+        text_renderer.set_color(if config.palette.is_dark() {Color::WHITE} else {Color::BLACK});
         text_renderer.render(&mut canvas, (0, 0), 1., "Press space to skip\n(Hold Alt to tick)");
         if kb_state.is_scancode_pressed(Scancode::Space) {
           if kb_state.is_scancode_pressed(Scancode::LAlt) | kb_state.is_scancode_pressed(Scancode::RAlt) {
