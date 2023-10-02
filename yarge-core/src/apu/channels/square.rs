@@ -32,6 +32,10 @@ impl SquareWaveChannel {
       channel_enabled: false,
     }
   }
+
+  fn reset_freq_timer(&mut self) {
+    self.freq_timer = (2048 - self.frequency) * 4;
+  }
 }
 
 impl ApuChannel for SquareWaveChannel {
@@ -52,7 +56,7 @@ impl ApuChannel for SquareWaveChannel {
     if self.freq_timer > 0 {
       self.freq_timer -= 1;
       if self.freq_timer == 0 {
-        self.freq_timer = (2048 - self.frequency) * 4;
+        self.reset_freq_timer();
         self.wave_duty.tick();
         //self.channel_enabled = false;
       }
@@ -71,6 +75,7 @@ impl ApuChannel for SquareWaveChannel {
   }
   
   fn read(&self, mmio_addr: u16) -> u8 {
+    //TODO
     0
   }
 
@@ -92,13 +97,18 @@ impl ApuChannel for SquareWaveChannel {
       },
       R_NR13 | R_NR23 => {
         self.frequency = (self.frequency & 0x700) | value as u16;
+        //XXX: this *may* be correct?
+        //self.reset_freq_timer();
       },
       R_NR14 | R_NR24 => {
         if value & 0x80 != 0 {
           //Channel trigerred
           self.channel_enabled = true;
+          self.reset_freq_timer();
         }
         self.frequency = (self.frequency & 0xff) | ((value as u16 & 0b111) << 8);
+        //XXX: this *may* be correct?
+        //self.reset_freq_timer();
         self.length_timer_enable = value & (1 << 6) != 0;
       },
       _ => ()
