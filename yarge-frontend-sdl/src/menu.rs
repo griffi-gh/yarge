@@ -528,9 +528,9 @@ impl Menu {
           define_menu_item!("Exit", { *do_exit = true });
         },
         MenuLocation::Options => {
+          define_menu_item!("UI Theme...", MenuLocation::UiTheme);
           define_menu_item!("Color palette...", MenuLocation::PalettePicker);
           define_menu_item!("Display scale...", MenuLocation::ScalePicker);
-          define_menu_item!("Theme...", MenuLocation::UiTheme);
         },
         MenuLocation::PalettePicker => {
           if define_radio_group!(&mut config.palette, {
