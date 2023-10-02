@@ -82,8 +82,10 @@ impl Apu {
 
     if !self.enabled { return }
 
-    self.channel1.tick();
-    self.channel2.tick();
+    for _ in 0..4 {
+      self.channel1.tick();
+      self.channel2.tick();
+    }
 
     if is_div_falling_edge {
       self.tick_sequencer();
@@ -91,7 +93,7 @@ impl Apu {
     
     self.sample_cycles += 4;
     if self.sample_cycles >= AUDIO_CYCLES_PER_SAMPLE {
-      self.sample_cycles = 0;
+      self.sample_cycles -= AUDIO_CYCLES_PER_SAMPLE;
       let amplitudes = (
         self.channel1.amplitude(),
         self.channel2.amplitude(),
