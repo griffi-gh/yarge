@@ -173,6 +173,7 @@ impl Menu {
   ///Process events
   pub fn process_evt(&mut self, event: &Event) {
     match event {
+      Event::MouseButtonDown { mouse_btn: MouseButton::Right, ..  } |
       Event::KeyDown { keycode: Some(Keycode::Escape), repeat: false, .. } if self.has_game => {
         self.set_activated_state(!self.is_active());
       },
