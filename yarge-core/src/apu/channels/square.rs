@@ -36,6 +36,16 @@ impl SquareWaveChannel {
   fn reset_freq_timer(&mut self) {
     self.freq_timer = (2048 - self.frequency) * 4;
   }
+
+  fn trigger(&mut self) {
+    self.reset_freq_timer();
+    self.channel_enabled = true;
+    //XXX: Should this ALWAYS set to 64?
+    //self.length_timer = 64;
+    if self.length_timer == 0 {
+      self.length_timer = 64;
+    }
+  }
 }
 
 impl ApuChannel for SquareWaveChannel {
@@ -101,15 +111,15 @@ impl ApuChannel for SquareWaveChannel {
         //self.reset_freq_timer();
       },
       R_NR14 | R_NR24 => {
-        if value & 0x80 != 0 {
-          //Channel trigerred
-          self.channel_enabled = true;
-          self.reset_freq_timer();
-        }
         self.frequency = (self.frequency & 0xff) | ((value as u16 & 0b111) << 8);
         //XXX: this *may* be correct?
         //self.reset_freq_timer();
         self.length_timer_enable = value & (1 << 6) != 0;
+
+        if value & 0x80 != 0 {
+          //Channel trigerred
+          self.trigger();
+        }
       },
       _ => ()
     }
