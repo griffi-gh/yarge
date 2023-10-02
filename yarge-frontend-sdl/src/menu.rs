@@ -119,6 +119,7 @@ pub struct Menu {
   schedule_save: bool,
   theme: UiTheme,
   mouse_navigation: Option<i32>,
+  last_navigation_was_mouse_scroll: bool,
 }
 impl Menu {
   pub fn new(config: &Configuration) -> Self {
@@ -133,6 +134,7 @@ impl Menu {
       schedule_save: false,
       theme: config.theme.resolve(),
       mouse_navigation: None,
+      last_navigation_was_mouse_scroll: false,
     }
   }
   pub fn is_active(&self) -> bool {
@@ -176,24 +178,34 @@ impl Menu {
       },
       Event::KeyDown { keycode: Some(Keycode::Down), .. } if self.active => {
         self.cursor += 1;
+        self.last_navigation_was_mouse_scroll = false;
       },
       Event::KeyDown { keycode: Some(Keycode::Up), .. } if self.active => {
         self.cursor -= 1;
+        self.last_navigation_was_mouse_scroll = false;
       },
       Event::MouseWheel { y, .. } if self.active => {
         //self.scroll -= *y * MENU_ITEM_HEIGHT as i32 / 2;
         self.cursor -= *y as isize;
+        self.last_navigation_was_mouse_scroll = true;
       },
-      Event::MouseMotion { y, .. } |
-      Event::MouseButtonDown { mouse_btn: MouseButton::Left, y, ..  } if self.active => {
+      Event::MouseMotion { y, .. } if self.active => {
+        self.mouse_navigation = Some(*y);
+        self.last_navigation_was_mouse_scroll = false;
+      },
+      Event::MouseButtonDown { mouse_btn: MouseButton::Left, y, ..  } if self.active && !self.last_navigation_was_mouse_scroll => {
         self.mouse_navigation = Some(*y);
       },
       Event::MouseButtonUp { mouse_btn: MouseButton::Left, y, .. } if self.active => {
-        self.mouse_navigation = Some(*y);
+        if !self.last_navigation_was_mouse_scroll {
+          self.mouse_navigation = Some(*y);
+        }
         self.clicked = true;
+        self.last_navigation_was_mouse_scroll = false;
       }
       Event::KeyDown { keycode: Some(Keycode::Return | Keycode::Return2), repeat: false, .. } if self.active => {
         self.clicked = true;
+        self.last_navigation_was_mouse_scroll = false;
       },
       _ => ()
     }
