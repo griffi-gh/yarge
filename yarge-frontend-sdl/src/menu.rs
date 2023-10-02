@@ -180,7 +180,7 @@ impl Menu {
       Event::KeyDown { keycode: Some(Keycode::Up), .. } if self.active => {
         self.cursor -= 1;
       },
-      Event::MouseWheel { y, .. } => {
+      Event::MouseWheel { y, .. } if self.active => {
         //self.scroll -= *y * MENU_ITEM_HEIGHT as i32 / 2;
         self.cursor -= *y as isize;
       },
