@@ -180,12 +180,20 @@ impl Menu {
       Event::KeyDown { keycode: Some(Keycode::Up), .. } if self.active => {
         self.cursor -= 1;
       },
-      Event::MouseButtonUp { mouse_btn: MouseButton::Left, .. } |
+      Event::MouseWheel { y, .. } => {
+        //self.scroll -= *y * MENU_ITEM_HEIGHT as i32 / 2;
+        self.cursor -= *y as isize;
+      },
+      Event::MouseMotion { y, .. } |
+      Event::MouseButtonDown { mouse_btn: MouseButton::Left, y, ..  } if self.active => {
+        self.mouse_navigation = Some(*y);
+      },
+      Event::MouseButtonUp { mouse_btn: MouseButton::Left, y, .. } if self.active => {
+        self.mouse_navigation = Some(*y);
+        self.clicked = true;
+      }
       Event::KeyDown { keycode: Some(Keycode::Return | Keycode::Return2), repeat: false, .. } if self.active => {
         self.clicked = true;
-      },
-      Event::MouseMotion { y, .. } => {
-        self.mouse_navigation = Some(*y);
       },
       _ => ()
     }
