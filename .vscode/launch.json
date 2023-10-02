@@ -7,7 +7,7 @@
     {
       "type": "lldb",
       "request": "launch",
-      "name": "Debug executable",
+      "name": "Debug executable (yarge-frontend-desktop)",
       "cargo": {
         "args": [
           "build",
@@ -25,7 +25,7 @@
     {
       "type": "lldb",
       "request": "launch",
-      "name": "Debug unit tests",
+      "name": "Debug unit tests (yarge-frontend-desktop)",
       "cargo": {
         "args": [
           "test",
@@ -40,6 +40,43 @@
       },
       "args": [],
       "cwd": "${workspaceFolder}"
-    }
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug executable (yarge-frontend-sdl)",
+      "cargo": {
+        "args": [
+          "build",
+          "--bin=yarge-frontend-sdl",
+          "--package=yarge-frontend-sdl"
+        ],
+        "filter": {
+          "name": "yarge-frontend-sdl",
+          "kind": "bin"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug unit tests (yarge-frontend-sdl)",
+      "cargo": {
+        "args": [
+          "test",
+          "--no-run",
+          "--bin=yarge-frontend-sdl",
+          "--package=yarge-frontend-sdl"
+        ],
+        "filter": {
+          "name": "yarge-frontend-sdl",
+          "kind": "bin"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
   ]
 }
