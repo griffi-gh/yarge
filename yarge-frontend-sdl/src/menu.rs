@@ -4,7 +4,7 @@ use sdl2::{
   render::{Canvas, Texture},
   video::{Window, FullscreenType},
   rect::Rect,
-  pixels::Color,
+  pixels::Color, mouse::MouseButton,
 };
 use std::{
   borrow::Cow,
@@ -118,6 +118,7 @@ pub struct Menu {
   has_game: bool,
   schedule_save: bool,
   theme: UiTheme,
+  mouse_navigation: Option<i32>,
 }
 impl Menu {
   pub fn new(config: &Configuration) -> Self {
@@ -131,6 +132,7 @@ impl Menu {
       has_game: false,
       schedule_save: false,
       theme: config.theme.resolve(),
+      mouse_navigation: None,
     }
   }
   pub fn is_active(&self) -> bool {
@@ -178,8 +180,12 @@ impl Menu {
       Event::KeyDown { keycode: Some(Keycode::Up), .. } if self.active => {
         self.cursor -= 1;
       },
+      Event::MouseButtonUp { mouse_btn: MouseButton::Left, .. } |
       Event::KeyDown { keycode: Some(Keycode::Return | Keycode::Return2), repeat: false, .. } if self.active => {
         self.clicked = true;
+      },
+      Event::MouseMotion { y, .. } => {
+        self.mouse_navigation = Some(*y);
       },
       _ => ()
     }
@@ -417,6 +423,15 @@ impl Menu {
         ($text: expr, $on_click: block) => {{
           if self.cursor == x_index {
             x_cursor_y = Some(x_position.1);
+          }
+          if let Some(mn) = self.mouse_navigation {
+            let mn = m(mn, 1./dpi_scale);
+            if(mn > list_start_y_noscroll) &&
+              (mn > x_position.1) &&
+              (mn < x_position.1 + x_position.3 as i32) {
+                self.cursor = x_index;
+                self.mouse_navigation = None;
+              }
           }
           if menu_item($text, x_position, dpi_scale, canvas, text, self.cursor, x_index as usize, self.clicked, &self.theme) {
             $on_click;
@@ -784,6 +799,7 @@ impl Menu {
 
     //Reset clicked state
     self.clicked = false;
+    self.mouse_navigation = None;
   }
 }
 impl Default for Menu {
