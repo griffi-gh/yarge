@@ -101,7 +101,9 @@ impl Apu {
         self.terminals.0.mix_outputs(amplitudes),
         self.terminals.1.mix_outputs(amplitudes),
       );
-      self.buffer.push(samples.1, samples.0);
+      //FIXME: mix_outputs seems to be broken
+      //self.buffer.push(samples.1, samples.0);
+      self.buffer.push(self.channel1.amplitude(), self.channel2.amplitude());
       if self.buffer.is_full() {
         if let Some(device) = self.device.as_mut() {
           device.queue_samples(self.buffer.get_buffer());

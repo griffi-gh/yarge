@@ -54,7 +54,7 @@ impl ApuChannel for SquareWaveChannel {
       if self.freq_timer == 0 {
         self.freq_timer = (2048 - self.frequency) * 4;
         self.wave_duty.tick();
-        self.channel_enabled = false;
+        //self.channel_enabled = false;
       }
     }
   }
@@ -63,11 +63,11 @@ impl ApuChannel for SquareWaveChannel {
     if !self.channel_enabled {
       return 0.
     }
-    let data = self.wave_duty.get_data() as i8;
-    ((data << 1) - 1) as f32
+    let data = self.wave_duty.get_data();
+    ((data << 1) as i8 - 1) as f32
     // let data = self.wave_duty.get_data() as f32;
     // //idk why /7.5 - 1 part is needed, I stole it from another emu
-    // (data / 7.5) - 1.0 
+    //(data as f32 / 7.5) - 1.0 
   }
   
   fn read(&self, mmio_addr: u16) -> u8 {
