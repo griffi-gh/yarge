@@ -2,7 +2,7 @@ pub const VERSION: Option<&'static str> = option_env!("CARGO_PKG_VERSION");
 pub const WIDTH: usize = 160;
 pub const HEIGHT: usize = 144;
 pub const FB_SIZE: usize = WIDTH * HEIGHT;
-pub const CPU_CLOCK_SPEED: usize = 4194304;
+pub const CPU_CLOCK_SPEED: usize = 4194304; //audio 4213440?
 //not tied to clock speed because it's fine tuned to act only as fallback!
 pub const CYCLES_PER_FRAME: usize = 70684; 
 pub const AUDIO_CYCLES_PER_SAMPLE: usize = CPU_CLOCK_SPEED / AUDIO_SAMPLE_RATE; // 1 sample / 16 cycles
@@ -11,7 +11,7 @@ pub(crate) const VRAM_SIZE: usize = 0x2000;
 pub(crate) const OBJECTS_PER_LINE: usize = 10;
 pub(crate) const INT_JMP_VEC: [u16; 5] = [0x40, 0x48, 0x50, 0x58, 0x60];
 pub(crate) const TIMER_CLOCK_MASKS: [u16; 4] = [1 << 9, 1 << 3, 1 << 5, 1 << 7];
-pub const AUDIO_BUFFER_SIZE: usize = 1024; //2048;
+pub const AUDIO_BUFFER_SIZE: usize = 4096; //2048;
 pub const AUDIO_SAMPLE_RATE: usize = 44100;
 /// Shamelessly stolen from here:
 /// https://github.com/vojty/feather-gb/blob/main/gb/src/apu/registers.rs

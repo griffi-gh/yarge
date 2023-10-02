@@ -89,7 +89,7 @@ impl Apu {
       self.tick_sequencer();
     }
     
-    self.sample_cycles += 1;
+    self.sample_cycles += 4;
     if self.sample_cycles >= AUDIO_CYCLES_PER_SAMPLE {
       self.sample_cycles = 0;
       let amplitudes = (
