@@ -35,9 +35,8 @@ impl SquareWaveChannel {
 }
 
 impl ApuChannel for SquareWaveChannel {
-  fn tick(&mut self) {
+  fn tick_length(&mut self) {
     if !self.channel_enabled { return }
-    //self.freq_timer -= 1;
     
     if self.length_timer_enable && self.length_timer > 0 {
       self.length_timer -= 1;
@@ -45,12 +44,18 @@ impl ApuChannel for SquareWaveChannel {
         self.channel_enabled = false;
       }
     }
+  }
+  
+  fn tick(&mut self) {
+    if !self.channel_enabled { return }
 
-    self.freq_timer = self.freq_timer.saturating_sub(1);
-    if self.freq_timer == 0 {
-      self.freq_timer = (2048 - self.frequency) * 4;
-      self.wave_duty.tick();
-      self.channel_enabled = false;
+    if self.freq_timer > 0 {
+      self.freq_timer -= 1;
+      if self.freq_timer == 0 {
+        self.freq_timer = (2048 - self.frequency) * 4;
+        self.wave_duty.tick();
+        self.channel_enabled = false;
+      }
     }
   }
 
