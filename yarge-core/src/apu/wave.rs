@@ -19,8 +19,7 @@ impl WaveDuty {
     }
   }
   pub fn tick(&mut self) {
-    self.position += 1;
-    self.position &= 7;
+    self.position = (self.position + 1) & 7;
   }
   pub fn get_data(&self) -> u8 {
     (self.pattern.rotate_left(self.position) & 0x80) >> 7
