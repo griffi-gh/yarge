@@ -1,3 +1,4 @@
+use std::mem::size_of;
 use yarge_core::{
   AudioDevice as AudioDeviceImpl,
   consts::{AUDIO_BUFFER_SIZE, AUDIO_SAMPLE_RATE},
@@ -26,8 +27,8 @@ impl AudioDevice {
 impl AudioDeviceImpl for AudioDevice {
   fn queue_samples(&mut self, buffer: &[f32; AUDIO_BUFFER_SIZE]) {
     //Out of sync by more then 250ms
-    if self.queue.size() > (AUDIO_SAMPLE_RATE as u32 / 2) {
-      println!("[AUDIO/WARN] AUDIO OUT OF SYNC! (Behind by {} s)", (self.queue.size() as f32 / AUDIO_SAMPLE_RATE as f32) * 0.5);
+    if (self.queue.size() / size_of::<f32>() as u32) > (AUDIO_SAMPLE_RATE as u32 / 2) {
+      println!("[AUDIO/WARN] AUDIO OUT OF SYNC! (Too much stuff in the buffer)");
       self.queue.clear();
     }
     self.queue.queue_audio(buffer).unwrap();
