@@ -52,7 +52,7 @@ impl Apu {
 
   fn update_div_falling_edge(&mut self, div: u16) -> bool {
     //GBC: use bit 14 in double speed mode
-    let is_falling_edge = ((div >> 13) & 1 != 0) && ((self.prev_div >> 13) & 1 != 0);
+    let is_falling_edge = ((div >> 13) & 1 == 0) && ((self.prev_div >> 13) & 1 != 0);
     self.prev_div = div;
     is_falling_edge
   }
