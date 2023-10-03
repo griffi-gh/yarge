@@ -1,12 +1,17 @@
 #[derive(Default, Clone, Copy, Debug)]
 pub struct Terminal {
-  pub vin: bool,
+  //pub vin: bool,
   pub volume: u8,
   pub enabled_channels: (bool, bool, bool, bool),
 }
 
 impl Terminal {
-  pub fn new() -> Self { Self::default() }
+  pub fn new() -> Self {
+    Self {
+      volume: 7,
+      enabled_channels: (true, true, true, true),
+    }
+  }
   
   /// This is ridicuosly over-optimized but this greatly improves the generated assembly
   /// mixes channels together (averages them) with an option to 

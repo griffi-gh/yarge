@@ -6,7 +6,7 @@ mod audio_buffer;
 mod audio_device;
 mod terminal;
 mod traits;
-mod wave;
+mod envelope;
 
 pub use traits::ApuChannel;
 pub use audio_device::AudioDevice;
@@ -72,6 +72,7 @@ impl Apu {
       },
       7 => { //Envelope only
         self.channel1.tick_envelope();
+        self.channel2.tick_envelope();
       },
       _ => ()
     }   
@@ -97,15 +98,14 @@ impl Apu {
       let amplitudes = (
         self.channel1.amplitude(),
         self.channel2.amplitude(),
-        0., 0.
+        0., 0.,
       );
       let samples = (
         self.terminals.0.mix_outputs(amplitudes),
         self.terminals.1.mix_outputs(amplitudes),
       );
-      //FIXME: mix_outputs seems to be broken
-      //self.buffer.push(samples.1, samples.0);
-      self.buffer.push(self.channel1.amplitude(), self.channel2.amplitude());
+      self.buffer.push(samples.1, samples.0);
+      //self.buffer.push(self.channel1.amplitude(), self.channel2.amplitude());
       if self.buffer.is_full() {
         if let Some(device) = self.device.as_mut() {
           device.queue_samples(self.buffer.get_buffer());
@@ -121,6 +121,23 @@ impl Apu {
     (0xff30..=0xff3f).contains(&addr) // Wave pattern ram
   }
 
+  pub fn read(&self, addr: u16) -> u8 {
+    match addr {
+      //TODO R_NRXX
+      R_NR51 => {
+        #[allow(clippy::identity_op, clippy::erasing_op)] {
+          seq!(N in 0..4 {
+            0 
+            #(| ((self.terminals.0.enabled_channels.N as u8) << N))*
+            #(| ((self.terminals.1.enabled_channels.N as u8) << (N + 4)))*
+          })
+        }
+      }
+      R_NR52 => (self.enabled as u8) << 7, //TODO other NR52 bits
+      _ => 0
+    }
+  }
+
   pub fn write(&mut self, addr: u16, value: u8, blocking: bool) {
     //If the APU is disabled most registers are R/O
     if blocking && !self.check_write_access(addr) { return }
@@ -134,10 +151,10 @@ impl Apu {
       R_NR51 => {
         //these were supposed to be used for this right?
         //haven't touched this codebase for a *while*
-        #[allow(clippy::identity_op)] {
+        #[allow(clippy::identity_op, clippy::erasing_op)] {
           seq!(S in 0..=1 {
             seq!(N in 0..4 {
-              self.terminals.S.enabled_channels.N = (value >> ((S << 2) + N)) & 1 != 0;
+              self.terminals.S.enabled_channels.N = (value & (1 << ((S * 4) + N))) != 0;
             });
           });
         }
@@ -148,13 +165,6 @@ impl Apu {
         //TODO when/if disabled, clear registers
       },
       _ => ()
-    }
-  }
-
-  pub fn read(&self, addr: u16) -> u8 {
-    match addr {
-      R_NR52 => (self.enabled as u8) << 7, //TODO other NR52 bits
-      _ => 0
     }
   }
 }

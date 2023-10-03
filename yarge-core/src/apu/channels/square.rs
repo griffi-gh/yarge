@@ -1,4 +1,8 @@
-use crate::{apu::{ApuChannel, wave::WaveDuty}, consts::audio_registers::*};
+use crate::{apu::ApuChannel, consts::audio_registers::*};
+use crate::apu::envelope::{Envelope, EnvelopeDirection};
+
+mod wave;
+use wave::WaveDuty;
 
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub enum SquareWaveChannelType {
@@ -9,6 +13,7 @@ pub enum SquareWaveChannelType {
 pub struct SquareWaveChannel {
   channel_type: SquareWaveChannelType,
   wave_duty: WaveDuty,
+  envelope: Envelope,
   ///a.k.a wavelength
   frequency: u16,
   freq_timer: u16,
@@ -23,6 +28,7 @@ impl SquareWaveChannel {
     //TODO provide sensilble defaults?
     Self {
       channel_type,
+      envelope: Envelope::default(),
       wave_duty: WaveDuty::new(),
       freq_timer: 8192, //or 0?
       frequency: 0,
@@ -40,6 +46,7 @@ impl SquareWaveChannel {
   fn trigger(&mut self) {
     self.reset_freq_timer();
     self.channel_enabled = true;
+    self.envelope.trigger();
     //XXX: Should this ALWAYS set to 64?
     //self.length_timer = 64;
     if self.length_timer == 0 {
@@ -58,6 +65,12 @@ impl ApuChannel for SquareWaveChannel {
         self.channel_enabled = false;
       }
     }
+  }
+
+  fn tick_envelope(&mut self) {
+    if !self.channel_enabled { return }
+
+    self.envelope.tick()
   }
   
   fn tick(&mut self) {
@@ -78,10 +91,8 @@ impl ApuChannel for SquareWaveChannel {
       return 0.
     }
     let data = self.wave_duty.get_data();
-    ((data << 1) as i8 - 1) as f32
-    // let data = self.wave_duty.get_data() as f32;
-    // //idk why /7.5 - 1 part is needed, I stole it from another emu
-    //(data as f32 / 7.5) - 1.0 
+    //0 => -1.f, 1 => 1.f
+    ((data << 1) as i8 - 1) as f32 * self.envelope.volume_f32()
   }
   
   fn read(&self, mmio_addr: u16) -> u8 {
@@ -103,7 +114,15 @@ impl ApuChannel for SquareWaveChannel {
         //self.channel_enabled = true;
       },
       R_NR12 | R_NR22 => {
-        //TODO
+        self.envelope.period = value & 0x7;
+        self.envelope.direction = match value & (1 << 3) != 0 {
+          false => EnvelopeDirection::Down,
+          true  => EnvelopeDirection::Up,
+        };
+        self.envelope.start_volume = value >> 4;
+        // if self.envelope.start_volume == 0 && self.envelope.direction == EnvelopeDirection::Down {
+        //   self.channel_enabled = false;
+        // }
       },
       R_NR13 | R_NR23 => {
         self.frequency = (self.frequency & 0x700) | value as u16;
