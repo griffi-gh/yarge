@@ -5,7 +5,7 @@ pub const FB_SIZE: usize = WIDTH * HEIGHT;
 pub const CPU_CLOCK_SPEED: usize = 4194304; //audio 4213440?
 //not tied to clock speed because it's fine tuned to act only as fallback!
 pub const CYCLES_PER_FRAME: usize = 70684; 
-pub const AUDIO_CYCLES_PER_SAMPLE: usize = CPU_CLOCK_SPEED / AUDIO_SAMPLE_RATE; // 1 sample / 16 cycles
+pub const AUDIO_CYCLES_PER_SAMPLE: usize = CPU_CLOCK_SPEED / AUDIO_SAMPLE_RATE;
 pub(crate) const ROM_SIZE: usize = 0x8000;
 pub(crate) const VRAM_SIZE: usize = 0x2000;
 pub(crate) const OBJECTS_PER_LINE: usize = 10;
