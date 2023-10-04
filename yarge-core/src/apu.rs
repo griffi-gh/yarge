@@ -5,40 +5,44 @@ mod channels;
 mod audio_buffer;
 mod audio_device;
 mod terminal;
-mod traits;
 mod envelope;
 
-pub use traits::ApuChannel;
 pub use audio_device::AudioDevice;
 use audio_buffer::AudioBuffer;
-use channels::square::{SquareWaveChannel, SquareWaveChannelType};
+use channels::{ApuChannel, square::SquareWaveChannel};
 use terminal::Terminal;
 
 pub struct Apu {
-  pub device: Option<Box<dyn AudioDevice>>,
   enabled: bool,
+  pub device: Option<Box<dyn AudioDevice>>,
   buffer: AudioBuffer,
-  sequencer: u8,
-  channel1: SquareWaveChannel,
-  channel2: SquareWaveChannel,
-  sample_cycles: usize,
+  /// 0 - CH1 - Square wave
+  /// 1 - CH2 - Square wave, No sweep
+  channels: (
+    SquareWaveChannel<true>,
+    SquareWaveChannel<false>,
+  ),
   /// 0 - Right/SO1
   /// 1 - Left /SO2
   terminals: (Terminal, Terminal),
+  sequencer: u8,
+  sample_cycles: usize,
   prev_div: u16,
 }
 
 impl Apu {
   pub fn new() -> Self {
     Self {
-      device: None,
       enabled: false,
+      device: None,
       buffer: AudioBuffer::new(),
-      sequencer: 0,
-      channel1: SquareWaveChannel::new(SquareWaveChannelType::Channel1),
-      channel2: SquareWaveChannel::new(SquareWaveChannelType::Channel2),
-      sample_cycles: 0,
+      channels: (
+        SquareWaveChannel::new(),
+        SquareWaveChannel::new(),
+      ),
       terminals: (Terminal::new(), Terminal::new()),
+      sequencer: 0,
+      sample_cycles: 0,
       prev_div: 0,
     }
   }
@@ -64,17 +68,17 @@ impl Apu {
     self.sequencer = (self.sequencer + 1) & 7;
     match self.sequencer {
       0 | 4 => { // Length only
-        self.channel1.tick_length();
-        self.channel2.tick_length();
+        self.channels.0.tick_length();
+        self.channels.1.tick_length();
       },
       2 | 6 => { // Length and sweep 
-        self.channel1.tick_length();
-        self.channel2.tick_length();
-        self.channel1.tick_sweep();
+        self.channels.0.tick_length();
+        self.channels.1.tick_length();
+        self.channels.0.tick_sweep();
       },
       7 => { //Envelope only
-        self.channel1.tick_envelope();
-        self.channel2.tick_envelope();
+        self.channels.0.tick_envelope();
+        self.channels.1.tick_envelope();
       },
       _ => ()
     }
@@ -86,20 +90,20 @@ impl Apu {
     if !self.enabled { return }
 
     for _ in 0..4 {
-      self.channel1.tick();
-      self.channel2.tick();
+      self.channels.0.tick();
+      self.channels.1.tick();
     }
 
     if is_div_falling_edge {
       self.tick_sequencer();
     }
-    
+
     self.sample_cycles += 4;
     if self.sample_cycles >= AUDIO_CYCLES_PER_SAMPLE {
       self.sample_cycles -= AUDIO_CYCLES_PER_SAMPLE;
       let amplitudes = (
-        self.channel1.amplitude(),
-        self.channel2.amplitude(),
+        self.channels.0.amplitude(),
+        self.channels.1.amplitude(),
         0., 0.,
       );
       let samples = (
@@ -144,12 +148,15 @@ impl Apu {
     //If the APU is disabled most registers are R/O
     if blocking && !self.check_write_access(addr) { return }
     match addr {
-      R_NR10 | R_NR11 | R_NR12 | R_NR13 | R_NR14 => {
-        self.channel1.write(addr, value);
-      },
-      R_NR21 | R_NR22 | R_NR23 | R_NR24 => {
-        self.channel2.write(addr, value);
-      },
+      R_NR10 => self.channels.0.write_register(0, value),
+      R_NR11 => self.channels.0.write_register(1, value),
+      R_NR12 => self.channels.0.write_register(2, value),
+      R_NR13 => self.channels.0.write_register(3, value),
+      R_NR14 => self.channels.0.write_register(4, value),
+      R_NR21 => self.channels.1.write_register(1, value),
+      R_NR22 => self.channels.1.write_register(2, value),
+      R_NR23 => self.channels.1.write_register(3, value),
+      R_NR24 => self.channels.1.write_register(4, value),
       R_NR51 => {
         //these were supposed to be used for this right?
         //haven't touched this codebase for a *while*

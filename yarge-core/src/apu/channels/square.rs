@@ -1,17 +1,11 @@
-use crate::{apu::ApuChannel, consts::audio_registers::*};
+use super::ApuChannel;
+use crate::consts::audio_registers::*;
 use crate::apu::envelope::{Envelope, EnvelopeDirection};
 
 mod wave;
 use wave::WaveDuty;
 
-#[derive(Clone, Copy, PartialEq, Eq)]
-pub enum SquareWaveChannelType {
-  Channel1,
-  Channel2
-}
-
-pub struct SquareWaveChannel {
-  channel_type: SquareWaveChannelType,
+pub struct SquareWaveChannel<const HAS_SWEEP: bool> {
   wave_duty: WaveDuty,
   envelope: Envelope,
   ///a.k.a wavelength
@@ -23,11 +17,10 @@ pub struct SquareWaveChannel {
   channel_enabled: bool,
 }
 
-impl SquareWaveChannel {
-  pub fn new(channel_type: SquareWaveChannelType) -> Self {
+impl<const HAS_SWEEP: bool> SquareWaveChannel<HAS_SWEEP> {
+  pub fn new() -> Self {
     //TODO provide sensilble defaults?
     Self {
-      channel_type,
       envelope: Envelope::default(),
       wave_duty: WaveDuty::new(),
       freq_timer: 8192, //or 0?
@@ -55,7 +48,7 @@ impl SquareWaveChannel {
   }
 }
 
-impl ApuChannel for SquareWaveChannel {
+impl<const HAS_SWEEP: bool> ApuChannel for SquareWaveChannel<HAS_SWEEP> {
   fn tick_length(&mut self) {
     if !self.channel_enabled { return }
     
@@ -95,17 +88,17 @@ impl ApuChannel for SquareWaveChannel {
     ((data << 1) as i8 - 1) as f32 * self.envelope.volume_f32()
   }
   
-  fn read(&self, mmio_addr: u16) -> u8 {
+  fn read_register(&self, reg: u8) -> u8 {
     //TODO
     0
   }
 
-  fn write(&mut self, mmio_addr: u16, value: u8) {
-    match mmio_addr { 
-      R_NR10 => {
+  fn write_register(&mut self, reg: u8, value: u8) {
+    match reg {
+      0 if HAS_SWEEP => {
         //TODO
       },
-      R_NR11 | R_NR21 => {
+      1 => {
         // 0bAABBBBBB;
         //   I L- freq timer
         //   L- pat type
@@ -113,7 +106,7 @@ impl ApuChannel for SquareWaveChannel {
         self.length_timer = 64 - (value & 0x3f) as u16;
         //self.channel_enabled = true;
       },
-      R_NR12 | R_NR22 => {
+      2 => {
         self.envelope.period = value & 0x7;
         self.envelope.direction = match value & (1 << 3) != 0 {
           false => EnvelopeDirection::Down,
@@ -124,12 +117,12 @@ impl ApuChannel for SquareWaveChannel {
         //   self.channel_enabled = false;
         // }
       },
-      R_NR13 | R_NR23 => {
+      3 => {
         self.frequency = (self.frequency & 0x700) | value as u16;
         //XXX: this *may* be correct?
         //self.reset_freq_timer();
       },
-      R_NR14 | R_NR24 => {
+      4 => {
         self.frequency = (self.frequency & 0xff) | ((value as u16 & 0b111) << 8);
         //XXX: this *may* be correct?
         //self.reset_freq_timer();
