@@ -29,7 +29,7 @@ impl Envelope {
   /// Volume in 0.0-1.0 range
   #[inline(always)]
   pub fn volume_f32(&self) -> f32 {
-    self.curent_volume as f32 / 7.
+    self.curent_volume as f32 / 15.
   }
 
   pub fn tick(&mut self) {

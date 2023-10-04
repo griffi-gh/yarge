@@ -51,8 +51,10 @@ impl Apu {
   // https://nightshade256.github.io/2021/03/27/gb-sound-emulation.html
 
   fn update_div_falling_edge(&mut self, div: u16) -> bool {
-    //GBC: use bit 14 in double speed mode
-    let is_falling_edge = ((div >> 13) & 1 == 0) && ((self.prev_div >> 13) & 1 != 0);
+    //GBC: use bit 13 in double speed mode
+    //XXX: bit 12? not 13? in sp
+    const BIT: u16 = 1 << 12;
+    let is_falling_edge = (div & BIT == 0) && (self.prev_div & BIT != 0);
     self.prev_div = div;
     is_falling_edge
   }
@@ -75,7 +77,7 @@ impl Apu {
         self.channel2.tick_envelope();
       },
       _ => ()
-    }   
+    }
   }
 
   pub fn tick(&mut self, div: u16) {
