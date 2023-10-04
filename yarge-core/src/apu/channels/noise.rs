@@ -1,8 +1,6 @@
 use super::ApuChannel;
 use crate::apu::common::{envelope::Envelope, length::LengthTimer};
 
-pub const DIVIDER_LUT: [u16; 8] = [8, 16, 32, 48, 64, 80, 96, 112];
-
 pub struct NoiseChannel {
   envelope: Envelope,
   length: LengthTimer,
@@ -29,7 +27,8 @@ impl NoiseChannel {
   }
 
   pub fn reset_freq_timer(&mut self) {
-    self.freq_timer = DIVIDER_LUT[self.divider as usize & 7] << self.shift;
+    let div_value = if self.divider > 0  { self.divider << 4 } else { 8 };
+    self.freq_timer = (div_value as u16) << self.shift;
   }
 
   pub fn trigger(&mut self) {
