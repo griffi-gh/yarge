@@ -160,13 +160,18 @@ impl Apu {
       R_NR51 => {
         #[allow(clippy::identity_op, clippy::erasing_op)] {
           seq!(N in 0..4 {
-            0 
+            0
             #(| ((self.terminals.0.enabled_channels.N as u8) << N))*
             #(| ((self.terminals.1.enabled_channels.N as u8) << (N + 4)))*
           })
         }
-      }
-      R_NR52 => (self.enabled as u8) << 7, //TODO other NR52 bits
+      },
+      R_NR52 => {
+        (self.enabled as u8) << 7
+        | (self.channels.0.is_enabled() as u8)
+        | (self.channels.1.is_enabled() as u8) << 1
+        | (self.channels.3.is_enabled() as u8) << 3
+      },
       _ => 0
     }
   }
