@@ -15,6 +15,19 @@ pub struct Envelope {
 }
 
 impl Envelope {
+  pub fn new() -> Self {
+    Self::default()
+  }
+
+  pub fn set_from_register(&mut self, value: u8) {
+    self.period = value & 0x7;
+    self.direction = match value & (1 << 3) != 0 {
+      false => EnvelopeDirection::Down,
+      true  => EnvelopeDirection::Up,
+    };
+    self.start_volume = value >> 4;
+  }
+
   pub fn trigger(&mut self) {
     self.curent_volume = self.start_volume;
     self.period_timer = self.period;

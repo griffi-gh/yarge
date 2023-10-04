@@ -5,11 +5,15 @@ mod channels;
 mod audio_buffer;
 mod audio_device;
 mod terminal;
-mod envelope;
+mod common;
 
-pub use audio_device::AudioDevice;
+use channels::{
+  ApuChannel,
+  square::SquareWaveChannel,
+  noise::NoiseChannel
+};
 use audio_buffer::AudioBuffer;
-use channels::{ApuChannel, square::SquareWaveChannel};
+pub use audio_device::AudioDevice;
 use terminal::Terminal;
 
 pub struct Apu {
@@ -21,6 +25,8 @@ pub struct Apu {
   channels: (
     SquareWaveChannel<true>,
     SquareWaveChannel<false>,
+    (),
+    NoiseChannel
   ),
   /// 0 - Right/SO1
   /// 1 - Left /SO2
@@ -39,6 +45,8 @@ impl Apu {
       channels: (
         SquareWaveChannel::new(),
         SquareWaveChannel::new(),
+        (),
+        NoiseChannel::new()
       ),
       terminals: (Terminal::new(), Terminal::new()),
       sequencer: 0,
@@ -63,22 +71,41 @@ impl Apu {
     is_falling_edge
   }
 
+  fn tick_all(&mut self) {
+    self.channels.0.tick();
+    self.channels.1.tick();
+    self.channels.3.tick();
+  }
+
+  fn tick_length_all(&mut self) {
+    self.channels.0.tick_length();
+    self.channels.1.tick_length();
+    self.channels.3.tick_length();
+  }
+
+  fn tick_sweep_all(&mut self) {
+    self.channels.0.tick_sweep();
+  }
+
+  fn tick_envelope_all(&mut self) {
+    self.channels.0.tick_envelope();
+    self.channels.1.tick_envelope();
+    self.channels.3.tick_envelope();
+  }
+
   fn tick_sequencer(&mut self) {
     //XXX: should sequencer be incremented before of after the match block?\
     self.sequencer = (self.sequencer + 1) & 7;
     match self.sequencer {
       0 | 4 => { // Length only
-        self.channels.0.tick_length();
-        self.channels.1.tick_length();
+        self.tick_length_all();
       },
-      2 | 6 => { // Length and sweep 
-        self.channels.0.tick_length();
-        self.channels.1.tick_length();
-        self.channels.0.tick_sweep();
+      2 | 6 => { // Length and sweep
+        self.tick_length_all();
+        self.tick_sweep_all();
       },
       7 => { //Envelope only
-        self.channels.0.tick_envelope();
-        self.channels.1.tick_envelope();
+        self.tick_envelope_all();
       },
       _ => ()
     }
@@ -90,8 +117,7 @@ impl Apu {
     if !self.enabled { return }
 
     for _ in 0..4 {
-      self.channels.0.tick();
-      self.channels.1.tick();
+      self.tick_all();
     }
 
     if is_div_falling_edge {
@@ -104,7 +130,8 @@ impl Apu {
       let amplitudes = (
         self.channels.0.amplitude(),
         self.channels.1.amplitude(),
-        0., 0.,
+        0.,
+        self.channels.3.amplitude(),
       );
       let samples = (
         self.terminals.0.mix_outputs(amplitudes),
@@ -157,6 +184,10 @@ impl Apu {
       R_NR22 => self.channels.1.write_register(2, value),
       R_NR23 => self.channels.1.write_register(3, value),
       R_NR24 => self.channels.1.write_register(4, value),
+      R_NR41 => self.channels.3.write_register(1, value),
+      R_NR42 => self.channels.3.write_register(2, value),
+      R_NR43 => self.channels.3.write_register(3, value),
+      R_NR44 => self.channels.3.write_register(4, value),
       R_NR51 => {
         //these were supposed to be used for this right?
         //haven't touched this codebase for a *while*

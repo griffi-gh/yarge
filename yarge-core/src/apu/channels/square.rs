@@ -1,18 +1,16 @@
 use super::ApuChannel;
-use crate::consts::audio_registers::*;
-use crate::apu::envelope::{Envelope, EnvelopeDirection};
+use crate::apu::common::{length::LengthTimer, envelope::Envelope};
 
 mod wave;
 use wave::WaveDuty;
 
 pub struct SquareWaveChannel<const HAS_SWEEP: bool> {
   wave_duty: WaveDuty,
+  length: LengthTimer,
   envelope: Envelope,
   ///a.k.a wavelength
   frequency: u16,
   freq_timer: u16,
-  length_timer: u16,
-  length_timer_enable: bool,
   //dac_enabled: bool,
   channel_enabled: bool,
 }
@@ -21,12 +19,11 @@ impl<const HAS_SWEEP: bool> SquareWaveChannel<HAS_SWEEP> {
   pub fn new() -> Self {
     //TODO provide sensilble defaults?
     Self {
-      envelope: Envelope::default(),
+      envelope: Envelope::new(),
+      length: LengthTimer::new(),
       wave_duty: WaveDuty::new(),
       freq_timer: 8192, //or 0?
       frequency: 0,
-      length_timer: 0,
-      length_timer_enable: false,
       //dac_enabled: true,
       channel_enabled: false,
     }
@@ -40,32 +37,23 @@ impl<const HAS_SWEEP: bool> SquareWaveChannel<HAS_SWEEP> {
     self.reset_freq_timer();
     self.channel_enabled = true;
     self.envelope.trigger();
-    //XXX: Should this ALWAYS set to 64?
-    //self.length_timer = 64;
-    if self.length_timer == 0 {
-      self.length_timer = 64;
-    }
+    self.length.trigger();
   }
 }
 
 impl<const HAS_SWEEP: bool> ApuChannel for SquareWaveChannel<HAS_SWEEP> {
   fn tick_length(&mut self) {
     if !self.channel_enabled { return }
-    
-    if self.length_timer_enable && self.length_timer > 0 {
-      self.length_timer -= 1;
-      if self.length_timer == 0 {
-        self.channel_enabled = false;
-      }
+    if self.length.tick() {
+      self.channel_enabled = false;
     }
   }
 
   fn tick_envelope(&mut self) {
     if !self.channel_enabled { return }
-
     self.envelope.tick()
   }
-  
+
   fn tick(&mut self) {
     if !self.channel_enabled { return }
 
@@ -74,7 +62,6 @@ impl<const HAS_SWEEP: bool> ApuChannel for SquareWaveChannel<HAS_SWEEP> {
       if self.freq_timer == 0 {
         self.reset_freq_timer();
         self.wave_duty.tick();
-        //self.channel_enabled = false;
       }
     }
   }
@@ -87,7 +74,7 @@ impl<const HAS_SWEEP: bool> ApuChannel for SquareWaveChannel<HAS_SWEEP> {
     //0 => -1.f, 1 => 1.f
     ((data << 1) as i8 - 1) as f32 * self.envelope.volume_f32()
   }
-  
+
   fn read_register(&self, reg: u8) -> u8 {
     //TODO
     0
@@ -103,37 +90,35 @@ impl<const HAS_SWEEP: bool> ApuChannel for SquareWaveChannel<HAS_SWEEP> {
         //   I L- freq timer
         //   L- pat type
         self.wave_duty.set_pattern_type((value >> 6) as usize);
-        self.length_timer = 64 - (value & 0x3f) as u16;
-        //self.channel_enabled = true;
+        self.length.set_from_inv(value);
       },
       2 => {
-        self.envelope.period = value & 0x7;
-        self.envelope.direction = match value & (1 << 3) != 0 {
-          false => EnvelopeDirection::Down,
-          true  => EnvelopeDirection::Up,
-        };
-        self.envelope.start_volume = value >> 4;
+        self.envelope.set_from_register(value);
         // if self.envelope.start_volume == 0 && self.envelope.direction == EnvelopeDirection::Down {
         //   self.channel_enabled = false;
         // }
       },
       3 => {
         self.frequency = (self.frequency & 0x700) | value as u16;
-        //XXX: this *may* be correct?
-        //self.reset_freq_timer();
       },
       4 => {
         self.frequency = (self.frequency & 0xff) | ((value as u16 & 0b111) << 8);
-        //XXX: this *may* be correct?
-        //self.reset_freq_timer();
-        self.length_timer_enable = value & (1 << 6) != 0;
-
+        self.length.enable = value & (1 << 6) != 0;
         if value & 0x80 != 0 {
-          //Channel trigerred
           self.trigger();
         }
       },
       _ => ()
     }
+  }
+
+  fn is_enabled(&self) -> bool {
+    self.channel_enabled
+  }
+}
+
+impl<const HAS_SWEEP: bool> Default for SquareWaveChannel<HAS_SWEEP> {
+  fn default() -> Self {
+    Self::new()
   }
 }
