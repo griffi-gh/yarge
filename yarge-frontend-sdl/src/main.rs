@@ -50,6 +50,7 @@ const GB_KEYBIND: &[(Scancode, GbKey)] = &[
 struct Args {
   rom_path: Option<String>,
   #[arg(long)] skip_bootrom: bool,
+  #[arg(long)] fast: bool,
 }
 
 fn main() {
@@ -122,7 +123,7 @@ fn main() {
   };
   let mut event_pump = sdl_context.event_pump().unwrap();
 
-  let using_vsync = true; //refresh_rate % 60 == 0;
+  let using_vsync = !args.fast; //refresh_rate % 60 == 0;
   let mut canvas = {
     println!("[INIT/INFO] using vsync? {}", if using_vsync { "YES" } else { "NO" });
     let mut builder = window.into_canvas();
@@ -320,7 +321,7 @@ fn main() {
       })
     });
     hz_prev = refresh_rate;
-    if !menu.is_visible() && using_vsync && (refresh_rate % 60) == 0 && refresh_rate > 60 {
+    if !args.fast && !menu.is_visible() && using_vsync && (refresh_rate % 60) == 0 && refresh_rate > 60 {
       let skip = (refresh_rate / 60) - 1;
       for _ in 0..skip { canvas.present(); }
     }
