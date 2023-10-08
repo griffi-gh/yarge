@@ -136,12 +136,23 @@ impl UiTheme {
   }
 }
 
-#[derive(Serialize, Deserialize, Default)]
+#[derive(Serialize, Deserialize)]
 pub struct FpsOverlayOptions {
   pub enable: bool,
   pub hi_contrast: bool,
   pub smol: bool,
   pub round: bool,
+}
+
+impl Default for FpsOverlayOptions {
+  fn default() -> Self {
+    Self {
+      enable: false,
+      hi_contrast: true,
+      smol: false,
+      round: true,
+    }
+  }
 }
 
 #[derive(Serialize, Deserialize)]
