@@ -23,7 +23,8 @@ use crate::{
   text::TextRenderer,
   config::{Configuration, Palette, WindowScale, UiTheme}, 
   saves::SaveManager,
-  FAT_TEXTURE, 
+  FAT_TEXTURE,
+  URStorage,
 };
 
 const CRATE_VERSION: &str = env!("CARGO_PKG_VERSION");
@@ -311,6 +312,7 @@ impl Menu {
     gb_texture: &mut Texture,
     text: &mut TextRenderer,
     config: &mut Configuration,
+    ur_store: &mut URStorage,
     do_exit: &mut bool,
   ) {
     fn m (x: i32, y: f32) -> i32 { ((x as f32) * y) as i32 }
@@ -621,7 +623,7 @@ impl Menu {
           }
         }
         MenuLocation::SpeedPicker => {
-          if define_radio_group!(&mut config.speed, {
+          define_radio_group!(&mut ur_store.speed, {
             define_radio_item!("1x", 1, 1);
             define_radio_item!("2x", 2, 2);
             define_radio_item!("3x", 3, 3);
@@ -632,9 +634,11 @@ impl Menu {
             define_radio_item!("8x", 8, 8);
             define_radio_item!("9x", 9, 9);
             define_radio_item!("10x", 10, 10);
-          }) {
+          });
+          define_menu_item!(&format!("Set as default ({}x)", config.speed), {
+            config.speed = ur_store.speed;
             config.save_dirty().unwrap();
-          }
+          });
         }
         MenuLocation::SaveSlotPicker => {
           let mut save_slot = config.save_slot;

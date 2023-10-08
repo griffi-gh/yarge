@@ -53,6 +53,22 @@ struct Args {
   #[arg(long)] fast: bool,
 }
 
+struct URStorage {
+  speed: u8
+}
+impl URStorage {
+  pub fn configure(&mut self, config: &Configuration) {
+    self.speed = config.speed;
+  }
+}
+impl Default for URStorage {
+  fn default() -> Self {
+    Self {
+      speed: 1,
+    }
+  }
+}
+
 fn main() {
   //Set dpi aware flag on windows
   #[cfg(all(windows, feature = "hidpi"))] {
@@ -190,6 +206,10 @@ fn main() {
     menu.skip_activation_animation();
   }
 
+  //Create URstorage
+  let mut ur_store = URStorage::default();
+  ur_store.configure(&config);
+
   println!("[INIT/INFO] Initialization done");
 
   #[cfg(feature = "hidpi")]
@@ -263,6 +283,7 @@ fn main() {
         &mut gb_texture,
         &mut text_renderer,
         &mut config,
+        &mut ur_store,
         &mut exit_signal
       );
       if exit_signal {
@@ -276,7 +297,7 @@ fn main() {
       }
 
       //Run emulation for one frame
-      for _ in 0..config.speed {
+      for _ in 0..ur_store.speed {
         gb.run_for_frame().unwrap();
       }
 
