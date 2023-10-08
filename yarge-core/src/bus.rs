@@ -237,5 +237,6 @@ impl MemBus {
     self.apu.tick(self.timers.get_div_raw());
     self.input.tick(&mut self.iif);
     self.serial.tick(&mut self.iif);
+    self.cart.tick();
   }
 }

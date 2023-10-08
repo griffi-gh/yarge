@@ -25,6 +25,8 @@ pub trait CartridgeImpl {
   fn has_save_data(&self) -> bool { false }
   fn save_data(&self) -> Option<Vec<u8>> { None }
   fn load_data(&mut self, data: Vec<u8>) {}
+
+  fn tick(&mut self) {}
 }
 
 #[non_exhaustive]
