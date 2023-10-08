@@ -7,6 +7,7 @@ pub(crate) mod ppu;
 pub(crate) mod apu;
 pub(crate) mod timers;
 pub(crate) mod input;
+pub(crate) mod serial;
 
 pub(crate) use bus::MemBus;
 pub(crate) use cpu::Cpu;

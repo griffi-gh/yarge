@@ -1,4 +1,4 @@
-use crate::{Input, Timers, Ppu, Apu, Res, consts::BIOS};
+use crate::{Input, Timers, Ppu, Apu, Res, consts::BIOS, serial::Serial};
 use std::fs;
 pub mod cartridge;
 use cartridge::{CartridgeImpl as _, RomHeader, Cartridge, MockCartridge};
@@ -20,6 +20,7 @@ pub struct MemBus {
   pub apu: Apu,
   pub timers: Timers,
   pub input: Input,
+  pub serial: Serial,
 }
 impl MemBus {
   pub fn new() -> Self {
@@ -40,6 +41,7 @@ impl MemBus {
       apu: Apu::new(),
       timers: Timers::new(),
       input: Input::new(),
+      serial: Serial::new(),
     }
   }
 
@@ -63,6 +65,8 @@ impl MemBus {
       //IO REGISTERS
       0xFF00..=0xFF7F => match addr {
         0xFF00 => self.input.get_joyp(),
+        0xFF01 => self.serial.read_sb(),
+        0xFF02 => self.serial.read_sc(),
         0xFF04 => self.timers.get_div(),
         0xFF05 => self.timers.get_tima(),
         0xFF06 => self.timers.tma,
@@ -116,6 +120,8 @@ impl MemBus {
       //IO REGISTERS
       0xFF00..=0xFF7F => match addr {
         0xFF00 => { self.input.set_joyp(value) },
+        0xFF01 => { self.serial.write_sb(value) },
+        0xFF02 => { self.serial.write_sc(value) },
         0xFF04 => { self.timers.reset_div() },
         0xFF05 => { self.timers.set_tima(value) },
         0xFF06 => { self.timers.tma = value },
@@ -229,6 +235,7 @@ impl MemBus {
     self.ppu.tick(&mut self.iif);
     self.timers.tick(&mut self.iif);
     self.apu.tick(self.timers.get_div_raw());
-    self.input.tick(&mut self.iif) 
+    self.input.tick(&mut self.iif);
+    self.serial.tick(&mut self.iif);
   }
 }
