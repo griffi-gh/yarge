@@ -149,6 +149,7 @@ pub struct Configuration {
   pub dpi_scaling: bool,
   pub dpi_scaling_frac: bool,
   pub theme: UiTheme,
+  pub fps_counter: bool,
 }
 impl Default for Configuration {
   fn default() -> Self {
@@ -164,6 +165,7 @@ impl Default for Configuration {
       dpi_scaling: true,
       dpi_scaling_frac: true,
       theme: Default::default(),
+      fps_counter: false,
     }
   }
 }

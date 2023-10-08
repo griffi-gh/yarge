@@ -567,6 +567,7 @@ impl Menu {
           define_menu_item!("UI Theme...", MenuLocation::UiTheme);
           define_menu_item!("Color palette...", MenuLocation::PalettePicker);
           define_menu_item!("Display scale...", MenuLocation::ScalePicker);
+          define_checkbox!("FPS Counter", &mut config.fps_counter, { config.save_dirty().unwrap() });
         },
         MenuLocation::PalettePicker => {
           if define_radio_group!(&mut config.palette, {

@@ -12,7 +12,7 @@ use sdl2::{
   render::BlendMode,
 };
 use clap::Parser;
-use std::path::PathBuf;
+use std::{path::PathBuf, time::Instant};
 
 mod audio;
 mod menu;
@@ -196,6 +196,9 @@ fn main() {
   let mut dpi_prev = 1.;
   let mut hz_prev = 60;
   
+  let mut mean_frametime_s = 0.;
+  let mut fps_instant = Instant::now();
+
   //Main loop
   'run: loop {
     //Figure out dpi stuff
@@ -293,8 +296,9 @@ fn main() {
       canvas.copy(&gb_texture, None, None).unwrap();
 
       //Allow skipping bootrom
+      let overlay_color = if config.palette.is_dark() {Color::WHITE} else {Color::BLACK};
       if !gb.get_bios_disabled() {
-        text_renderer.set_color(if config.palette.is_dark() {Color::WHITE} else {Color::BLACK});
+        text_renderer.set_color(overlay_color);
         text_renderer.render(&mut canvas, (0, 0), 1., "Press space to skip\n(Hold Alt to tick)");
         if kb_state.is_scancode_pressed(Scancode::Space) {
           if kb_state.is_scancode_pressed(Scancode::LAlt) | kb_state.is_scancode_pressed(Scancode::RAlt) {
@@ -305,7 +309,15 @@ fn main() {
             gb.skip_bootrom();
           }
         }
+      } else if config.fps_counter {
+        //FPS Counter (if skip text is not displayed)
+        text_renderer.set_color(overlay_color);
+        let fps = 1. / mean_frametime_s;
+        text_renderer.render(&mut canvas, (0, 0), 1., &format!("{fps}"));
       }
+
+      mean_frametime_s = (mean_frametime_s + fps_instant.elapsed().as_secs_f64()) / 2.;
+      fps_instant = Instant::now();
     }
 
     //Draw canvas
