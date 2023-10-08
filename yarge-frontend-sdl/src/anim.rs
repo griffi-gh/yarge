@@ -28,7 +28,10 @@ impl Animatable {
     if (self.target - self.value).abs() < EPSILON {
       self.value = self.target;
     } else {
-      self.value = self.value + (self.target - self.value) * (self.speed * s);
+      self.value = {
+        (self.value + (self.target - self.value) * (self.speed * s))
+          .clamp(self.value.min(self.target), self.value.max(self.target))
+      };
     }
   }
   pub fn is_animating(&self) -> bool {
