@@ -635,8 +635,8 @@ impl Menu {
             define_radio_item!("9x", 9, 9);
             define_radio_item!("10x", 10, 10);
           });
-          define_menu_item!(&format!("Set as default ({}x)", config.speed), {
-            config.speed = ur_store.speed;
+          define_menu_item!(&format!("Set as default ({}x)", config.default_speed), {
+            config.default_speed = ur_store.speed;
             config.save_dirty().unwrap();
           });
         }

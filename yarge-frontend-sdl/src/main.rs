@@ -58,7 +58,7 @@ struct URStorage {
 }
 impl URStorage {
   pub fn configure(&mut self, config: &Configuration) {
-    self.speed = config.speed;
+    self.speed = config.default_speed;
   }
 }
 impl Default for URStorage {
