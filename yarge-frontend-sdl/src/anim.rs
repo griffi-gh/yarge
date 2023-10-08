@@ -24,11 +24,11 @@ impl Animatable {
       ..Default::default()
     }
   }
-  pub fn step(&mut self) {
+  pub fn step(&mut self, s: f32) {
     if (self.target - self.value).abs() < EPSILON {
       self.value = self.target;
     } else {
-      self.value = self.value + (self.target - self.value) * self.speed;
+      self.value = self.value + (self.target - self.value) * (self.speed * s);
     }
   }
   pub fn is_animating(&self) -> bool {

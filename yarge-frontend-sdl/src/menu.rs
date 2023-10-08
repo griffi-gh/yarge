@@ -9,7 +9,7 @@ use sdl2::{
 use std::{
   borrow::Cow,
   path::PathBuf,
-  fs
+  fs, time::{Instant, Duration}
 };
 use yarge_core::{
   Gameboy,
@@ -123,12 +123,14 @@ pub struct Menu {
   theme: UiTheme,
   mouse_navigation: Option<i32>,
   last_navigation_was_mouse_scroll: bool,
+  frame_instant: Instant,
+  dt: Duration,
 }
 impl Menu {
   pub fn new(config: &Configuration) -> Self {
     Self {
       active: false,
-      activation_anim_state: Animatable::new(),
+      activation_anim_state: Animatable::new_with_speed(0.2),
       cursor: 0,
       menu_stack: vec![MenuLocation::Main],
       scroll: 0,
@@ -138,6 +140,8 @@ impl Menu {
       theme: config.theme.resolve(),
       mouse_navigation: None,
       last_navigation_was_mouse_scroll: false,
+      frame_instant: Instant::now(),
+      dt: Duration::default(),
     }
   }
   pub fn is_active(&self) -> bool {
@@ -162,6 +166,7 @@ impl Menu {
     if state {
       //Save every time menu is opened
       self.schedule_save = true;
+      self.frame_instant = Instant::now();
     }
   }
   pub fn closed_improperly(&mut self) {
@@ -171,7 +176,7 @@ impl Menu {
   }
   pub fn skip_activation_animation(&mut self) {
     self.activation_anim_state.value = self.activation_anim_state.target;
-    self.activation_anim_state.step();
+    self.activation_anim_state.step(0.);
   }
   ///Process events
   pub fn process_evt(&mut self, event: &Event) {
@@ -318,6 +323,10 @@ impl Menu {
     fn m (x: i32, y: f32) -> i32 { ((x as f32) * y) as i32 }
     fn mu(x: u32, y: f32) -> u32 { ((x as f32) * y) as u32 }
 
+    //Update fr/dt
+    self.dt = self.frame_instant.elapsed();
+    self.frame_instant = Instant::now();
+
     //If save is scheduled, do it now
     if self.schedule_save {
       SaveManager::save(gb, config.save_slot).unwrap();
@@ -328,7 +337,7 @@ impl Menu {
     let res = canvas.output_size().unwrap(); //HACK: should use logical size, but it returns 0,0
 
     //Update avtivation animation
-    self.activation_anim_state.step();
+    self.activation_anim_state.step(self.dt.as_secs_f32() * 60.);
 
     //Clear canvas
     canvas.set_draw_color(self.theme.colors().background);
