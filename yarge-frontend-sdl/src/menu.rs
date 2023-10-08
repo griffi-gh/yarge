@@ -89,6 +89,7 @@ enum MenuLocation {
   },
   ClosedImproperly,
   UiTheme,
+  FpsOverlayOptions,
 }
 impl MenuLocation {
   pub fn friendly_name(&self) -> &'static str {
@@ -104,6 +105,7 @@ impl MenuLocation {
       Self::FileExplorer { .. } => "File explorer",
       Self::ClosedImproperly => "Warning",
       Self::UiTheme => "Theme",
+      Self::FpsOverlayOptions => "FPS Overlay",
     }
   }
 }
@@ -567,7 +569,7 @@ impl Menu {
           define_menu_item!("UI Theme...", MenuLocation::UiTheme);
           define_menu_item!("Color palette...", MenuLocation::PalettePicker);
           define_menu_item!("Display scale...", MenuLocation::ScalePicker);
-          define_checkbox!("FPS Counter", &mut config.fps_counter, { config.save_dirty().unwrap() });
+          define_menu_item!("FPS Overlay...", MenuLocation::FpsOverlayOptions);
         },
         MenuLocation::PalettePicker => {
           if define_radio_group!(&mut config.palette, {
@@ -722,6 +724,15 @@ impl Menu {
           }) {
             config.save_dirty().unwrap();
             self.resolve_theme(config);
+          }
+        },
+        MenuLocation::FpsOverlayOptions => {
+          define_checkbox!("Enable", &mut config.fps.enable, { config.save_dirty().unwrap() });
+          if config.fps.enable {
+            add_spacing!(3);
+            define_checkbox!("High contrast", &mut config.fps.hi_contrast, { config.save_dirty().unwrap() });
+            define_checkbox!("Small", &mut config.fps.smol, { config.save_dirty().unwrap() });
+            define_checkbox!("Round", &mut config.fps.round, { config.save_dirty().unwrap() });
           }
         }
       }

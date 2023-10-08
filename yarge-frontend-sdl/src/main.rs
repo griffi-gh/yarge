@@ -309,12 +309,27 @@ fn main() {
             gb.skip_bootrom();
           }
         }
-      } else if config.fps_counter {
+      } else if config.fps.enable {
         //FPS Counter (if skip text is not displayed)
-        text_renderer.set_color(overlay_color);
-        let fps = 1. / mean_frametime_s;
-        let scale = if display_dpi_scale == 2. { 0.5 } else { 1. };
-        text_renderer.render(&mut canvas, (0, 0), scale, &format!("{fps}"));
+        let mut fps: f64 = 1. / mean_frametime_s;
+        if config.fps.round {
+          fps = fps.round()
+        }
+        let fps_str = format!("{fps}");
+        //let scale = if display_dpi_scale == 2. { 0.5 } else { 1. };
+        let scale = if config.fps.smol { 0.5 } else { 1. };
+        if config.fps.hi_contrast {
+          for x in 0..=1 {
+            for y in 0..=1 {
+              let x = (x << 1) - 1;
+              let y = (y << 1) - 1;
+              text_renderer.set_color(overlay_color);
+              text_renderer.render(&mut canvas, (x, y), scale, &fps_str);
+            }
+          }
+        }
+        text_renderer.set_color(if config.fps.hi_contrast { Color::GREEN } else { overlay_color });
+        text_renderer.render(&mut canvas, (0, 0), scale, &fps_str);
       }
 
       mean_frametime_s = (mean_frametime_s + fps_instant.elapsed().as_secs_f64()) / 2.;

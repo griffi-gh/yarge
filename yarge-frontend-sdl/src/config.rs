@@ -136,6 +136,14 @@ impl UiTheme {
   }
 }
 
+#[derive(Serialize, Deserialize, Default)]
+pub struct FpsOverlayOptions {
+  pub enable: bool,
+  pub hi_contrast: bool,
+  pub smol: bool,
+  pub round: bool,
+}
+
 #[derive(Serialize, Deserialize)]
 pub struct Configuration {
   pub palette: Palette,
@@ -149,7 +157,7 @@ pub struct Configuration {
   pub dpi_scaling: bool,
   pub dpi_scaling_frac: bool,
   pub theme: UiTheme,
-  pub fps_counter: bool,
+  pub fps: FpsOverlayOptions,
 }
 impl Default for Configuration {
   fn default() -> Self {
@@ -163,9 +171,9 @@ impl Default for Configuration {
       speed: 1,
       save_slot: 0,
       dpi_scaling: true,
-      dpi_scaling_frac: true,
+      dpi_scaling_frac: false,
       theme: Default::default(),
-      fps_counter: false,
+      fps: FpsOverlayOptions::default(),
     }
   }
 }
