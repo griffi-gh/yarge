@@ -313,7 +313,8 @@ fn main() {
         //FPS Counter (if skip text is not displayed)
         text_renderer.set_color(overlay_color);
         let fps = 1. / mean_frametime_s;
-        text_renderer.render(&mut canvas, (0, 0), 1., &format!("{fps}"));
+        let scale = if display_dpi_scale == 2. { 0.5 } else { 1. };
+        text_renderer.render(&mut canvas, (0, 0), scale, &format!("{fps}"));
       }
 
       mean_frametime_s = (mean_frametime_s + fps_instant.elapsed().as_secs_f64()) / 2.;
