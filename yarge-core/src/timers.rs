@@ -28,25 +28,25 @@ impl Timers {
   pub fn get_div_raw(&self) -> u16 {
     self.div
   }
-  pub fn get_div(&self) -> u8 {
+  pub fn read_div(&self) -> u8 {
     (self.div >> 8) as u8
   }
   pub fn reset_div(&mut self) {
     self.div = 0;
   }
 
-  pub fn get_tima(&self) -> u8 {
+  pub fn read_tima(&self) -> u8 {
     self.tima
   }
-  pub fn set_tima(&mut self, value: u8) {
+  pub fn write_tima(&mut self, value: u8) {
     self.tima = value;
     self.tima_reset_pending = false;
   }
 
-  pub fn get_tac(&self) -> u8 {
+  pub fn read_tac(&self) -> u8 {
     ((self.enable as u8) << 2) | self.rate
   }
-  pub fn set_tac(&mut self, value: u8) {
+  pub fn write_tac(&mut self, value: u8) {
     self.enable = value & 0b100 != 0;
     self.rate = value & 0b11;
   }
