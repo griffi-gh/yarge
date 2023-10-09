@@ -123,7 +123,7 @@ impl MemBus {
         0xFF01 => { self.serial.write_sb(value) },
         0xFF02 => { self.serial.write_sc(value) },
         0xFF04 => { self.timers.reset_div() },
-        0xFF05 => { self.timers.write_tima_tick(value, &mut self.iif) },
+        0xFF05 => { self.timers.write_tima(value) },
         0xFF06 => { self.timers.tma = value },
         0xFF07 => { self.timers.write_tac(value) },
         0xFF0F => { self.iif = value },
