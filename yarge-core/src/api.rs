@@ -190,7 +190,7 @@ impl Gameboy {
   }
 
   #[inline] pub fn get_audio_device(&mut self) -> Option<&dyn AudioDevice> {
-    self.cpu.bus.apu.device.as_ref().map(|x| x.as_ref())
+    self.cpu.bus.apu.device.as_deref()
   }
 
   #[inline] pub fn get_audio_device_mut(&mut self) -> Option<&mut Box<dyn AudioDevice>> {
