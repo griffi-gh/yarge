@@ -20,7 +20,7 @@
 <!--<img src=".assets/1x1.png" width="150" height="0"><br>--> <!--This prevents the text from getting too thin -->
 <!--DESCRIPTION-->
 <p>
-  <b>Yarge</b>&#160;is&#160;an&#160;open&#160;source&#160;(licensed&#160;under&#160;LGPL)&#160;Nintendo&#160;Gameboy&#160;emulator written in Rust and focused on accuracy and performance.<br>It includes cycle-accurate emulation of the GBZ80 CPU and PPU FIFO.<br>The emulator is built on a modular architecture, isolating the core from frontends (which can be used as a regular Rust library).<br>
+  <b>Yarge</b>&#160;is&#160;an&#160;open&#160;source (licensed&#160;under&#160;LGPL) Nintendo&#160;Gameboy&#160;emulator written in Rust and focused on accuracy and performance.<br>It includes cycle-accurate emulation of the GBZ80 CPU and PPU FIFO.<br>The emulator is built on a modular architecture, isolating the core from frontends (which can be used as a regular Rust library).<br>
   SDL2 frontend is fully-featured with intuitive UI and various quality-of-life features such as save slots.
   <br>
 </p>
@@ -99,83 +99,84 @@
   </table>
 </p>
 <!--SUPPORT-->
-<h1>Support</h1>
+<h1>Features</h1>
 <p>
   <table>
     <tr>
-      <th align="center" colspan="2">MBC Support</th>
       <th align="center" colspan="2">Features</th>
+      <th align="center" colspan="2">MBC (Cartridge) types</th>
     </tr>
     <tr>
-      <th align="center">Type</th>
-      <th align="center">Support</th>
       <th align="center">Feature</th>
-      <th align="center">Support</th>
+      <th align="center">Supported</th>
+      <th align="center">Type</th>
+      <th align="center">Supported</th>
     </tr>
     <tr>
-      <td>ROM ONLY</td>
-      <td align="center">✔️</td>
       <td>Display (PPU)</td>
       <td align="center">✔️</td>
+      <td>ROM ONLY</td>
+      <td align="center">✔️</td>
     </tr>
     <tr>
-      <td>MBC1</td>
-      <td align="center">✔️</td>
       <td>Input</td>
       <td align="center">✔️</td>
+      <td>MBC1</td>
+      <td align="center">✔️</td>
     </tr>
     <tr>
+      <td>Sound (APU)</td>
+      <td align="center">✔️(WIP)</td>
       <td>MBC2</td>
       <td align="center">❌</td>
-      <td>Sound (APU)</td>
-      <td align="center">(WIP)</td>
     </tr>
     <tr>
-      <td>MBC3</td>
-      <td align="center">✔️</td>
       <td>Link cable/Serial</td>
       <td align="center">❌</td>
+      <td>MBC3</td>
+      <td align="center">✔️</td>
     </tr>
     <tr>
-      <td>MBC5</td>
-      <td align="center">❌</td>
       <td>GBC support</td>
       <td align="center">❌</td>
+      <td>MBC5</td>
+      <td align="center">❌</td>
     </tr>
     <tr>
+      <td>Cartridge</td>
+      <td align="center">➡️</td>
       <td>MBC6</td>
       <td align="center">❌</td>
-      <td colspan="2"></td>
     </tr>
     <tr>
+      <td colspan="2"></td>
       <td>MBC7</td>
       <td align="center">❌</td>
-      <td colspan="2"></td>
     </tr>
     <tr>
+      <td colspan="2"></td>
       <td>MMM01</td>
       <td align="center">❌</td>
-      <td colspan="2"></td>
     </tr>
     <tr>
+      <td colspan="2"></td>
       <td>POCKET CAMERA</td>
       <td align="center">❌</td>
-      <td colspan="2"></td>
     </tr>
     <tr>
+      <td colspan="2"></td>
       <td>BANDAI TAMA5</td>
       <td align="center">❌</td>
-      <td colspan="2"></td>
     </tr>
     <tr>
+      <td colspan="2"></td>
       <td>HuC3</td>
       <td align="center">❌</td>
-      <td colspan="2"></td>
     </tr>
     <tr>
+      <td colspan="2"></td>
       <td>HuC1</td>
       <td align="center">❌</td>
-      <td colspan="2"></td>
     </tr>
   </table>
 </p>
