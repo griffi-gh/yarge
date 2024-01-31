@@ -297,7 +297,8 @@ fn main() {
       }
 
       //Run emulation for one frame
-      for _ in 0..ur_store.speed {
+      let emu_speed = ur_store.speed * if event_pump.keyboard_state().is_scancode_pressed(Scancode::Tab) { 8 } else { 1 };
+      for _ in 0..emu_speed {
         gb.run_for_frame().unwrap();
       }
 
