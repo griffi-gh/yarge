@@ -26,7 +26,8 @@ impl Serial {
     if self.transfer {
       self.transfer = false;
       self.data = 0xff;
-      Cpu::set_interrupt(iif, Interrupt::Serial);
+      //FIXME: freezes in pokemon red
+      //Cpu::set_interrupt(iif, Interrupt::Serial);
     }
   }
 
