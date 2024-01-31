@@ -76,8 +76,15 @@ impl<const HAS_SWEEP: bool> ApuChannel for SquareWaveChannel<HAS_SWEEP> {
   }
 
   fn read_register(&self, reg: u8) -> u8 {
-    //TODO
-    0
+    match reg {
+      2 => {
+        self.envelope.to_mmio()
+      },
+      _ => {
+        //TODO
+        0
+      }
+    }
   }
 
   fn write_register(&mut self, reg: u8, value: u8) {
@@ -93,7 +100,7 @@ impl<const HAS_SWEEP: bool> ApuChannel for SquareWaveChannel<HAS_SWEEP> {
         self.length.set_from_inv(value);
       },
       2 => {
-        self.envelope.set_from_register(value);
+        self.envelope.set_from_mmio(value);
         // if self.envelope.start_volume == 0 && self.envelope.direction == EnvelopeDirection::Down {
         //   self.channel_enabled = false;
         // }

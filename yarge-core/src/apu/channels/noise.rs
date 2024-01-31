@@ -94,7 +94,7 @@ impl ApuChannel for NoiseChannel {
         self.length.set_from_inv(value);
       }
       2 => {
-        self.envelope.set_from_register(value);
+        self.envelope.set_from_mmio(value);
       },
       3 => {
         self.divider = value & 0b111;

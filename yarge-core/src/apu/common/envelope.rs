@@ -19,7 +19,13 @@ impl Envelope {
     Self::default()
   }
 
-  pub fn set_from_register(&mut self, value: u8) {
+  pub fn to_mmio(&self) -> u8 {
+    ((self.start_volume   ) << 4) |
+    ((self.direction as u8) << 3) |
+    self.period
+  }
+
+  pub fn set_from_mmio(&mut self, value: u8) {
     self.period = value & 0x7;
     self.direction = match value & (1 << 3) != 0 {
       false => EnvelopeDirection::Down,
