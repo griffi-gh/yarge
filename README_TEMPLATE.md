@@ -132,7 +132,7 @@
     </tr>
     <tr>
       <td>Link cable/Serial</td>
-      <td align="center">❌</td>
+      <td align="center">❌(STUB)</td>
       <td>MBC3</td>
       <td align="center">✔️</td>
     </tr>
