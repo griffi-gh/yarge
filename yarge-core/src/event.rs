@@ -1,15 +1,22 @@
 //WIP: Event logging system
 //TODO finish it and remove the "dbg-emit-ppu-events" feature
 
-#[derive(Clone, Copy, Debug)]
-pub enum Event {
-  PpuLxInc {
-    lx: u8,
-    ly: u8,
-    cycles: u16,
-  }
-}
+// #[derive(Clone, Copy, Debug)]
+// pub enum Event {
+//   PpuLxInc {
+//     lx: u8,
+//     ly: u8,
+//     cycles: u16,
+//   }
+// }
 
-pub struct EventRecorder {
-  list: Vec<Event>
-}
+// pub struct EventRecorder {
+//   list: Vec<Event>
+// }
+
+// impl EventRecorder {
+//   #[inline]
+//   pub fn record(&mut self, event: Event) {
+//     self.list.push(event);
+//   }
+// }
