@@ -23,11 +23,12 @@ impl Serial {
   // }
 
   pub fn tick(&mut self, iif: &mut u8) {
-    if self.transfer {
+    //XXX: Fucking ext clock?
+    if self.transfer & self.ext_clock {
       self.transfer = false;
       self.data = 0xff;
       //FIXME: freezes in pokemon red while entering a pokemart
-      //Cpu::set_interrupt(iif, Interrupt::Serial);
+      Cpu::set_interrupt(iif, Interrupt::Serial);
     }
   }
 
