@@ -321,7 +321,9 @@ impl Ppu {
           //Update values
           self.bg_fetcher.update_values(self.scx, self.scy);
           //Switch to window if the pixel is in window
-          if !self.bg_fetcher.is_window() && self.window_in_ly() && (((self.lx + 7) >= self.wx) || (self.wx == 166)) {
+          //TODO: line 166 bug emulation is causing missing bg
+          //if !self.bg_fetcher.is_window() && self.window_in_ly() && (((self.lx + 7) >= self.wx) || (self.wx == 166)) {
+          if !self.bg_fetcher.is_window() && self.window_in_ly() && ((self.lx + 7) >= self.wx) {
             self.bg_fetcher.switch_to_window();
           }
           self.bg_fetcher.tick(&self.lcdc, &self.vram);
