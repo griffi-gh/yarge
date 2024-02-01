@@ -4,3 +4,4 @@
 - finish apu mmio readout
 
 - dig dug freezes
+- battletoads: story cards are invisible, no scrolling in the intro seq
