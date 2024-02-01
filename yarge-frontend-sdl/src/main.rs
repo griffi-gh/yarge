@@ -1,9 +1,10 @@
 #![cfg_attr(target_os = "windows", cfg_attr(feature = "production", windows_subsystem = "windows"))]
 
 use yarge_core::{
+  consts::{WIDTH as GB_WIDTH, HEIGHT as GB_HEIGHT},
   Gameboy,
   Key as GbKey,
-  consts::{WIDTH as GB_WIDTH, HEIGHT as GB_HEIGHT}
+  YargeError
 };
 use sdl2::{
   pixels::{PixelFormatEnum, Color},
@@ -12,7 +13,7 @@ use sdl2::{
   render::BlendMode,
 };
 use clap::Parser;
-use std::{path::PathBuf, time::Instant};
+use std::{io::Read, path::PathBuf, time::Instant};
 
 mod audio;
 mod menu;
@@ -69,6 +70,28 @@ impl Default for URStorage {
   }
 }
 
+/// Load ROM file, with support for ZIP files
+pub(crate) fn load_rom_helper(gb: &mut Gameboy, data: &[u8]) -> Result<(), YargeError> {
+  //TODO handle failures more gracefully
+  #[cfg(feature = "archive")]
+  if data[0..2] == [0x50, 0x4B] {
+    println!("looks like a zip file");
+    let cursor = std::io::Cursor::new(data);
+    let mut zip = zip::ZipArchive::new(cursor).unwrap();
+    if zip.is_empty() {
+      panic!("zip is empty");
+    }
+    if zip.file_names().count() > 1 {
+      panic!("zip contains more than one file");
+    }
+    let mut buf = vec![];
+    zip.by_index(0).unwrap().read_to_end(&mut buf).unwrap();
+    gb.load_rom(&buf)?;
+    return Ok(())
+  }
+  gb.load_rom(data)
+}
+
 fn main() {
   //Set dpi aware flag on windows
   #[cfg(all(windows, feature = "hidpi"))] {
@@ -103,7 +126,7 @@ fn main() {
   //Load the ROM file
   if let Some(path) = args.rom_path.as_ref() {
     let rom = std::fs::read(path).expect("Failed to load the ROM file");
-    gb.load_rom(&rom).expect("Invalid ROM file");
+    load_rom_helper(&mut gb, &rom).expect("Invalid ROM file");
     config.last_rom = Some(path.into());
   }
 

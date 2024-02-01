@@ -273,7 +273,7 @@ impl Menu {
   pub fn load_file(&mut self, path: PathBuf, gb: &mut Gameboy, config: &Configuration) {
     let data = fs::read(path).unwrap();
     gb.reset();
-    gb.load_rom(&data[..]).unwrap();
+    crate::load_rom_helper(gb, &data[..]).unwrap();
     SaveManager::load_idk(gb, config.save_slot);
     SaveManager::save(gb, config.save_slot).unwrap(); //Create save file
   }
