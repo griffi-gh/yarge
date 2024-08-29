@@ -11,7 +11,6 @@ publish = false
 [dependencies]
 yarge-core = { path = "../yarge-core" }
 clap = { version = "4.0", features = ["derive"] }
-sdl2 = { version = "0.36", features = ["bundled", "static-link"] }
 serde = { version = "1", features = ["derive"] }
 bincode = "1.3"
 anyhow = "1.0"
@@ -19,8 +18,12 @@ dirs = { version = "5.0", optional = true }
 dark-light = { version = "1.0", optional = true }
 zip = { version = "0.6", default-features = false, features = ["deflate"], optional = true }
 
+[target.'cfg(not(windows))'.dependencies]
+sdl2 = "0.36"
+
 [target.'cfg(windows)'.dependencies]
 windows = { version = "0.52", optional = true }
+sdl2 = { version = "0.36", features = ["bundled", "static-link"] }
 
 [target.'cfg(windows)'.build-dependencies]
 winres = { version = "0.1", optional = true }
