@@ -157,6 +157,10 @@ impl Apu {
   pub fn read(&self, addr: u16) -> u8 {
     match addr {
       //TODO R_NRXX
+      R_NR50 => {
+        self.terminals.0.volume
+        | (self.terminals.1.volume << 4)
+      }
       R_NR51 => {
         #[allow(clippy::identity_op, clippy::erasing_op)] {
           seq!(N in 0..4 {
@@ -193,6 +197,10 @@ impl Apu {
       R_NR42 => self.channels.3.write_register(2, value),
       R_NR43 => self.channels.3.write_register(3, value),
       R_NR44 => self.channels.3.write_register(4, value),
+      R_NR50 => {
+        self.terminals.0.volume = value & 0x07;
+        self.terminals.1.volume = (value >> 4) & 0x07;
+      },
       R_NR51 => {
         //these were supposed to be used for this right?
         //haven't touched this codebase for a *while*
