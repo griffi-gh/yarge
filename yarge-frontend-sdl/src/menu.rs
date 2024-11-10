@@ -587,6 +587,8 @@ impl Menu {
             define_radio_item!(Palette::Grayscale.get_name(), Palette::Grayscale, Palette::Grayscale);
             define_radio_item!(Palette::GrayscaleDark.get_name(), Palette::GrayscaleDark, Palette::GrayscaleDark);
             define_radio_item!(Palette::Green.get_name(), Palette::Green, Palette::Green);
+            define_radio_item!(Palette::PrideThTransA.get_name(), Palette::PrideThTransA, Palette::PrideThTransA);
+            define_radio_item!(Palette::PrideThTransB.get_name(), Palette::PrideThTransB, Palette::PrideThTransB);
           }) {
             config.save_dirty().unwrap();
           }

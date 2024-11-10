@@ -6,37 +6,47 @@ use crate::data_dir::DataDir;
 const CONFIG_FILE_NAME: &str = "options.bin";
 
 #[derive(Default, Serialize, Deserialize, Clone, Copy)]
+#[repr(u8)]
 pub enum Palette {
   #[default]
   Grayscale,
   GrayscaleDark,
   Green,
-  Custom([u32; 4])
+  PrideThTransA,
+  PrideThTransB,
+  Custom([u32; 4]) = 0xff,
 }
+
 impl Palette {
-  pub fn get_map(&self) -> [u32; 4] {
+  pub const fn get_map(&self) -> [u32; 4] {
     match self {
       Self::Grayscale     => [0x00ffffff, 0x00aaaaaa, 0x00555555, 0x00000000],
       Self::GrayscaleDark => [0x00000000, 0x00555555, 0x00aaaaaa, 0x00ffffff],
       Self::Green         => [0x00e0f8d0, 0x0088c070, 0x00346856, 0x00081820],
+      Self::PrideThTransA => [0x00ffffff, 0x00b8a9f5, 0x00face5b, 0x00000000],
+      Self::PrideThTransB => [0x00ffffff, 0x00face5b, 0x00b8a9f5, 0x00000000],
       Self::Custom(x) => *x
     }
   }
-  pub fn get_name(&self) -> &'static str {
+  pub const fn get_name(&self) -> &'static str {
     match self {
-      Self::Grayscale => "Grayscale",
+      Self::Grayscale     => "Grayscale",
       Self::GrayscaleDark => "Grayscale (Dark)",
-      Self::Green     => "Green",
-      Self::Custom(_) => "Custom"
+      Self::Green         => "Green",
+      Self::PrideThTransA => "Trans pride",
+      Self::PrideThTransB => "Trans pride (Inverted)",
+      Self::Custom(_)     => "Custom"
     }
   }
   ///Should overlay text be white?
-  pub fn is_dark(&self) -> bool {
+  pub const fn is_dark(&self) -> bool {
     match self {
-      Self::Grayscale => false,
+      Self::Grayscale     => false,
       Self::GrayscaleDark => true,
-      Self::Green     => false,
-      Self::Custom(_) => false //TODO check color brightness
+      Self::Green         => false,
+      Self::Custom(_)     => false, //TODO check color brightness
+      Self::PrideThTransA => false,
+      Self::PrideThTransB => false,
     }
   }
 }
