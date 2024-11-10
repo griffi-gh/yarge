@@ -23,8 +23,8 @@ impl Palette {
       Self::Grayscale     => [0x00ffffff, 0x00aaaaaa, 0x00555555, 0x00000000],
       Self::GrayscaleDark => [0x00000000, 0x00555555, 0x00aaaaaa, 0x00ffffff],
       Self::Green         => [0x00e0f8d0, 0x0088c070, 0x00346856, 0x00081820],
-      Self::PrideThTransA => [0x00ffffff, 0x00b8a9f5, 0x00face5b, 0x00000000],
-      Self::PrideThTransB => [0x00ffffff, 0x00face5b, 0x00b8a9f5, 0x00000000],
+      Self::PrideThTransA => [0x00ffffff, 0x00face5b, 0x00b8a9f5, 0x00000000],
+      Self::PrideThTransB => [0x00ffffff, 0x00b8a9f5, 0x00face5b, 0x00000000],
       Self::Custom(x) => *x
     }
   }
