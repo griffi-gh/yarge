@@ -56,6 +56,11 @@ impl SaveManager {
     Ok(())
   }
 
+  pub fn exists(gb: &Gameboy, slot: u8) -> bool {
+    let path = Self::file_path(&gb.get_rom_header().name, slot);
+    path.exists()
+  }
+
   pub fn load_idk(gb: &mut Gameboy, slot: u8) {
     if Self::load(gb, slot).is_err() {
       println!("[SAVE/ERR] Failed to load the save file");

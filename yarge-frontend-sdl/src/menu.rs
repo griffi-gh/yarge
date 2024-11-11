@@ -82,7 +82,10 @@ enum MenuLocation {
   ScalePicker,
   SpeedPicker,
   SaveSlotPicker,
-  SaveSlotConfirm(u8),
+  SaveSlotConfirm {
+    save_slot: u8,
+    exists: bool
+  },
   AskForRestart,
   FileExplorer {
     path: PathBuf,
@@ -101,12 +104,20 @@ impl MenuLocation {
       Self::ScalePicker => "Display scale",
       Self::SpeedPicker => "Speed",
       Self::SaveSlotPicker => "Save slot",
-      Self::SaveSlotConfirm(_) => "Confirm restart",
+      Self::SaveSlotConfirm { .. } => "Confirm restart",
       Self::AskForRestart => "Restart",
       Self::FileExplorer { .. } => "File explorer",
       Self::ClosedImproperly => "Warning",
       Self::UiTheme => "Theme",
       Self::FpsOverlayOptions => "FPS Overlay",
+    }
+  }
+
+  pub fn back_operation(&self) -> &'static str {
+    match self {
+      Self::SaveSlotConfirm { .. } |
+      Self::AskForRestart => "Cancel",
+      _ => "Back",
     }
   }
 }
@@ -539,7 +550,9 @@ impl Menu {
 
       //If menu stack contains more then 1 item allow going back
       if self.menu_stack.len() > 1 {
-        define_menu_item!("Back", { self.menu_go_back() });
+        define_menu_item!(top_item.back_operation(), {
+          self.menu_go_back()
+        });
         add_spacing!(3);
       }
 
@@ -662,7 +675,8 @@ impl Menu {
             define_radio_item!("Slot 5", 4, 4);
           }) && (save_slot != config.save_slot) {
             if self.has_game {
-              self.menu_goto(MenuLocation::SaveSlotConfirm(save_slot));
+              let exists = SaveManager::exists(gb, save_slot);
+              self.menu_goto(MenuLocation::SaveSlotConfirm { save_slot, exists });
               self.cursor = 1;
             } else {
               config.save_slot = save_slot;
@@ -670,7 +684,7 @@ impl Menu {
             }
           }
         }
-        MenuLocation::SaveSlotConfirm(save_slot) => {
+        MenuLocation::SaveSlotConfirm { save_slot, exists } => {
           define_menu_item!(if small { "Switch and restart" } else { "Switch to this slot and restart" }, {
             SaveManager::save(gb, config.save_slot).unwrap();
             config.save_slot = save_slot;
@@ -679,7 +693,11 @@ impl Menu {
             SaveManager::save(gb, config.save_slot).unwrap();
             self.set_activated_state(false);
           });
-          define_menu_item!(if small { "Overwrite slot" } else { "Overwrite this slot" }, {
+          define_menu_item!(if exists {
+            if small { "Overwrite and switch" } else { "Overwrite this slot and switch" }
+          } else {
+            if small { "Copy and switch" } else { "Copy save to this slot and switch" }
+          }, {
             config.save_slot = save_slot;
             config.save_dirty().unwrap();
             SaveManager::save(gb, save_slot).unwrap();
