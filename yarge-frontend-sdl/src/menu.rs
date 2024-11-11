@@ -671,13 +671,20 @@ impl Menu {
           }
         }
         MenuLocation::SaveSlotConfirm(save_slot) => {
-          define_menu_item!(if small { "Restart" } else { "Restart the game now?" }, {
+          define_menu_item!(if small { "Switch and restart" } else { "Switch to this slot and restart" }, {
             SaveManager::save(gb, config.save_slot).unwrap();
             config.save_slot = save_slot;
             config.save_dirty().unwrap();
             self.reboot_game(config, gb); //calls load internally
             SaveManager::save(gb, config.save_slot).unwrap();
             self.set_activated_state(false);
+          });
+          define_menu_item!(if small { "Overwrite slot" } else { "Overwrite this slot" }, {
+            config.save_slot = save_slot;
+            config.save_dirty().unwrap();
+            SaveManager::save(gb, save_slot).unwrap();
+            self.menu_go_back();
+            // self.set_activated_state(false);
           });
         }
         MenuLocation::AskForRestart => {
