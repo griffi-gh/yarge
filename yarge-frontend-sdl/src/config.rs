@@ -14,6 +14,7 @@ pub enum Palette {
   Green,
   PrideThTransA,
   PrideThTransB,
+  PrideThNb,
   Custom([u32; 4]) = 0xff,
 }
 
@@ -25,6 +26,7 @@ impl Palette {
       Self::Green         => [0x00e0f8d0, 0x0088c070, 0x00346856, 0x00081820],
       Self::PrideThTransA => [0x00ffffff, 0x00face5b, 0x00b8a9f5, 0x00000000],
       Self::PrideThTransB => [0x00ffffff, 0x00b8a9f5, 0x00face5b, 0x00000000],
+      Self::PrideThNb     => [0x00ffffff, 0x0034f4fc, 0x00d1599c, 0x002c2c2c],
       Self::Custom(x) => *x
     }
   }
@@ -35,6 +37,7 @@ impl Palette {
       Self::Green         => "Green",
       Self::PrideThTransA => "Trans pride",
       Self::PrideThTransB => "Trans pride (Inverted)",
+      Self::PrideThNb     => "Non-binary",
       Self::Custom(_)     => "Custom"
     }
   }
@@ -47,6 +50,7 @@ impl Palette {
       Self::Custom(_)     => false, //TODO check color brightness
       Self::PrideThTransA => false,
       Self::PrideThTransB => false,
+      Self::PrideThNb     => false,
     }
   }
 }
